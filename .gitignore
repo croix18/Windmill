@@ -1,0 +1,7 @@
+# GitHub token for tools/push.sh. Must never be committed.
+.github-token
+__pycache__/
+*.pyc
+node_modules/
+out/
+.DS_Store

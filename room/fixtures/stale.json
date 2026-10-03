@@ -1,0 +1,16 @@
+{
+ "v": 1,
+ "tally": {
+  "at": "2026-09-01T08:00:00-04:00",
+  "courses": {
+   "acc": {
+    "unit": 1,
+    "benchmarks": {}
+   },
+   "on": {
+    "unit": 2,
+    "benchmarks": {}
+   }
+  }
+ }
+}

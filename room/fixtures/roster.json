@@ -1,0 +1,39 @@
+{
+ "v": 1,
+ "roster": {
+  "at": "2026-10-03T14:20:00-04:00",
+  "periods": {
+   "1": {
+    "course": "acc",
+    "students": [
+     {
+      "key": "k1",
+      "first": "Avery",
+      "active": true,
+      "seat": 4
+     },
+     {
+      "key": "k2",
+      "first": "Blake",
+      "nick": "B",
+      "active": true,
+      "seat": 5,
+      "flags": [
+       "front"
+      ]
+     }
+    ],
+    "links": [
+     {
+      "a": "k1",
+      "b": "k2",
+      "kind": "apart"
+     }
+    ],
+    "picked": [
+     "k2"
+    ]
+   }
+  }
+ }
+}

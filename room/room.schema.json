@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/croix18/windmill/room/room.schema.json",
+  "title": "The room",
+  "description": "One small object every classroom tool reads and three tools write: where each course is, how the class stands on each benchmark, where each period stopped, the bell. Parts have one owner each; every part carries `at`; readers keep the newest copy per part. Data tiers: `plan`, `tally`, `panel` and `log` are OPEN (counts, codes, times — never a person); `roster` carries first names and seating and rides the Drive file or an encrypted blob on the live road; standing data (grades, scores, FAST percentiles) is NOT in this schema and never leaves Tally.",
+  "type": "object",
+  "required": ["v"],
+  "additionalProperties": false,
+  "properties": {
+    "v": { "type": "integer", "const": 1 },
+    "plan": {
+      "description": "Written by the Windmill build from spine.json. Where each course SHOULD be on a date.",
+      "type": "object", "required": ["at"], "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/definitions/at" },
+        "spine": { "type": "boolean", "description": "true when the full spine is embedded as window.SPINE beside the room" },
+        "days": { "type": "object", "additionalProperties": { "type": "object", "properties": { "acc": { "type": ["string", "null"] }, "on": { "type": ["string", "null"] } } } }
+      }
+    },
+    "tally": {
+      "description": "Written by Tally (the laptop). The unit each course is working in and the benchmark heat.",
+      "type": "object", "required": ["at", "courses"], "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/definitions/at" },
+        "via": { "type": "string", "enum": ["publish", "code", "script"] },
+        "listVersion": { "type": "integer" },
+        "courses": {
+          "type": "object", "additionalProperties": false,
+          "properties": { "acc": { "$ref": "#/definitions/course" }, "on": { "$ref": "#/definitions/course" } }
+        },
+        "exit": {
+          "description": "Exit-ticket class results, entered in Cadence, kept by Tally.",
+          "type": "array",
+          "items": { "type": "object", "required": ["on", "period", "benchmark", "items"], "additionalProperties": false,
+            "properties": {
+              "on": { "$ref": "#/definitions/date" }, "period": { "$ref": "#/definitions/period" },
+              "benchmark": { "$ref": "#/definitions/benchmark" }, "setCode": { "type": "string" },
+              "n": { "type": "integer", "minimum": 0 },
+              "items": { "type": "array", "items": { "type": "object", "required": ["correct"], "additionalProperties": false,
+                "properties": { "correct": { "$ref": "#/definitions/share" }, "distractors": { "type": "object", "additionalProperties": { "$ref": "#/definitions/share" } } } } }
+            } }
+        }
+      }
+    },
+    "panel": {
+      "description": "Written by Deckhand and the lesson deck (the panel). Where each period stopped, the tallies, the pacing, the bell.",
+      "type": "object", "required": ["at"], "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/definitions/at" },
+        "periods": { "type": "object", "propertyNames": { "pattern": "^[1-7]$" },
+          "additionalProperties": { "type": "object", "required": ["course", "lesson"], "additionalProperties": false,
+            "properties": { "course": { "$ref": "#/definitions/courseKey" }, "lesson": { "$ref": "#/definitions/lesson" },
+              "stop": { "type": ["string", "null"], "description": "a segment id from the lesson plan: wu, n1, n2, n3, ex1, ex2, wb1…wb9, ind, ixl" },
+              "at": { "$ref": "#/definitions/at" } } } },
+        "tallies": { "type": "array", "items": { "type": "object", "required": ["on", "lesson", "board", "benchmark", "picked"], "additionalProperties": false,
+          "properties": { "on": { "$ref": "#/definitions/date" }, "period": { "$ref": "#/definitions/period" }, "lesson": { "$ref": "#/definitions/lesson" },
+            "board": { "type": "integer", "minimum": 1, "maximum": 12 }, "benchmark": { "$ref": "#/definitions/benchmark" },
+            "picked": { "type": "object", "propertyNames": { "pattern": "^[A-F]$" }, "additionalProperties": { "type": "integer", "minimum": 0 } },
+            "key": { "type": "string", "pattern": "^[A-F]+$" },
+            "misconceptions": { "type": "object", "propertyNames": { "pattern": "^[A-F]$" }, "additionalProperties": { "type": "string" }, "description": "the spec's error key per option" } } } },
+        "pacing": { "type": "array", "items": { "type": "object", "required": ["on", "period", "lesson", "segment", "planned", "actual"], "additionalProperties": false,
+          "properties": { "on": { "$ref": "#/definitions/date" }, "period": { "$ref": "#/definitions/period" }, "lesson": { "$ref": "#/definitions/lesson" },
+            "segment": { "type": "string" }, "planned": { "type": "number", "minimum": 0 }, "actual": { "type": "number", "minimum": 0 } } } },
+        "geopardy": { "type": "array", "items": { "type": "object", "required": ["on", "unit", "categories"], "additionalProperties": false,
+          "properties": { "on": { "$ref": "#/definitions/date" }, "period": { "$ref": "#/definitions/period" }, "course": { "$ref": "#/definitions/courseKey" }, "unit": { "type": "integer" },
+            "categories": { "type": "array", "items": { "type": "object", "required": ["benchmark", "tiles"], "additionalProperties": false,
+              "properties": { "benchmark": { "$ref": "#/definitions/benchmark" }, "tiles": { "type": "array", "items": { "$ref": "#/definitions/share" }, "description": "share of teams right per tile, lowest value first" } } } },
+            "final": { "$ref": "#/definitions/share" } } } },
+        "bell": { "type": "object", "additionalProperties": false,
+          "properties": { "period": { "$ref": "#/definitions/period" }, "week": { "type": "string" }, "wednesday": { "type": "boolean" },
+            "blocks": { "type": "array", "items": { "type": "object", "required": ["label", "start", "end"], "properties": { "label": { "type": "string" }, "start": { "type": "string" }, "end": { "type": "string" } } } } } }
+      }
+    },
+    "roster": {
+      "description": "Tier: roster. First names per period, seating, links, picker history. Rides the Drive file (your school Drive) or an encrypted blob on the live road; never beside a score.",
+      "type": "object", "required": ["at", "periods"], "additionalProperties": false,
+      "properties": {
+        "at": { "$ref": "#/definitions/at" },
+        "encrypted": { "type": "string", "description": "when present, the rest of this part is inside this AES-GCM blob (base64) and the plain fields are absent" },
+        "periods": { "type": "object", "propertyNames": { "pattern": "^[1-7]$" },
+          "additionalProperties": { "type": "object", "required": ["students"], "additionalProperties": false,
+            "properties": {
+              "course": { "$ref": "#/definitions/courseKey" },
+              "students": { "type": "array", "items": { "type": "object", "required": ["key", "first"], "additionalProperties": false,
+                "properties": { "key": { "type": "string", "description": "a stable opaque key per student, never the Focus ID" }, "first": { "type": "string" }, "nick": { "type": "string" },
+                  "active": { "type": "boolean" }, "seat": { "type": ["integer", "null"] }, "flags": { "type": "array", "items": { "type": "string", "enum": ["front", "near-teacher", "talker"] } } } } },
+              "links": { "type": "array", "items": { "type": "object", "required": ["a", "b", "kind"], "properties": { "a": { "type": "string" }, "b": { "type": "string" }, "kind": { "type": "string", "enum": ["apart", "near", "tutor"] } } } },
+              "room": { "type": "object", "description": "the desk layout as Tally's Seating draws it" },
+              "picked": { "type": "array", "items": { "type": "string" }, "description": "the last few picker keys, newest last" }
+            } } }
+      }
+    },
+    "log": {
+      "description": "Append-only on the live road: who changed which part when.",
+      "type": "array", "items": { "type": "object", "required": ["at", "by", "part"], "additionalProperties": false,
+        "properties": { "at": { "$ref": "#/definitions/at" }, "by": { "type": "string", "enum": ["tally", "deckhand", "deck", "cadence", "geopardy", "windmill"] }, "part": { "type": "string" }, "note": { "type": "string" } } }
+    }
+  },
+  "definitions": {
+    "at": { "type": "string", "format": "date-time", "description": "when this part was written, with offset" },
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "period": { "type": "integer", "minimum": 1, "maximum": 7 },
+    "courseKey": { "type": "string", "enum": ["acc", "on"] },
+    "lesson": { "type": "string", "pattern": "^\\d{1,2}\\.(\\d{2}|R|X[12]|T[A-C][12])$|^(T-[A-C][12]|PM3|spiral|flex)$" },
+    "benchmark": { "type": "string", "pattern": "^MA\\.(7|8)\\.[A-Z]+\\.\\d+\\.\\d+$" },
+    "share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "course": {
+      "type": "object", "required": ["unit"], "additionalProperties": false,
+      "properties": {
+        "unit": { "type": ["integer", "null"], "minimum": 1, "maximum": 17 },
+        "benchmarks": { "type": "object", "propertyNames": { "pattern": "^MA\\.(7|8)\\.[A-Z]+\\.\\d+\\.\\d+$" },
+          "additionalProperties": { "type": "object", "additionalProperties": false,
+            "properties": {
+              "atGoal": { "$ref": "#/definitions/share", "description": "share of the course's students at goal across the benchmark's assigned IXL skills" },
+              "n": { "type": "integer", "minimum": 0 },
+              "source": { "type": "string", "enum": ["ixl", "exit", "board", "code"] },
+              "rank": { "type": "integer" }, "bucket": { "type": "integer", "minimum": 0, "maximum": 3 },
+              "skills": { "type": "object", "propertyNames": { "pattern": "^[A-Z0-9]{3}$" },
+                "additionalProperties": { "type": "object", "additionalProperties": false,
+                  "properties": { "atGoal": { "$ref": "#/definitions/share" }, "started": { "$ref": "#/definitions/share" }, "median": { "type": "integer", "minimum": 0, "maximum": 100 } } } }
+            } } }
+      }
+    }
+  }
+}

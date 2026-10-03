@@ -1,0 +1,17 @@
+{
+ "v": 1,
+ "tally": {
+  "at": "2026-10-03T14:20:00-04:00",
+  "courses": {
+   "acc": {
+    "unit": 3,
+    "benchmarks": {}
+   }
+  },
+  "students": [
+   {
+    "name": "Avery Quill"
+   }
+  ]
+ }
+}
