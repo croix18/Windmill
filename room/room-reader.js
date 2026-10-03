@@ -1,6 +1,6 @@
 /* Windmill room reader — the twenty-odd lines every tool embeds, grown into one file with its tests.
  *
- *   <script src="room.js"></script><script src="room.panel.js"></script><script src="room-reader.js"></script>
+ *   three script tags: room.js, room.panel.js, room-reader.js (each optional but the last)
  *   const room = Room.load({ win: window, code: '<a typed room code>', scriptJson: <GET from the live road> });
  *   room.unit('acc')  room.weak('acc', 3)  room.bookmark(3)  room.lessonFor('acc', '2026-10-05', 3, SPINE)  room.age('tally')
  *
