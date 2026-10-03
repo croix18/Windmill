@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room test 1 and 2 — Drive folder</title>
+<style>body{font:18px/1.5 system-ui,sans-serif;margin:24px;max-width:720px;color:#16213A;background:#F6F5F0}
+.ok{color:#0F766E}.bad{color:#D9442F}.row{padding:10px 0;border-bottom:1px solid #ddd}code{background:#eee;padding:1px 5px;border-radius:4px}
+button{font:inherit;padding:8px 14px;margin-top:12px}</style></head><body>
+<h1>Room test 1 &amp; 2 — the Drive folder</h1>
+<p>Open this file on the panel the same way you open Deckhand. Each line goes green or red with the reason. Then press <b>Copy results</b> and paste them to me.</p>
+<div id="out"></div>
+<button id="copy">Copy results</button>
+<p style="margin-top:24px;font-size:15px;color:#555">Test 2: on the laptop, open <code>room.js</code> in this folder, change the words after <code>testStamp</code>, save (Drive syncs it), then reload this page on the panel. The stamp line should change. Note how long it took.</p>
+<script src="room.js"></script>
+<script>
+(function(){
+  var L=[], out=document.getElementById('out');
+  function line(ok,txt){L.push((ok?'PASS ':'FAIL ')+txt); var d=document.createElement('div'); d.className='row '+(ok?'ok':'bad'); d.textContent=(ok?'✓ ':'✗ ')+txt; out.appendChild(d);}
+  line(true,'Page opened as: '+location.href.replace(/[^/]*$/,'…'));
+  line(true,'Protocol: '+location.protocol+'  (file: is what we expect from the Drive mount)');
+  if (window.ROOM) { line(true,'room.js loaded — sibling script works. Stamp: '+ (ROOM.testStamp||'(none)')); line(true,'It says: accelerated Unit '+ROOM.tally.courses.acc.unit+', on-level Unit '+ROOM.tally.courses.on.unit); }
+  else line(false,'room.js did NOT load — the page cannot see sibling files from here (tell me how you opened it)');
+  try { localStorage.setItem('windmill.test', String(Date.now())); var prev=localStorage.getItem('windmill.test.prev'); localStorage.setItem('windmill.test.prev', localStorage.getItem('windmill.test')); line(true,'Browser storage works here'+(prev?' and persisted since a previous open ('+new Date(+prev).toLocaleString()+')':' (first open on this device)')); }
+  catch(e){ line(false,'Browser storage is blocked here: '+e.message); }
+  line(true,'Browser: '+navigator.userAgent.replace(/^.*\) /,'').slice(0,80));
+  line(true,'Time on this device: '+new Date().toString());
+  document.getElementById('copy').onclick=function(){ var t='ROOM TEST 1/2 — '+new Date().toISOString()+'\n'+L.join('\n'); navigator.clipboard&&navigator.clipboard.writeText(t).then(function(){alert('Copied. Paste it to me.')},function(){prompt('Copy this:',t)}) || prompt('Copy this:',t); };
+})();
+</script></body></html>

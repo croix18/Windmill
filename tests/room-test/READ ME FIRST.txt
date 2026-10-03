@@ -1,0 +1,17 @@
+ROOM TESTS — put this whole folder in the Google Drive folder your classroom tools open from.
+
+Before Monday (laptop, 10 min):
+  1. Make a blank Google Sheet in your school Drive. Extensions > Apps Script. Paste room.gs over the
+     default code. Change KEY to a long random string. Deploy > New deployment > Web app >
+     Execute as Me > Anyone with the link > Deploy. Copy the Web app URL (ends in /exec).
+  2. Open script-test.html in a text editor; put the URL and the same KEY in the two marked lines. Save.
+  3. Open writer-test.html in Chrome on the laptop (double-click). Pick room.js in this folder, Publish
+     twice, Copy results. (Test 4 — this one does not need the panel.)
+
+Monday (panel, 10 min):
+  4. Open room-test.html from the Files app the way you open Deckhand. Copy results.   (Test 1)
+  5. On the laptop, change the testStamp words in room.js and save (or re-upload). Reload the page on
+     the panel after 2 minutes; note whether the stamp changed and how long it took.    (Test 2)
+  6. Open script-test.html on the panel, press Run, Copy results.                      (Test 3)
+
+Paste all four results to me. Green or red either way is useful; a red line carries the reason.

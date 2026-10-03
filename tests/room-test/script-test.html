@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room test 3 — Apps Script</title>
+<style>body{font:18px/1.5 system-ui,sans-serif;margin:24px;max-width:720px;color:#16213A;background:#F6F5F0}
+.ok{color:#0F766E}.bad{color:#D9442F}.row{padding:10px 0;border-bottom:1px solid #ddd}code{background:#eee;padding:1px 5px;border-radius:4px}
+button{font:inherit;padding:8px 14px;margin-top:12px}</style></head><body>
+<h1>Room test 3 — the live road (Apps Script)</h1>
+<p>Before the panel: deploy <code>room.gs</code> from a Sheet (steps at the top of that file), then put the Web app URL and your key in the two lines below, save this file, and let Drive sync it. On the panel, open this page and press <b>Run</b>.</p>
+<script>
+var SCRIPT_URL = 'PASTE-THE-WEB-APP-URL-HERE';      // ends in /exec
+var SCRIPT_KEY = 'change-me-to-a-long-random-string';
+</script>
+<div id="out"></div>
+<button id="run">Run</button> <button id="copy">Copy results</button>
+<script>
+(function(){
+  var L=[], out=document.getElementById('out');
+  function line(ok,txt){L.push((ok?'PASS ':'FAIL ')+txt); var d=document.createElement('div'); d.className='row '+(ok?'ok':'bad'); d.textContent=(ok?'✓ ':'✗ ')+txt; out.appendChild(d);}
+  async function run(){
+    out.innerHTML=''; L.length=0;
+    line(true,'Page: '+location.protocol+' origin '+(location.origin||'null'));
+    if (SCRIPT_URL.indexOf('http')!==0) { line(false,'SCRIPT_URL not filled in yet'); return; }
+    var t0=Date.now();
+    try { var r=await fetch(SCRIPT_URL+'?k='+encodeURIComponent(SCRIPT_KEY),{redirect:'follow'}); var j=await r.json();
+      if (j.error) line(false,'GET answered but refused: '+j.error+' (key mismatch?)'); else line(true,'GET ok in '+(Date.now()-t0)+' ms — the Sheet served the room (parts: '+Object.keys(j).join(', ')+')');
+    } catch(e){ line(false,'GET failed: '+e.message+' — if this says "Failed to fetch", the filter blocked script.google.com or script.googleusercontent.com'); }
+    t0=Date.now();
+    try { var body=JSON.stringify({k:SCRIPT_KEY, panel:{at:new Date().toISOString(), bell:{period:0, week:'test'}, periods:{}}, log:[{at:new Date().toISOString(), by:'windmill', part:'panel', note:'test 3 from '+(location.protocol)}]});
+      var r2=await fetch(SCRIPT_URL,{method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:body, redirect:'follow'}); var j2=await r2.json();
+      if (j2.ok) line(true,'POST ok in '+(Date.now()-t0)+' ms — the Sheet recorded '+j2.written.join(', ')+' at '+j2.at); else line(false,'POST answered but refused: '+JSON.stringify(j2));
+    } catch(e){ line(false,'POST failed: '+e.message); }
+  }
+  document.getElementById('run').onclick=run;
+  document.getElementById('copy').onclick=function(){ var t='ROOM TEST 3 — '+new Date().toISOString()+'\n'+L.join('\n'); navigator.clipboard&&navigator.clipboard.writeText(t).then(function(){alert('Copied. Paste it to me.')},function(){prompt('Copy this:',t)}) || prompt('Copy this:',t); };
+})();
+</script></body></html>

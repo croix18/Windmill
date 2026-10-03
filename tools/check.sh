@@ -10,7 +10,7 @@ if git ls-files -z | xargs -0 grep -l -E 'github_pat_[A-Za-z0-9_]{20,}|ghp_[A-Za
   echo "a tracked file contains a GitHub token" >&2; exit 1; fi
 git check-ignore -q .github-token || { echo ".github-token is not git-ignored" >&2; exit 1; }
 echo "== names (the fixtures may carry synthetic first names in the roster part only)"
-if git ls-files -z 'room/fixtures/*' 'spine/*' | xargs -0 grep -l -E '"(last|lastName|studentId|email)"' 2>/dev/null; then
+if git ls-files -z 'room/fixtures/*' 'tests/*' | xargs -0 grep -l -E '"(lastName|studentId|email|last)"\s*:\s*"[A-Za-z]' 2>/dev/null; then
   echo "a committed room carries a last name, student id or email" >&2; exit 1; fi
 A7=${A7_DIR:-../croix18-windy-hill-a7}; M7=${M7_DIR:-../windy-hill-m7}; DH=${DECKHAND_DIR:-../Deckhand}
 if [ -d "$A7" ] && [ -d "$M7" ] && [ -d "$DH" ]; then

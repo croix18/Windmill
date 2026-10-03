@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room test 4 — writing from the laptop</title>
+<style>body{font:18px/1.5 system-ui,sans-serif;margin:24px;max-width:720px;color:#16213A;background:#F6F5F0}
+.ok{color:#0F766E}.bad{color:#D9442F}.row{padding:10px 0;border-bottom:1px solid #ddd}code{background:#eee;padding:1px 5px;border-radius:4px}
+button{font:inherit;padding:8px 14px;margin:12px 8px 0 0}</style></head><body>
+<h1>Room test 4 — Tally's Publish, on the laptop</h1>
+<p>This is what Tally's Publish button will do. Press <b>Pick room.js</b> once and choose the <code>room.js</code> in this folder (the one Drive syncs). Then press <b>Publish</b> twice: the second write should land with no dialog. Check Drive on the web shows the new stamp within a minute.</p>
+<button id="pick">Pick room.js</button><button id="pub" disabled>Publish</button><button id="dl">Download instead</button><button id="copy">Copy results</button>
+<div id="out"></div>
+<script>
+(function(){
+  var L=[], out=document.getElementById('out'), handle=null;
+  function line(ok,txt){L.push((ok?'PASS ':'FAIL ')+txt); var d=document.createElement('div'); d.className='row '+(ok?'ok':'bad'); d.textContent=(ok?'✓ ':'✗ ')+txt; out.appendChild(d);}
+  function roomText(){ return 'window.ROOM = '+JSON.stringify({v:1,tally:{at:new Date().toISOString(),via:'publish',courses:{acc:{unit:3,benchmarks:{}},on:{unit:4,benchmarks:{}}}},testStamp:'published from the laptop '+new Date().toLocaleString()})+';\n'; }
+  line(!!window.showOpenFilePicker, window.showOpenFilePicker ? 'This browser can keep a file handle (File System Access API)' : 'No file-handle API in this browser — Publish will be a download you drop into Drive');
+  document.getElementById('pick').onclick=async function(){ try { var hs=await window.showOpenFilePicker({types:[{description:'room.js',accept:{'text/javascript':['.js']}}]}); handle=hs[0]; var p=await handle.requestPermission({mode:'readwrite'}); line(p==='granted','Picked '+handle.name+' — write permission '+p); document.getElementById('pub').disabled=(p!=='granted'); } catch(e){ line(false,'Pick failed: '+e.message); } };
+  document.getElementById('pub').onclick=async function(){ var t0=Date.now(); try { var w=await handle.createWritable(); await w.write(roomText()); await w.close(); line(true,'Published in '+(Date.now()-t0)+' ms, no dialog — now check Drive on the web for the new stamp'); } catch(e){ line(false,'Publish failed: '+e.message); } };
+  document.getElementById('dl').onclick=function(){ var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([roomText()],{type:'text/javascript'})); a.download='room.js'; a.click(); line(true,'Downloaded room.js — drop it into the Drive folder over the old one'); };
+  document.getElementById('copy').onclick=function(){ var t='ROOM TEST 4 — '+new Date().toISOString()+'\n'+L.join('\n'); navigator.clipboard&&navigator.clipboard.writeText(t).then(function(){alert('Copied. Paste it to me.')},function(){prompt('Copy this:',t)}) || prompt('Copy this:',t); };
+})();
+</script></body></html>
