@@ -4,6 +4,18 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## The plan, and where each tool stands (3 Oct 2026, end of day)
+
+The design is the *Room Coordination Plan*, a Claude doc Croix owns:
+https://claude.ai/code/artifact/9db84d04-9444-48c4-adad-9c68905eefd8 — read it with the docs tool
+before changing anything here or in a tool. Phase 1 (tests) is staged in `tests/room-test/` and runs
+Monday 5 Oct on the panel. Phase 2 (this repository) is built except Tally's Publish. Phase 3 (the
+lesson console) shipped its first slice in the A7 repository (`a7/build/lib/consolekit.py`; the unit
+`.html` opens on Today, reads the bell from the spine, keeps a bookmark per period, runs the
+whiteboard round with a timer, veil and tally, writes the `panel` part to the browser's store).
+Phases 4–5 are not started. Each tool's own handoff carries a "Windmill and the room" note pointing
+here (added 3 Oct).
+
 ## Why this exists (3 Oct 2026)
 
 Five tools, three layers: curriculum (A7 and M7 repos: specs → decks, teacher editions, assessments),
@@ -90,6 +102,10 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **3 Oct 2026, later** — `tests/room-test/` (the four panel tests and `room.gs`); the reader's header
+  comment no longer carries literal script tags (it is inlined into pages, where `</script` would end
+  the block — found when the A7 console first loaded it); the console shipped in A7 against this
+  reader and spine (vendored by A7's `tools/vendor_windmill.py`, commit recorded in `assets/windmill/VERSION`).
 - **3 Oct 2026** — repository created by Croix ("It's called windmill"). First commit: `spine.py`,
   `validate.py`, `spine.json` (150 school days, 74 benchmarks, 253 IXL skills, 28 holidays, bell from
   Deckhand 7.38), `room.schema.json`, `room-reader.js` with both code forms, `benchmarks.json` v1,
