@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the unit-wide documents and the whole-unit deck: python3 build_unit.py u3/unit.py  → out/u3/
 
-The deck's order is the unit's manifest.py when it has one (teaching order, with each row's printed
-label and title), and otherwise the lesson specs in file order; where the course builds its review
+The deck's order is the `lessons` list of the unit's manifest.py when it has one (teaching order,
+with each row's printed label and title), and otherwise the lesson specs in file order; where the course builds its review
 day as a lesson (uN/review.py), the review closes the deck.
 (Part of the shared build kit — edit it in croix18/Windmill, kit/.)"""
 import sys, os, glob, importlib.util, subprocess
@@ -31,8 +31,8 @@ for f in sorted(glob.glob(os.path.join(here, "l[0-9]*.py"))):
     L = load(f, "lesson").L
     specs[L["code"]] = L
 man = os.path.join(here, "manifest.py")
-if os.path.exists(man):
-    order = load(man, "manifest").M["lessons"]
+order = load(man, "manifest").M.get("lessons") if os.path.exists(man) else None
+if order:                               # a manifest may leave the order to the spec files
     missing = set(specs) ^ {row[0] for row in order}
     if missing:
         raise SystemExit(f"unit deck: lesson specs and manifest disagree about {sorted(missing)}")

@@ -162,7 +162,7 @@ class HtmlDeck:
         out.append("</ol>")
         self._add("".join(out))
 
-    def text(self, text, size=23, bold=False, italic=False, color=INK, align="left", h=None, x=None, w=None, slots=False, tight=False):
+    def text(self, text, size=23, bold=False, italic=False, color=INK, align="left", h=None, x=None, w=None, slots=False):
         self._text(0, 0, 0, 0, text, size, bold, italic, color, align, slots=slots)
         return self.cursor
 

@@ -17,10 +17,12 @@ merge. It is published from here and copied into each course repository; neither
 | `lib/lessonbuild.py` | The gates (mathcheck, distractorcheck, capcheck, rulingcheck, balancecheck — each refuses the build) and the builders: the lesson's slides (`_fill_deck`, one function for the pptx and the HTML deck), the whole-unit deck, both teacher's-edition styles, the bank file. |
 | `lib/deckkit.py` · `lib/htmlkit.py` · `lib/consolekit.py` | The pptx deck, the HTML deck (KaTeX, one self-contained file) and the console wrapped around the unit deck (Today, the rail, pacing, the whiteboard round, the room). Same interface, so one builder drives all three. |
 | `lib/mathimg.py` · `lib/figkit.py` | Expression images (mathtext, one size per surface) and geometry figures drawn from their numbers. A height that ends outside its figure is refused. |
+| `lib/ixlplan.py` | Ruling 28 as a gate (inside `rulingcheck`): every IXL skill on a slide, and the code a student types beside it, is the course's IXL plan's — read from the spine the course vendors. A lesson the plan lists skills for names exactly those. |
 | `lib/slotmark.py` | The colour code's named slots: `\sA{}` blue, `\sB{}` orange, `\sH{}` teal, marked in the spec where the slot stands, honoured only on slides and only where the teacher shows, stripped everywhere else. |
 | `lib/dockit.py` · `lib/tekit.py` · `lib/plankit.py` · `lib/unitbuild.py` | Word documents, the teacher's edition, the Florida lesson plan (two styles), and the unit documents (reference sheet, review, a single paper or parallel forms with keys and worked-answers copies). |
 | `checks.py` | Eighteen checks over a built unit, each printing what it looked at. `kitcheck` holds the copy in a course repository to `KIT.sha256`. |
 | `build_lesson.py` · `build_unit.py` · `build_all.py` | The drivers. |
+| `gates.py` | Every build gate over a unit's specs without building anything, and the kit held to its manifest — no LibreOffice, no browser, so each course's `tools/check.sh` runs it before every push and in CI. |
 | `slotaudit.py` · `shuffle_choices.py` · `contact_sheet.py` | Read every coloured expression as the renderer reads it; spread the keyed letters; look at every slide. |
 | `assets/` | KaTeX and the house face, inlined into every HTML deck. |
 | `KIT.sha256` | The manifest: every file above with its hash. Written by `tools/kit_manifest.py`. |

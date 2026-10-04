@@ -8,8 +8,9 @@ colour; the holidays; the benchmark list; the IXL skill → benchmark map.
 It READS the three repositories' own sources and never edits them:
   A7  tools/scope_calendar.py (the day table), a7/reference/ixl_skills_by_lesson.json,
       a7/reference/Florida BEST Grade 8 - Source of Truth.md (benchmark wording, MA.7 and MA.8)
-  M7  tools/mkscope.py (the day table, IXL plan), Windy Hill M7/Reference/IXL DUE DATES 2026-2027 - M7.csv,
-      Windy Hill M7/Reference/TRUTH - Grade 7 Benchmarks.md (benchmark labels)
+  M7  tools/mkscope.py (the day table, IXL plan), m7/reference/IXL DUE DATES 2026-2027 - M7.csv,
+      m7/reference/TRUTH - Grade 7 Benchmarks.md (benchmark labels) — the layout M7 took on 4 Oct 2026,
+      the same shape as A7's; a checkout from before that (Windy Hill M7/Reference/) is still read
   Deckhand  the bell block baked into Deckhand.html (periods, times, week rotation, skip weeks)
 
 The plan says where each course SHOULD be on a date. It is the room's `plan` part and the
@@ -53,6 +54,12 @@ def git_head(repo):
 
 
 # ---- benchmarks -------------------------------------------------------------------------------
+def m7_ref(m7, name):
+    """A file in M7's reference folder: m7/reference/ since 4 Oct 2026, Windy Hill M7/Reference/ before."""
+    new = os.path.join(m7, "m7", "reference", name)
+    return new if os.path.exists(new) else os.path.join(m7, "Windy Hill M7", "Reference", name)
+
+
 def benchmarks(a7, m7):
     """Every benchmark either course carries, with its wording (MA.8 and the MA.7 the A7 Source of
     Truth lists) or its label (the M7 TRUTH headings)."""
@@ -60,7 +67,7 @@ def benchmarks(a7, m7):
     sot = open(os.path.join(a7, "a7", "reference", "Florida BEST Grade 8 - Source of Truth.md"), encoding="utf-8").read()
     for code, text in re.findall(r"^\*\*(MA\.[78]\.[A-Z]+\.\d+\.\d+)\*\* — (.+)$", sot, re.M):
         out.setdefault(code, {})["text"] = re.sub(r"\*\*", "", text).strip()
-    truth = open(os.path.join(m7, "Windy Hill M7", "Reference", "TRUTH - Grade 7 Benchmarks.md"), encoding="utf-8").read()
+    truth = open(m7_ref(m7, "TRUTH - Grade 7 Benchmarks.md"), encoding="utf-8").read()
     for code, label in re.findall(r"^## (MA\.7\.[A-Z]+\.\d+\.\d+) — (.+)$", truth, re.M):
         out.setdefault(code, {})["label"] = label.strip()
     for code, e in out.items():
@@ -185,7 +192,7 @@ def m7_days(m7, known):
     # IXL due dates from the student-facing CSV (assigned, due, lesson range, skill, code)
     due_by_lesson = {}
     import csv
-    with open(os.path.join(m7, "Windy Hill M7", "Reference", "IXL DUE DATES 2026-2027 - M7.csv"), encoding="utf-8") as f:
+    with open(m7_ref(m7, "IXL DUE DATES 2026-2027 - M7.csv"), encoding="utf-8") as f:
         for r in csv.DictReader(f):
             m = re.match(r"^(\d+)\.(\d+)(?:[–-](\d+)\.(\d+))?$", r["lesson"].strip())
             if not m:

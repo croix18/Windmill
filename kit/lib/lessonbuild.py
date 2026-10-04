@@ -687,7 +687,7 @@ def _wb_body(D, q, reveal):
             if _math_row(r):
                 D.math_row(r, surface="slide", gap=0.22, size=24, align="left", x=LM + 0.5, bold=bold, slots=reveal)
             else:
-                D.text(r, 24, bold=bold, align="left", x=LM + 0.5, w=CW - 0.6, slots=reveal, tight=True)
+                D.text(r, 24, bold=bold, align="left", x=LM + 0.5, w=CW - 0.6, slots=reveal)
         D.cursor += 0.05
     else:
         for row in rows:
@@ -1101,6 +1101,10 @@ def rulingcheck_lesson(L):
     for s in L.get("ixl", []):
         if re.search(r"\boptional\b|also consider", s, re.I):
             out.append(f"{code}: ruling 28 — an IXL skill is marked optional or 'also consider' ({s!r}); every listed skill is required, so drop the words or the skill")
+    # ... and the skills and their codes are the IXL plan's (lib/ixlplan.py): the slide, the
+    # due-date sheet and the room all read one plan.
+    from . import ixlplan
+    out += ixlplan.check(L)
     return out
 
 

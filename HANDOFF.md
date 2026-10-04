@@ -42,6 +42,15 @@ takeover needs to know:
   (eighteen checks) from the same 29 files. A7's Unit 3 against its pre-kit output: 100 documents
   identical in structure, 7 differ, every one explained (a title line that used to sit on its box's
   edge; three two-line answer boxes now sized for two lines).
+- **`gates.py`** runs every build gate over a unit's specs with no rendering (seconds); each course's
+  `tools/check.sh` runs it before every push and in CI. **`SPEC SCHEMA.md`** — every field, for both
+  courses — is part of the kit and vendored with it.
+- **The IXL plan is a gate** (`lib/ixlplan.py`, inside `rulingcheck`): every skill and code on an IXL
+  slide must be the plan's, read from the spine the course vendors; a lesson the plan lists skills
+  for names exactly those. It found M7's Unit 5 carrying seven codes that exist nowhere and six
+  lessons whose skills were not the plan's (fixed 4 Oct, before the unit was taught). That is the
+  "IXL skill → benchmark" hook for Cadence and Tally made safe: every code a deck shows is a key of
+  `spine.skills`, which maps it to its benchmarks.
 - **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
   `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
   keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
@@ -133,6 +142,11 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, later** — `kit/gates.py`, `kit/lib/ixlplan.py`, `kit/SPEC SCHEMA.md`; a manifest
+  without `lessons` leaves the unit deck's order to the spec files; the `tight` text measure tried
+  and withdrawn the same day (a story ran over its ask; `overlap` caught it). `spine.py` reads M7's
+  new layout (`m7/reference/`, falling back to the old one) — the plan it writes is unchanged, day
+  for day, for both courses. Geopardy gained two M7 units (Circles; Samples & Scale).
 - **4 Oct 2026** — `kit/`: the shared build kit (see its section above), `tools/kit_manifest.py`,
   `tools/vendor_into.py`; `check.sh` and CI run the manifest check and the kit tests under both
   course profiles.

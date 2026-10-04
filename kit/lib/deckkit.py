@@ -274,13 +274,12 @@ class Deck:
             y += h + gap
         self.cursor = y
 
-    def text(self, text, size=23, bold=False, italic=False, color=INK, align="left", h=None, x=None, w=None, slots=False, tight=False):
+    def text(self, text, size=23, bold=False, italic=False, color=INK, align="left", h=None, x=None, w=None, slots=False):
         x = LM if x is None else x; w = CW if w is None else w
+        # _textw carries a 6% margin and it stays: words do not fill a line to its last point, so a
+        # paragraph measured at the font's bare width wraps one line further than it was given
+        # (tried 4 October as `tight`; 4.04 board 9's story ran over its ask, and `overlap` said so)
         wid = _textw(slotmark.strip(text).replace("\\$", "$"), size, bold)
-        if tight:
-            # the font's own width plus 2%: _textw's safety margin counts a line that fills 95% of
-            # its box as two, and a paragraph block then shows a blank line where none is
-            wid = (wid - 0.08) / 1.06 * 1.02
         lines = max(1, -(-int(wid * 100) // int((w - 0.1) * 100)))   # measured, not counted
         h = h or (0.45 * lines * (size / 23))
         self._text(x, self.cursor, w, h, text, size, bold, italic, color, align, slots=slots)

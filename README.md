@@ -68,7 +68,7 @@ bash tools/check.sh
 
 Who owns what, in the sources: the A7 calendar is `tools/scope_calendar.py` in `croix18-windy-hill-a7`;
 the M7 calendar is `tools/mkscope.py` in `windy-hill-m7` with the student-facing due dates in
-`Windy Hill M7/Reference/IXL DUE DATES 2026-2027 - M7.csv`; the bell schedule is the config block baked into
+`m7/reference/IXL DUE DATES 2026-2027 - M7.csv`; the bell schedule is the config block baked into
 `Deckhand.html`. Edit the plan there, then regenerate here.
 
 ## Rules

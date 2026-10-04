@@ -9,6 +9,8 @@ profile:
 import copy, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..")))
+# the IXL plan the gate reads: this repository's own spine (a course reads its vendored copy)
+os.environ.setdefault("KIT_SPINE", os.path.normpath(os.path.join(HERE, "..", "..", "spine", "spine.json")))
 from lib import slotmark
 from lib.profile import C
 from lib import lessonbuild as lb
@@ -53,8 +55,9 @@ def mc(i, correct, **kw):
              errors={chr(65 + k): "slipped [Notes I]" for k in range(4) if k != correct})
     b.update(kw); return b
 
-L = dict(code="9.01", unit=9, lesson_no=1, title="T", benchmark="MA.7.GR.1.1", benchmark_text="t", target="I can.", yesterday="y", today="t",
-         essential="e", building_on="b", working_toward="w", vocab=[("a", "b")], ixl=["Skill (ABC)"],
+L = dict(code="90.01", unit=90,   # a lesson no plan lists
+          lesson_no=1, title="T", benchmark="MA.7.GR.1.1", benchmark_text="t", target="I can.", yesterday="y", today="t",
+         essential="e", building_on="b", working_toward="w", vocab=[("a", "b")], ixl=["Perimeter and area: changes in scale (ZC6)"],
          mtr=[("MTR.3.1", "boards")], hoq=[("Why?", 2)], differentiation=[("ELL", "say it")],
          warmup=[dict(stem="1 + 1", answer="2", check=("eq", "1+1", "2"))],
          notes=[], examples=[],
@@ -87,6 +90,15 @@ planted("a board field no builder reads", lambda M: M["whiteboard"][0].update(co
 planted("no board with a number the question does not need", lambda M: M["whiteboard"][2].pop("unneeded"), "ruling 22")
 planted("five independent questions", lambda M: M["independent"].pop(), "ruling 21")
 planted("an IXL skill marked 'also consider'", lambda M: M["ixl"].append("Also consider: Other (XYZ)"), "ruling 28")
+planted("an IXL code the plan does not have", lambda M: M.update(ixl=["Perimeter and area: changes in scale (QQ7)"]), "the plan's code for")
+planted("an IXL code under another skill's name", lambda M: M.update(ixl=["Area of circles (ZC6)"]), "in the plan, not")
+planted("an IXL entry with no code", lambda M: M.update(ixl=["Perimeter and area: changes in scale"]), "is not `Name (CODE)`")
+_real = {"on": ("4.07", "Find the radius or diameter of a circle given the circumference (2CM)"),
+         "acc": ("4.01", "Add and subtract numbers written in scientific notation — HUR")}[C.COURSE_KEY]
+R = copy.deepcopy(L); R.update(code=_real[0], ixl=[_real[1]])
+ok("the plan's own skills for a lesson pass, in either course's spelling", not [x for x in gates(R) if "ruling 28" in x], str([x for x in gates(R) if "ruling 28" in x][:2]))
+R2 = copy.deepcopy(R); R2["ixl"] = ["Perimeter and area: changes in scale (ZC6)"]
+ok("planted: a lesson whose slide is not the plan's skills", len([x for x in gates(R2) if "ruling 28" in x]) == 2)
 planted("no MTR named", lambda M: M.pop("mtr"), "ruling 25")
 planted("two things to say, not three", lambda M: M["te"].update(say=["a", "b"]), "ruling 26")
 planted("every single-answer item keyed alike", lambda M: (M["whiteboard"][7].update(correct=3, answer="D — 83 cm", note_a="Reveal D.", errors={k: "x [N]" for k in "ABC"}),
