@@ -250,10 +250,12 @@ def m7_days(m7, known):
         kind = M7_KIND[v[0]]
         e = {"kind": kind, "code": None, "title": v[1], "unit": None, "benchmarks": [], "ixl": []}
         if kind == "lesson":
-            m = re.match(r"^(\d+)\.(\d+)\s+(.*)$", v[1])
+            m = re.match(r"^(\d+)\.(\d+(?:\+\d+)*)\s+(.*)$", v[1])       # '8.05+06': two lessons taught as one day
             e["code"], e["title"], e["unit"] = f"{m.group(1)}.{m.group(2)}", m.group(3), int(m.group(1))
             e["benchmarks"] = expand_benchmarks(v[2], 7, known)
-            e["ixl"] = due_by_lesson.get(e["code"], [])
+            e["ixl"] = []                                    # every lesson the day teaches, each skill once
+            for n in m.group(2).split("+"):
+                e["ixl"] += [x for x in due_by_lesson.get(f"{m.group(1)}.{n}", []) if x["code"] not in [y["code"] for y in e["ixl"]]]
         elif kind in ("review", "exam"):
             m = re.search(r"Unit (\d+)", v[1])
             e["unit"] = int(m.group(1)) if m else None

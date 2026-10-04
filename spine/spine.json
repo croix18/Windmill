@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-04T15:32:56+00:00",
+ "generatedAt": "2026-10-04T16:45:23+00:00",
  "sources": {
-  "a7": "115f7d0",
-  "m7": "d21c9ca",
+  "a7": "c8ea8f5",
+  "m7": "03fb7fc",
   "deckhand": "411f496"
  },
  "year": {
@@ -1155,8 +1155,7 @@
     "MA.7.AR.1.1"
    ],
    "lessons": [
-    "on:9.03",
-    "on:9.04"
+    "on:9.03+04"
    ]
   },
   "6GU": {
@@ -1983,8 +1982,7 @@
     "MA.7.NSO.2.1"
    ],
    "lessons": [
-    "on:8.05",
-    "on:8.06"
+    "on:8.05+06"
    ]
   },
   "D8J": {
@@ -2278,8 +2276,7 @@
     "MA.7.NSO.2.1"
    ],
    "lessons": [
-    "on:8.05",
-    "on:8.06"
+    "on:8.05+06"
    ]
   },
   "FRL": {
@@ -2663,8 +2660,7 @@
     "MA.7.AR.1.1"
    ],
    "lessons": [
-    "on:9.03",
-    "on:9.04"
+    "on:9.03+04"
    ]
   },
   "KDR": {
@@ -2688,8 +2684,7 @@
     "MA.7.NSO.2.1"
    ],
    "lessons": [
-    "on:8.05",
-    "on:8.06"
+    "on:8.05+06"
    ]
   },
   "KXS": {
@@ -2756,8 +2751,7 @@
    ],
    "lessons": [
     "acc:7.02+03",
-    "on:11.02",
-    "on:11.03"
+    "on:11.02+03"
    ]
   },
   "LPP": {
@@ -3176,8 +3170,7 @@
    ],
    "lessons": [
     "acc:7.02+03",
-    "on:11.02",
-    "on:11.03"
+    "on:11.02+03"
    ]
   },
   "RP8": {
@@ -3897,8 +3890,7 @@
     "MA.7.NSO.2.1"
    ],
    "lessons": [
-    "on:8.05",
-    "on:8.06"
+    "on:8.05+06"
    ]
   },
   "Y5R": {
@@ -4115,8 +4107,7 @@
    ],
    "lessons": [
     "acc:7.02+03",
-    "on:11.02",
-    "on:11.03"
+    "on:11.02+03"
    ]
   },
   "ZX7": {
@@ -9459,8 +9450,8 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.05",
-    "title": "Evaluating Numeric Expressions – Part 2",
+    "code": "8.05+06",
+    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
     "unit": 8,
     "benchmarks": [
      "MA.7.NSO.2.1"
@@ -9469,22 +9460,22 @@
      {
       "name": "Evaluate numerical expressions involving rational numbers",
       "code": "KG2",
-      "due": "2027-01-21"
+      "due": "2027-01-20"
      },
      {
       "name": "Evaluate numerical expressions involving decimals",
       "code": "FNM",
-      "due": "2027-01-21"
+      "due": "2027-01-20"
      },
      {
       "name": "Evaluate numerical expressions involving fractions",
       "code": "XXQ",
-      "due": "2027-01-21"
+      "due": "2027-01-20"
      },
      {
       "name": "Evaluate numerical expressions involving exponents",
       "code": "D7P",
-      "due": "2027-01-21"
+      "due": "2027-01-20"
      }
     ]
    }
@@ -9535,35 +9526,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "8.06",
-    "title": "Evaluating Numeric Expressions – Part 3",
-    "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate numerical expressions involving rational numbers",
-      "code": "KG2",
-      "due": "2027-01-21"
-     },
-     {
-      "name": "Evaluate numerical expressions involving decimals",
-      "code": "FNM",
-      "due": "2027-01-21"
-     },
-     {
-      "name": "Evaluate numerical expressions involving fractions",
-      "code": "XXQ",
-      "due": "2027-01-21"
-     },
-     {
-      "name": "Evaluate numerical expressions involving exponents",
-      "code": "D7P",
-      "due": "2027-01-21"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-01-21": {
@@ -9612,10 +9580,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "exam",
+    "code": "8.X1",
+    "title": "Unit 8 assessment, day 1",
+    "unit": 8,
     "benchmarks": [],
     "ixl": []
    }
@@ -9666,9 +9634,9 @@
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "8.R",
-    "title": "Unit 8 review day",
+    "kind": "exam",
+    "code": "8.X2",
+    "title": "Unit 8 assessment, day 2",
     "unit": 8,
     "benchmarks": [],
     "ixl": []
@@ -9748,12 +9716,30 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "8.X1",
-    "title": "Unit 8 assessment, day 1",
-    "unit": 8,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "9.01",
+    "title": "Adding and Subtracting Linear Expressions With Integer Coefficients",
+    "unit": 9,
+    "benchmarks": [
+     "MA.7.AR.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Simplify expressions by combining like terms: with algebra tiles",
+      "code": "PCU",
+      "due": "2027-01-26"
+     },
+     {
+      "name": "Simplify expressions by combining like terms",
+      "code": "JJG",
+      "due": "2027-01-26"
+     },
+     {
+      "name": "Identify terms and coefficients",
+      "code": "E7H",
+      "due": "2027-01-26"
+     }
+    ]
    }
   },
   "2027-01-26": {
@@ -9820,12 +9806,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "8.X2",
-    "title": "Unit 8 assessment, day 2",
-    "unit": 8,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "9.02",
+    "title": "Adding Linear Expressions With Rational Coefficients",
+    "unit": 9,
+    "benchmarks": [
+     "MA.7.AR.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Add linear expressions",
+      "code": "RPY",
+      "due": "2027-01-27"
+     }
+    ]
    }
   },
   "2027-01-27": {
@@ -9889,26 +9883,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.01",
-    "title": "Adding and Subtracting Linear Expressions With Integer Coefficients",
+    "code": "9.03+04",
+    "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.1"
     ],
     "ixl": [
      {
-      "name": "Simplify expressions by combining like terms: with algebra tiles",
-      "code": "PCU",
+      "name": "Subtract linear expressions",
+      "code": "KCX",
       "due": "2027-01-28"
      },
      {
-      "name": "Simplify expressions by combining like terms",
-      "code": "JJG",
-      "due": "2027-01-28"
-     },
-     {
-      "name": "Identify terms and coefficients",
-      "code": "E7H",
+      "name": "Add and subtract linear expressions",
+      "code": "6BT",
       "due": "2027-01-28"
      }
     ]
@@ -9989,19 +9978,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.02",
-    "title": "Adding Linear Expressions With Rational Coefficients",
+    "code": "9.05",
+    "title": "Equivalent Numerical Expressions",
     "unit": 9,
     "benchmarks": [
-     "MA.7.AR.1.1"
+     "MA.7.AR.1.2"
     ],
-    "ixl": [
-     {
-      "name": "Add linear expressions",
-      "code": "RPY",
-      "due": "2027-01-29"
-     }
-    ]
+    "ixl": []
    }
   },
   "2027-01-29": {
@@ -10074,22 +10057,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.03",
-    "title": "Subtracting Linear Expressions With Rational Coefficients",
+    "code": "9.06",
+    "title": "Rewriting Equivalent Numerical Expressions",
     "unit": 9,
     "benchmarks": [
-     "MA.7.AR.1.1"
+     "MA.7.AR.1.2"
     ],
     "ixl": [
      {
-      "name": "Subtract linear expressions",
-      "code": "KCX",
-      "due": "2027-02-02"
-     },
-     {
-      "name": "Add and subtract linear expressions",
-      "code": "6BT",
-      "due": "2027-02-02"
+      "name": "Identify properties of addition and multiplication",
+      "code": "JC2",
+      "due": "2027-02-01"
      }
     ]
    }
@@ -10154,21 +10132,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.04",
-    "title": "Adding and Subtracting Expressions With Rational Coefficients",
+    "code": "9.07",
+    "title": "Equivalent Linear Expressions",
     "unit": 9,
     "benchmarks": [
-     "MA.7.AR.1.1"
+     "MA.7.AR.1.2"
     ],
     "ixl": [
      {
-      "name": "Subtract linear expressions",
-      "code": "KCX",
-      "due": "2027-02-02"
-     },
-     {
-      "name": "Add and subtract linear expressions",
-      "code": "6BT",
+      "name": "Evaluate linear expressions",
+      "code": "UG6",
       "due": "2027-02-02"
      }
     ]
@@ -10244,13 +10217,39 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.05",
-    "title": "Equivalent Numerical Expressions",
+    "code": "9.08",
+    "title": "Equivalent Expressions Using Properties of Operations",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Write equivalent expressions using properties",
+      "code": "6XR",
+      "due": "2027-02-03"
+     },
+     {
+      "name": "Identify equivalent linear expressions I",
+      "code": "DRB",
+      "due": "2027-02-03"
+     },
+     {
+      "name": "Identify equivalent linear expressions II",
+      "code": "KAR",
+      "due": "2027-02-03"
+     },
+     {
+      "name": "Identify equivalent linear expressions using algebra tiles",
+      "code": "38V",
+      "due": "2027-02-03"
+     },
+     {
+      "name": "Multiply using the distributive property",
+      "code": "NUY",
+      "due": "2027-02-03"
+     }
+    ]
    }
   },
   "2027-02-03": {
@@ -10308,20 +10307,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "9.06",
-    "title": "Rewriting Equivalent Numerical Expressions",
-    "unit": 9,
-    "benchmarks": [
-     "MA.7.AR.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Identify properties of addition and multiplication",
-      "code": "JC2",
-      "due": "2027-02-04"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-04": {
@@ -10370,20 +10361,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "9.07",
-    "title": "Equivalent Linear Expressions",
+    "kind": "exam",
+    "code": "9.X1",
+    "title": "Unit 9 assessment, day 1",
     "unit": 9,
-    "benchmarks": [
-     "MA.7.AR.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate linear expressions",
-      "code": "UG6",
-      "due": "2027-02-05"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-05": {
@@ -10432,40 +10415,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "9.08",
-    "title": "Equivalent Expressions Using Properties of Operations",
+    "kind": "exam",
+    "code": "9.X2",
+    "title": "Unit 9 assessment, day 2",
     "unit": 9,
-    "benchmarks": [
-     "MA.7.AR.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Write equivalent expressions using properties",
-      "code": "6XR",
-      "due": "2027-02-08"
-     },
-     {
-      "name": "Identify equivalent linear expressions I",
-      "code": "DRB",
-      "due": "2027-02-08"
-     },
-     {
-      "name": "Identify equivalent linear expressions II",
-      "code": "KAR",
-      "due": "2027-02-08"
-     },
-     {
-      "name": "Identify equivalent linear expressions using algebra tiles",
-      "code": "38V",
-      "due": "2027-02-08"
-     },
-     {
-      "name": "Multiply using the distributive property",
-      "code": "NUY",
-      "due": "2027-02-08"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-08": {
@@ -10532,12 +10487,30 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "10.01",
+    "title": "Exploring Inequalities – Part 1",
+    "unit": 10,
+    "benchmarks": [
+     "MA.7.AR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Solutions to inequalities",
+      "code": "8BA",
+      "due": "2027-02-09"
+     },
+     {
+      "name": "Graph inequalities on number lines",
+      "code": "VLU",
+      "due": "2027-02-09"
+     },
+     {
+      "name": "Write inequalities from number lines",
+      "code": "JNL",
+      "due": "2027-02-09"
+     }
+    ]
    }
   },
   "2027-02-09": {
@@ -10594,12 +10567,30 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "10.02",
+    "title": "Solving One-Step Inequalities Using Addition and Subtraction",
+    "unit": 10,
+    "benchmarks": [
+     "MA.7.AR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Solve one-step addition and subtraction inequalities",
+      "code": "7MP",
+      "due": "2027-02-10"
+     },
+     {
+      "name": "Solve and graph one-step addition and subtraction inequalities",
+      "code": "9WP",
+      "due": "2027-02-10"
+     },
+     {
+      "name": "Solve one-step addition and subtraction inequalities: word problems",
+      "code": "9GC",
+      "due": "2027-02-10"
+     }
+    ]
    }
   },
   "2027-02-10": {
@@ -10661,11 +10652,13 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "9.R",
-    "title": "Unit 9 review day",
-    "unit": 9,
-    "benchmarks": [],
+    "kind": "lesson",
+    "code": "10.03",
+    "title": "Exploring Inequalities – Part 2",
+    "unit": 10,
+    "benchmarks": [
+     "MA.7.AR.2.1"
+    ],
     "ixl": []
    }
   },
@@ -10733,12 +10726,40 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "9.X1",
-    "title": "Unit 9 assessment, day 1",
-    "unit": 9,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "10.04",
+    "title": "Solving One-Step Inequalities Using Multiplication and Division",
+    "unit": 10,
+    "benchmarks": [
+     "MA.7.AR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Solve one-step multiplication and division inequalities",
+      "code": "E9Q",
+      "due": "2027-02-12"
+     },
+     {
+      "name": "Solve and graph one-step multiplication and division inequalities",
+      "code": "PFK",
+      "due": "2027-02-12"
+     },
+     {
+      "name": "One-step multiplication and division inequalities: word problems",
+      "code": "JDA",
+      "due": "2027-02-12"
+     },
+     {
+      "name": "Solve one-step inequalities",
+      "code": "QWH",
+      "due": "2027-02-12"
+     },
+     {
+      "name": "Graph solutions to one-step inequalities",
+      "code": "TFK",
+      "due": "2027-02-12"
+     }
+    ]
    }
   },
   "2027-02-12": {
@@ -10777,7 +10798,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "AR.2.2 learning plan, day 1"
+   ],
    "acc": {
     "kind": "lesson",
     "code": "11.05+06",
@@ -10806,12 +10829,30 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "9.X2",
-    "title": "Unit 9 assessment, day 2",
-    "unit": 9,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "10.05",
+    "title": "Solving Two-Step Equations Using Properties of Equality",
+    "unit": 10,
+    "benchmarks": [
+     "MA.7.AR.2.2"
+    ],
+    "ixl": [
+     {
+      "name": "Solve two-step equations: complete the solution",
+      "code": "X2L",
+      "due": "2027-02-16"
+     },
+     {
+      "name": "Which x satisfies an equation?",
+      "code": "DJS",
+      "due": "2027-02-16"
+     },
+     {
+      "name": "Solve two-step equations using algebra tiles",
+      "code": "R9E",
+      "due": "2027-02-16"
+     }
+    ]
    }
   },
   "2027-02-15": {
@@ -10913,26 +10954,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.01",
-    "title": "Exploring Inequalities – Part 1",
+    "code": "10.06",
+    "title": "Solving Two-Step Equations",
     "unit": 10,
     "benchmarks": [
-     "MA.7.AR.2.1"
+     "MA.7.AR.2.2"
     ],
     "ixl": [
      {
-      "name": "Solutions to inequalities",
-      "code": "8BA",
+      "name": "Solve two-step equations without parentheses",
+      "code": "CMX",
       "due": "2027-02-17"
      },
      {
-      "name": "Graph inequalities on number lines",
-      "code": "VLU",
-      "due": "2027-02-17"
-     },
-     {
-      "name": "Write inequalities from number lines",
-      "code": "JNL",
+      "name": "Solve equations of the form px + q = r with fractions",
+      "code": "Y6Q",
       "due": "2027-02-17"
      }
     ]
@@ -10974,7 +11010,9 @@
      "end": "3:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CFA 1 (AR.2.2 plan)"
+   ],
    "acc": {
     "kind": "lesson",
     "code": "11.08",
@@ -10993,26 +11031,31 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.02",
-    "title": "Solving One-Step Inequalities Using Addition and Subtraction",
+    "code": "10.07",
+    "title": "Solving Equations Involving the Distributive Property",
     "unit": 10,
     "benchmarks": [
-     "MA.7.AR.2.1"
+     "MA.7.AR.2.2"
     ],
     "ixl": [
      {
-      "name": "Solve one-step addition and subtraction inequalities",
-      "code": "7MP",
+      "name": "Solve two-step equations with parentheses",
+      "code": "NSH",
       "due": "2027-02-18"
      },
      {
-      "name": "Solve and graph one-step addition and subtraction inequalities",
-      "code": "9WP",
+      "name": "Solve equations of the form p(x + q) = r with fractions",
+      "code": "A8D",
       "due": "2027-02-18"
      },
      {
-      "name": "Solve one-step addition and subtraction inequalities: word problems",
-      "code": "9GC",
+      "name": "Solve two-step equations with integers",
+      "code": "QEB",
+      "due": "2027-02-18"
+     },
+     {
+      "name": "Solve equations involving like terms",
+      "code": "VSW",
       "due": "2027-02-18"
      }
     ]
@@ -11065,13 +11108,19 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.03",
-    "title": "Exploring Inequalities – Part 2",
+    "code": "10.08",
+    "title": "Solving Real-World Problems With Two-Step Equations",
     "unit": 10,
     "benchmarks": [
-     "MA.7.AR.2.1"
+     "MA.7.AR.2.2"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Choose two-step equations: word problems",
+      "code": "8NH",
+      "due": "2027-02-19"
+     }
+    ]
    }
   },
   "2027-02-19": {
@@ -11121,37 +11170,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.04",
-    "title": "Solving One-Step Inequalities Using Multiplication and Division",
+    "code": "10.09",
+    "title": "Writing Two-Step Equations From Real-World Contexts",
     "unit": 10,
     "benchmarks": [
-     "MA.7.AR.2.1"
+     "MA.7.AR.2.2"
     ],
     "ixl": [
      {
-      "name": "Solve one-step multiplication and division inequalities",
-      "code": "E9Q",
-      "due": "2027-02-22"
-     },
-     {
-      "name": "Solve and graph one-step multiplication and division inequalities",
-      "code": "PFK",
-      "due": "2027-02-22"
-     },
-     {
-      "name": "One-step multiplication and division inequalities: word problems",
-      "code": "JDA",
-      "due": "2027-02-22"
-     },
-     {
-      "name": "Solve one-step inequalities",
-      "code": "QWH",
-      "due": "2027-02-22"
-     },
-     {
-      "name": "Graph solutions to one-step inequalities",
-      "code": "TFK",
-      "due": "2027-02-22"
+      "name": "Solve two-step equations: word problems",
+      "code": "D2Y",
+      "due": "2027-02-23"
      }
     ]
    }
@@ -11192,9 +11221,7 @@
      "end": "4:00"
     }
    ],
-   "events": [
-    "AR.2.2 learning plan, day 1"
-   ],
+   "events": [],
    "acc": {
     "kind": "flex",
     "code": "flex",
@@ -11205,26 +11232,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.05",
-    "title": "Solving Two-Step Equations Using Properties of Equality",
+    "code": "10.10",
+    "title": "Writing and Solving Equations in Real-World Context",
     "unit": 10,
     "benchmarks": [
      "MA.7.AR.2.2"
     ],
     "ixl": [
      {
-      "name": "Solve two-step equations: complete the solution",
-      "code": "X2L",
-      "due": "2027-02-23"
-     },
-     {
-      "name": "Which x satisfies an equation?",
-      "code": "DJS",
-      "due": "2027-02-23"
-     },
-     {
-      "name": "Solve two-step equations using algebra tiles",
-      "code": "R9E",
+      "name": "Solve two-step equations: word problems",
+      "code": "D2Y",
       "due": "2027-02-23"
      }
     ]
@@ -11266,7 +11283,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CFA 1 response day (AR.2.2 plan)"
+   ],
    "acc": {
     "kind": "lesson",
     "code": "12.01+02",
@@ -11289,25 +11308,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "10.06",
-    "title": "Solving Two-Step Equations",
-    "unit": 10,
-    "benchmarks": [
-     "MA.7.AR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Solve two-step equations without parentheses",
-      "code": "CMX",
-      "due": "2027-02-24"
-     },
-     {
-      "name": "Solve equations of the form px + q = r with fractions",
-      "code": "Y6Q",
-      "due": "2027-02-24"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-24": {
@@ -11346,9 +11352,7 @@
      "end": "3:00"
     }
    ],
-   "events": [
-    "CFA 1 (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
     "kind": "lesson",
     "code": "12.03",
@@ -11376,35 +11380,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "10.07",
-    "title": "Solving Equations Involving the Distributive Property",
+    "kind": "review",
+    "code": "10.R",
+    "title": "Unit 10 review day",
     "unit": 10,
-    "benchmarks": [
-     "MA.7.AR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Solve two-step equations with parentheses",
-      "code": "NSH",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Solve equations of the form p(x + q) = r with fractions",
-      "code": "A8D",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Solve two-step equations with integers",
-      "code": "QEB",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Solve equations involving like terms",
-      "code": "VSW",
-      "due": "2027-02-25"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-25": {
@@ -11443,7 +11424,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CSA (AR.2.2 plan)"
+   ],
    "acc": {
     "kind": "lesson",
     "code": "12.04+05",
@@ -11461,20 +11444,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "10.08",
-    "title": "Solving Real-World Problems With Two-Step Equations",
+    "kind": "exam",
+    "code": "10.X1",
+    "title": "Unit 10 assessment, day 1",
     "unit": 10,
-    "benchmarks": [
-     "MA.7.AR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Choose two-step equations: word problems",
-      "code": "8NH",
-      "due": "2027-02-26"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-26": {
@@ -11513,7 +11488,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CSA (AR.2.2 plan)"
+   ],
    "acc": {
     "kind": "lesson",
     "code": "12.06",
@@ -11531,20 +11508,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "10.09",
-    "title": "Writing Two-Step Equations From Real-World Contexts",
+    "kind": "exam",
+    "code": "10.X2",
+    "title": "Unit 10 assessment, day 2",
     "unit": 10,
-    "benchmarks": [
-     "MA.7.AR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Solve two-step equations: word problems",
-      "code": "D2Y",
-      "due": "2027-03-03"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-01": {
@@ -11596,7 +11565,7 @@
     "kind": "off",
     "code": null,
     "title": "State test — no class",
-    "unit": 10,
+    "unit": 11,
     "benchmarks": [],
     "ixl": []
    }
@@ -11666,16 +11635,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "10.10",
-    "title": "Writing and Solving Equations in Real-World Context",
-    "unit": 10,
+    "code": "11.01",
+    "title": "Graphing Proportional Relationships",
+    "unit": 11,
     "benchmarks": [
-     "MA.7.AR.2.2"
+     "MA.7.AR.4.3"
     ],
     "ixl": [
      {
-      "name": "Solve two-step equations: word problems",
-      "code": "D2Y",
+      "name": "Graph a proportional relationship: word problems",
+      "code": "FJW",
       "due": "2027-03-03"
      }
     ]
@@ -11717,9 +11686,7 @@
      "end": "3:00"
     }
    ],
-   "events": [
-    "CFA 1 response day (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
     "kind": "lesson",
     "code": "12.08+09",
@@ -11743,12 +11710,30 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "11.02+03",
+    "title": "Constant of Proportionality – Parts 1 and 2",
+    "unit": 11,
+    "benchmarks": [
+     "MA.7.AR.4.2"
+    ],
+    "ixl": [
+     {
+      "name": "Interpret graphs of proportional relationships",
+      "code": "RMH",
+      "due": "2027-03-04"
+     },
+     {
+      "name": "Find the constant of proportionality from a table",
+      "code": "LKZ",
+      "due": "2027-03-04"
+     },
+     {
+      "name": "Find the constant of proportionality from a graph",
+      "code": "ZUT",
+      "due": "2027-03-04"
+     }
+    ]
    }
   },
   "2027-03-04": {
@@ -11799,12 +11784,20 @@
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "10.R",
-    "title": "Unit 10 review day",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "11.04",
+    "title": "Features of Proportional Relationships",
+    "unit": 11,
+    "benchmarks": [
+     "MA.7.AR.4.1"
+    ],
+    "ixl": [
+     {
+      "name": "Identify proportional relationships by graphing",
+      "code": "AAN",
+      "due": "2027-03-08"
+     }
+    ]
    }
   },
   "2027-03-05": {
@@ -11882,9 +11875,7 @@
      "end": "4:00"
     }
    ],
-   "events": [
-    "CSA (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
     "kind": "exam",
     "code": "12.X1",
@@ -11894,12 +11885,20 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "10.X1",
-    "title": "Unit 10 assessment, day 1",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "11.05",
+    "title": "Is It Proportional?",
+    "unit": 11,
+    "benchmarks": [
+     "MA.7.AR.4.1"
+    ],
+    "ixl": [
+     {
+      "name": "Identify proportional relationships in tables and graphs",
+      "code": "VZK",
+      "due": "2027-03-09"
+     }
+    ]
    }
   },
   "2027-03-09": {
@@ -11938,9 +11937,7 @@
      "end": "4:00"
     }
    ],
-   "events": [
-    "CSA (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
     "kind": "exam",
     "code": "12.X2",
@@ -11950,12 +11947,30 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "10.X2",
-    "title": "Unit 10 assessment, day 2",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "11.06",
+    "title": "Representing Proportional Relationships With Equations",
+    "unit": 11,
+    "benchmarks": [
+     "MA.7.AR.4.4"
+    ],
+    "ixl": [
+     {
+      "name": "Write equations for proportional relationships from tables",
+      "code": "6GU",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Write equations for proportional relationships from graphs",
+      "code": "JKH",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Write and solve equations for proportional relationships",
+      "code": "VKK",
+      "due": "2027-03-10"
+     }
+    ]
    }
   },
   "2027-03-10": {
@@ -12005,19 +12020,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.01",
-    "title": "Graphing Proportional Relationships",
+    "code": "11.07",
+    "title": "Translating Between Representations of Proportional Relationships",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.3"
+     "MA.7.AR.4.4"
     ],
-    "ixl": [
-     {
-      "name": "Graph a proportional relationship: word problems",
-      "code": "FJW",
-      "due": "2027-03-11"
-     }
-    ]
+    "ixl": []
    }
   },
   "2027-03-11": {
@@ -12105,27 +12114,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.02",
-    "title": "Constant of Proportionality – Part 1",
+    "code": "11.08",
+    "title": "Putting It All Together",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.2"
+     "MA.7.AR.4.5"
     ],
     "ixl": [
      {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "RMH",
-      "due": "2027-03-15"
-     },
-     {
-      "name": "Find the constant of proportionality from a table",
-      "code": "LKZ",
-      "due": "2027-03-15"
-     },
-     {
-      "name": "Find the constant of proportionality from a graph",
-      "code": "ZUT",
-      "due": "2027-03-15"
+      "name": "Compare proportional relationships represented in different ways",
+      "code": "5A9",
+      "due": "2027-03-12"
      }
     ]
    }
@@ -12189,30 +12188,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.03",
-    "title": "Constant of Proportionality – Part 2",
+    "kind": "review",
+    "code": "11.R",
+    "title": "Unit 11 review day",
     "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.2"
-    ],
-    "ixl": [
-     {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "RMH",
-      "due": "2027-03-15"
-     },
-     {
-      "name": "Find the constant of proportionality from a table",
-      "code": "LKZ",
-      "due": "2027-03-15"
-     },
-     {
-      "name": "Find the constant of proportionality from a graph",
-      "code": "ZUT",
-      "due": "2027-03-15"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-15": {
@@ -12280,20 +12261,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.04",
-    "title": "Features of Proportional Relationships",
+    "kind": "exam",
+    "code": "11.X1",
+    "title": "Unit 11 assessment, day 1",
     "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.1"
-    ],
-    "ixl": [
-     {
-      "name": "Identify proportional relationships by graphing",
-      "code": "AAN",
-      "due": "2027-03-16"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-16": {
@@ -12361,20 +12334,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.05",
-    "title": "Is It Proportional?",
+    "kind": "exam",
+    "code": "11.X2",
+    "title": "Unit 11 assessment, day 2",
     "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.1"
-    ],
-    "ixl": [
-     {
-      "name": "Identify proportional relationships in tables and graphs",
-      "code": "VZK",
-      "due": "2027-03-17"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-17": {
@@ -12437,30 +12402,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.06",
-    "title": "Representing Proportional Relationships With Equations",
-    "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.4"
-    ],
-    "ixl": [
-     {
-      "name": "Write equations for proportional relationships from tables",
-      "code": "6GU",
-      "due": "2027-03-18"
-     },
-     {
-      "name": "Write equations for proportional relationships from graphs",
-      "code": "JKH",
-      "due": "2027-03-18"
-     },
-     {
-      "name": "Write and solve equations for proportional relationships",
-      "code": "VKK",
-      "due": "2027-03-18"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-18": {
@@ -12522,13 +12469,11 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.07",
-    "title": "Translating Between Representations of Proportional Relationships",
-    "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.4"
-    ],
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
     "ixl": []
    }
   },
@@ -12596,20 +12541,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.08",
-    "title": "Putting It All Together",
-    "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.5"
-    ],
-    "ixl": [
-     {
-      "name": "Compare proportional relationships represented in different ways",
-      "code": "5A9",
-      "due": "2027-03-29"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-22": {
@@ -12854,14 +12791,19 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.09",
-    "title": "Revisiting Relationships in Circles",
-    "unit": 11,
+    "code": "12.01",
+    "title": "Finding Surface Area of Right Circular Cylinders Using Nets",
+    "unit": 12,
     "benchmarks": [
-     "MA.7.GR.1.3",
-     "MA.7.GR.1.4"
+     "MA.7.GR.2.1"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Nets of three-dimensional figures",
+      "code": "3R2",
+      "due": "2027-03-30"
+     }
+    ]
    }
   },
   "2027-03-30": {
@@ -12910,12 +12852,26 @@
     "ixl": []
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "12.02",
+    "title": "Finding Surface Area of Right Circular Cylinders",
+    "unit": 12,
+    "benchmarks": [
+     "MA.7.GR.2.1",
+     "MA.7.GR.2.2"
+    ],
+    "ixl": [
+     {
+      "name": "Surface area of cylinders",
+      "code": "CYQ",
+      "due": "2027-04-01"
+     },
+     {
+      "name": "Lateral area of cylinders",
+      "code": "C8K",
+      "due": "2027-04-01"
+     }
+    ]
    }
   },
   "2027-03-31": {
@@ -12992,12 +12948,25 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "11.R",
-    "title": "Unit 11 review day",
-    "unit": 11,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "12.03",
+    "title": "Solving Problems Involving Surface Area of Right Circular Cylinders",
+    "unit": 12,
+    "benchmarks": [
+     "MA.7.GR.2.2"
+    ],
+    "ixl": [
+     {
+      "name": "Surface area of cylinders",
+      "code": "CYQ",
+      "due": "2027-04-01"
+     },
+     {
+      "name": "Lateral area of cylinders",
+      "code": "C8K",
+      "due": "2027-04-01"
+     }
+    ]
    }
   },
   "2027-04-01": {
@@ -13059,11 +13028,13 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X1",
-    "title": "Unit 11 assessment, day 1",
-    "unit": 11,
-    "benchmarks": [],
+    "kind": "lesson",
+    "code": "12.04",
+    "title": "Volume of Right Circular Cylinders – Part 1",
+    "unit": 12,
+    "benchmarks": [
+     "MA.7.GR.2.3"
+    ],
     "ixl": []
    }
   },
@@ -13126,12 +13097,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X2",
-    "title": "Unit 11 assessment, day 2",
-    "unit": 11,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "12.05",
+    "title": "Volume of Right Circular Cylinders – Part 2",
+    "unit": 12,
+    "benchmarks": [
+     "MA.7.GR.2.3"
+    ],
+    "ixl": [
+     {
+      "name": "Volume of cylinders",
+      "code": "FHC",
+      "due": "2027-04-06"
+     }
+    ]
    }
   },
   "2027-04-05": {
@@ -13181,16 +13160,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "12.01",
-    "title": "Finding Surface Area of Right Circular Cylinders Using Nets",
+    "code": "12.06",
+    "title": "Problem-Solving With Volume of Cylinders",
     "unit": 12,
     "benchmarks": [
-     "MA.7.GR.2.1"
+     "MA.7.GR.2.3"
     ],
     "ixl": [
      {
-      "name": "Nets of three-dimensional figures",
-      "code": "3R2",
+      "name": "Volume of cylinders",
+      "code": "FHC",
       "due": "2027-04-06"
      }
     ]
@@ -13242,26 +13221,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "12.02",
-    "title": "Finding Surface Area of Right Circular Cylinders",
-    "unit": 12,
-    "benchmarks": [
-     "MA.7.GR.2.1",
-     "MA.7.GR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Surface area of cylinders",
-      "code": "CYQ",
-      "due": "2027-04-08"
-     },
-     {
-      "name": "Lateral area of cylinders",
-      "code": "C8K",
-      "due": "2027-04-08"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-07": {
@@ -13323,25 +13288,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "12.03",
-    "title": "Solving Problems Involving Surface Area of Right Circular Cylinders",
+    "kind": "review",
+    "code": "12.R",
+    "title": "Unit 12 review day",
     "unit": 12,
-    "benchmarks": [
-     "MA.7.GR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Surface area of cylinders",
-      "code": "CYQ",
-      "due": "2027-04-08"
-     },
-     {
-      "name": "Lateral area of cylinders",
-      "code": "C8K",
-      "due": "2027-04-08"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-08": {
@@ -13418,13 +13370,11 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "12.04",
-    "title": "Volume of Right Circular Cylinders – Part 1",
+    "kind": "exam",
+    "code": "12.X1",
+    "title": "Unit 12 assessment, day 1",
     "unit": 12,
-    "benchmarks": [
-     "MA.7.GR.2.3"
-    ],
+    "benchmarks": [],
     "ixl": []
    }
   },
@@ -13492,20 +13442,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "12.05",
-    "title": "Volume of Right Circular Cylinders – Part 2",
+    "kind": "exam",
+    "code": "12.X2",
+    "title": "Unit 12 assessment, day 2",
     "unit": 12,
-    "benchmarks": [
-     "MA.7.GR.2.3"
-    ],
-    "ixl": [
-     {
-      "name": "Volume of cylinders",
-      "code": "FHC",
-      "due": "2027-04-13"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-12": {
@@ -13568,16 +13510,36 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "12.06",
-    "title": "Problem-Solving With Volume of Cylinders",
-    "unit": 12,
+    "code": "13.01",
+    "title": "Effects of Outliers",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.GR.2.3"
+     "MA.7.DP.1.1"
     ],
     "ixl": [
      {
-      "name": "Volume of cylinders",
-      "code": "FHC",
+      "name": "Interpret stem-and-leaf plots",
+      "code": "BCT",
+      "due": "2027-04-13"
+     },
+     {
+      "name": "Identify an outlier and describe the effect of removing it",
+      "code": "QZU",
+      "due": "2027-04-13"
+     },
+     {
+      "name": "Calculate mean, median, mode, and range",
+      "code": "U2A",
+      "due": "2027-04-13"
+     },
+     {
+      "name": "Calculate quartiles and interquartile range",
+      "code": "NZN",
+      "due": "2027-04-13"
+     },
+     {
+      "name": "Interpret charts and graphs to find mean, median, mode, and range",
+      "code": "CYK",
       "due": "2027-04-13"
      }
     ]
@@ -13642,12 +13604,20 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.02",
+    "title": "Justifying Measures of Center and Spread",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Describe distributions in dot plots",
+      "code": "ZX7",
+      "due": "2027-04-15"
+     }
+    ]
    }
   },
   "2027-04-14": {
@@ -13710,12 +13680,20 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.03",
+    "title": "Determining Appropriate Measures of Center and Variation",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Describe distributions in dot plots",
+      "code": "ZX7",
+      "due": "2027-04-15"
+     }
+    ]
    }
   },
   "2027-04-15": {
@@ -13782,12 +13760,20 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "12.R",
-    "title": "Unit 12 review day",
-    "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.04",
+    "title": "Comparing Graphical Representations",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.2"
+    ],
+    "ixl": [
+     {
+      "name": "Compare populations using measures of center and spread",
+      "code": "JQW",
+      "due": "2027-04-21"
+     }
+    ]
    }
   },
   "2027-04-16": {
@@ -13898,12 +13884,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "12.X1",
-    "title": "Unit 12 assessment, day 1",
-    "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.05",
+    "title": "Comparing Data Sets",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.2"
+    ],
+    "ixl": [
+     {
+      "name": "Compare populations using measures of center and spread",
+      "code": "JQW",
+      "due": "2027-04-21"
+     }
+    ]
    }
   },
   "2027-04-20": {
@@ -13986,12 +13980,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "12.X2",
-    "title": "Unit 12 assessment, day 2",
-    "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.06",
+    "title": "Comparing Data Sets and Graphs",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.2"
+    ],
+    "ixl": [
+     {
+      "name": "Compare populations using measures of center and spread",
+      "code": "JQW",
+      "due": "2027-04-21"
+     }
+    ]
    }
   },
   "2027-04-21": {
@@ -14049,36 +14051,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.01",
-    "title": "Effects of Outliers",
+    "code": "13.07",
+    "title": "Representing Real-World Contexts With Graphs",
     "unit": 13,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.DP.1.5"
     ],
     "ixl": [
      {
-      "name": "Interpret stem-and-leaf plots",
-      "code": "BCT",
-      "due": "2027-04-22"
-     },
-     {
-      "name": "Identify an outlier and describe the effect of removing it",
-      "code": "QZU",
-      "due": "2027-04-22"
-     },
-     {
-      "name": "Calculate mean, median, mode, and range",
-      "code": "U2A",
-      "due": "2027-04-22"
-     },
-     {
-      "name": "Calculate quartiles and interquartile range",
-      "code": "NZN",
-      "due": "2027-04-22"
-     },
-     {
-      "name": "Interpret charts and graphs to find mean, median, mode, and range",
-      "code": "CYK",
+      "name": "Choose the best type of graph",
+      "code": "VP6",
       "due": "2027-04-22"
      }
     ]
@@ -14131,17 +14113,37 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.02",
-    "title": "Justifying Measures of Center and Spread",
+    "code": "13.08",
+    "title": "Creating Displays for Numerical Data",
     "unit": 13,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.DP.1.5"
     ],
     "ixl": [
      {
-      "name": "Describe distributions in dot plots",
-      "code": "ZX7",
-      "due": "2027-04-26"
+      "name": "Create dot plots",
+      "code": "22B",
+      "due": "2027-04-23"
+     },
+     {
+      "name": "Create stem-and-leaf plots",
+      "code": "8AP",
+      "due": "2027-04-23"
+     },
+     {
+      "name": "Create histograms",
+      "code": "LGG",
+      "due": "2027-04-23"
+     },
+     {
+      "name": "Box plots",
+      "code": "SKN",
+      "due": "2027-04-23"
+     },
+     {
+      "name": "Create and interpret dot plots with fractions",
+      "code": "SHS",
+      "due": "2027-04-23"
      }
     ]
    }
@@ -14193,16 +14195,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.03",
-    "title": "Determining Appropriate Measures of Center and Variation",
+    "code": "13.09",
+    "title": "Creating Displays for Categorical Data",
     "unit": 13,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.DP.1.5"
     ],
     "ixl": [
      {
-      "name": "Describe distributions in dot plots",
-      "code": "ZX7",
+      "name": "Create bar graphs",
+      "code": "E76",
       "due": "2027-04-26"
      }
     ]
@@ -14283,20 +14285,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.04",
-    "title": "Comparing Graphical Representations",
+    "kind": "review",
+    "code": "13.R",
+    "title": "Unit 13 review day",
     "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-29"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-27": {
@@ -14358,20 +14352,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.05",
-    "title": "Comparing Data Sets",
+    "kind": "exam",
+    "code": "13.X1",
+    "title": "Unit 13 assessment, day 1",
     "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-29"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-28": {
@@ -14420,20 +14406,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.06",
-    "title": "Comparing Data Sets and Graphs",
+    "kind": "exam",
+    "code": "13.X2",
+    "title": "Unit 13 assessment, day 2",
     "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-29"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-29": {
@@ -14482,20 +14460,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.07",
-    "title": "Representing Real-World Contexts With Graphs",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Choose the best type of graph",
-      "code": "VP6",
-      "due": "2027-04-30"
-     }
-    ]
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-30": {
@@ -14544,40 +14514,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.08",
-    "title": "Creating Displays for Numerical Data",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Create dot plots",
-      "code": "22B",
-      "due": "2027-05-03"
-     },
-     {
-      "name": "Create stem-and-leaf plots",
-      "code": "8AP",
-      "due": "2027-05-03"
-     },
-     {
-      "name": "Create histograms",
-      "code": "LGG",
-      "due": "2027-05-03"
-     },
-     {
-      "name": "Box plots",
-      "code": "SKN",
-      "due": "2027-05-03"
-     },
-     {
-      "name": "Create and interpret dot plots with fractions",
-      "code": "SHS",
-      "due": "2027-05-03"
-     }
-    ]
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-05-03": {
@@ -14626,20 +14568,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.09",
-    "title": "Creating Displays for Categorical Data",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Create bar graphs",
-      "code": "E76",
-      "due": "2027-05-04"
-     }
-    ]
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block / PM3 window (test date set by the school)",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-05-04": {
@@ -14688,9 +14622,9 @@
     "ixl": []
    },
    "on": {
-    "kind": "spiral",
+    "kind": "fast",
     "code": null,
-    "title": "Spiral / FAST practice day",
+    "title": "FAST review block / PM3 window (test date set by the school)",
     "unit": null,
     "benchmarks": [],
     "ixl": []
@@ -14742,10 +14676,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "13.R",
-    "title": "Unit 13 review day",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block / PM3 window (test date set by the school)",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -14796,10 +14730,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "13.X1",
-    "title": "Unit 13 assessment, day 1",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block / PM3 window (test date set by the school)",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -14850,10 +14784,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "13.X2",
-    "title": "Unit 13 assessment, day 2",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block / PM3 window (test date set by the school)",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -16942,6 +16876,7 @@
     "exam": {
      "weekdays": [
       0,
+      1,
       3
      ],
      "minBeforeBreak": 2
@@ -17194,7 +17129,7 @@
      "title": "Unit 5 review day",
      "unit": 5,
      "examIn": 1,
-     "base": "2026-11-04"
+     "base": "2026-11-02"
     },
     {
      "kind": "exam",
@@ -17202,14 +17137,14 @@
      "title": "Unit 5 assessment, day 1",
      "unit": 5,
      "examIn": 0,
-     "base": "2026-11-05"
+     "base": "2026-11-03"
     },
     {
      "kind": "exam",
      "code": "5.X2",
      "title": "Unit 5 assessment, day 2",
      "unit": 5,
-     "base": "2026-11-06"
+     "base": "2026-11-04"
     },
     {
      "kind": "lesson",
@@ -17217,77 +17152,77 @@
      "title": "Paying Your Way in Mathlandia",
      "unit": 6,
      "need": 3,
-     "base": "2026-11-09"
+     "base": "2026-11-05"
     },
     {
      "kind": "lesson",
      "code": "6.02",
      "title": "Currency Conversions",
      "unit": 6,
-     "base": "2026-11-10"
+     "base": "2026-11-06"
     },
     {
      "kind": "lesson",
      "code": "6.03",
      "title": "Converting Units of Length",
      "unit": 6,
-     "base": "2026-11-12"
+     "base": "2026-11-09"
     },
     {
      "kind": "lesson",
      "code": "6.04",
      "title": "Converting Mass and Area",
      "unit": 6,
-     "base": "2026-11-13"
+     "base": "2026-11-10"
     },
     {
      "kind": "lesson",
      "code": "6.05",
      "title": "Converting Units of Volume",
      "unit": 6,
-     "base": "2026-11-16"
+     "base": "2026-11-12"
     },
     {
      "kind": "lesson",
      "code": "6.06",
      "title": "Creating Proportions",
      "unit": 6,
-     "base": "2026-11-17"
+     "base": "2026-11-13"
     },
     {
      "kind": "lesson",
      "code": "6.07",
      "title": "Using Proportions to Solve Problems",
      "unit": 6,
-     "base": "2026-11-18"
+     "base": "2026-11-16"
     },
     {
      "kind": "lesson",
      "code": "6.08",
      "title": "Solving Real-World Problems Involving Proportions",
      "unit": 6,
-     "base": "2026-11-19"
+     "base": "2026-11-17"
     },
     {
      "kind": "lesson",
      "code": "6.09",
      "title": "Exploring Multi-Step Proportions Problems",
      "unit": 6,
-     "base": "2026-11-20"
+     "base": "2026-11-18"
     },
     {
      "kind": "lesson",
      "code": "6.10",
      "title": "Solving Multi-Step Proportion Problems",
      "unit": 6,
-     "base": "2026-11-30"
+     "base": "2026-11-19"
     },
     {
      "kind": "lesson",
      "code": "6.11",
      "title": "Reasoning Through Problems Involving Proportional Relationships",
      "unit": 6,
-     "base": "2026-12-01"
+     "base": "2026-11-20"
     },
     {
      "kind": "review",
@@ -17295,7 +17230,7 @@
      "title": "Unit 6 review day",
      "unit": 6,
      "examIn": 1,
-     "base": "2026-12-02"
+     "base": "2026-11-30"
     },
     {
      "kind": "exam",
@@ -17303,14 +17238,14 @@
      "title": "Unit 6 assessment, day 1",
      "unit": 6,
      "examIn": 0,
-     "base": "2026-12-03"
+     "base": "2026-12-01"
     },
     {
      "kind": "exam",
      "code": "6.X2",
      "title": "Unit 6 assessment, day 2",
      "unit": 6,
-     "base": "2026-12-04"
+     "base": "2026-12-02"
     },
     {
      "kind": "lesson",
@@ -17318,70 +17253,70 @@
      "title": "Circle Graphs",
      "unit": 7,
      "need": 3,
-     "base": "2026-12-07"
+     "base": "2026-12-03"
     },
     {
      "kind": "lesson",
      "code": "7.02",
      "title": "Sectors of a Circle",
      "unit": 7,
-     "base": "2026-12-08"
+     "base": "2026-12-04"
     },
     {
      "kind": "lesson",
      "code": "7.03",
      "title": "Constructing Circle Graphs",
      "unit": 7,
-     "base": "2026-12-09"
+     "base": "2026-12-07"
     },
     {
      "kind": "lesson",
      "code": "7.04",
      "title": "Interpreting Circle Graphs",
      "unit": 7,
-     "base": "2026-12-10"
+     "base": "2026-12-08"
     },
     {
      "kind": "lesson",
      "code": "7.05",
      "title": "Discounts and Markups",
      "unit": 7,
-     "base": "2026-12-11"
+     "base": "2026-12-09"
     },
     {
      "kind": "lesson",
      "code": "7.06",
      "title": "Determining Tax, Tip, or Fees Given a Percentage",
      "unit": 7,
-     "base": "2026-12-14"
+     "base": "2026-12-10"
     },
     {
      "kind": "lesson",
      "code": "7.07",
      "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
      "unit": 7,
-     "base": "2026-12-15"
+     "base": "2026-12-11"
     },
     {
      "kind": "lesson",
      "code": "7.08",
      "title": "Simple Interest",
      "unit": 7,
-     "base": "2026-12-16"
+     "base": "2026-12-14"
     },
     {
      "kind": "lesson",
      "code": "7.09",
      "title": "Percent Increase and Decrease",
      "unit": 7,
-     "base": "2026-12-17"
+     "base": "2026-12-15"
     },
     {
      "kind": "lesson",
      "code": "7.10",
      "title": "Calculating Percent Error",
      "unit": 7,
-     "base": "2026-12-18"
+     "base": "2026-12-16"
     },
     {
      "kind": "review",
@@ -17437,25 +17372,10 @@
     },
     {
      "kind": "lesson",
-     "code": "8.05",
-     "title": "Evaluating Numeric Expressions – Part 2",
+     "code": "8.05+06",
+     "title": "Evaluating Numeric Expressions – Parts 2 and 3",
      "unit": 8,
      "base": "2027-01-15"
-    },
-    {
-     "kind": "lesson",
-     "code": "8.06",
-     "title": "Evaluating Numeric Expressions – Part 3",
-     "unit": 8,
-     "base": "2027-01-19"
-    },
-    {
-     "kind": "review",
-     "code": "8.R",
-     "title": "Unit 8 review day",
-     "unit": 8,
-     "examIn": 1,
-     "base": "2027-01-20"
     },
     {
      "kind": "exam",
@@ -17463,14 +17383,14 @@
      "title": "Unit 8 assessment, day 1",
      "unit": 8,
      "examIn": 0,
-     "base": "2027-01-21"
+     "base": "2027-01-19"
     },
     {
      "kind": "exam",
      "code": "8.X2",
      "title": "Unit 8 assessment, day 2",
      "unit": 8,
-     "base": "2027-01-22"
+     "base": "2027-01-20"
     },
     {
      "kind": "lesson",
@@ -17478,64 +17398,49 @@
      "title": "Adding and Subtracting Linear Expressions With Integer Coefficients",
      "unit": 9,
      "need": 3,
-     "base": "2027-01-25"
+     "base": "2027-01-21"
     },
     {
      "kind": "lesson",
      "code": "9.02",
      "title": "Adding Linear Expressions With Rational Coefficients",
      "unit": 9,
-     "base": "2027-01-26"
+     "base": "2027-01-22"
     },
     {
      "kind": "lesson",
-     "code": "9.03",
-     "title": "Subtracting Linear Expressions With Rational Coefficients",
+     "code": "9.03+04",
+     "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
      "unit": 9,
-     "base": "2027-01-27"
-    },
-    {
-     "kind": "lesson",
-     "code": "9.04",
-     "title": "Adding and Subtracting Expressions With Rational Coefficients",
-     "unit": 9,
-     "base": "2027-01-28"
+     "base": "2027-01-25"
     },
     {
      "kind": "lesson",
      "code": "9.05",
      "title": "Equivalent Numerical Expressions",
      "unit": 9,
-     "base": "2027-01-29"
+     "base": "2027-01-26"
     },
     {
      "kind": "lesson",
      "code": "9.06",
      "title": "Rewriting Equivalent Numerical Expressions",
      "unit": 9,
-     "base": "2027-02-01"
+     "base": "2027-01-27"
     },
     {
      "kind": "lesson",
      "code": "9.07",
      "title": "Equivalent Linear Expressions",
      "unit": 9,
-     "base": "2027-02-02"
+     "base": "2027-01-28"
     },
     {
      "kind": "lesson",
      "code": "9.08",
      "title": "Equivalent Expressions Using Properties of Operations",
      "unit": 9,
-     "base": "2027-02-03"
-    },
-    {
-     "kind": "review",
-     "code": "9.R",
-     "title": "Unit 9 review day",
-     "unit": 9,
-     "examIn": 1,
-     "base": "2027-02-05"
+     "base": "2027-01-29"
     },
     {
      "kind": "exam",
@@ -17543,14 +17448,14 @@
      "title": "Unit 9 assessment, day 1",
      "unit": 9,
      "examIn": 0,
-     "base": "2027-02-08"
+     "base": "2027-02-01"
     },
     {
      "kind": "exam",
      "code": "9.X2",
      "title": "Unit 9 assessment, day 2",
      "unit": 9,
-     "base": "2027-02-09"
+     "base": "2027-02-02"
     },
     {
      "kind": "lesson",
@@ -17558,70 +17463,70 @@
      "title": "Exploring Inequalities – Part 1",
      "unit": 10,
      "need": 3,
-     "base": "2027-02-10"
+     "base": "2027-02-03"
     },
     {
      "kind": "lesson",
      "code": "10.02",
      "title": "Solving One-Step Inequalities Using Addition and Subtraction",
      "unit": 10,
-     "base": "2027-02-11"
+     "base": "2027-02-04"
     },
     {
      "kind": "lesson",
      "code": "10.03",
      "title": "Exploring Inequalities – Part 2",
      "unit": 10,
-     "base": "2027-02-12"
+     "base": "2027-02-05"
     },
     {
      "kind": "lesson",
      "code": "10.04",
      "title": "Solving One-Step Inequalities Using Multiplication and Division",
      "unit": 10,
-     "base": "2027-02-16"
+     "base": "2027-02-08"
     },
     {
      "kind": "lesson",
      "code": "10.05",
      "title": "Solving Two-Step Equations Using Properties of Equality",
      "unit": 10,
-     "base": "2027-02-17"
+     "base": "2027-02-09"
     },
     {
      "kind": "lesson",
      "code": "10.06",
      "title": "Solving Two-Step Equations",
      "unit": 10,
-     "base": "2027-02-18"
+     "base": "2027-02-10"
     },
     {
      "kind": "lesson",
      "code": "10.07",
      "title": "Solving Equations Involving the Distributive Property",
      "unit": 10,
-     "base": "2027-02-19"
+     "base": "2027-02-11"
     },
     {
      "kind": "lesson",
      "code": "10.08",
      "title": "Solving Real-World Problems With Two-Step Equations",
      "unit": 10,
-     "base": "2027-02-22"
+     "base": "2027-02-12"
     },
     {
      "kind": "lesson",
      "code": "10.09",
      "title": "Writing Two-Step Equations From Real-World Contexts",
      "unit": 10,
-     "base": "2027-02-23"
+     "base": "2027-02-16"
     },
     {
      "kind": "lesson",
      "code": "10.10",
      "title": "Writing and Solving Equations in Real-World Context",
      "unit": 10,
-     "base": "2027-02-24"
+     "base": "2027-02-17"
     },
     {
      "kind": "review",
@@ -17629,7 +17534,7 @@
      "title": "Unit 10 review day",
      "unit": 10,
      "examIn": 1,
-     "base": "2027-02-26"
+     "base": "2027-02-19"
     },
     {
      "kind": "exam",
@@ -17637,14 +17542,14 @@
      "title": "Unit 10 assessment, day 1",
      "unit": 10,
      "examIn": 0,
-     "base": "2027-03-01"
+     "base": "2027-02-22"
     },
     {
      "kind": "exam",
      "code": "10.X2",
      "title": "Unit 10 assessment, day 2",
      "unit": 10,
-     "base": "2027-03-02"
+     "base": "2027-02-23"
     },
     {
      "kind": "lesson",
@@ -17652,63 +17557,49 @@
      "title": "Graphing Proportional Relationships",
      "unit": 11,
      "need": 3,
-     "base": "2027-03-03"
+     "base": "2027-02-24"
     },
     {
      "kind": "lesson",
-     "code": "11.02",
-     "title": "Constant of Proportionality – Part 1",
+     "code": "11.02+03",
+     "title": "Constant of Proportionality – Parts 1 and 2",
      "unit": 11,
-     "base": "2027-03-04"
-    },
-    {
-     "kind": "lesson",
-     "code": "11.03",
-     "title": "Constant of Proportionality – Part 2",
-     "unit": 11,
-     "base": "2027-03-08"
+     "base": "2027-02-25"
     },
     {
      "kind": "lesson",
      "code": "11.04",
      "title": "Features of Proportional Relationships",
      "unit": 11,
-     "base": "2027-03-09"
+     "base": "2027-02-26"
     },
     {
      "kind": "lesson",
      "code": "11.05",
      "title": "Is It Proportional?",
      "unit": 11,
-     "base": "2027-03-10"
+     "base": "2027-03-01"
     },
     {
      "kind": "lesson",
      "code": "11.06",
      "title": "Representing Proportional Relationships With Equations",
      "unit": 11,
-     "base": "2027-03-11"
+     "base": "2027-03-02"
     },
     {
      "kind": "lesson",
      "code": "11.07",
      "title": "Translating Between Representations of Proportional Relationships",
      "unit": 11,
-     "base": "2027-03-12"
+     "base": "2027-03-03"
     },
     {
      "kind": "lesson",
      "code": "11.08",
      "title": "Putting It All Together",
      "unit": 11,
-     "base": "2027-03-15"
-    },
-    {
-     "kind": "lesson",
-     "code": "11.09",
-     "title": "Revisiting Relationships in Circles",
-     "unit": 11,
-     "base": "2027-03-16"
+     "base": "2027-03-04"
     },
     {
      "kind": "review",
@@ -17716,7 +17607,7 @@
      "title": "Unit 11 review day",
      "unit": 11,
      "examIn": 1,
-     "base": "2027-03-17"
+     "base": "2027-03-08"
     },
     {
      "kind": "exam",
@@ -17724,14 +17615,14 @@
      "title": "Unit 11 assessment, day 1",
      "unit": 11,
      "examIn": 0,
-     "base": "2027-03-18"
+     "base": "2027-03-09"
     },
     {
      "kind": "exam",
      "code": "11.X2",
      "title": "Unit 11 assessment, day 2",
      "unit": 11,
-     "base": "2027-03-19"
+     "base": "2027-03-10"
     },
     {
      "kind": "lesson",
@@ -17739,42 +17630,42 @@
      "title": "Finding Surface Area of Right Circular Cylinders Using Nets",
      "unit": 12,
      "need": 6,
-     "base": "2027-03-29"
+     "base": "2027-03-11"
     },
     {
      "kind": "lesson",
      "code": "12.02",
      "title": "Finding Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-30"
+     "base": "2027-03-12"
     },
     {
      "kind": "lesson",
      "code": "12.03",
      "title": "Solving Problems Involving Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-31"
+     "base": "2027-03-15"
     },
     {
      "kind": "lesson",
      "code": "12.04",
      "title": "Volume of Right Circular Cylinders – Part 1",
      "unit": 12,
-     "base": "2027-04-01"
+     "base": "2027-03-16"
     },
     {
      "kind": "lesson",
      "code": "12.05",
      "title": "Volume of Right Circular Cylinders – Part 2",
      "unit": 12,
-     "base": "2027-04-02"
+     "base": "2027-03-17"
     },
     {
      "kind": "lesson",
      "code": "12.06",
      "title": "Problem-Solving With Volume of Cylinders",
      "unit": 12,
-     "base": "2027-04-05"
+     "base": "2027-03-18"
     },
     {
      "kind": "review",
@@ -17782,7 +17673,7 @@
      "title": "Unit 12 review day",
      "unit": 12,
      "examIn": 1,
-     "base": "2027-04-07"
+     "base": "2027-03-19"
     },
     {
      "kind": "exam",
@@ -17790,14 +17681,14 @@
      "title": "Unit 12 assessment, day 1",
      "unit": 12,
      "examIn": 0,
-     "base": "2027-04-08"
+     "base": "2027-03-29"
     },
     {
      "kind": "exam",
      "code": "12.X2",
      "title": "Unit 12 assessment, day 2",
      "unit": 12,
-     "base": "2027-04-09"
+     "base": "2027-03-30"
     },
     {
      "kind": "lesson",
@@ -17805,63 +17696,63 @@
      "title": "Effects of Outliers",
      "unit": 13,
      "need": 3,
-     "base": "2027-04-12"
+     "base": "2027-03-31"
     },
     {
      "kind": "lesson",
      "code": "13.02",
      "title": "Justifying Measures of Center and Spread",
      "unit": 13,
-     "base": "2027-04-13"
+     "base": "2027-04-01"
     },
     {
      "kind": "lesson",
      "code": "13.03",
      "title": "Determining Appropriate Measures of Center and Variation",
      "unit": 13,
-     "base": "2027-04-14"
+     "base": "2027-04-02"
     },
     {
      "kind": "lesson",
      "code": "13.04",
      "title": "Comparing Graphical Representations",
      "unit": 13,
-     "base": "2027-04-15"
+     "base": "2027-04-05"
     },
     {
      "kind": "lesson",
      "code": "13.05",
      "title": "Comparing Data Sets",
      "unit": 13,
-     "base": "2027-04-19"
+     "base": "2027-04-06"
     },
     {
      "kind": "lesson",
      "code": "13.06",
      "title": "Comparing Data Sets and Graphs",
      "unit": 13,
-     "base": "2027-04-20"
+     "base": "2027-04-07"
     },
     {
      "kind": "lesson",
      "code": "13.07",
      "title": "Representing Real-World Contexts With Graphs",
      "unit": 13,
-     "base": "2027-04-21"
+     "base": "2027-04-08"
     },
     {
      "kind": "lesson",
      "code": "13.08",
      "title": "Creating Displays for Numerical Data",
      "unit": 13,
-     "base": "2027-04-22"
+     "base": "2027-04-09"
     },
     {
      "kind": "lesson",
      "code": "13.09",
      "title": "Creating Displays for Categorical Data",
      "unit": 13,
-     "base": "2027-04-23"
+     "base": "2027-04-12"
     },
     {
      "kind": "review",
@@ -17869,7 +17760,7 @@
      "title": "Unit 13 review day",
      "unit": 13,
      "examIn": 1,
-     "base": "2027-04-28"
+     "base": "2027-04-15"
     },
     {
      "kind": "exam",
@@ -17877,14 +17768,14 @@
      "title": "Unit 13 assessment, day 1",
      "unit": 13,
      "examIn": 0,
-     "base": "2027-04-29"
+     "base": "2027-04-19"
     },
     {
      "kind": "exam",
      "code": "13.X2",
      "title": "Unit 13 assessment, day 2",
      "unit": 13,
-     "base": "2027-04-30"
+     "base": "2027-04-20"
     }
    ]
   }

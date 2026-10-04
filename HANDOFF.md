@@ -68,10 +68,12 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
 - **Where the plan stands after the first log** (5 Oct): A7 two days behind and a state test on
   8 Oct — Unit 3's test moves 8–9 Oct → 15–16 Oct (into Q2), five of seven flex days are absorbed,
   content still ends 30 April. M7 two days behind, same test — Unit 4's test moves 15–16 → 19–20
-  Oct; with the 14 January and 1 March state tests **M7's Unit 13 test lands on 6–7 May, five school
-  days past 30 April and inside the PM3 window**, and Unit 10's test moves into Q4. M7 has no flex
-  days; what to cut or merge is Croix's call and nothing was cut. Both are in each scope document's
-  last section.
+  Oct; with the 14 January and 1 March state tests the log alone put M7's Unit 13 test on 6–7 May,
+  past 30 April. **Croix was shown the options and took four (M7's ruling 36)**: tests may run
+  Tuesday–Wednesday (M7 only), 8.05+8.06 and 9.03+9.04 are one day each, Unit 11 is trimmed
+  (11.02+11.03 one day, 11.09 not taught), Units 8 and 9 have no review day. Unit 13's test is now
+  27–28 April and one more lost day anywhere still ends by 30 April. A merged day's code in the
+  spine is `8.05+06` (the shape A7 already used). Both courses' scope documents end with what moved.
 - **Where it landed** (all pushed and verified against each remote head): the engine and the
   spine here `2761626`; `windy-hill-m7` `03fb7fc`; `croix18-windy-hill-a7` `c8ea8f5`. All four
   kit-built units rebuilt at `checks: 0 findings`; against the builds before 4 October the lessons
