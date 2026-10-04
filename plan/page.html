@@ -1,0 +1,359 @@
+<title>Windy Hill Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: a planner you read with a thumb. One column; a status block that says where the class is,
+   then the year as weeks, each week headed by its bell colour (Teal Week / Black Week). */
+:root {
+  --bg: #f3f6f5; --surface: #ffffff; --ink: #15201e; --muted: #5a6966; --line: #d6dfdc;
+  --teal: #0b6f66; --tealwash: #dff1ee; --blackweek: #1b2422; --amber: #a4530a; --amberwash: #fbecd5;
+  --test: #9b1c4a; --testwash: #fbe3ec; --quiet: #eef2f1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1514; --surface: #17201f; --ink: #e7eeec; --muted: #9db0ab; --line: #2b3835;
+  --teal: #56d3c4; --tealwash: #12332f; --blackweek: #c9d3d0; --amber: #f2b45f; --amberwash: #3a2a12;
+  --test: #ff8fb3; --testwash: #3b1826; --quiet: #1c2725; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1514; --surface: #17201f; --ink: #e7eeec; --muted: #9db0ab; --line: #2b3835;
+  --teal: #56d3c4; --tealwash: #12332f; --blackweek: #c9d3d0; --amber: #f2b45f; --amberwash: #3a2a12;
+  --test: #ff8fb3; --testwash: #3b1826; --quiet: #1c2725; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body); }
+.wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 48px; display: flex; flex-direction: column; gap: 18px; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.top h1 { font: 800 22px/1.1 var(--display); margin: 0; letter-spacing: -0.01em; }
+.switch { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.switch button { border: 0; background: none; padding: 8px 16px; font-weight: 700; color: var(--muted); }
+.switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.now { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.now h2 { font: 800 24px/1.15 var(--display); margin: 0; text-wrap: balance; }
+.now h2 small { display: block; font: 400 15px/1.3 var(--body); color: var(--muted); margin-bottom: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 14px; padding: 5px 10px; border-radius: 999px; background: var(--quiet); }
+.chip.warn { background: var(--amberwash); color: var(--amber); font-weight: 700; }
+.chip.test { background: var(--testwash); color: var(--test); }
+.chip.ok { background: var(--tealwash); color: var(--teal); }
+.fine { font-size: 13px; color: var(--muted); margin: 0; }
+.act { align-self: flex-start; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); border-radius: 10px; padding: 10px 14px; font-weight: 700; }
+.act.ghost { background: none; color: var(--ink); border-color: var(--line); }
+
+.note { border: 1px solid var(--amber); background: var(--amberwash); color: var(--ink); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.note strong { color: var(--amber); }
+.note ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.note li button { border: 0; background: none; text-decoration: underline; padding: 0 0 0 6px; color: var(--muted); font-size: 14px; }
+
+.log { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.log h3 { font: 800 18px/1.2 var(--display); margin: 0; }
+.log label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+.log input[type="date"], .log input[type="text"], .log select { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 9px 10px; color: var(--ink); min-width: 0; width: 100%; box-sizing: border-box; }
+.choice { display: flex; flex-direction: column; gap: 8px; border: 0; padding: 0; margin: 0; }
+.choice legend { font-size: 14px; color: var(--muted); padding: 0; margin-bottom: 4px; }
+.choice label { flex-direction: row; align-items: flex-start; gap: 10px; color: var(--ink); font-size: 16px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.choice label small { display: block; color: var(--muted); font-size: 13px; }
+.choice input { margin-top: 4px; }
+.rowbtn { display: flex; gap: 10px; flex-wrap: wrap; }
+.msg { color: var(--test); font-size: 14px; margin: 0; }
+
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); }
+.tabs button { border: 0; background: none; padding: 10px 12px; color: var(--muted); font-weight: 700; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+.week { display: flex; flex-direction: column; gap: 0; }
+.weekhead { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 14px 2px 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.teal { background: var(--teal); } .dot.black { background: var(--blackweek); }
+.days { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.dayrow { border-top: 1px solid var(--line); }
+.dayrow:first-child { border-top: 0; }
+.dayrow.past { opacity: 0.55; }
+.dayrow.holiday, .dayrow.off { background: var(--quiet); }
+.day { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 11px 12px; width: 100%; text-align: left; background: none; border: 0; }
+.when { font-variant-numeric: tabular-nums; line-height: 1.15; }
+.when b { display: block; font: 800 20px/1 var(--display); }
+.when span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.when em { display: block; font-style: normal; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.what { min-width: 0; }
+.what .t { font-weight: 700; overflow-wrap: anywhere; }
+.what .t code { font: inherit; font-variant-numeric: tabular-nums; margin-right: 6px; }
+.what .s { font-size: 13px; color: var(--muted); }
+.tag { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: var(--quiet); color: var(--muted); white-space: nowrap; }
+.tag.test { background: var(--testwash); color: var(--test); }
+.tag.today { background: var(--ink); color: var(--bg); }
+.tag.logged { background: var(--amberwash); color: var(--amber); }
+.tags { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.more { font-size: 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; padding: 0 12px 12px 76px; }
+.more ul { margin: 0; padding-left: 18px; }
+.more .due { color: var(--teal); font-weight: 700; }
+
+.tests { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-variant-numeric: tabular-nums; }
+.tests th, .tests td { text-align: left; padding: 10px 12px; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
+.tests th { font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); border-top: 0; }
+.tests tr.past td { opacity: 0.55; }
+.tests .moved { color: var(--amber); font-weight: 700; }
+.scroll { overflow-x: auto; }
+@media (prefers-reduced-motion: no-preference) { .day, .chip { transition: background-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Windy Hill Plan</h1>
+    <div class="switch" role="group" aria-label="Course">
+      <button id="cOn" type="button" aria-pressed="true">M7</button>
+      <button id="cAcc" type="button" aria-pressed="false">A7</button>
+    </div>
+  </header>
+
+  <section class="now" id="now" aria-live="polite"></section>
+  <section id="notice" hidden></section>
+
+  <form class="log" id="log" hidden>
+    <h3 id="logTitle">Log a day</h3>
+    <label for="logDate">Which day <input id="logDate" type="date" required></label>
+    <fieldset class="choice">
+      <legend>What happened</legend>
+      <label for="wReview"><input type="radio" name="what" id="wReview" value="review" checked><span>Review or catch-up day<small>Class met; no new lesson. Everything after moves one day.</small></span></label>
+      <label for="wOff"><input type="radio" name="what" id="wOff" value="off"><span>No class<small>Testing, an assembly, a drill that took the period.</small></span></label>
+      <label for="wLesson"><input type="radio" name="what" id="wLesson" value="lesson"><span>We began a different lesson<small>The plan is laid again so this lesson starts on this day.</small></span></label>
+    </fieldset>
+    <label for="logLesson" id="logLessonWrap" hidden>Which lesson <select id="logLesson"></select></label>
+    <label for="logNote" id="logNoteWrap">What to call the day (optional) <input id="logNote" type="text" maxlength="80" placeholder="State test"></label>
+    <p class="msg" id="logMsg" hidden></p>
+    <div class="rowbtn">
+      <button class="act" type="submit" id="logSave">Save</button>
+      <button class="act ghost" type="button" id="logCancel">Cancel</button>
+    </div>
+  </form>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tSoon" type="button" aria-selected="true">Coming up</button>
+    <button role="tab" id="tTests" type="button" aria-selected="false">Tests</button>
+    <button role="tab" id="tYear" type="button" aria-selected="false">Whole year</button>
+  </div>
+  <section id="list"></section>
+</div>
+
+<script>/*DATA*/</script>
+<script>/*FLOW*/</script>
+<script>/*APPLYLOG*/</script>
+<script>/*CORE*/</script>
+<script>
+(function () {
+  'use strict';
+  var P = window.PLAN, $ = function (id) { return document.getElementById(id); };
+  var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parts(iso) { var p = iso.split('-').map(Number); return { y: p[0], m: p[1], d: p[2], wd: new Date(p[0], p[1] - 1, p[2]).getDay() }; }
+  function fmt(iso, year) { var p = parts(iso); return DOW[p.wd] + ' ' + p.d + ' ' + MON[p.m - 1] + (year ? ' ' + p.y : ''); }
+  function span(a, b) { if (!b) return fmt(a); var x = parts(a), y = parts(b); return DOW[x.wd] + ' ' + x.d + (x.m === y.m ? '' : ' ' + MON[x.m - 1]) + '–' + DOW[y.wd] + ' ' + y.d + ' ' + MON[y.m - 1]; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  var state = { course: 'on', tab: 'soon', entries: [], open: {}, db: null, local: false, readonly: false, editing: null };
+  var saved = store('whplan.course'); if (saved === 'acc' || saved === 'on') state.course = saved;
+  if (location.hash === '#a7') state.course = 'acc'; if (location.hash === '#m7') state.course = 'on';
+  try { state.localEntries = JSON.parse(store('whplan.entries') || '[]'); } catch (e) { state.localEntries = []; }
+  if (!Array.isArray(state.localEntries)) state.localEntries = [];
+
+  var KIND = { exam: ['Test', 'test'], review: ['Review day', ''], spiral: ['Spiral', ''], flex: ['Flex', ''], extra: ['No new lesson', ''], off: ['No class', ''],
+    pm3: ['FAST review', ''], fast: ['FAST review', ''], post: ['After FAST', ''], thread: ['Thread', ''] };
+
+  function entries() { return state.db ? state.entries : state.localEntries; }
+  function view() { return PlanCore.view(P, state.course, entries(), todayISO(), Flow, applyLog); }
+
+  // ---- the status block ----------------------------------------------------------------------
+  function paintNow(v) {
+    var C = P.courses[state.course], box = $('now'), today = todayISO(); box.textContent = '';
+    box.appendChild(el('p', 'eyebrow', C.label + ' · ' + C.name));
+    var first = v.rows.filter(function (r) { return r.date >= today; })[0], h = el('h2');
+    if (first) {
+      h.appendChild(el('small', null, (first.date === today ? 'Today, ' : 'Next school day, ') + fmt(first.date)));
+      h.appendChild(document.createTextNode((first.code && first.deck ? first.code + '  ' : '') + first.title));
+    } else h.textContent = 'The year is over.';
+    box.appendChild(h);
+    if (first && v.next && v.next !== first) box.appendChild(el('p', 'fine', 'Next lesson: ' + v.next.code + ' ' + v.next.title + ', ' + fmt(v.next.date)));
+    var chips = el('div', 'chips');
+    if (v.behind > 0) chips.appendChild(el('span', 'chip warn', v.behind + ' school day' + (v.behind > 1 ? 's' : '') + ' behind the year’s plan'));
+    else if (v.behind < 0) chips.appendChild(el('span', 'chip ok', (-v.behind) + ' school day' + (v.behind < -1 ? 's' : '') + ' ahead of the year’s plan'));
+    else chips.appendChild(el('span', 'chip ok', 'On the year’s plan'));
+    var ex = v.exams.filter(function (x) { return x.d1 >= today; })[0];
+    if (ex) chips.appendChild(el('span', 'chip test', 'Unit ' + ex.unit + ' test ' + span(ex.d1, ex.d2)));
+    if (v.lastContent) chips.appendChild(el('span', 'chip' + (v.pastEnd ? ' warn' : ''), 'Content ends ' + fmt(v.lastContent) + (v.pastEnd ? ' — ' + v.pastEnd + ' school day' + (v.pastEnd > 1 ? 's' : '') + ' past 30 April' : '')));
+    if (v.flexLeft + v.flexUsed) chips.appendChild(el('span', 'chip', v.flexLeft + ' of ' + (v.flexLeft + v.flexUsed) + ' flex days left'));
+    if (v.left) chips.appendChild(el('span', 'chip warn', 'The year no longer holds every lesson'));
+    box.appendChild(chips);
+    var b = el('button', 'act', 'Log a day'); b.type = 'button'; b.id = 'openLog'; b.onclick = function () { openLog(today); };
+    if (!state.readonly) box.appendChild(b);
+    box.appendChild(el('p', 'fine', 'Built ' + fmt(P.built, true) + ' from the as-run logs. A day you log here moves this page at once; the calendars, IXL sheets and consoles move when Claude puts it in the build.'));
+  }
+
+  // ---- what has been logged here ---------------------------------------------------------------
+  function describe(e) { return fmt(e.on) + ': ' + (e.what === 'lesson' ? 'began ' + e.lesson : e.what === 'off' ? 'no class' : 'review day') + (e.note ? ' (' + e.note + ')' : ''); }
+  function paintNotice(v) {
+    var box = $('notice'); box.textContent = '';
+    var has = v.pending.length || v.error || state.local;
+    box.hidden = !has; if (!has) return;
+    var n = el('div', 'note');
+    if (v.error) { var p = el('p'); p.style.margin = '0'; p.appendChild(el('strong', null, 'A logged day does not fit, so this is the built plan. ')); p.appendChild(document.createTextNode(v.error.charAt(0).toUpperCase() + v.error.slice(1) + '. Remove or change it below.')); n.appendChild(p); }
+    if (v.pending.length) {
+      var p2 = el('p'); p2.style.margin = '0'; p2.appendChild(el('strong', null, v.pending.length + ' day' + (v.pending.length > 1 ? 's' : '') + ' logged here, not yet in the build. '));
+      p2.appendChild(document.createTextNode('Tell Claude to put ' + (v.pending.length > 1 ? 'them' : 'it') + ' in the plan.')); n.appendChild(p2);
+      var ul = el('ul');
+      v.pending.slice().sort(function (a, b) { return a.on < b.on ? -1 : 1; }).forEach(function (e) {
+        var li = el('li', null, describe(e));
+        if (!state.readonly) { var ed = el('button', null, 'change'); ed.type = 'button'; ed.onclick = function () { openLog(e.on, e); }; li.appendChild(ed);
+          var rm = el('button', null, 'remove'); rm.type = 'button'; rm.onclick = function () { remove(e); }; li.appendChild(rm); }
+        ul.appendChild(li);
+      });
+      n.appendChild(ul);
+    }
+    if (state.local) n.appendChild(el('p', 'fine', 'This page could not reach its shared record, so what you log stays on this device and Claude cannot read it. Open it signed in to keep the log where Claude can.'));
+    box.appendChild(n);
+  }
+
+  // ---- the lists ---------------------------------------------------------------------------------
+  function dayRow(d, today) {
+    var row = el('div', 'dayrow'), b = el('button', 'day'); b.type = 'button'; row.appendChild(b);
+    var p = parts(d.date), when = el('div', 'when'); when.appendChild(el('span', null, DOW[p.wd])); when.appendChild(el('b', null, String(p.d)));
+    b.appendChild(when);
+    var what = el('div', 'what'), tags = el('div', 'tags');
+    if (d.date < today) row.classList.add('past');
+    if (d.holiday) { row.classList.add('holiday'); what.appendChild(el('div', 's', d.holiday === 'holiday' ? 'No school' : d.holiday)); b.appendChild(what); b.appendChild(tags); b.disabled = true; return row; }
+    var r = d.row; if (d.wed) when.appendChild(el('em', null, '43 min'));
+    var t = el('div', 't'); if (r.code && (r.deck || r.kind === 'exam')) t.appendChild(el('code', null, r.code)); t.appendChild(document.createTextNode(r.title)); what.appendChild(t);
+    if (r.b.length) what.appendChild(el('div', 's', r.b.map(function (x) { return x.replace('MA.', ''); }).join(' · ')));
+    if (r.date === today) tags.appendChild(el('span', 'tag today', 'Today'));
+    var k = KIND[r.kind]; if (k) tags.appendChild(el('span', 'tag ' + k[1], k[0]));
+    if (r.logged) tags.appendChild(el('span', 'tag logged', 'Logged here'));
+    if (r.kind === 'off') row.classList.add('off');
+    b.appendChild(what); b.appendChild(tags);
+    b.setAttribute('aria-expanded', state.open[r.date] ? 'true' : 'false');
+    b.onclick = function () { state.open[r.date] = !state.open[r.date]; paint(); };
+    if (state.open[r.date]) {
+      var m = el('div', 'more');
+      if (r.x.length) { m.appendChild(el('div', null, 'IXL, to a SmartScore of ' + P.courses[state.course].smartscore + ':')); var ul = el('ul'); r.x.forEach(function (s) { ul.appendChild(el('li', null, s[0] + ' · ' + s[1])); }); m.appendChild(ul);
+        if (r.due) m.appendChild(el('div', 'due', 'Due ' + fmt(r.due))); }
+      else if (r.deck) m.appendChild(el('div', 's', 'No new IXL skill for this lesson.'));
+      if (r.base && r.base !== r.date) m.appendChild(el('div', 's', 'With nothing lost this was ' + fmt(r.base) + '.'));
+      if (r.unrecorded) m.appendChild(el('div', 's', 'The class was behind by this day and the log does not say why.'));
+      if (!state.readonly) { var lg = el('button', 'act ghost', r.logged ? 'Change what is logged' : 'Log this day'); lg.type = 'button';
+        lg.onclick = function () { openLog(r.date, r.logged); }; m.appendChild(lg); }
+      row.appendChild(m);
+    }
+    return row;
+  }
+  function paintWeeks(v, from, count) {
+    var box = $('list'), today = todayISO(), ws = PlanCore.weeks(P, v, from); box.textContent = '';
+    if (count) ws = ws.slice(0, count);
+    ws.forEach(function (w) {
+      var sec = el('div', 'week'), head = el('div', 'weekhead');
+      var dot = el('span', 'dot' + (w.colour && /teal/i.test(w.colour) ? ' teal' : w.colour && /black/i.test(w.colour) ? ' black' : ''));
+      head.appendChild(dot); head.appendChild(document.createTextNode('Week of ' + fmt(w.monday).replace(/^\w+ /, '') + (w.colour ? ' · ' + w.colour : ' · no school')));
+      sec.appendChild(head); var days = el('div', 'days'); w.days.forEach(function (d) { days.appendChild(dayRow(d, today)); }); sec.appendChild(days); box.appendChild(sec);
+    });
+    if (!ws.length) box.appendChild(el('p', 'fine', 'Nothing left on the calendar.'));
+  }
+  function paintTests(v) {
+    var box = $('list'); box.textContent = '';
+    var wrap = el('div', 'scroll'), t = el('table', 'tests'), tr = el('tr');
+    ['Unit', 'Test days', 'With nothing lost', 'Moved'].forEach(function (x) { tr.appendChild(el('th', null, x)); }); t.appendChild(tr);
+    v.exams.forEach(function (x) {
+      var r = el('tr', x.past ? 'past' : ''); r.appendChild(el('td', null, String(x.unit))); r.appendChild(el('td', null, span(x.d1, x.d2) + ' · ' + x.quarter));
+      r.appendChild(el('td', null, x.base ? fmt(x.base) : '—'));
+      var m = el('td', x.moved ? 'moved' : '', x.moved ? (x.moved > 0 ? '+' : '') + x.moved + ' day' + (Math.abs(x.moved) > 1 ? 's' : '') + (x.crossed ? ', was ' + x.baseQuarter : '') : 'no');
+      r.appendChild(m); t.appendChild(r);
+    });
+    wrap.appendChild(t); box.appendChild(wrap);
+    box.appendChild(el('p', 'fine', 'A test starts on ' + (P.courses[state.course].flow.rules.exam.weekdays || [0, 3]).map(function (d) { return ['a Monday', 'a Tuesday', 'a Wednesday', 'a Thursday', 'a Friday'][d]; }).join(', ').replace(/, ([^,]*)$/, ' or $1') + ' and runs two days.'));
+  }
+  function mondayOf(iso) { var p = parts(iso), d = new Date(p.y, p.m - 1, p.d); d.setDate(d.getDate() - ((p.wd + 6) % 7)); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function paint() {
+    var v = view();
+    $('cOn').setAttribute('aria-pressed', state.course === 'on'); $('cAcc').setAttribute('aria-pressed', state.course === 'acc');
+    [['tSoon', 'soon'], ['tTests', 'tests'], ['tYear', 'year']].forEach(function (x) { $(x[0]).setAttribute('aria-selected', state.tab === x[1]); });
+    paintNow(v); paintNotice(v);
+    if (state.tab === 'tests') paintTests(v); else if (state.tab === 'year') paintWeeks(v, '0000'); else paintWeeks(v, mondayOf(todayISO()), 4);
+    return v;
+  }
+
+  // ---- logging a day -------------------------------------------------------------------------------
+  function openLog(date, entry) {
+    var v = view(), sel = $('logLesson'); sel.textContent = '';
+    v.lessons.forEach(function (L) { var o = el('option', null, L.code + '  ' + L.title + (L.gone ? ' (covered)' : '')); o.value = L.code; sel.appendChild(o); });
+    state.editing = entry || null;
+    $('logDate').value = date; $('logDate').min = P.courses[state.course].flow.days[0]; $('logDate').max = P.courses[state.course].flow.days.slice(-1)[0];
+    var what = entry ? entry.what : 'review'; $('wReview').checked = what === 'review'; $('wOff').checked = what === 'off'; $('wLesson').checked = what === 'lesson';
+    if (entry && entry.lesson) sel.value = entry.lesson; else if (v.next) sel.value = v.next.code;
+    $('logNote').value = entry && entry.note ? entry.note : '';
+    $('logTitle').textContent = 'Log a day for ' + P.courses[state.course].label;
+    syncLog(); $('logMsg').hidden = true; $('log').hidden = false; $('log').scrollIntoView({ block: 'nearest' });
+  }
+  function syncLog() { var lesson = $('wLesson').checked; $('logLessonWrap').hidden = !lesson; $('logNoteWrap').hidden = lesson; }
+  ['wReview', 'wOff', 'wLesson'].forEach(function (id) { $(id).onchange = syncLog; });
+  $('logCancel').onclick = function () { $('log').hidden = true; };
+  function fail(msg) { $('logMsg').textContent = msg; $('logMsg').hidden = false; }
+  function key(e) { return e.course + '_' + e.on; }
+  async function put(e) {
+    if (state.db) await state.db.collection('log').doc(key(e)).set(e);
+    else { state.localEntries = state.localEntries.filter(function (x) { return key(x) !== key(e); }).concat([e]); store('whplan.entries', JSON.stringify(state.localEntries)); }
+  }
+  async function remove(e) {
+    try {
+      if (state.db) await state.db.collection('log').doc(key(e)).delete();
+      else { state.localEntries = state.localEntries.filter(function (x) { return key(x) !== key(e); }); store('whplan.entries', JSON.stringify(state.localEntries)); }
+    } catch (err) { }
+    paint();
+  }
+  $('log').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var C = P.courses[state.course], on = $('logDate').value, what = $('wLesson').checked ? 'lesson' : $('wOff').checked ? 'off' : 'review';
+    if (!on) return fail('Pick the day.');
+    if (C.flow.days.indexOf(on) < 0) return fail(fmt(on) + ' is not a school day on this calendar.');
+    var e = { course: state.course, on: on, what: what, at: new Date().toISOString() };
+    if (what === 'lesson') e.lesson = $('logLesson').value; else if ($('logNote').value.trim()) e.note = $('logNote').value.trim();
+    // try it on the plan before keeping it: a day that cannot be honoured is refused here, with the reason
+    var others = entries().filter(function (x) { return key(x) !== key(e) && !(state.editing && key(x) === key(state.editing)); });
+    var trial = PlanCore.view(P, state.course, others.concat([e]), todayISO(), Flow, applyLog);
+    if (trial.error) return fail(trial.error.charAt(0).toUpperCase() + trial.error.slice(1) + '.');
+    if (!trial.pending.some(function (x) { return key(x) === key(e); })) return fail('The build already has that for ' + fmt(on) + '.');
+    $('logSave').disabled = true;
+    try {
+      if (state.editing && key(state.editing) !== key(e)) await remove(state.editing);
+      await put(e); $('log').hidden = true;
+    } catch (err) {
+      if (err && err.code === 'invalid_argument') { state.readonly = true; fail('You can read this page but not change its log.'); }
+      else fail('Could not save that. Try again in a moment.');
+    }
+    $('logSave').disabled = false; paint();
+  });
+
+  // ---- course, tabs, the shared record ---------------------------------------------------------------
+  $('cOn').onclick = function () { state.course = 'on'; store('whplan.course', 'on'); $('log').hidden = true; paint(); };
+  $('cAcc').onclick = function () { state.course = 'acc'; store('whplan.course', 'acc'); $('log').hidden = true; paint(); };
+  $('tSoon').onclick = function () { state.tab = 'soon'; paint(); }; $('tTests').onclick = function () { state.tab = 'tests'; paint(); }; $('tYear').onclick = function () { state.tab = 'year'; paint(); };
+  paint();
+  (async function () {
+    var db = null;
+    try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
+    if (!db) { state.local = true; paint(); return; }
+    try {
+      var user = await window.claude.use('user');
+      var can = user ? await user.can('data.write') : null;
+      if (can === false) state.readonly = true;
+    } catch (e) { }
+    state.db = db;
+    db.collection('log').onSnapshot(function (snap) {
+      state.entries = snap.docs.map(function (d) { return d.data(); }).filter(function (e) { return e && (e.course === 'on' || e.course === 'acc') && typeof e.on === 'string' && (e.what === 'review' || e.what === 'off' || e.what === 'lesson'); });
+      paint();
+    }, function () { state.db = null; state.local = true; paint(); });
+    paint();
+  })();
+  window.PlanPage = { state: state, paint: paint, view: view };
+})();
+</script>

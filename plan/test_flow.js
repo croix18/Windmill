@@ -22,6 +22,25 @@ data.cases.forEach(function (c, n) {
 });
 const laid = ran;
 
+// ---- 1b. the as-run log, applied here as Python applies it -----------------------------------------
+const applyLog = require(path.join(__dirname, 'applylog.js'));
+(data.logcases || []).forEach(function (c, n) {
+  const F = data.flows[c.course];
+  const before = JSON.stringify(F);
+  let G = null, err = null;
+  try { G = applyLog(Flow, F, c.log); } catch (e) { err = e.message; }
+  check(JSON.stringify(F) === before, `log ${n}: applyLog changed the flow it was given`);
+  if (!c.ok) { check(err !== null, `log ${n} (${c.course}): Python refuses this log, JavaScript accepted it — ${JSON.stringify(c.log)}`); return; }
+  if (err) { check(false, `log ${n} (${c.course}): Python honours this log, JavaScript refused it: ${err} — ${JSON.stringify(c.log)}`); return; }
+  const got = Flow.project(Flow.lay(G));
+  const blocked = Object.keys(G.blocked).sort().map(d => [d, G.blocked[d].kind, !!G.blocked[d].unrecorded]);
+  const gone = [], free = []; G.items.forEach((it, k) => { if (it.gone) gone.push(k); if (it.free) free.push(k); });
+  let i = 0; while (i < got.length && same(got[i], c.expect[i])) i++;
+  check(same(got, c.expect), `log ${n} (${c.course}): the year differs at row ${i}: JS ${JSON.stringify(got[i])} · Python ${JSON.stringify(c.expect[i])} — ${JSON.stringify(c.log)}`);
+  check(same(blocked, c.blocked) && same(gone, c.gone) && same(free, c.free), `log ${n} (${c.course}): days off, gone or free differ`);
+});
+const logged = ran - laid;
+
 // ---- 2. where a period is -----------------------------------------------------------------------
 ['acc', 'on'].forEach(function (course) {
   const F = data.flows[course];
@@ -95,6 +114,6 @@ check(Flow.indexOf(A, '4.02') === A.items.findIndex(it => it.code === '4.02+03')
 check(Flow.indexOf(A, '9.99') === -1, 'acc: an unknown code');
 check(Flow.schoolDays(A, A.days[3], A.days[8]) === 5 && Flow.schoolDays(A, A.days[8], A.days[3]) === -5, 'schoolDays');
 
-console.log(`flow.js: ${laid} scenarios laid as Python lays them, ${ran - laid} console checks; ${fails.length} failed`);
+console.log(`flow.js: ${laid} scenarios laid as Python lays them, ${logged} log checks against Python, ${ran - laid - logged} console checks; ${fails.length} failed`);
 fails.slice(0, 20).forEach(f => console.log('  FAIL', f));
 process.exit(fails.length ? 1 : 0);

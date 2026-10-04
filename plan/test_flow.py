@@ -82,12 +82,13 @@ def invariants(f, res, name, start_index=0):
         if k not in by:
             continue
         d = rows[by[k]]["date"]
-        if it.get("examIn") == 0 and not it.get("free"):
+        partner_gone = k + 1 < len(items) and items[k + 1].get("gone")      # the log says its other half happened elsewhere
+        if it.get("examIn") == 0 and not it.get("free") and not partner_gone:
             nxt = teach[teach.index(d) + 1] if teach.index(d) + 1 < len(teach) else None
             check(dt.date.fromisoformat(d).weekday() in exam_days, f"{name}: {it['code']} starts on {d}, not a test day")
             check(nxt and (dt.date.fromisoformat(nxt) - dt.date.fromisoformat(d)).days == 1, f"{name}: {it['code']} on {d} is not followed by the next calendar day")
             check(k + 1 in by and rows[by[k + 1]]["date"] == nxt, f"{name}: {it['code']}'s second day is not the next teaching day")
-        if it.get("examIn") == 1 and not it.get("free"):
+        if it.get("examIn") == 1 and not it.get("free") and not partner_gone:
             check(k + 1 in by and teach.index(rows[by[k + 1]]["date"]) == teach.index(d) + 1, f"{name}: {it['code']} is not the teaching day before its test")
         if it.get("absorb") and it.get("base"):
             check(d <= it["base"], f"{name}: a flex day kept on {d}, later than its plan day {it['base']}")
@@ -217,6 +218,44 @@ for c, F in REAL.items():
     check(json.loads(json.dumps(F)) == F and set(F) == {"v", "days", "breaks", "rules", "tail", "blocked", "items"}, f"{c}: the published flow's shape")
     check(all(it.get("base") or it.get("gone") for it in F["items"]), f"{c}: an item with no baseline day")
 
+# ---- 2b. the log on the published flows: what the phone's page applies (plan/applylog.js) -----------
+LOGCASES = []
+def random_log(F, rng):
+    at_ = {r["index"]: r["date"] for r in flow.lay(F)["rows"] if r["src"] == "item"}
+    free = [d for d in F["days"] if d not in F["blocked"]]
+    log = [{"date": d, "what": rng.choice(["review", "off"]), "note": rng.choice(["", "State test"])}
+           for d in rng.sample(free, rng.choice([0, 1, 1, 2, 3]))]
+    lessons = [k for k, it in enumerate(F["items"]) if it["kind"] in ("lesson", "thread") and k in at_]
+    for _ in range(rng.choice([0, 1, 1, 2])):
+        k = rng.choice(lessons)
+        i = F["days"].index(at_[k]) + rng.choice([-3, -2, -1, 0, 1, 2, 3, 5])
+        if 0 <= i < len(F["days"]):
+            log.append({"date": F["days"][i], "what": F["items"][k]["code"], "note": ""})
+    rng.shuffle(log)
+    return log
+n_ok = n_refused = 0
+for c, F in REAL.items():
+    for trial in range(150):
+        log = random_log(F, rng)
+        G = copy.deepcopy(F)
+        try:
+            flow.apply_log(G, log)
+            res = flow.lay(G)
+            invariants(G, res, f"{c} log {trial}")
+            at_ = {r["entry"]["code"]: r["date"] for r in res["rows"] if r["src"] == "item"}
+            for e in log:
+                if e["what"] not in ("review", "off"):
+                    check(at_.get(e["what"]) == e["date"], f"{c} log {trial}: {e['what']} was to begin on {e['date']}, laid on {at_.get(e['what'])}")
+                else:
+                    check(G["blocked"][e["date"]]["kind"] == ("extra" if e["what"] == "review" else "off"), f"{c} log {trial}: {e['date']} not taken out")
+            LOGCASES.append({"course": c, "log": log, "ok": True, "expect": flow.project(res),
+                             "blocked": sorted((d, b["kind"], bool(b.get("unrecorded"))) for d, b in G["blocked"].items()),
+                             "gone": [k for k, it in enumerate(G["items"]) if it.get("gone")], "free": [k for k, it in enumerate(G["items"]) if it.get("free")]})
+            n_ok += 1
+        except SystemExit:
+            LOGCASES.append({"course": c, "log": log, "ok": False}); n_refused += 1
+check(n_ok > 100 and n_refused > 5, f"logs: {n_ok} honoured, {n_refused} refused — the generator is not exercising both")
+
 # ---- 3. the JavaScript engine -------------------------------------------------------------------------
 for name, F2, kw in (("small", small(), {}), ("small-off", f2, {}), ("small-break", f4, {}), ("small-short", f5, {}), ("small-limit", f, {"limit": 2})):
     CASES.append({"flow": F2, "blocked": {}, "start": None, "limit": kw.get("limit"), "expect": flow.project(flow.lay(F2, **kw)), "name": name})
@@ -224,7 +263,7 @@ print(f"flow.py: {RAN[0]} checks, {len(FAILS)} failed")
 for x in FAILS[:20]:
     print("  FAIL", x)
 with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as t:
-    json.dump({"flows": REAL, "cases": CASES}, t)
+    json.dump({"flows": REAL, "cases": CASES, "logcases": LOGCASES}, t)
 try:
     r = subprocess.run(["node", os.path.join(HERE, "test_flow.js"), t.name], capture_output=True, text=True)
     print(r.stdout.strip() or r.stderr.strip())
