@@ -22,6 +22,8 @@ else
   echo "== spine (sources not beside this repo: validating the committed file)"
 fi
 python3 spine/validate.py spine/spine.json
+echo "== the plan's engine (Python against its rules, JavaScript against Python)"
+python3 plan/test_flow.py
 echo "== room"
 python3 tools/check_fixtures.py
 node room/test.js

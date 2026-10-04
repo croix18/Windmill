@@ -5,6 +5,12 @@ bell, the plan's lesson for the date and this period's bookmark; a RAIL of the l
 their minutes (the TE timing table, live); a PACING line against the clock; the WHITEBOARD ROUND run
 like a question in Geopardy — timer, boards up, stepped reveal, a tally of the letters the room held;
 per-period RESUME; the room (Windmill) read through room-reader.js, with the room code typed once.
+THE PLAN FOLLOWS THE CLASS (Croix, 4 October 2026: "I need the plan to be fluid and adjust on the
+fly"): the console records what each period actually did (the `asRun` list of the panel part — a
+lesson once its boards are reached, a day marked "review" or "no class" on Today) and lays the rest
+of the year again from there with lib/flow.js, the same engine and the same rules the calendar
+tools use. Today offers the period's NEXT lesson, not the date's; says how far the period is from
+the year's plan and when the unit's test now falls.
 What it writes: the `panel` part of the room (bookmarks, tallies, pacing) in this browser's store, in
 the shape Deckhand will publish. Nothing teacher-only is drawn on the slide surface (ruling 12).
 """
@@ -72,6 +78,7 @@ def render_console(D, course_key=None):
     tail = ("<script>" + inline("spine.js") + "</script>"
             "<script>window.BENCHMARKS=" + inline("benchmarks.json") + ";</script>"
             "<script>" + inline("room-reader.js") + "</script>"
+            "<script>" + open(os.path.join(HERE, "flow.js"), encoding="utf-8").read().replace("</script", "<\\/script") + "</script>"
             "<script>window.UNIT=" + json.dumps(idx, ensure_ascii=True) + ";</script>"
             "<script>" + JS + "</script>")
     page = base.replace("</style></head><body>", "</style>" + head_extra + "</head><body class=\"console\">", 1)
@@ -108,9 +115,15 @@ CHROME = r"""
     <h1 id="tDate"></h1>
     <p id="tPeriod" class="tline"></p>
     <p id="tPlan" class="tline"></p>
+    <p id="tFlow" class="tline quiet"></p>
     <p id="tRoom" class="tline quiet"></p>
     <div class="tbtn"><button id="tResume" class="big"></button><button id="tStart2" class="big"></button><button id="tPick">Choose a lesson…</button></div>
+    <p id="tPickHint" class="quiet hidden">Tap a lesson to open it. Taught one without this deck (paper, PowerPoint)? Hold it to mark it taught for this period; hold again to take the mark back.</p>
     <div id="tPickList" class="hidden"></div>
+    <div id="tDay" class="tday hidden"><span id="dAsk">No new lesson today:</span> <button id="dRev">Review / catch-up day</button><button id="dOff">Testing / no class</button>
+      <label id="dAllWrap"><input type="checkbox" id="dAll" checked> <span id="dAllTxt"></span></label><span id="dNow"></span><button id="dUndo" class="lk hidden">undo</button></div>
+    <div id="dFix" class="tday hidden"><span id="dFixTxt"></span> <button id="dFixBtn">Mark it taught</button></div>
+    <details id="tHist" class="hidden"><summary>What this panel has recorded</summary><div id="tHistBody"></div></details>
     <div class="tper">Period: <span id="tPerBtns"></span></div>
     <p class="tiny">{{VERSION}} · Space or → advance · ← back · L rail · T timer · R reveal · Esc here · P print one slide per page</p>
   </div>
@@ -164,6 +177,12 @@ body.norail #rail{display:none}
 #tPickList button b{display:inline-block;width:46px}
 .tper{margin-top:10px;color:#9fb4c7}.tper button{background:#2a2f36;color:#eee;border:0;border-radius:6px;padding:4px 9px;margin:0 2px;font:inherit;cursor:pointer}.tper button.sel{background:#f2c14e;color:#111}
 .tiny{color:#6f7a86;font-size:12px;margin:14px 0 0}
+.tday{margin:10px 0 2px;color:#9fb4c7;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tday button{background:#2a2f36;color:#eee;border:0;border-radius:8px;padding:7px 11px;font:inherit;cursor:pointer}
+.tday button.lk{background:none;padding:0;color:#9fb4c7}.tday label{display:flex;gap:5px;align-items:center}.tday b{color:#fff}
+#tFlow b{color:#ffd88a;font-weight:600}
+#tPickList button small{float:right;color:#8fd6a8;font-size:12px;margin-left:8px}
+#tHist{margin-top:10px;color:#9fb4c7;font-size:13px}#tHist summary{cursor:pointer}#tHistBody{margin-top:6px;line-height:1.5}#tHistBody b{color:#ddd}
 #codeIn{width:100%;box-sizing:border-box;font:16px/1.3 ui-monospace,monospace;padding:10px;border-radius:8px;border:1px solid #2a2f36;background:#0f1216;color:#fff}
 .slide.veiled .answer,.slide.veiled .wa{visibility:hidden}
 .slide.veiled ol.choices li.correct{color:inherit;font-weight:400}
@@ -197,7 +216,7 @@ JS = r"""
   // ---- state: the panel part of the room, in this browser -----------------------------------------
   let panel; try{panel=JSON.parse(localStorage.getItem(LS))||null;}catch(e){panel=null;}
   if(!panel||typeof panel!=='object')panel={at:new Date().toISOString(),periods:{},tallies:[],pacing:[]};
-  panel.periods=panel.periods||{};panel.tallies=panel.tallies||[];panel.pacing=panel.pacing||[];
+  panel.periods=panel.periods||{};panel.tallies=panel.tallies||[];panel.pacing=panel.pacing||[];panel.asRun=panel.asRun||[];
   function savePanel(){panel.at=new Date().toISOString();try{localStorage.setItem(LS,JSON.stringify(panel));}catch(e){}window.ROOM_PANEL={v:1,panel:panel};}
   let period=null; const hp=/#?period=(\d)/.exec(location.hash+location.search); if(hp)period=+hp[1];
   if(!period){try{const sp=JSON.parse(localStorage.getItem(LSP)||'null');if(sp&&sp.on===todayISO())period=sp.period;}catch(e){}}
@@ -226,12 +245,52 @@ JS = r"""
     // the URL is an input (#s=17, #L=3.06, #period=3 from Deckhand), never rewritten: a reload comes back to Today and Resume
     resetTimer();                                   // a board's clock belongs to that board: leaving the slide ends it
     paintBar();paintRail();paintRound();
-    if(L&&period&&!opts.silent)bookmark(L,seg,n);}
+    if(L&&period&&!opts.silent){bookmark(L,seg,n);noteTaught(L,n);}}
   function veiled(){return slides[cur].classList.contains('veiled');}
   function unveil(){slides[cur].classList.add('shown');slides[cur].classList.remove('veiled');}
   function advance(){if(veiled()){unveil();return;}show(cur+1);}
   function bookmark(L,seg,n){const pc=periodCourse(period);if(pc&&pc!==course)return;      // never bookmark the wrong course's period
     panel.periods[String(period)]={course:course,lesson:L.code,stop:seg?seg.id:null,slide:n+1,at:new Date().toISOString()};savePanel();}
+  // ---- the plan follows the class -----------------------------------------------------------------
+  // What each period actually did is the panel part's asRun list; Flow (lib/flow.js) lays the rest of
+  // the year from the last lesson in it, by the rules the calendar tools use (S.flow[course]).
+  const FLOW=(S&&S.flow&&S.flow[course]&&window.Flow)?S.flow[course]:null;
+  const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDay(iso){const p=iso.split('-').map(Number);const d=new Date(p[0],p[1]-1,p[2]);return DOW[d.getDay()]+' '+p[2]+' '+MON[p[1]-1];}
+  function schoolDay(d){const di=dayInfo(d);return !!(di&&!di.holiday);}
+  function mine(p){return FLOW&&p&&periodCourse(p)===course;}
+  function inBlock(p){const now=new Date(),b=block(now,p);if(!b)return true;const t=now.getHours()*60+now.getMinutes();return t>=mins(b.start)-10&&t<=mins(b.end)+15;}
+  function itemOf(code){const L=U.lessons.find(x=>x.code===code||x.plan===code);return L?Flow.indexOf(FLOW,L.code,L.plan):Flow.indexOf(FLOW,code);}
+  function planCode(L){return L.plan||L.code;}                       // what the record names: the plan's own code when the deck's differs
+  function recsOf(p){return panel.asRun.filter(r=>r.period===p&&r.course===course);}
+  // a lesson counts as taught for a period once its boards are reached, on a school day, during that period
+  function noteTaught(L,n){if(!mine(period)||!schoolDay(new Date())||!inBlock(period))return;
+    const reach=L.boards.length?L.boards[0].slide:L.first+Math.floor((L.last-L.first)/2);if(n<reach)return;
+    if(Flow.indexOf(FLOW,L.code,L.plan)<0)return;const on=todayISO(),code=planCode(L);
+    if(panel.asRun.some(r=>r.on===on&&r.period===period&&r.course===course&&r.did==='lesson'&&r.lesson===code))return;
+    panel.asRun=panel.asRun.filter(r=>!(r.on===on&&r.period===period&&r.course===course&&r.did!=='lesson'));    // teaching outranks a mark
+    panel.asRun.push({on:on,period:period,course:course,did:'lesson',lesson:code,by:'deck',at:new Date().toISOString()});savePanel();}
+  function prevSchoolDay(iso){const k=Object.keys(S.days).sort();let i=k.indexOf(iso);for(i=i-1;i>=0;i--)if(!S.days[k[i]].holiday)return k[i];return iso;}
+  // by hand: a lesson taught without the deck. Today if this period has begun, else the school day before.
+  function toggleTaught(L){if(!mine(period))return;const code=planCode(L);
+    if(recsOf(period).some(r=>r.did==='lesson'&&r.lesson===code)){panel.asRun=panel.asRun.filter(r=>!(r.period===period&&r.course===course&&r.did==='lesson'&&r.lesson===code));}
+    else{const now=new Date(),b=block(now,period),t=now.getHours()*60+now.getMinutes();const on=(schoolDay(now)&&(!b||t>=mins(b.start)))?todayISO():prevSchoolDay(todayISO());
+      panel.asRun.push({on:on,period:period,course:course,did:'lesson',lesson:code,by:'hand',at:now.toISOString()});}
+    savePanel();paintToday();}
+  // by hand: today carries no new lesson — for this period, or for every period of this course
+  function markDay(did,all){if(!mine(period))return;const on=todayISO(),ps=all?(S.courses[course].periods||[period]):[period];
+    ps.forEach(p=>{panel.asRun=panel.asRun.filter(r=>!(r.on===on&&r.period===p&&r.course===course&&r.did!=='lesson'));
+      if(did)panel.asRun.push({on:on,period:p,course:course,did:did,by:'hand',at:new Date().toISOString()});});
+    savePanel();paintToday();}
+  // the last day before this build that the built plan has a lesson on: a panel that has taught since then
+  // knows more than the build; one that has not, knows less — then the built plan stands
+  function builtLast(){const g=(S.generatedAt||'').slice(0,10);const k=Object.keys(S.days).sort();
+    for(let i=k.length-1;i>=0;i--){if(k[i]>=g)continue;const e=S.days[k[i]][course];if(e&&e.code&&Flow.DECK_KINDS.indexOf(e.kind)>=0)return k[i];}return '';}
+  function flowNow(p){p=p||period;if(!mine(p))return null;const today=todayISO();
+    const rs=recsOf(p).map(r=>({on:r.on,did:r.did,index:r.did==='lesson'?itemOf(r.lesson):-1}));
+    const lessons=rs.filter(r=>r.did==='lesson'&&r.index>=0).map(r=>r.on).sort();
+    const usePanel=lessons.length&&lessons[lessons.length-1]>=builtLast();
+    try{return Flow.where(FLOW,usePanel?rs:rs.filter(r=>r.did!=='lesson'&&r.on>=today),today);}catch(e){return null;}}
   // ---- pacing: planned minutes before this segment vs minutes since the bell --------------------
   let startedAt=null;   // when no bell matches (planning, after school), the clock starts at the first slide shown
   function elapsed(){const now=new Date();const b=period?block(now,period):null;
@@ -292,18 +351,61 @@ JS = r"""
   function paintToday(){const now=new Date();$('tDate').textContent=now.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
     const di=dayInfo(now);const b=period?block(now,period):null;const pc=period?periodCourse(period):null;
     $('tPeriod').innerHTML=period?`<b>${['','1st','2nd','3rd','4th','5th','6th','7th'][period]} period</b>${b?` · ${b.start}–${b.end}`:''}${pc&&pc!==course?` · <span style="color:#ff8a7a">that period is ${pc==='on'?'on-level':'accelerated'} — this is the Unit ${U.unit} ${U.course==='on'?'on-level':'accelerated'} deck</span>`:''}`:(di?'No period right now — pick one below.':'Not a school day on the plan — pick a period if you are teaching anyway.');
-    const p=planLesson();let planTxt='Plan: nothing for today';let planL=null;
-    if(p){if(p.kind==='holiday')planTxt='Plan: '+p.title;else{planL=p.code?lessonByCode(p.code):null;planTxt=`Plan: <b>${p.code||p.kind}</b> ${p.title||''}${planL?'':(p.code?' — in another unit\'s deck':'')}`;}}
+    const p=planLesson();let planTxt='Plan: nothing for today';let planL=null;let startWord='Start';
+    let w=flowNow();if(!w&&FLOW&&!period){try{w=Flow.where(FLOW,[],todayISO());}catch(e){w=null;}}
+    const fl=$('tFlow');fl.innerHTML='';const fix=$('dFix');fix.classList.add('hidden');
+    const deckOf=e=>e&&e.code?lessonByCode(e.code):null;
+    const unitNote=e=>(e&&e.unit&&e.unit!==U.unit)?` — in the Unit ${e.unit} deck`:(e&&e.code&&!deckOf(e)?' — not in this deck':'');
+    if(w){const tdy=w.today,nx=w.next,today=todayISO();planL=nx?deckOf(nx.entry):null;
+      const nxName=nx?`<b>${planL?planL.code:nx.entry.code}</b> ${planL?planL.title:nx.entry.title}${unitNote(nx.entry)}`:'';
+      if(tdy&&tdy.src==='blocked')planTxt=`Today: <b>${tdy.entry.title}</b>`;
+      else if(tdy&&tdy.src==='item'&&!Flow.isDeck(tdy.entry))planTxt=`Today: <b>${tdy.entry.title}</b> — on paper, no deck`;
+      else if(tdy&&tdy.src!=='item')planTxt=`Today: <b>${tdy.entry.title}</b>`;
+      else if(tdy&&w.last&&w.last.on===today&&nx&&tdy.index!==nx.index){const tl=deckOf(tdy.entry);planTxt=`Today: <b>${tl?tl.code:tdy.entry.code}</b> ${tl?tl.title:tdy.entry.title} — taught this period`;}
+      else if(nx)planTxt=(w.from==='panel'?'Next for this period: ':'Plan: ')+nxName;
+      if(!nx||nx.date!==today)startWord='Open';
+      const bits=[];
+      if(w.last){const ll=U.lessons.find(x=>Flow.indexOf(FLOW,x.code,x.plan)===w.last.index);const lc=ll?ll.code:FLOW.items[w.last.index].code;
+        bits.push(w.unseen?`this panel last saw ${lc} on ${fmtDay(w.last.on)} and no lesson on the ${w.unseen} lesson days since, so this is the built plan — open the lesson you are on and it follows the period again`:`last here: ${lc} on ${fmtDay(w.last.on)}`);}
+      if(nx&&nx.date!==today)bits.push(`next lesson: ${nxName} on ${fmtDay(nx.date)}`);
+      if(w.behind>0)bits.push(`<b>${w.behind} school day${w.behind>1?'s':''} behind</b> the year's plan`);else if(w.behind<0)bits.push(`${-w.behind} school day${w.behind<-1?'s':''} ahead of the year's plan`);
+      if(w.exam&&w.exam[0]){const x=w.exam[0],x2=w.exam[1],base=x.entry.base;bits.push(`Unit ${x.entry.unit} test: <b>${fmtDay(x.date)}${x2?'–'+fmtDay(x2.date):''}</b>${base&&base!==x.date?` (first planned ${fmtDay(base)})`:''}`);}
+      if(w.inferred.length){bits.push(`${w.inferred.length} day${w.inferred.length>1?'s':''} since then with no deck opened, counted as lost`);
+        // one tap puts it right when the lesson was taught without the deck (paper, PowerPoint, a substitute)
+        if(nx&&mine(period)){const day=w.inferred[0],code=planL?planCode(planL):nx.entry.code;fix.classList.remove('hidden');
+          $('dFixTxt').innerHTML=`Taught <b>${planL?planL.code:nx.entry.code}</b> on ${fmtDay(day)} without this deck?`;
+          $('dFixBtn').onclick=()=>{panel.asRun.push({on:day,period:period,course:course,did:'lesson',lesson:code,by:'hand',at:new Date().toISOString()});savePanel();paintToday();};}}
+      if(w.left.length)bits.push('<b>the year no longer holds every lesson</b>');
+      fl.innerHTML=bits.join(' · ');}
+    else if(p){if(p.kind==='holiday')planTxt='Plan: '+p.title;else{planL=p.code?lessonByCode(p.code):null;const deck=p.code&&['lesson','thread','review'].indexOf(p.kind)>=0;
+      planTxt=`Plan: <b>${deck?(planL?planL.code:p.code):(p.title||p.kind)}</b> ${deck?(planL?planL.title:(p.title||'')):''}${deck&&!planL?(p.unit&&p.unit!==U.unit?` — in the Unit ${p.unit} deck`:' — not in this deck'):''}`;}}
     $('tPlan').innerHTML=planTxt+(di?` · ${di.week}${di.wednesday?' · Wednesday (43 min)':''}`:'');
     $('tRoom').textContent=roomText()+(roomErr?' · '+roomErr:'');
     const bm=period&&panel.periods[String(period)];const bl=bm?lessonByCode(bm.lesson):null;
     const rb=$('tResume');if(bm&&bl){const seg=bl.segments.find(s=>s.id===bm.stop);rb.textContent=`Resume ${bm.lesson} at ${seg?seg.short:'slide '+bm.slide}`;rb.onclick=()=>{hideToday();show(Math.max(bl.first,Math.min(bl.last,(bm.slide||1)-1)),{silent:true});};}else rb.textContent='';
-    const sb=$('tStart2');if(planL){sb.textContent=`Start ${planL.code} — ${planL.title}`;sb.onclick=()=>{hideToday();show(planL.first);};}else{const first=U.lessons[0];sb.textContent=`Open ${first.code} — ${first.title}`;sb.onclick=()=>{hideToday();show(first.first);};}
-    const pl=$('tPickList');pl.innerHTML='';U.lessons.forEach(x=>{const btn=document.createElement('button');btn.innerHTML=`<b>${x.code}</b>${x.title}`;btn.onclick=()=>{hideToday();show(x.first);};pl.appendChild(btn);});
+    const sb=$('tStart2');if(planL){sb.textContent=`${startWord} ${planL.code} — ${planL.title}`;sb.onclick=()=>{hideToday();show(planL.first);};}
+    else if(w&&w.next){sb.textContent='';}                 // the next lesson is in another unit's deck: nothing here to start
+    else{const first=U.lessons[0];sb.textContent=`Open ${first.code} — ${first.title}`;sb.onclick=()=>{hideToday();show(first.first);};}
+    // the day's marks, and what this panel has recorded
+    const td=$('tDay'),showDay=mine(period)&&schoolDay(now);td.classList.toggle('hidden',!showDay);
+    if(showDay){const mark=recsOf(period).find(r=>r.on===todayISO()&&r.did!=='lesson');const n=(S.courses[course].periods||[]).length;
+      $('dAllTxt').textContent=`every ${course==='acc'?'accelerated':'on-level'} period`;$('dAllWrap').classList.toggle('hidden',!!mark||n<2);
+      ['dRev','dOff','dAsk'].forEach(id=>$(id).classList.toggle('hidden',!!mark));$('dUndo').classList.toggle('hidden',!mark);
+      $('dNow').innerHTML=mark?`Today is marked <b>${mark.did==='none'?'testing / no class':'a review / catch-up day'}</b> for this period — the plan has moved a day.`:'';}
+    const th=$('tHist');th.classList.toggle('hidden',!FLOW||!panel.asRun.some(r=>r.course===course));
+    if(FLOW){const ps=(S.courses[course].periods||[]);$('tHistBody').innerHTML=ps.map(q=>{const rs=recsOf(q).slice().sort((x,y)=>x.on<y.on?-1:x.on>y.on?1:0);
+      return `<div><b>${['','1st','2nd','3rd','4th','5th','6th','7th'][q]}</b>: ${rs.length?rs.map(r=>`${fmtDay(r.on)} ${r.did==='lesson'?r.lesson:(r.did==='none'?'no class':'review')}`).join(' · '):'nothing yet'}</div>`;}).join('');}
+    const pl=$('tPickList');pl.innerHTML='';const mineRecs=mine(period)?recsOf(period):[];
+    U.lessons.forEach(x=>{const btn=document.createElement('button');const r=mineRecs.filter(q=>q.did==='lesson'&&q.lesson===planCode(x)).map(q=>q.on).sort().pop();
+      btn.innerHTML=`<b>${x.code}</b>${x.title}${r?`<small>✓ ${fmtDay(r)}</small>`:''}`;let hold=null;
+      btn.onpointerdown=()=>{hold=setTimeout(()=>{hold='held';toggleTaught(x);$('tPickList').classList.remove('hidden');},600);};
+      btn.onpointerup=btn.onpointerleave=e=>{if(hold==='held'){hold=null;return;}if(hold){clearTimeout(hold);hold=null;if(e.type==='pointerup'){hideToday();show(x.first);}}};
+      pl.appendChild(btn);});
     const pb=$('tPerBtns');pb.innerHTML='';[1,2,3,4,5,6].forEach(n=>{const bt=document.createElement('button');bt.textContent=n;const c=periodCourse(n);bt.title=c?(c==='acc'?'accelerated':'on-level'):'planning';if(n===period)bt.classList.add('sel');bt.onclick=()=>setPeriod(n);pb.appendChild(bt);});}
   function showToday(){paintToday();$('today').classList.remove('hidden');}
   function hideToday(){$('today').classList.add('hidden');}
-  $('tPick').onclick=()=>$('tPickList').classList.toggle('hidden');
+  $('tPick').onclick=()=>{$('tPickList').classList.toggle('hidden');$('tPickHint').classList.toggle('hidden',$('tPickList').classList.contains('hidden')||!mine(period));};
+  $('dRev').onclick=()=>markDay('review',$('dAll').checked);$('dOff').onclick=()=>markDay('none',$('dAll').checked);$('dUndo').onclick=()=>markDay(null,true);
   $('todayBtn').onclick=showToday;
   $('today').addEventListener('click',e=>{if(e.target===$('today'))hideToday();});
   // ---- room code box -------------------------------------------------------------------------------
@@ -332,6 +434,6 @@ JS = r"""
   const hs=/[#&]s=(\d+)/.exec(location.hash);const hl=/[#&]L=([\d.T\-A-Z]+)/.exec(location.hash);
   if(hs)show(+hs[1]-1,{silent:true});else if(hl&&lessonByCode(hl[1]))show(lessonByCode(hl[1]).first,{silent:true});else{show(0,{silent:true});showToday();}
   setTimer(45);setInterval(paintBar,15000);
-  window.Console={show:show,state:()=>({cur:cur,period:period,panel:panel}),setPeriod:setPeriod,unveil:unveil};
+  window.Console={show:show,state:()=>({cur:cur,period:period,panel:panel}),setPeriod:setPeriod,unveil:unveil,flow:flowNow,markDay:markDay,toggleTaught:toggleTaught,today:showToday};
 })();
 """

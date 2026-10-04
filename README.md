@@ -14,7 +14,9 @@ project memory.
 |---|---|
 | `spine/spine.json` | **The plan.** Every school day from 23 Sep 2026 to 28 May 2027: for each course the lesson, its benchmarks and IXL skills with due dates; the bell blocks and week colour for the day; holidays; the benchmark list with wording; the IXL skill → benchmark map. Generated, committed, validated. |
 | `spine/spine.py` | Builds it from the three source repositories (A7's `tools/scope_calendar.py`, M7's `tools/mkscope.py` and IXL due-date CSV, Deckhand's baked bell block). Reads, never edits. Refuses to write a spine that fails `validate.py`. |
-| `spine/validate.py` | Every weekday has an entry or a holiday; every benchmark is in the Source of Truth; every IXL skill maps to a benchmark; due dates follow lessons; week colours alternate; the bell has every mapped period. |
+| `spine/spine.json` → `flow` | **The plan as a sequence** (4 Oct 2026: the plan follows the class). Per course: the lessons, reviews and tests in order, the school days, the rules (a test starts on a Monday or a Thursday; a flex day gives way when the class is behind), and the days the as-run log took out. `days` is this sequence laid by `kit/lib/flow.py`; a tool on the panel lays the rest of the year again from where a period really is with `kit/lib/flow.js`. |
+| `plan/test_flow.py`, `plan/test_flow.js` | The engine's tests: the rules on made-up and real sequences under random losses, the as-run log, and the Python and JavaScript engines against each other on some seven hundred scenarios. |
+| `spine/validate.py` | The flow, laid again, gives exactly `days`. Every weekday has an entry or a holiday; every benchmark is in the Source of Truth; every IXL skill maps to a benchmark; due dates follow lessons; week colours alternate; the bell has every mapped period. |
 | `room/room.schema.json` | **The room**: the small object the tools exchange. Parts `plan`, `tally`, `panel`, `roster`, `log`; one owner each; `at` on every part; data tiers (open · roster · standing-never). |
 | `room/room-reader.js` | The reader every tool embeds: merges copies (newest per part), guards the tiers, parses both room-code forms, answers `unit`, `weak`, `bookmark`, `lessonFor`, `age`. Browser script or Node module, no dependencies. |
 | `room/benchmarks.json` | The versioned benchmark list the compact room code indexes into. Changing the codes needs a version bump (`BUMP_LIST=1`), or the generator refuses. |
@@ -65,6 +67,8 @@ reader; pass `allowProblems: true` to read the known fields anyway and show `roo
 python3 spine/spine.py            # or --a7 … --m7 … --deckhand …
 bash tools/check.sh
 ```
+
+**When a class loses a day** (or gains one), nothing here is edited by hand: add a line to the course's as-run log — `a7/reference/A7 As Run 2026-27.csv`, `m7/reference/M7 As Run 2026-27.csv`: a date and `review`, `off` or the code of the lesson the class began that day — run that course's calendar tool, then regenerate here. Everything after the date moves. Without Deckhand beside this repository the bell is kept from the spine already published.
 
 Who owns what, in the sources: the A7 calendar is `tools/scope_calendar.py` in `croix18-windy-hill-a7`;
 the M7 calendar is `tools/mkscope.py` in `windy-hill-m7` with the student-facing due dates in

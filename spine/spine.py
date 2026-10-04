@@ -34,8 +34,31 @@ COURSES = {
 PERIODS = {1: "acc", 2: "on", 3: "acc", 4: "on", 5: "on", 6: None}
 
 # What the two calendars call a day, mapped onto one vocabulary.
-A7_KIND = {"L": "lesson", "T": "thread", "X": "exam", "R": "pm3", "F": "flex", "S": "spiral", "W": "pm3"}
-M7_KIND = {"lesson": "lesson", "spiral": "spiral", "review": "review", "test": "exam", "fast": "fast", "post": "post"}
+# `extra` and `off` are days the as-run log took out of the sequence (4 Oct 2026): an extra review or
+# catch-up day (class met, nothing new), and a day with no class at all (a state test).
+A7_KIND = {"L": "lesson", "T": "thread", "X": "exam", "R": "pm3", "F": "flex", "S": "spiral", "W": "pm3", "E": "extra", "O": "off"}
+M7_KIND = {"lesson": "lesson", "spiral": "spiral", "review": "review", "test": "exam", "fast": "fast", "post": "post",
+           "extra": "extra", "off": "off"}
+FLAGS = ("examIn", "need", "absorb", "gone", "free", "base")      # what the engine reads off an item (kit/lib/flow.py)
+
+
+def flow_engine():
+    return load_module(os.path.join(HERE, "..", "kit", "lib", "flow.py"), "flow")
+
+
+def publish(FLOW, entry):
+    """A course's flow as the spine carries it: the same sequence, days, rules and days off its
+    calendar tool laid the year from, with every entry in the spine's own vocabulary — so that a
+    tool on the panel can lay the rest of the year again from where a period really is
+    (kit/lib/flow.js), and so that validate.py can lay it here and demand `days`."""
+    def item(it):
+        return dict(entry(it), **{k: it[k] for k in FLAGS if k in it})
+    fill = FLOW["rules"]["filler"]
+    return {"v": 1, "days": list(FLOW["days"]), "breaks": list(FLOW.get("breaks") or []),
+            "rules": {"exam": FLOW["rules"]["exam"], "filler": dict({k: v for k, v in fill.items() if k != "entry"}, entry=entry(fill["entry"]))},
+            "tail": [dict({k: v for k, v in seg.items() if k != "entry"}, entry=entry(seg["entry"])) for seg in FLOW.get("tail") or []],
+            "blocked": {d: dict(entry(b), **{k: b[k] for k in ("meets", "unrecorded") if k in b}) for d, b in sorted((FLOW.get("blocked") or {}).items())},
+            "items": [item(it) for it in FLOW["items"]]}
 
 
 def load_module(path, name):
@@ -169,17 +192,10 @@ def a7_days(a7, known):
         e = {"kind": A7_KIND[kind], "code": code, "title": title, "unit": unit or None,
              "benchmarks": expand_benchmarks(bm, 8 if bm.startswith("8") else 7, known)}
         sk = SC.ixl(code)
-        if sk:
-            # ruling 28: lessons in a row with the same skills are one assignment, due the first
-            # class day after the last of them (scope_calendar's own run rule)
-            end = i
-            while end + 1 < len(rows) and SC.ixl(rows[end + 1][2]) == sk:
-                end += 1
-            nxt = [r[0] for r in rows[end + 1:] if r[5] != "W"]
-            due = nxt[0].isoformat() if nxt else None
-            e["ixl"] = [{"name": n, "code": c, "due": due} for n, c in sk]
-        else:
-            e["ixl"] = []
+        # ruling 28: lessons in a row with the same skills are one assignment, due the first day
+        # the class meets after the last of them — scope_calendar's own run_end() and due()
+        due = SC.due(i)
+        e["ixl"] = [{"name": n, "code": c, "due": due.isoformat() if due else None} for n, c in sk]
         days[d] = e
     # A7 writes one row for the whole PM3 window (May 3–28); every school day in it is that row
     last = max(days)
@@ -192,6 +208,20 @@ def a7_days(a7, known):
             x += dt.timedelta(days=1)
     holidays = {d: "holiday" for d in SC.hol}
     return days, holidays, SC
+
+
+def a7_flow(SC):
+    def entry(e):
+        if e["kind"] in ("extra", "off"):                    # a day off: scope_calendar names it by its kind
+            return {"kind": e["kind"], "code": e["kind"], "title": e["title"], "unit": None}
+        return {"kind": A7_KIND[e["kind"]], "code": e.get("code"), "title": e.get("title"), "unit": e.get("unit") or None}
+    return publish(SC.FLOW, entry)
+
+
+def m7_flow(MK):
+    def entry(e):
+        return {"kind": M7_KIND[e["kind"]], "code": e.get("code"), "title": e.get("title"), "unit": e.get("unit")}
+    return publish(MK.FLOW, entry)
 
 
 def m7_days(m7, known):
@@ -215,6 +245,7 @@ def m7_days(m7, known):
               dt.date(2026, 9, 24): ("test", "Unit 3 assessment, day 1 (as run)"),
               dt.date(2026, 9, 25): ("test", "Unit 3 assessment, day 2 (as run)")}
     sched = {**AS_RUN, **sched}
+    waiting = {r["date"]: r["entry"].get("unit") for r in MK.LAID["rows"] if r["src"] == "blocked"}
     for d, v in sched.items():
         kind = M7_KIND[v[0]]
         e = {"kind": kind, "code": None, "title": v[1], "unit": None, "benchmarks": [], "ixl": []}
@@ -227,6 +258,8 @@ def m7_days(m7, known):
             m = re.search(r"Unit (\d+)", v[1])
             e["unit"] = int(m.group(1)) if m else None
             e["code"] = f"{e['unit']}.R" if kind == "review" else f"{e['unit']}.X{'1' if 'day 1' in v[1] else '2'}"
+        elif kind in ("extra", "off"):                     # a day the log took: it belongs to the unit that is waiting
+            e["unit"] = waiting.get(d.isoformat())
         days[d] = e
     holidays = dict(MK.HOL)
     return days, holidays, MK
@@ -255,11 +288,16 @@ def quarter_of(d):
     return next((q for end, q in ends if d <= end), 4)
 
 
-def build(a7, m7, deckhand):
+def build(a7, m7, deckhand, previous=None):
     bench = benchmarks(a7, m7)
     acc, hol_a, SC = a7_days(a7, bench)
     on, hol_m, MK = m7_days(m7, bench)
-    bell = bell_from_deckhand(deckhand)
+    if os.path.exists(os.path.join(deckhand, "Deckhand.html")):
+        bell = bell_from_deckhand(deckhand)
+    elif previous:                                        # the plan moves more often than the bell: without
+        bell = previous["bell"]                           # Deckhand beside us, keep the bell already published
+    else:
+        sys.exit(f"spine: no Deckhand.html in {deckhand} and no earlier spine to take the bell from")
     first = min(min(acc), min(on))
     last = dt.date(2027, 5, 28)
     holidays = {}
@@ -288,7 +326,8 @@ def build(a7, m7, deckhand):
     spine = {
         "v": VERSION,
         "generatedAt": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
-        "sources": {"a7": git_head(a7), "m7": git_head(m7), "deckhand": git_head(deckhand)},
+        "sources": {"a7": git_head(a7), "m7": git_head(m7),
+                    "deckhand": git_head(deckhand) if os.path.exists(os.path.join(deckhand, "Deckhand.html")) else previous["sources"]["deckhand"]},
         "year": {"first": first.isoformat(), "last": last.isoformat(), "district": "Lake County Schools 2026-27",
                  "note": "Units 1–2 (A7) and Units 1–3 (M7) ran before these calendars begin; the plan covers the rest of the year."},
         "courses": COURSES,
@@ -298,6 +337,8 @@ def build(a7, m7, deckhand):
         "benchmarks": bench,
         "skills": skills_map(acc, on),
         "days": days,
+        # the plan as a sequence, so it can be laid again (4 Oct 2026: "I need the plan to be fluid")
+        "flow": {"acc": a7_flow(SC), "on": m7_flow(MK)},
     }
     return spine
 
@@ -309,7 +350,8 @@ if __name__ == "__main__":
     ap.add_argument("--deckhand", default=os.path.join(HERE, "..", "..", "Deckhand"))
     ap.add_argument("-o", "--out", default=OUT)
     a = ap.parse_args()
-    spine = build(os.path.abspath(a.a7), os.path.abspath(a.m7), os.path.abspath(a.deckhand))
+    previous = json.load(open(a.out, encoding="utf-8")) if os.path.exists(a.out) else None
+    spine = build(os.path.abspath(a.a7), os.path.abspath(a.m7), os.path.abspath(a.deckhand), previous)
     sys.path.insert(0, HERE)
     import validate
     problems = validate.validate(spine)

@@ -19,8 +19,11 @@ ok('empty room: nothing known, nothing refused', () => {
 ok('plan only: the plan answers the lesson', () => {
   const r = Room.load({ extra: [{ name: 'x', room: fx('plan-only') }] });
   const L = r.lessonFor('acc', '2026-10-05', 1, spine);
-  assert.strictEqual(L.from, 'plan'); assert.strictEqual(L.lesson, '3.08'); assert.deepStrictEqual(L.plan.benchmarks, ['MA.8.NSO.1.4']);
-  assert.strictEqual(r.lessonFor('on', '2026-10-05', 2, spine).lesson, '4.06');
+  // the plan moves with the class (4 Oct 2026), so what 5 October holds is read from the spine, not typed here
+  const day = spine.days['2026-10-05'];
+  assert.strictEqual(L.from, 'plan'); assert.strictEqual(L.lesson, day.acc.code); assert.deepStrictEqual(L.plan.benchmarks, day.acc.benchmarks);
+  assert.ok(day.acc.code && day.on.code, 'the spine has a lesson for both courses on 5 October');
+  assert.strictEqual(r.lessonFor('on', '2026-10-05', 2, spine).lesson, day.on.code);
   assert.strictEqual(r.plan(spine, '2026-10-12', 'acc').kind, 'holiday');
   assert.strictEqual(Room.nextSchoolDay(spine, '2026-10-09'), '2026-10-13');
 });
@@ -34,7 +37,13 @@ ok('panel: the bookmark beats the plan for that period only', () => {
   const L1 = r.lessonFor('acc', '2026-10-05', 1, spine), L3 = r.lessonFor('acc', '2026-10-05', 3, spine), L5 = r.lessonFor('on', '2026-10-05', 5, spine);
   assert.deepStrictEqual([L1.lesson, L1.stop, L1.from], ['3.06', 'ex2', 'panel']);
   assert.deepStrictEqual([L3.lesson, L3.stop], ['3.05', 'wb7']);
-  assert.deepStrictEqual([L5.lesson, L5.from], ['4.06', 'plan']);
+  assert.deepStrictEqual([L5.lesson, L5.from], [spine.days['2026-10-05'].on.code, 'plan']);
+});
+ok('panel: what each period actually did, oldest first, one course and one period at a time', () => {
+  const r = Room.load({ extra: [{ name: 'x', room: fx('panel') }] });
+  assert.deepStrictEqual(r.asRun('acc', 1).map(x => [x.on, x.did, x.lesson || null]), [['2026-09-30', 'lesson', '3.06'], ['2026-10-02', 'review', null], ['2026-10-05', 'lesson', '3.T1']]);
+  assert.strictEqual(r.asRun('acc').length, 4); assert.strictEqual(r.asRun('on', 2).length, 1); assert.deepStrictEqual(r.asRun('on', 4), []);
+  assert.deepStrictEqual(Room.load({ extra: [{ name: 'x', room: fx('empty') }] }).asRun('acc', 1), []);
 });
 ok('merge: newest copy per part, parts from different copies', () => {
   const r = Room.load({ extra: [{ name: 'a', room: fx('conflict-older') }, { name: 'b', room: fx('tally') }, { name: 'c', room: fx('panel') }] });

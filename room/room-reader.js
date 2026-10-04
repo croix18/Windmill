@@ -3,6 +3,7 @@
  *   three script tags: room.js, room.panel.js, room-reader.js (each optional but the last)
  *   const room = Room.load({ win: window, code: '<a typed room code>', scriptJson: <GET from the live road> });
  *   room.unit('acc')  room.weak('acc', 3)  room.bookmark(3)  room.lessonFor('acc', '2026-10-05', 3, SPINE)  room.age('tally')
+ *   room.asRun('acc', 3)   what that period actually did, oldest first (the plan follows the class)
  *
  * The room is one object with parts (plan, tally, panel, roster, log); every writer stamps `at` on its
  * part; a reader with several copies keeps the NEWEST per part and never merges fields across copies.
@@ -164,6 +165,13 @@
   Reader.prototype.weak = function (course, k) { return weakest(this.room.tally, course, k); };
   Reader.prototype.bookmark = function (period) { var p = this.room.panel && this.room.panel.periods; return p ? p[String(period)] || null : null; };
   Reader.prototype.age = function (part) { return ageDays(this.room[part]); };
+  /* What a period actually did, oldest first (panel.asRun): [{on, period, course, did, lesson}]. The kit's
+     flow.js lays the rest of the year from the last lesson in it. */
+  Reader.prototype.asRun = function (course, period) {
+    var a = this.room.panel && this.room.panel.asRun || [];
+    return a.filter(function (r) { return r.course === course && (period == null || r.period === period); })
+      .sort(function (x, y) { return x.on < y.on ? -1 : x.on > y.on ? 1 : 0; });
+  };
   Reader.prototype.plan = function (spine, dateISO, course) { return planFor(spine, dateISO, course); };
   /* Where period N is: the panel's bookmark if it is for a lesson on or before today's plan, else the plan. */
   Reader.prototype.lessonFor = function (course, dateISO, period, spine) {

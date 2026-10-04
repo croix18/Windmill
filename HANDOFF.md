@@ -19,6 +19,66 @@ Form B. If a session ends mid-way, every repository is pushed and each handoff's
 room" section says what that tool still owes. Each tool's own handoff carries a "Windmill and the room" note pointing
 here (added 3 Oct).
 
+## The plan follows the class (4 Oct 2026, night) — `kit/lib/flow.py`, `kit/lib/flow.js`, `plan/`
+
+Croix: *"I would like the plans to adjust or allow for flexibility but also adjust. For example, I
+took Friday as an extra review day, so for a7 Monday, we are working on the variables as bases
+lesson. We have another random state test this week, so thatll put us behind again. I need the plan
+to be fluid and adjust on the fly."* Asked what gives when a class is behind, he chose **push
+everything back**: lessons keep their order; flex and spiral days absorb the loss first; tests move
+to the next Monday or Thursday; the end-of-year review shrinks; he is told when a test crosses a
+quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(xvi) in A7's.)
+
+- **The dates are no longer typed anywhere.** Each course's calendar tool builds a SEQUENCE (the
+  year's lessons, reviews and tests in order, with the rules as flags on the items) and
+  `kit/lib/flow.py` lays it on the school days. With an empty log both tools write byte for byte
+  what they wrote before (checked before anything else was changed).
+- **A lost day is one line in a log.** `a7/reference/A7 As Run 2026-27.csv` and
+  `m7/reference/M7 As Run 2026-27.csv`: `date, what, note`, where `what` is `review` (class met,
+  nothing new), `off` (no class: a state test) or the code of the lesson the class BEGAN that day —
+  an anchor: the engine lays the year so that lesson is on that day, marks the days it has to
+  account for as "a day off the plan (the log does not say which)", and lets the log outrank a rule
+  (a test Croix gave on a Tuesday stays on its Tuesday). Future days go in the same file (the state
+  tests of 14 January and 1 March are there).
+- **What a session does when Croix says a day went elsewhere** — in order, nothing skipped:
+  1. add the line to that course's as-run CSV (his words in a `#` line above it);
+  2. run the course's tool (`python3 tools/scope_calendar.py` in A7, `python3 tools/mkscope.py` in
+     M7): it rewrites the scope and sequence and the IXL due-date sheet and ends with "The plan
+     follows the class" — the log and what moved. **Read what moved back to him**: a test in
+     another quarter, content past 30 April, flex days left;
+  3. here: `python3 spine/spine.py --a7 … --m7 …` (it refuses a spine whose flow does not lay to
+     its days), `bash tools/check.sh`, push;
+  4. in each course: `python3 tools/vendor_windmill.py`, A7 also `python3 tools/master_sheet.py`
+     and its recalculation and check; rebuild the units being taught (`build_all.py uN --install` —
+     the consoles carry the spine); push; send him the consoles.
+- **On the panel the console does it without a session** (`consolekit`, `flow.js`): it records what
+  each period actually did — a lesson once its boards are reached during that period, a day marked
+  "review / catch-up" or "testing / no class" on Today, a lesson marked taught by hand — in the
+  panel part's `asRun` list (`room.schema.json`), and lays the rest of the year from the last
+  lesson in it. Today offers the PERIOD's next lesson, says how many school days the period is
+  from the year's plan and when the unit's test now falls. Rules it follows, each tested in
+  `plan/test_flow.js`: a day with no deck (a test, a spiral day) is taken as run; a deck lesson
+  nobody opened is taken as not taught and the day as lost, with one tap to say it was taught
+  without the deck; after more than two such days the panel has simply not been used, so the built
+  plan stands and the card says so; a panel that has not taught since the build's last lesson
+  defers to the build. **The console does not send anything back**: what it learns stays in that
+  browser until Deckhand publishes the panel part (the Room plan's later phase). Until then the
+  durable record is the CSV, and Croix telling a session is how it gets there — the Today card has
+  "What this panel has recorded" for him to read from.
+- **Where the plan stands after the first log** (5 Oct): A7 two days behind and a state test on
+  8 Oct — Unit 3's test moves 8–9 Oct → 15–16 Oct (into Q2), five of seven flex days are absorbed,
+  content still ends 30 April. M7 two days behind, same test — Unit 4's test moves 15–16 → 19–20
+  Oct; with the 14 January and 1 March state tests **M7's Unit 13 test lands on 6–7 May, five school
+  days past 30 April and inside the PM3 window**, and Unit 10's test moves into Q4. M7 has no flex
+  days; what to cut or merge is Croix's call and nothing was cut. Both are in each scope document's
+  last section.
+- **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
+  class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
+  should treat both as "no lesson today". `spine.flow` is new and optional to every reader.
+- **Not done**: Deckhand, Tally, Cadence and Geopardy do not read `flow` or `asRun` yet; nothing
+  carries the panel's record back to a session; the phone has no view of the moved plan other than
+  A7's master sheet and M7's scope document.
+
 ## The build kit (4 Oct 2026) — `kit/`
 
 Croix, 4 Oct: "Adapt m7 to a7 and the family", all four parts — classroom parity, **one shared
@@ -177,6 +237,10 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, night (later)** — the plan follows the class: `kit/lib/flow.py`, `kit/lib/flow.js`,
+  `plan/test_flow.*`; `spine.flow`; kinds `extra` and `off`; `panel.asRun` in the room and
+  `room.asRun()` in the reader; the console offers a period's next lesson; `spine.py` keeps the
+  published bell when Deckhand is not beside it; the room test reads 5 October from the spine.
 - **4 Oct 2026, night** — `packkit`: lesson folders are the number only, zips are named without
   the unit's title, and an install refuses a path over 180 characters inside `packages/`.
 - **4 Oct 2026, evening** — `kit/lib/names.py`, `kit/lib/packkit.py` (ruling 34: one naming

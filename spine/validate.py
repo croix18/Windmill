@@ -8,7 +8,7 @@ has every period the period map names, and the two calendars agree about holiday
 import datetime as dt, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-KINDS = {"lesson", "thread", "exam", "review", "spiral", "flex", "pm3", "fast", "post"}
+KINDS = {"lesson", "thread", "exam", "review", "spiral", "flex", "pm3", "fast", "post", "extra", "off"}
 BM = re.compile(r"^MA\.[78]\.[A-Z]+\.\d+\.\d+$")
 
 
@@ -94,6 +94,32 @@ def validate(s):
         for b in sk["benchmarks"]:
             if b not in known:
                 P.append(f"IXL skill {code}: benchmark {b} unknown")
+    # the flow: laid again by the engine, the sequence gives exactly `days` — so a tool that lays the
+    # rest of the year from where a period really is starts from the same plan the documents show
+    import importlib.util
+    sp = importlib.util.spec_from_file_location("flow", os.path.join(HERE, "..", "kit", "lib", "flow.py"))
+    flow = importlib.util.module_from_spec(sp); sp.loader.exec_module(flow)
+    for c in courses:
+        f = (s.get("flow") or {}).get(c)
+        if not f:
+            P.append(f"flow: none for {c}")
+            continue
+        res = flow.lay(f)
+        if res["left"]:
+            P.append(f"flow {c}: the year does not hold the sequence ({len(res['left'])} items have no day)")
+        seen = set()
+        for r in res["rows"]:
+            seen.add(r["date"])
+            have = (s["days"].get(r["date"]) or {}).get(c)
+            want = {k: r["entry"].get(k) for k in ("kind", "code", "title", "unit")}
+            if not have or {k: have.get(k) for k in want} != want:
+                P.append(f"flow {c} {r['date']}: the sequence lays {want}, days says {have and {k: have.get(k) for k in want}}")
+        for d in f["days"]:
+            if d not in seen:
+                P.append(f"flow {c} {d}: a school day the sequence leaves empty")
+        for d, b in f["blocked"].items():
+            if d not in f["days"]:
+                P.append(f"flow {c}: a day off on {d}, which is not a school day")
     # every lesson's benchmark list is non-empty
     for key, e in s["days"].items():
         for c in courses:

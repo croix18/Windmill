@@ -49,6 +49,52 @@
    "period": 3,
    "week": "Teal Week",
    "wednesday": false
-  }
+  },
+  "asRun": [
+   {
+    "on": "2026-10-02",
+    "period": 1,
+    "course": "acc",
+    "did": "review",
+    "by": "hand",
+    "at": "2026-10-02T09:25:00-04:00"
+   },
+   {
+    "on": "2026-09-30",
+    "period": 1,
+    "course": "acc",
+    "did": "lesson",
+    "lesson": "3.06",
+    "by": "deck",
+    "at": "2026-09-30T09:40:00-04:00"
+   },
+   {
+    "on": "2026-09-30",
+    "period": 3,
+    "course": "acc",
+    "did": "lesson",
+    "lesson": "3.05",
+    "by": "deck",
+    "at": "2026-09-30T11:50:00-04:00"
+   },
+   {
+    "on": "2026-10-01",
+    "period": 2,
+    "course": "on",
+    "did": "lesson",
+    "lesson": "4.03",
+    "by": "deck",
+    "at": "2026-10-01T10:30:00-04:00"
+   },
+   {
+    "on": "2026-10-05",
+    "period": 1,
+    "course": "acc",
+    "did": "lesson",
+    "lesson": "3.T1",
+    "by": "deck",
+    "at": "2026-10-05T09:45:00-04:00"
+   }
+  ]
  }
 }

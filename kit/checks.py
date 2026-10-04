@@ -685,6 +685,18 @@ CONSOLE_PROBE = r"""
         if (!r.plan(SPINE, Object.keys(SPINE.days)[0], UNIT.course)) out.problems.push('room: the plan answers nothing for the first day'); }
   catch (e) { out.problems.push('room: ' + e.message); }
   if (typeof Console !== 'object' || typeof Console.show !== 'function') out.problems.push('console API missing');
+  // the plan follows the class: the engine in this page lays the year exactly as the spine has it, and
+  // every lesson in the deck is a day of that sequence
+  const F = window.SPINE && SPINE.flow && SPINE.flow[UNIT.course];
+  if (!window.Flow || !F) out.problems.push('flow: the engine or the course\'s sequence is missing');
+  else {
+    const res = Flow.lay(F); let bad = 0;
+    res.rows.forEach(r => { const d = SPINE.days[r.date] && SPINE.days[r.date][UNIT.course];
+      if (!d || d.kind !== r.entry.kind || (d.code || null) !== (r.entry.code || null)) bad++; });
+    if (bad || res.left.length) out.problems.push(`flow: the engine lays ${bad} day(s) differently from the spine, ${res.left.length} item(s) with no day`);
+    UNIT.lessons.forEach(L => { if (Flow.indexOf(F, L.code, L.plan) < 0) out.problems.push(`flow: ${L.code} is not a day of the year's sequence`); });
+    if (typeof Console.flow !== 'function') out.problems.push('flow: the console does not answer where a period is');
+  }
   return out;
 }
 """
