@@ -13,7 +13,10 @@ Monday 5 Oct on the panel. Phase 2 (this repository) is built except Tally's Pub
 lesson console) shipped its first slice in the A7 repository (`a7/build/lib/consolekit.py`; the unit
 `.html` opens on Today, reads the bell from the spine, keeps a bookmark per period, runs the
 whiteboard round with a timer, veil and tally, writes the `panel` part to the browser's store).
-Phases 4–5 are not started. Each tool's own handoff carries a "Windmill and the room" note pointing
+Phases 4–5 are not started. **4 Oct**: the console also shipped for M7 (on-level, course key `on`,
+`windy-hill-m7` commit 1fb97b0), so both courses read this reader and spine; M7's Unit 5 gained its
+Form B. If a session ends mid-way, every repository is pushed and each handoff's "Windmill and the
+room" section says what that tool still owes. Each tool's own handoff carries a "Windmill and the room" note pointing
 here (added 3 Oct).
 
 ## Why this exists (3 Oct 2026)
