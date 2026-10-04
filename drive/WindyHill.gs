@@ -21,8 +21,8 @@
  * Google's permission screen asks for all of Drive and for "connect to an external service"
  * (GitHub): a script that files documents for you cannot ask for less.
  *
- * SET IT UP ONCE (on a laptop, signed in to the Google account that owns the Windy Hill folder)
- * 1. Open the spreadsheet "Windy Hill Drive Index". Menu Extensions > Apps Script.
+ * SET IT UP ONCE (on a laptop, signed in to the Google account that is to hold all of this)
+ * 1. Open the spreadsheet "Windy Hill Drive Index" in that account's Drive. Menu Extensions > Apps Script.
  * 2. Delete whatever is in the editor, paste this whole file, press Save (the disk icon).
  * 3. On the left, next to "Services", press +. Choose "Drive API", press Add.
  * 4. In the bar above the code pick "setup" in the list of functions, press Run, and approve:
@@ -34,6 +34,7 @@
  *    repositories" > windy-hill-m7 and croix18-windy-hill-a7. Permissions > Repository
  *    permissions > Contents: Read-only. Expiration: the longest it offers. Paste it ONLY into
  *    that box — never into a chat.
+ * 6. Share the Windy Hill folder it makes with your school account, so the panel can open it.
  * The first copy is about 250 MB and takes several runs; the script carries on by itself every
  * minute until it is done, then once an hour. The Status tab says where it is.
  */

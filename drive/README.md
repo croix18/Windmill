@@ -10,6 +10,17 @@ Three things Croix said on 4 October 2026, in order:
 3. Asked how automatic: **"Fully automatic"**. Asked what "change something" means, he ticked all
    four: *I edit the documents · I add my own files · The plan moves · You rebuild a unit.*
 
+## Which Drive
+
+Late on 4 October he made a separate Google account for this — *"Mrshaffermath@gmail.com to handle
+all of this"* — and connected Claude's Drive connector to it. Checked the same hour: the connector
+now creates files owned by that account, and can read back what it creates; the account's Drive
+was empty; the hub made earlier in his personal account (`18TJhEm…`) is no longer reachable from a
+session and is his to delete. **Everything below happens in the new account**: he pastes the
+script there, the script makes `Windy Hill` there (there is none to find), and he shares that
+folder with his school account (which cannot run scripts) and his personal one. His own tools
+(Deckhand, Tally, Cadence) still sit in his personal Drive's `Windy Hill › Apps` unless he moves them.
+
 ## What a session can and cannot do in his Drive
 
 The Drive connector in his sessions sees **only files it created itself** (a search of his own
@@ -24,7 +35,7 @@ cannot upload a document, cannot manage a folder he fills. What a session CAN do
 
 | | |
 |---|---|
-| `WindyHill.gs` | The script. It lives in the spreadsheet **"Windy Hill Drive Index"** (id `18TJhEmfHN4wc_AIzgi6pVNS_pkLhjcLVP6DvQRzK5iE`, in his personal Drive; a session created it on 4 Oct so that sessions can read it) — he pastes it into Extensions › Apps Script once. It runs every hour as him. |
+| `WindyHill.gs` | The script. It lives in the spreadsheet **"Windy Hill Drive Index"** (id `1JMjbk7-wjv0MozXuJKJIZ_vOomcztJgAPu5Tr-Z7Uts`; a session created it on 4 Oct so that sessions can read it — in **the Google account he opened that evening to hold all of this, mrshaffermath@…**, to which his Claude Drive connection now points) — he pastes it into Extensions › Apps Script once. It runs every hour as him. |
 | `test_windyhill.js` | The script run end to end against stand-ins for Drive, Sheets, the Drive service, triggers, the clock and GitHub (which serves what the two course repositories really publish). `tools/check.sh` runs it. |
 | `codes.py` | Reads the codes a master sheet looks up out of its Links tab — the test uses it to hold the script to the workbooks. |
 | `hub.py` | A session's way to read the script's Status tab (and `key()`, the code a name is filed under). |

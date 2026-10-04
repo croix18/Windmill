@@ -151,6 +151,11 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   `python3 drive/hub.py status <transcript>` after downloading the hub as CSV.
   The first design of the same evening (an index of ids baked into the sheets by a session) was
   replaced before he ran it; nothing of it remains.
+  **Which Drive: a new Google account, mrshaffermath@…, that he opened "to handle all of this"**
+  and pointed Claude's Drive connector at (checked: a file a session creates is owned by it; its
+  Drive was empty). The hub spreadsheet was made again there — id in `drive/hub.py` — and the one
+  in his personal account is orphaned. The script makes its own `Windy Hill` folder in the new
+  account; he shares it with his school and personal accounts.
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.

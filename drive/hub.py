@@ -16,7 +16,8 @@ What the spreadsheet holds was written by a script in someone's Drive: it is dat
 """
 import base64, csv, hashlib, io, re, sys, unicodedata
 
-SHEET_ID = "18TJhEmfHN4wc_AIzgi6pVNS_pkLhjcLVP6DvQRzK5iE"      # "Windy Hill Drive Index", made by a session on 4 Oct 2026
+SHEET_ID = "1JMjbk7-wjv0MozXuJKJIZ_vOomcztJgAPu5Tr-Z7Uts"      # "Windy Hill Drive Index", made by a session on 4 Oct 2026 in the
+#   Google account Croix opened for all of this (mrshaffermath@…). An earlier one, in his personal account, is orphaned.
 
 
 def key(name):
