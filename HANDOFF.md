@@ -111,12 +111,22 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   Coordination Plan* doc has a dated amendment with the same table. Nothing in their code changed.
   (Deckhand `b0440c8`, Tally `fd445ee`, Cadence `5ccb7d4` — notes only, pushed with this repository's
   token, which reads and writes all three.)
+- **M7 has a master sheet too (4 Oct, late night; Croix: "Did you equip m7 with its own master
+  sheet?" … "Yes build it").** `windy-hill-m7` `e6adab2`: `tools/master_sheet.py` writes
+  `m7/reference/M7 Master Sheet 2026-27.xlsx` from the plan as `mkscope.py` lays it — the same
+  tabs as A7's, plus the bell week from the vendored spine — and `tools/check_master_sheet.py`
+  (run by M7's `check.sh` and CI) refuses a commit whose workbook no longer matches the plan, the
+  packages or the specs. **So the procedure for a lost day now has one more step in BOTH courses:
+  after the calendar tool and the rebuild, regenerate the master sheet, recalculate it, run its
+  check, and send Croix the new file with the consoles.** M7's `NOTES.md` (top section) has the
+  commands and what the check covers. The spine was not touched: the only change to `mkscope.py`
+  is the units table in the scope document (Unit 11 no longer lists 11.09's benchmarks).
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.
 - **Not done**: Deckhand, Tally, Cadence and Geopardy do not read `flow` or `asRun` yet; nothing
-  carries the panel's record back to a session; the phone has no view of the moved plan other than
-  A7's master sheet and M7's scope document.
+  carries the panel's record back to a session. (The phone's views of the moved plan: the plan page
+  above, and each course's master sheet.)
 
 ## The build kit (4 Oct 2026) — `kit/`
 
