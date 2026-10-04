@@ -6,8 +6,8 @@ the same in both courses. So a unit's package is
     <COURSE> Unit N - <Unit Title>/
         00 - START HERE.md                          written by the course's own install_unit.py
         All Slides/                                 the whole unit in one deck; the .html is the console
-        Lessons/<N.NN Lesson Title>/                everything for that day; docx/pptx/html and pdf together
-        Lessons/<N.NN Lesson Title>/Keys/           that lesson's answer keys — never beside a student page
+        Lessons/<N.NN>/                             everything for that day; docx/pptx/html and pdf together
+        Lessons/<N.NN>/Keys/                        that lesson's answer keys — never beside a student page
         Review Day/                                 a review day built as a lesson (deck, TE, plan)
         Review/                                     a review that is a paper, with its key
         Assessment/                                 one paper and its key; or
@@ -15,9 +15,14 @@ the same in both courses. So a unit's package is
         Handouts/                                   the Reference Sheet
         Reference/                                  the unit's Question Bank file, and what the course adds
 
-    <packages>/zips/     git-ignored, regenerable: the folder as "… - Complete.zip" (and in parts
-                         when it is over the upload limit), one zip per lesson, "… - Lessons.zip",
-                         "… - Review and Assessment.zip"
+    <packages>/zips/     git-ignored, regenerable: the folder as "<COURSE> Unit N - Complete.zip" (and
+                         in parts when it is over the upload limit), one zip per lesson,
+                         "<COURSE> Unit N - Lessons.zip", "<COURSE> Unit N - Review and Assessment.zip"
+
+A lesson's folder is its NUMBER only, and the zips of a unit carry no title: the title is already in
+the unit's folder and in every file name, and a path that says it three times does not fit in
+Windows' 260 characters once a zip is extracted into Downloads (Croix, 4 October: asked, he chose
+number-only lesson folders). install() refuses a package whose longest path would not fit.
 
 A course's install_unit.py calls install() and zips() and writes its own START HERE; everything a
 file's place depends on is its name, so a file the kit cannot place stops the install.
@@ -28,10 +33,11 @@ from .profile import C
 from .tekit import plan_from_sidecar
 
 PART_LIMIT = 27 * 2 ** 20            # a zip over this is also written in parts (uploads stop at 30 MiB)
+MAX_PATH_IN_PACKAGES = 180           # "<unit folder>/…/<file>": leaves 80 of Windows' 260 for where a zip is extracted
 
 
 def lesson_folder(L):
-    return os.path.join("Lessons", f"{L['code']} {names.clean(L['title'])}")
+    return os.path.join("Lessons", L["code"])
 
 
 def place(name, specs):
@@ -100,6 +106,10 @@ def install(out, pkg, specs, handouts=None):
             if not os.path.exists(os.path.join(d, pdf)):
                 raise SystemExit(f"{name}: no PDF was made")
             placed += [(sub, name), (sub, pdf)]
+    longest = max((os.path.join(os.path.basename(pkg), sub, name) for sub, name in placed), key=len)
+    if len(longest) > MAX_PATH_IN_PACKAGES:
+        raise SystemExit(f"a path of {len(longest)} characters will not unzip on Windows (limit {MAX_PATH_IN_PACKAGES} "
+                         f"inside packages/): {longest} — shorten the lesson's title")
     return placed
 
 
@@ -123,8 +133,8 @@ def _tree(root, arcroot):
 def zips(pkg, zdir, unit):
     """Write the unit's zips into zdir; returns their names. Every zip of this unit there is replaced."""
     os.makedirs(zdir, exist_ok=True)
-    ustem = names.unit_stem(unit)
-    for z in glob.glob(os.path.join(glob.escape(zdir), glob.escape(ustem) + "*.zip")) + \
+    ustem = f"{C.PREFIX} Unit {unit}"         # no title: "Extract all" makes a folder of the zip's name
+    for z in glob.glob(os.path.join(glob.escape(zdir), glob.escape(ustem) + " *.zip")) + \
             glob.glob(os.path.join(glob.escape(zdir), f"{C.PREFIX} {unit}.*.zip")):
         os.remove(z)
     made = []
@@ -157,7 +167,9 @@ def zips(pkg, zdir, unit):
     every = []
     for d in lessons:
         pairs = [(full, os.path.basename(full)) for full, _ in _tree(d, "")]
-        p = os.path.join(zdir, f"{C.PREFIX} {os.path.basename(d)}.zip")
+        if not pairs:
+            continue
+        p = os.path.join(zdir, names.stem(pairs[0][1]) + ".zip")      # "M7 4.06 Finding Circumference.zip", flat
         _zip(p, pairs); made.append(os.path.basename(p)); every += pairs
     if every:
         p = os.path.join(zdir, f"{ustem} - Lessons.zip"); _zip(p, every); made.append(os.path.basename(p))

@@ -52,8 +52,10 @@ What a file IS is read from the part after the first ` - `, never from the title
 "Key Features of a Graph" is not an answer key) — the checks and the installer use
 `names.is_key`, `names.is_lesson_deck` and the rest, never a substring of the whole name.
 
-A unit's package is laid out by lesson (`lib/packkit.py`): `All Slides/`, `Lessons/<N.NN Title>/`
-with that lesson's keys in `Keys/`, `Review Day/` or `Review/`, `Assessment/` (by form where there
+A unit's package is laid out by lesson (`lib/packkit.py`): `All Slides/`, `Lessons/<N.NN>/` — the
+number only: the title is already in the unit's folder and in every file name, and a path that says
+it three times does not fit Windows' 260 characters once a zip is extracted — with that lesson's keys
+in `Keys/`, `Review Day/` or `Review/`, `Assessment/` (by form where there
 are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 
 ## `L` — a lesson

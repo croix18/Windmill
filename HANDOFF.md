@@ -71,6 +71,14 @@ takeover needs to know:
   A spec may carry `plan_code` (the plan's code for the day when it is not the spec's own) and a
   review day's code is the plan's (`4.R`): the console now opens on the plan's lesson on review,
   merged and thread days, which it did not before. `spine.py` reads M7's renamed due-date sheet.
+  **A lesson's folder is its number only** (`Lessons/4.06/`), and a unit's zips carry no title
+  (`M7 Unit 4 - Complete.zip`): with the title in the folder as well as in every file, paths ran
+  past 255 characters as GitHub links (the A7 master sheet's hyperlinks were cut off) and past
+  Windows' 260 once a zip was extracted. Croix was asked and chose number-only (4 October).
+  `packkit.install` refuses a package whose longest path inside `packages/` exceeds 180.
+  **Known and cosmetic:** on an assessment day the console's Today card names the day and says
+  "— in another unit's deck"; the test is paper, so there is no deck to open, and the wording
+  predates this work. Change it in `consolekit` only with a rebuild of every unit.
 - **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
   `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
   keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
@@ -162,6 +170,8 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, night** — `packkit`: lesson folders are the number only, zips are named without
+  the unit's title, and an install refuses a path over 180 characters inside `packages/`.
 - **4 Oct 2026, evening** — `kit/lib/names.py`, `kit/lib/packkit.py` (ruling 34: one naming
   convention, by-lesson packages); `UNIT_DECK` retired, `UNITS` added to the profile; the console
   matches the plan's code for review, merged and thread days; `spine.py` reads `M7 IXL Due Dates
