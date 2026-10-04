@@ -72,6 +72,15 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   days past 30 April and inside the PM3 window**, and Unit 10's test moves into Q4. M7 has no flex
   days; what to cut or merge is Croix's call and nothing was cut. Both are in each scope document's
   last section.
+- **Where it landed** (all pushed and verified against each remote head): the engine and the
+  spine here `2761626`; `windy-hill-m7` `03fb7fc`; `croix18-windy-hill-a7` `c8ea8f5`. All four
+  kit-built units rebuilt at `checks: 0 findings`; against the builds before 4 October the lessons
+  are unchanged (the same documents differ as after the renaming, and only there). Each
+  repository's `tools/check.sh` also passes in a clean clone. `spine.json`'s `sources` name the
+  course commits the calendar tools were run over, with the log changes then uncommitted — the
+  plan in it is the one those two commits hold. Croix pasted a token "with actions turned on" for
+  reading CI; the session's safety layer refused to store or use a credential from the chat, so the
+  Actions results are still unread — he was told, and to rotate it.
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.
