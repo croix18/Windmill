@@ -79,6 +79,13 @@ takeover needs to know:
   **Known and cosmetic:** on an assessment day the console's Today card names the day and says
   "— in another unit's deck"; the test is paper, so there is no deck to open, and the wording
   predates this work. Change it in `consolekit` only with a rebuild of every unit.
+  **Where the renaming landed:** kit `fa48994` here; `windy-hill-m7` `d21c9ca`; `croix18-windy-hill-a7`
+  `115f7d0` — each verified against its remote head, each course's `tools/check.sh` also run in a
+  clean clone (what CI does; the Actions results still cannot be read from a session). All four
+  kit-built units were rebuilt at `checks: 0 findings` and compared structurally with the builds
+  before the renaming. A7's master sheet now holds every link to 255 characters (a longer one opens
+  the lesson's folder and reads "in folder") and its check runs in A7's `check.sh` and CI. Croix's
+  Drive keeps the old names until he replaces the folders from the new zips.
 - **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
   `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
   keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
