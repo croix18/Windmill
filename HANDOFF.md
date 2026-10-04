@@ -58,6 +58,19 @@ takeover needs to know:
   read from the session** — if either course's "check" workflow is red, read its log before
   anything else. `spine.json` was not regenerated (Deckhand's checkout was not beside this one);
   its `sources` still name the 3 Oct commits, and the plan is unchanged.
+- **File names and package layout are the kit's too (ruling 34, 4 Oct, later).** Croix: "Can you
+  normalize all of the naming conventions in a7 and m7 … It's tough to find what I need sometimes."
+  He chose the title in every name and unit folders by lesson in both courses. `lib/names.py` is
+  the only place a file name is made (`M7 4.06 Finding Circumference - Slides.pptx`, `A7 Unit 3
+  Exponents and Scientific Notation - Test - Key.docx`); `lib/packkit.py` is the one layout and the
+  zips; each unit's title lives in the course's `course.py` UNITS; the whole-unit deck is `All
+  Slides` in both courses. The four kit-built units were rebuilt under the new names at `checks: 0
+  findings` with contents unchanged except where a document names a file; the older packages and the
+  reference documents were renamed by `tools/legacy/rename_2026_10_04.py` in each course repository,
+  which wrote `reference/<COURSE> Rename List 2026-10-04.csv` (every old name and its new one).
+  A spec may carry `plan_code` (the plan's code for the day when it is not the spec's own) and a
+  review day's code is the plan's (`4.R`): the console now opens on the plan's lesson on review,
+  merged and thread days, which it did not before. `spine.py` reads M7's renamed due-date sheet.
 - **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
   `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
   keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
@@ -149,6 +162,10 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, evening** — `kit/lib/names.py`, `kit/lib/packkit.py` (ruling 34: one naming
+  convention, by-lesson packages); `UNIT_DECK` retired, `UNITS` added to the profile; the console
+  matches the plan's code for review, merged and thread days; `spine.py` reads `M7 IXL Due Dates
+  2026-27.csv` (falling back to the old name).
 - **4 Oct 2026, later** — `kit/gates.py`, `kit/lib/ixlplan.py`, `kit/SPEC SCHEMA.md`; a manifest
   without `lessons` leaves the unit deck's order to the spec files; the `tight` text measure tried
   and withdrawn the same day (a story ran over its ask; `overlap` caught it). `spine.py` reads M7's

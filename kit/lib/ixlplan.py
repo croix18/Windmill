@@ -20,6 +20,7 @@ The rules, as facts about the spec:
 import os, re, json
 from .profile import C
 
+# (a spec's `plan_code` is also what the console uses to open the plan's lesson for the day)
 HERE = os.path.dirname(os.path.abspath(__file__))
 SPINE_JS = os.path.normpath(os.path.join(HERE, "..", "assets", "windmill", "spine.js"))
 _ENTRY = re.compile(r"^(.*?)(?: — ([0-9A-Z]{2,4})| \(([0-9A-Z]{2,4})\))$")
@@ -46,14 +47,15 @@ def spine():
     return _cache[path]
 
 
-def plan_for(code, S=None):
+def plan_for(code, S=None, plan_code=None):
     """{(name, code)} the plan lists for a lesson. A merged day's plan code is '4.02+03'; the spec
-    that teaches it is 4.02."""
+    that teaches it is 4.02. A spec may name the plan's code itself (`plan_code`): a thread day is
+    3.T1 in its file names and T-A1 in the plan."""
     S = S or spine()
     out = set()
     for day in S["days"].values():
         o = (day or {}).get(C.COURSE_KEY)
-        if o and o.get("code") and (o["code"] == code or o["code"].startswith(code + "+")):
+        if o and o.get("code") and (o["code"] in (code, plan_code) or o["code"].startswith(code + "+")):
             out |= {(i["name"], i["code"]) for i in o.get("ixl", [])}
     return out
 
@@ -78,7 +80,7 @@ def check(L):
                        + (f"; the plan's code for {name!r} is {same[0]}" if same else f", and neither is a skill named {name!r}"))
         elif known["name"] != name:
             out.append(f"{code}: ruling 28 — IXL code {c} is {known['name']!r} in the plan, not {name!r}")
-    plan = plan_for(code, S)
+    plan = plan_for(code, S, L.get("plan_code"))
     if plan and not out:
         for name, c in sorted(plan - listed):
             out.append(f"{code}: ruling 28 — the plan lists {name} ({c}) for this lesson and the slide does not")

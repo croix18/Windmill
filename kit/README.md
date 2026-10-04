@@ -17,6 +17,8 @@ merge. It is published from here and copied into each course repository; neither
 | `lib/lessonbuild.py` | The gates (mathcheck, distractorcheck, capcheck, rulingcheck, balancecheck — each refuses the build) and the builders: the lesson's slides (`_fill_deck`, one function for the pptx and the HTML deck), the whole-unit deck, both teacher's-edition styles, the bank file. |
 | `lib/deckkit.py` · `lib/htmlkit.py` · `lib/consolekit.py` | The pptx deck, the HTML deck (KaTeX, one self-contained file) and the console wrapped around the unit deck (Today, the rail, pacing, the whiteboard round, the room). Same interface, so one builder drives all three. |
 | `lib/mathimg.py` · `lib/figkit.py` | Expression images (mathtext, one size per surface) and geometry figures drawn from their numbers. A height that ends outside its figure is refused. |
+| `lib/names.py` | **Every file name the build writes**, in one place: `<COURSE> <unit>.<lesson> <Lesson Title> - <What it is>[ - Key].<ext>` and `<COURSE> Unit <N> <Unit Title> - <What it is>…`; and the readers (`is_key`, `is_lesson_deck`, …) the checks and the installer use, which read what a file IS from the part after the first ` - `, never from the title. Croix's ruling 34, 4 October 2026. |
+| `lib/packkit.py` | **One package layout for both courses**, by lesson: `All Slides/`, `Lessons/<N.NN Title>/` with its `Keys/`, `Review Day/` or `Review/`, `Assessment/` (by form), `Handouts/`, `Reference/`; each file placed by its name and compared byte for byte with the build; the zips (the whole folder also in parts when it is over the upload limit); the dates and timing a START HERE derives. Each course's `install_unit.py` calls it and writes its own START HERE. |
 | `lib/ixlplan.py` | Ruling 28 as a gate (inside `rulingcheck`): every IXL skill on a slide, and the code a student types beside it, is the course's IXL plan's — read from the spine the course vendors. A lesson the plan lists skills for names exactly those. |
 | `lib/slotmark.py` | The colour code's named slots: `\sA{}` blue, `\sB{}` orange, `\sH{}` teal, marked in the spec where the slot stands, honoured only on slides and only where the teacher shows, stripped everywhere else. |
 | `lib/dockit.py` · `lib/tekit.py` · `lib/plankit.py` · `lib/unitbuild.py` | Word documents, the teacher's edition, the Florida lesson plan (two styles), and the unit documents (reference sheet, review, a single paper or parallel forms with keys and worked-answers copies). |
@@ -42,5 +44,7 @@ A course difference is a name in `lib/profile.py` with a family default, set in 
 
 ## What a course repository owns
 
-`build/course.py`; its unit folders (`uN/lNN.py`, `unit.py`, `review.py`, `manifest.py`, `figs.py`);
-its packaging (`install_unit.py`); its rulebook, whose suite tables `suitecheck` reads.
+`build/course.py` (which also holds each unit's title, `UNITS` — every unit-wide file and folder is
+named from it); its unit folders (`uN/lNN.py`, `unit.py`, `review.py`, `manifest.py`, `figs.py`); its
+`install_unit.py` (where its packages live and what START HERE says — the layout itself is the kit's);
+its rulebook, whose suite tables `suitecheck` reads.

@@ -32,7 +32,7 @@ DEFAULTS = dict(
                                # "table": one line per slide, then the boards as a table
     PLAN_STYLE="sections",     # "sections": ten numbered sections with tables
                                # "labels":   headed paragraphs, the plan Croix approved for M7
-    UNIT_DECK="Unit Slides",   # the whole-unit deck's name: "<PREFIX> <unit>  <UNIT_DECK>"
+    UNITS={},                  # {unit number: its title} — every unit-wide file name is built from it (lib/names.py)
     REVIEW_IN_DECK=False,      # True: uN/review.py is built like a lesson and joins the unit deck
     # ---- the colour code (HOUSE STYLE §2a)
     SLOTS="exponent",          # "exponent": base blue / exponent orange, read off the layout

@@ -54,7 +54,7 @@ def unit_index(D, course_key, unit):
         segs = _segments(D.side, first, last)
         boards = [{"slide": k, "i": D.slides[k]["wb"]["i"], "reveal": D.slides[k]["wb"]["reveal"]}
                   for k in range(first, last) if D.slides[k].get("wb")]
-        lessons.append({"code": L["code"], "label": L["label"], "title": L["title"], "first": first, "last": last - 1,
+        lessons.append({"code": L["code"], "plan": L.get("plan"), "label": L["label"], "title": L["title"], "first": first, "last": last - 1,
                         "segments": segs, "boards": boards})
     return {"course": course_key, "unit": unit, "title": D.page_title, "lessons": lessons, "periodMin": PERIOD_MIN}
 
@@ -215,7 +215,9 @@ JS = r"""
   let cur=0;
   function lessonOf(k){return U.lessons.find(L=>k>=L.first&&k<=L.last)||null;}
   function segOf(L,k){return L?L.segments.find(s=>k>=s.first&&k<=s.last)||null:null;}
-  function lessonByCode(c){return U.lessons.find(L=>L.code===c)||null;}
+  // the plan's code for a day is the lesson's own (4.06), a merged day's (4.02+03 is the deck's 4.02), or one the
+  // spec names (a thread day: 3.T1 here, T-A1 in the plan)
+  function lessonByCode(c){if(!c)return null;return U.lessons.find(L=>L.code===c)||U.lessons.find(L=>L.plan===c)||U.lessons.find(L=>c.indexOf(L.code+'+')===0)||null;}
   function show(n,opts){opts=opts||{};n=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('on',k===n));cur=n;
     const L=lessonOf(n),seg=segOf(L,n);
     // stepped reveal: an answer slide shows its question first; Space / click lifts the veil

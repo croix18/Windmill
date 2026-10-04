@@ -12,6 +12,7 @@ from docx.shared import Pt
 from docx.oxml.ns import qn
 from .dockit import Doc, INK, GRAY, RED, VOCAB
 from . import tekit
+from . import names
 from .profile import C
 from .lessonbuild import MTR_TEXT, REVOTE, board_text, differentiation_rows, _plain, _label
 
@@ -144,7 +145,7 @@ def _plan_sections(L, deck_path, outdir):
              + ": " + "; ".join(L["ixl"]) + ".", size=10.5, before=0, after=4, container=blk)
     doc.spacer(1)
 
-    name = f"{PREFIX} {code}  Lesson Plan.docx"
+    name = names.lesson(L, "Lesson Plan", "docx")
     path = os.path.join(outdir, name)
     doc.save(path)
     return path
@@ -275,7 +276,7 @@ def _plan_labels(L, deck_path, outdir):
     P.label("Homework", f"IXL: {'; '.join(L['ixl'])} — SmartScore {C.IXL_SMARTSCORE} on each. {due} "
                         f"Whatever is not finished in the last five minutes is tonight's work.")
 
-    name = f"{PREFIX} {L['code']}  Lesson Plan.docx"
+    name = names.lesson(L, "Lesson Plan", "docx")
     path = os.path.join(outdir, name)
     P.save(path)
     return path

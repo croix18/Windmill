@@ -10,6 +10,7 @@ point ledger is asserted against the declared total and the per-benchmark Score 
 forms are checked position for position, and no question may share an answer across forms.
 """
 import os, itertools
+from . import names
 from .dockit import Doc, GRAY, RED
 from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capcheck_lesson,
                           balancecheck_lesson, COURSE, PREFIX, _fmt_q, _ev)
@@ -73,6 +74,10 @@ def check_unit(U):
     findings = []
     n = 0
     A = U["assessment"]
+    # the unit's title has one home (course.py UNITS): every unit-wide file is named from it
+    if names.unit_title(U["unit"]) != U["title"]:
+        findings.append(f"U{U['unit']}: unit.py's title {U['title']!r} is not course.py UNITS[{U['unit']}] "
+                        f"{names.unit_title(U['unit'])!r} — the papers and their file names would disagree")
     if has_forms(A):
         by = {k: _items([s["items"] for s in v]) for k, v in unit_forms(A).items()}
     else:
@@ -123,7 +128,7 @@ def build_reference(U, outdir):
             elif block.get("vocab"):
                 for term, dfn in block["vocab"]:
                     doc.para(f"__{term}__   —   {dfn}", before=2, after=3, indent=360, hanging=360)
-    name = f"{PREFIX} {U['unit']}  Reference Sheet.docx"
+    name = names.unit(U["unit"], "Reference Sheet", "docx")
     path = os.path.join(outdir, name)
     doc.save(path)
     return path
@@ -149,7 +154,7 @@ def build_review(U, outdir, key):
             if key and it.get("key_stem"):
                 it2["stem"] = it["key_stem"]
             _fmt_q(doc, it2, key=key)
-    name = f"{PREFIX} {U['unit']}  Unit Review{' Key' if key else ''}.docx"
+    name = names.unit(U["unit"], "Review", "docx", key=key)
     path = os.path.join(outdir, name)
     doc.save(path)
     return path
@@ -226,7 +231,7 @@ def build_paper(U, outdir, key):
         doc.para(A["follow_through"], size=9.5, italic=True, color=GRAY, before=6, after=4)
         doc.para(f"Transfer items (ruling 18): questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
                  f"review or in any question bank.", size=9.5, italic=True, color=GRAY, before=2, after=4)
-    name = f"{PREFIX} {U['unit']}  Unit Assessment{' Key' if key else ''}.docx"
+    name = names.unit(U["unit"], "Test", "docx", key=key)
     path = os.path.join(outdir, name)
     doc.save(path)
     return path
@@ -393,9 +398,8 @@ def build_form(U, outdir, key, form="test", student=False):
         doc.para(FOLLOW_THROUGH + "  Nothing is weighed and nothing is arguable: apply the "
                  "part's operation to the student's own earlier value and tick if that is what is written.",
                  size=9.5, italic=True, color=GRAY, before=6, after=4)
-    suffix = "  Worked Answers" if student else (" Key" if key else "")
-    formtag = f"  {formword}" if formword else ""
-    name = f"{PREFIX} {U['unit']}  {label}{formtag}{suffix}.docx"
+    kind = "Practice Test" if form == "practice" else ("Test" if form == "test" else f"Test Form {form}")
+    name = names.unit(U["unit"], kind, "docx", key=key and not student, worked=student)
     path = os.path.join(outdir, name)
     doc.save(path)
     return path

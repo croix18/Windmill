@@ -8,7 +8,7 @@ colour; the holidays; the benchmark list; the IXL skill → benchmark map.
 It READS the three repositories' own sources and never edits them:
   A7  tools/scope_calendar.py (the day table), a7/reference/ixl_skills_by_lesson.json,
       a7/reference/Florida BEST Grade 8 - Source of Truth.md (benchmark wording, MA.7 and MA.8)
-  M7  tools/mkscope.py (the day table, IXL plan), m7/reference/IXL DUE DATES 2026-2027 - M7.csv,
+  M7  tools/mkscope.py (the day table, IXL plan), m7/reference/M7 IXL Due Dates 2026-27.csv,
       m7/reference/TRUTH - Grade 7 Benchmarks.md (benchmark labels) — the layout M7 took on 4 Oct 2026,
       the same shape as A7's; a checkout from before that (Windy Hill M7/Reference/) is still read
   Deckhand  the bell block baked into Deckhand.html (periods, times, week rotation, skip weeks)
@@ -54,10 +54,18 @@ def git_head(repo):
 
 
 # ---- benchmarks -------------------------------------------------------------------------------
+M7_OLD_NAME = {"M7 IXL Due Dates 2026-27.csv": "IXL DUE DATES 2026-2027 - M7.csv"}     # before the 4 Oct 2026 renaming
+
+
 def m7_ref(m7, name):
-    """A file in M7's reference folder: m7/reference/ since 4 Oct 2026, Windy Hill M7/Reference/ before."""
-    new = os.path.join(m7, "m7", "reference", name)
-    return new if os.path.exists(new) else os.path.join(m7, "Windy Hill M7", "Reference", name)
+    """A file in M7's reference folder: m7/reference/ under its current name (the layout and the
+    names M7 took on 4 Oct 2026), else as an older checkout has it."""
+    old = M7_OLD_NAME.get(name, name)
+    for p in (os.path.join(m7, "m7", "reference", name), os.path.join(m7, "m7", "reference", old),
+              os.path.join(m7, "Windy Hill M7", "Reference", old)):
+        if os.path.exists(p):
+            return p
+    return os.path.join(m7, "m7", "reference", name)
 
 
 def benchmarks(a7, m7):
@@ -192,7 +200,7 @@ def m7_days(m7, known):
     # IXL due dates from the student-facing CSV (assigned, due, lesson range, skill, code)
     due_by_lesson = {}
     import csv
-    with open(m7_ref(m7, "IXL DUE DATES 2026-2027 - M7.csv"), encoding="utf-8") as f:
+    with open(m7_ref(m7, "M7 IXL Due Dates 2026-27.csv"), encoding="utf-8") as f:
         for r in csv.DictReader(f):
             m = re.match(r"^(\d+)\.(\d+)(?:[–-](\d+)\.(\d+))?$", r["lesson"].strip())
             if not m:

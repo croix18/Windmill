@@ -4,14 +4,14 @@
 import sys, os, glob, importlib.util, subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from lib import lessonbuild
+from lib import lessonbuild, names
 src = os.path.abspath(sys.argv[1])
 sys.path.insert(0, os.path.dirname(src))            # a unit's own figs.py sits beside its specs
 spec = importlib.util.spec_from_file_location("lesson", src)
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 unit = os.path.basename(os.path.dirname(src))
 outdir = os.path.join(HERE, "out", unit)
-for stale in glob.glob(os.path.join(outdir, f"{lessonbuild.PREFIX} {m.L['code']}  *")):
+for stale in glob.glob(os.path.join(glob.escape(outdir), names.stale_glob(m.L))):
     os.remove(stale)          # a failed build must not leave yesterday's files for checks.py
 out = lessonbuild.build_lesson(m.L, outdir)
 # every document gets its PDF twin, each converted by its own command (§0: rebuild each file alone)

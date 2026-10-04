@@ -29,15 +29,43 @@ in a Python string that is not raw): a bare `$` opens math, and the builders ref
 on a student surface (docscan fails the build); write "a computer displays 3.5E9". The Reference
 Sheet alone may describe the FAST calculator.
 
+## File names — `lib/names.py`
+
+Croix, 4 October 2026: *"Can you normalize all of the naming conventions in a7 and m7. I have file
+names with all sorts of stuff. It's tough to find what I need sometimes."* One pattern, both courses,
+and no spec or builder types a file name — `lib/names.py` is the only place one is made:
+
+    <COURSE> <unit>.<lesson> <Lesson Title> - <What it is>[ - Key | - Worked Answers].<ext>
+    <COURSE> Unit <N> <Unit Title> - <What it is>[ - Key | - Worked Answers].<ext>
+
+    M7 4.06 Finding Circumference - Slides.pptx
+    A7 3.08 Writing Large Numbers in Scientific Notation - Question Bank - Key.docx
+    M7 Unit 4 Area - All Slides.html            (the console)
+    M7 Unit 4 Area - Test Form A - Worked Answers.pdf
+    M7 Unit 4 Area - Review Day - Slides.pptx   (a review day built as a lesson)
+
+What a file may be: for a lesson — Slides, Teacher Edition, Lesson Plan, Independent Set, Question
+Bank, Additional Question Bank, Handout; for a unit — All Slides, Reference Sheet, Review, Test,
+Test Form A / B, Practice Test, Question Bank. Nothing else is invented on the spot. Single spaces;
+the pieces are joined by ` - ` and by nothing else; the unit's title comes from `course.py UNITS`.
+What a file IS is read from the part after the first ` - `, never from the title (a lesson called
+"Key Features of a Graph" is not an answer key) — the checks and the installer use
+`names.is_key`, `names.is_lesson_deck` and the rest, never a substring of the whole name.
+
+A unit's package is laid out by lesson (`lib/packkit.py`): `All Slides/`, `Lessons/<N.NN Title>/`
+with that lesson's keys in `Keys/`, `Review Day/` or `Review/`, `Assessment/` (by form where there
+are forms), `Handouts/`, `Reference/`; the zips are named the same way.
+
 ## `L` — a lesson
 
 | field | type | meaning |
 |---|---|---|
-| `code` | str | file code: `"3.04"`, or `"3.T1"` for a thread day. Two digits after the point. |
+| `code` | str | the lesson's number as it stands in every file name: `"3.04"`, `"3.T1"` for a thread day, `"4.R"` for a review day built as a lesson (the plan's own code for that day). Two digits after the point, always — names sort as text. |
+| `plan_code` | str, optional | the code the year's plan (Windmill's spine) uses for this day when it is not `code`: a thread day is `3.T1` here and `T-A1` in the plan. The console opens on the plan's lesson and the IXL gate reads the plan's skills through it. A merged day needs none (`4.02` answers to the plan's `4.02+03`). |
 | `unit` | int | unit number |
 | `lesson_no` | int or str | prints as "Lesson 4"; `"6–7"` for a merged pair |
 | `label` | str, optional | overrides "Lesson N" everywhere: `"Thread A · Day 1"` |
-| `title` | str | lesson title, as on the title slide and every header |
+| `title` | str | lesson title, as on the title slide and every header — **and in every file name** (see "File names"). A `—` in a title becomes brackets there and a `?` is dropped |
 | `benchmark` | str | the ONE benchmark on the title slide, e.g. `"MA.8.NSO.1.3"` |
 | `benchmark_text` | str | the benchmark's exact wording (from the Source of Truth) |
 | `target` | str | "I can …" — ≤ ~170 characters or the title slide wraps to three lines |
@@ -238,11 +266,11 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
 ## `M` — the manifest (`manifest.py`)
 
 The manifest belongs to the course's own `install_unit.py` (packaging is each course's), so its
-fields are that script's. A7: `dict(unit, title, folder, audit_src, summary, lessons=[(code,
-label, title, benchmark, carry_line)], assessment=(benchmarks, points), naming_note, order_note,
-before_unit=[bullets])`. M7: `dict(unit, title, folder, summary, handouts={code: [paths in the
-14 September package]}, review_note, order_note, before_unit=[bullets])` — its lessons, benchmarks
-and IXL skills are read from the specs. The one field the kit reads is **`lessons`**: when a
+fields are that script's; the unit's title and its folder's name are not among them (they are
+`course.py UNITS`). A7: `dict(unit, summary, lessons=[(code, label, title, benchmark,
+carry_line)], assessment=(benchmarks, points), naming_note, order_note, before_unit=[bullets])`.
+M7: `dict(unit, summary, handouts={code: [(source file, kind, is_key)]}, review_note, order_note,
+before_unit=[bullets])` — its lessons, benchmarks and IXL skills are read from the specs. The one field the kit reads is **`lessons`**: when a
 manifest has it, it is the teaching order and the printed label and title of each row of the unit
 deck; without it the unit deck follows the spec files in order. The timing table on START HERE is
 read from the deck side-cars, never typed.
@@ -258,7 +286,7 @@ read from the deck side-cars, never typed.
 | `BANK` | `"docx"` | `"md"` | Question Bank and Additional as documents with keys per lesson, or one `BANK - Unit N.md` per unit |
 | `TE_STYLE` | `"lines"` | `"table"` | the teacher's edition's boards inline, or as a table (`te.watch` required) |
 | `PLAN_STYLE` | `"sections"` | `"labels"` | the Florida lesson plan as ten numbered sections, or headed paragraphs |
-| `UNIT_DECK` | `"Unit Slides"` | `"All Slides"` | the whole-unit deck's name; its `.html` is the console |
+| `UNITS` | units 1–4 | units 2–13 | each unit's title — every unit-wide file and folder is named from it, and `unit.py`'s title must agree |
 | `REVIEW_IN_DECK` | no | yes | `uN/review.py` is built like a lesson and closes the unit deck |
 | `SLOTS` | `"exponent"` | `"named"` | the colour code: read off the layout, or marked in the spec |
 | `CAPS` | fracexp, sci, gap, radicand | fracexp, sci | which benchmark boundaries `capcheck` enforces |

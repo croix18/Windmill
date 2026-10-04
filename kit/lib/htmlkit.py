@@ -266,10 +266,12 @@ class HtmlDeck:
     def slide_ref(self, i):
         return i
 
-    def start_lesson(self, lesson_label, title, footer, code=None):
+    def start_lesson(self, lesson_label, title, footer, code=None, plan=None):
+        """plan: the code the year's plan (Windmill's spine) uses for this day when it is not the
+        spec's own — a thread day is 3.T1 here and T-A1 in the plan."""
         self.lesson_label, self.title, self.footer = lesson_label, title, footer
         self._n = 0
-        self.lessons.append({"code": code or lesson_label, "label": lesson_label, "title": title, "first": len(self.slides)})
+        self.lessons.append({"code": code or lesson_label, "plan": plan, "label": lesson_label, "title": title, "first": len(self.slides)})
 
     def tag(self, **kw):
         """Metadata on the current slide for the console (a board's kind, letters, key, error keys,

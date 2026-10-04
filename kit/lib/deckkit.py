@@ -175,7 +175,7 @@ class Deck:
     def slide_ref(self, i):
         return self.p.slides[i]
 
-    def start_lesson(self, lesson_label, title, footer, code=None):
+    def start_lesson(self, lesson_label, title, footer, code=None, plan=None):
         """Switch the running title and footer to the next lesson and restart its slide numbers,
         so a lesson inside the unit deck is numbered exactly as its own deck and its Teacher
         Edition number it."""

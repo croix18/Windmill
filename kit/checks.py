@@ -30,7 +30,7 @@ from xml.etree import ElementTree as ET
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from lib.profile import C
-from lib import slotmark
+from lib import slotmark, names
 
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
@@ -44,10 +44,13 @@ FONT_FILES = {"Times New Roman": "/usr/share/fonts/truetype/liberation/Liberatio
 
 
 def is_student(name):
-    n = name.lower()
     # Teacher surfaces: keys, the Teacher Edition, and (ruling 25) the Lesson Plan, which carries
-    # benchmark codes, the calculator note and the answers in red by design.
-    return ("key" not in n) and ("teacher edition" not in n) and ("lesson plan" not in n) and ("notes.json" not in n)
+    # benchmark codes, the calculator note and the answers in red by design. What a file IS is read
+    # from the tail of its name (lib/names.py), never from the lesson's title — a lesson called
+    # "Key Features of a Graph" is not an answer key.
+    if name.endswith(".notes.json"):
+        return False
+    return not names.is_key(name) and not names.is_teacher_page(name)
 
 
 LESSON_EYEBROW = re.compile(re.escape(C.COURSE.upper()) + r"\s+·\s+UNIT \d+\s+·\s+\S")
@@ -97,7 +100,7 @@ def check_docscan(files):
             if student:
                 # HOUSE STYLE §13b: "describing what the FAST platform provides is a different thing and
                 # belongs on the reference sheet" — the Reference Sheet may name the on-screen calculator.
-                if re.search(r"\bcalculators?\b", t, re.I) and "Reference Sheet" not in base:
+                if re.search(r"\bcalculators?\b", t, re.I) and not names.is_kind(base, "Reference Sheet"):
                     findings.append(f"docscan: calculator line on student surface — {where}")
                 if re.search(r"\bhomework\b", t, re.I):
                     findings.append(f"docscan: 'homework' on student surface — {where}")
@@ -118,7 +121,7 @@ def check_keycheck(files):
             continue
         n += 1
         x = zipfile.ZipFile(f).read("word/document.xml").decode()
-        answered = "worked answers" in base.lower()
+        answered = names.is_worked(base)
         if "ANSWER KEY" in x:
             findings.append(f"keycheck: ANSWER KEY mark on student paper — {base}")
         if not answered and re.search(r'w:color w:val="9E1B32"', x):
@@ -274,11 +277,10 @@ def check_pdftwin(files):
     # The whole-unit deck is a second copy of the lesson decks: after its cover and contents, it
     # must match them slide for slide (each lesson numbers from 1 in both). A lesson rebuilt on its
     # own leaves the unit deck stale until build_unit.py runs again — this is where that shows.
-    UD = f"{C.UNIT_DECK}.pptx"
-    unit_decks = [f for f in files if f.endswith(UD)]
+    unit_decks = [f for f in files if f.endswith(".pptx") and names.is_unit_deck(f)]
     lessons = {}
     for f in files:
-        if f.endswith("  Slides.pptx") and not f.endswith(UD):
+        if f.endswith(".pptx") and names.is_lesson_deck(f):
             t = pptx_texts(f)
             lessons[t[1]] = (os.path.basename(f), [t[k] for k in sorted(t)])
     for u in unit_decks:
@@ -308,7 +310,7 @@ def check_telength(files):
     findings = []; n = 0
     for f in files:
         base = os.path.basename(f)
-        if not (base.endswith(".pdf") and "Teacher Edition" in base):
+        if not (base.endswith(".pdf") and names.is_kind(base, "Teacher Edition")):
             continue
         n += 1
         pp = _pages(f)
@@ -377,7 +379,7 @@ def check_footer(files):
     WORD = re.compile(r'<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)">([^<]*)</word>')
     for f in files:
         base = os.path.basename(f)
-        if not (f.endswith(".pdf") and "Slides" in base):
+        if not (f.endswith(".pdf") and names.is_slides(base)):
             continue
         html = subprocess.run(["pdftotext", "-bbox", f, "-"], capture_output=True, text=True).stdout
         pages = re.findall(r'<page width="[\d.]+" height="[\d.]+">(.*?)</page>', html, re.S)
@@ -439,7 +441,7 @@ def check_overlap(files):
         return [f"overlap: cannot run ({e})"]
     findings = []; nl = nf = npanel = 0; ndecks = 0
     for f in files:
-        if not f.endswith("Slides.pdf"):
+        if not (f.endswith(".pdf") and names.is_slides(f)):
             continue
         ndecks += 1
         base = os.path.basename(f)
@@ -497,7 +499,7 @@ def check_imagedrift(files):
     for f in files:
         if not f.endswith((".docx", ".pptx")):
             continue
-        if any(x in os.path.basename(f) for x in C.FIGURE_DOCS_EXEMPT):
+        if any(names.is_kind(f, x) for x in C.FIGURE_DOCS_EXEMPT):
             ncopied += 1                      # a document copied into the unit, not built by this kit
             continue
         ndocs += 1
@@ -595,7 +597,7 @@ def check_slotgeometry(files):
     the ink is compared; more than 0.5% of it displaced is a finding. On 28 Sep the colour renderer
     drew fraction bars one thickness low and 1 pt too thick — on a phone the denominators ran into
     them — and this is the check that would have caught it before it shipped."""
-    units = sorted({os.path.basename(os.path.dirname(os.path.abspath(f))) for f in files if f.endswith("Slides.pptx")})
+    units = sorted({os.path.basename(os.path.dirname(os.path.abspath(f))) for f in files if f.endswith(".pptx") and names.is_slides(f)})
     findings = []; n = 0; marks = 0
     import slotaudit
     for u in units:
@@ -766,7 +768,7 @@ def check_html(files):
                         findings.append(f"htmlcheck: slot {key} — the page coloured {g!r}, the spec marked {w!r}: {e['tex'][:60]} — {base}")
         b.close()
     if ncon == 0:
-        findings.append(f"htmlcheck: no unit console found — the {C.UNIT_DECK} .html should carry window.UNIT")
+        findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
     print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, {len(findings)} findings")
     return findings
 
