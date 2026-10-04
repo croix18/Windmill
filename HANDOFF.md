@@ -51,6 +51,13 @@ takeover needs to know:
   lessons whose skills were not the plan's (fixed 4 Oct, before the unit was taught). That is the
   "IXL skill → benchmark" hook for Cadence and Tally made safe: every code a deck shows is a key of
   `spine.skills`, which maps it to its benchmarks.
+- **Where it landed (4 Oct, all pushed and verified against each remote head):** Windmill `d08938b`
+  (the kit both courses were built from), `windy-hill-m7` `73e5a8e`, `croix18-windy-hill-a7`
+  `0ba8b9e`, `Geopardy` `7e57e60`. Each course repository's `tools/check.sh` was also run in a
+  clean copy of its tree (what CI will do); **the first GitHub Actions runs themselves could not be
+  read from the session** — if either course's "check" workflow is red, read its log before
+  anything else. `spine.json` was not regenerated (Deckhand's checkout was not beside this one);
+  its `sources` still name the 3 Oct commits, and the plan is unchanged.
 - **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
   `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
   keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
