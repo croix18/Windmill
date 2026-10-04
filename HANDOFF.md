@@ -121,6 +121,15 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   check, and send Croix the new file with the consoles.** M7's `NOTES.md` (top section) has the
   commands and what the check covers. The spine was not touched: the only change to `mkscope.py`
   is the units table in the scope document (Unit 11 no longer lists 11.09's benchmarks).
+- **Both master sheets link into Google Drive now, not GitHub (4 Oct, later; Croix: "I don't get
+  access to GitHub at school").** `windy-hill-m7` `d066e27`, `croix18-windy-hill-a7` `0a27cc4`. A
+  Drive address is an id made at upload that no session can see — the Drive connector in his
+  sessions returns nothing for his files, though he says the folder is in the same Gmail — so each
+  link is a Drive search for the document's exact title, which finds it wherever it sits and
+  survives a re-upload. Each course's check models that search and requires it to find exactly one
+  thing among the packages. **Never tested against real Drive; he was asked to tap one and report.**
+  It also only works for files that are in his Drive unzipped (his answer: "a mix / not sure").
+  M7's `NOTES.md` top section has the detail and the two ways to get one-tap links (file ids).
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.
