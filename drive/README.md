@@ -36,7 +36,8 @@ editor too). *"I set it up for you to be able to have access to everything."*
   Sheets or Docs editor connector in his sessions).
 - **Move, rename or trash without his asking.** The tools exist, but a session's safety layer
   refused to move the hub spreadsheet into `Apps` as an "unrequested commit in a connected app".
-  Tidying his Drive needs his explicit request, each time.
+  Tidying his Drive needs his explicit request, each time. (He then said "I request for you to
+  move it", and the same call went through: the hub is in `Apps` now.)
 
 *Correction to what was written here earlier the same night:* the first tests, made while the
 connector pointed at his personal account, returned nothing for his own files, and that was
@@ -55,7 +56,7 @@ the script; and a session can check the result directly instead of asking him.
 
 | | |
 |---|---|
-| `WindyHill.gs` | The script. It lives in the spreadsheet **"Windy Hill Drive Index"** (id `1JMjbk7-wjv0MozXuJKJIZ_vOomcztJgAPu5Tr-Z7Uts`, in the My Drive of the new account, mrshaffermath@…) and works inside the master folder, which it finds by id — he pastes it into Extensions › Apps Script once. It runs every hour as him. |
+| `WindyHill.gs` | The script. It lives in the spreadsheet **"Windy Hill Drive Index"** (id `1JMjbk7-wjv0MozXuJKJIZ_vOomcztJgAPu5Tr-Z7Uts`, owned by the new account, mrshaffermath@…, and kept in the master folder's `Apps`) and works inside the master folder, which it finds by id — he pastes it into Extensions › Apps Script once. It runs every hour as him. |
 | `test_windyhill.js` | The script run end to end against stand-ins for Drive, Sheets, the Drive service, triggers, the clock and GitHub (which serves what the two course repositories really publish). `tools/check.sh` runs it. |
 | `codes.py` | Reads the codes a master sheet looks up out of its Links tab — the test uses it to hold the script to the workbooks. |
 | `hub.py` | A session's way to read the script's Status tab (and `key()`, the code a name is filed under). |

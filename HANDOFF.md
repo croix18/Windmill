@@ -160,7 +160,8 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   "the connector sees only files it created" was a wrong generalisation from his personal
   account's connection; `drive/README.md` has what was measured. What still holds: a session
   cannot carry a document into Drive (it travels inside the call), cannot edit a file's contents,
-  and was refused when it tried to move a file he had not asked it to move. So the script still
+  and was refused when it tried to move a file he had not asked it to move (asked, it could: the
+  hub spreadsheet now sits in the master folder's `Apps`). So the script still
   does the delivering, and a session can now check its work directly. The hub spreadsheet was
   made again in the new account (id in `drive/hub.py`); the script finds the master folder by id.
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no

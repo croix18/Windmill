@@ -22,7 +22,7 @@
  * (GitHub): a script that files documents for you cannot ask for less.
  *
  * SET IT UP ONCE (on a laptop, signed in as the Google account made for this, which the master folder is shared with)
- * 1. Open the spreadsheet "Windy Hill Drive Index" in that account's My Drive. Menu Extensions > Apps Script.
+ * 1. Open the spreadsheet "Windy Hill Drive Index" (in the master folder's Apps). Menu Extensions > Apps Script.
  * 2. Delete whatever is in the editor, paste this whole file, press Save (the disk icon).
  * 3. On the left, next to "Services", press +. Choose "Drive API", press Add.
  * 4. In the bar above the code pick "setup" in the list of functions, press Run, and approve:
