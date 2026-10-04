@@ -74,6 +74,9 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   (11.02+11.03 one day, 11.09 not taught), Units 8 and 9 have no review day. Unit 13's test is now
   27–28 April and one more lost day anywhere still ends by 30 April. A merged day's code in the
   spine is `8.05+06` (the shape A7 already used). Both courses' scope documents end with what moved.
+  That plan is in the spine at `89c91e6` here and in `windy-hill-m7` `937acd5` (Units 4 and 5 rebuilt at
+  `checks: 0 findings`). A7 still vendors the spine of `2761626` — its own half is identical; it
+  picks the rest up the next time it is vendored.
 - **Where it landed** (all pushed and verified against each remote head): the engine and the
   spine here `2761626`; `windy-hill-m7` `03fb7fc`; `croix18-windy-hill-a7` `c8ea8f5`. All four
   kit-built units rebuilt at `checks: 0 findings`; against the builds before 4 October the lessons
