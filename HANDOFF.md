@@ -130,20 +130,27 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   thing among the packages. **Never tested against real Drive; he was asked to tap one and report.**
   It also only works for files that are in his Drive unzipped (his answer: "a mix / not sure").
   M7's `NOTES.md` top section has the detail and the two ways to get one-tap links (file ids).
-- **One-tap Drive links: `drive/` (4 Oct, night; Croix: "Yeah let's do that … I can run scripts on
-  my personal").** Read `drive/README.md` — it is the procedure. In short: a session created the
-  spreadsheet "Windy Hill Drive Index" in his Drive (so sessions can read it); he pastes
-  `drive/WindyHillIndex.gs` into it and runs it; it lists each course document's Drive id; a
-  session downloads that (the connector's result is recovered from the session transcript by
-  `drive/index.py fetch`, never retyped), installs it in both courses, and their master sheets
-  link by id what the index holds and by search what it does not. **State at this commit: the
-  script is written and tested against a stand-in for Apps Script (3,633 checks, in `tools/check.sh`);
-  it has NOT run in his account yet, there is no `drive/index.csv`, and both committed workbooks
-  still carry search links only.** "Windy Hill index
-  script.txt" was sent to him in the chat (it is `WindyHillIndex.gs`). When he says it ran: steps
-  1–4 of the README, then tell him which units are not in his Drive (`index.py missing`).
-  `windy-hill-m7` `3d4fa3f` and `croix18-windy-hill-a7` `f1c1c2a` carry the generator and check
-  changes.
+- **His Drive is kept by a script in his own account: `drive/` (4 Oct, night). READ `drive/README.md`.**
+  Croix: "This is the most efficient way of doing this? So if I have to change something, you have
+  to rebuild it? Can I set up a file that you can somehow manage?" — then "Fully automatic". A
+  session cannot manage his Drive (the connector sees only files it made, and cannot carry a
+  document); it can push to GitHub. So `drive/WindyHill.gs`, pasted once into the spreadsheet
+  "Windy Hill Drive Index", runs hourly as him: it mirrors both courses' packages, consoles and
+  master sheets from GitHub into Windy Hill › From Claude (and the consoles into Apps), turns each
+  master sheet into a live Google Sheet, and refills the hidden Drive tab the sheets' links look
+  their addresses up in. His own copy of a document (Windy Hill › My versions) takes the link; a
+  file he edits in place is never replaced; his IXL ticks are carried to each new sheet.
+  **From now on, to give him anything: push the course repository. He uploads nothing.**
+  The master sheets changed with it (`windy-hill-m7` `5bc5e86`, `croix18-windy-hill-a7` `f5174c5`): a link cell is
+  `=HYPERLINK(Links!…)` and the Links cell looks the code up in `Drive!A:B`, falling back to a
+  search by exact title; each check takes every such cell apart; `tools/test_live_links.py` there
+  recalculates with a stand-in Drive tab.
+  **State at this commit: written and tested against stand-ins (in `tools/check.sh`); NOT yet
+  set up in his account** — he was sent the script and the six setup steps. Until he does, the
+  sheets' links are searches and he uploads as before. To see where it stands:
+  `python3 drive/hub.py status <transcript>` after downloading the hub as CSV.
+  The first design of the same evening (an index of ids baked into the sheets by a session) was
+  replaced before he ran it; nothing of it remains.
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.
