@@ -27,6 +27,8 @@ python3 plan/test_flow.py
 echo "== the phone's plan page (built from the spine, held to it)"
 python3 plan/make_page.py
 node plan/test_page.js
+echo "== the Drive index script (run against a stand-in for Apps Script; its codes held to drive/index.py)"
+if [ -d "$A7/.git" ] && [ -d "$M7/.git" ]; then node drive/test_index.js "$A7" "$M7"; else node drive/test_index.js; fi
 echo "== room"
 python3 tools/check_fixtures.py
 node room/test.js
