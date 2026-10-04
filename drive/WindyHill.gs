@@ -4,15 +4,15 @@
  * WHAT IT DOES, every hour, in your own Google account
  * 1. Copies everything Claude has published for A7 and M7 — the unit folders with their slides,
  *    Teacher Editions, lesson plans, handouts, tests and keys, the consoles, and the two master
- *    sheets — from the private GitHub repositories into Windy Hill > From Claude. Only what has
+ *    sheets — from the private GitHub repositories into Windy Hill Master Folder > From Claude. Only what has
  *    changed since the last run. You upload nothing.
- * 2. Puts each console (… - All Slides.html) in Windy Hill > Apps as well, where the panel opens it.
- * 3. Turns each master sheet into a Google Sheet in your Windy Hill folder, and keeps its links
+ * 2. Puts each console (… - All Slides.html) in the master folder's Apps as well, where the panel opens it.
+ * 3. Turns each master sheet into a Google Sheet in the master folder, and keeps its links
  *    live: every link opens the document that is in your Drive right now.
- * 4. Prefers YOUR copy. Save an edited document under the same file name in Windy Hill > My
+ * 4. Prefers YOUR copy. Save an edited document under the same file name in the master folder's My
  *    versions and the links open yours. A document you edit in place inside From Claude is left
  *    alone from then on. Nothing of yours is ever changed, moved or deleted.
- * 5. Lists whatever you keep in Windy Hill > My files and My versions on the "My files" tab.
+ * 5. Lists whatever you keep in the master folder's My files and My versions on the "My files" tab.
  *
  * WHAT IT TOUCHES
  * It creates, replaces and removes only the files it made itself (they are listed on the Mirror
@@ -21,8 +21,8 @@
  * Google's permission screen asks for all of Drive and for "connect to an external service"
  * (GitHub): a script that files documents for you cannot ask for less.
  *
- * SET IT UP ONCE (on a laptop, signed in to the Google account that is to hold all of this)
- * 1. Open the spreadsheet "Windy Hill Drive Index" in that account's Drive. Menu Extensions > Apps Script.
+ * SET IT UP ONCE (on a laptop, signed in as the Google account made for this, which the master folder is shared with)
+ * 1. Open the spreadsheet "Windy Hill Drive Index" in that account's My Drive. Menu Extensions > Apps Script.
  * 2. Delete whatever is in the editor, paste this whole file, press Save (the disk icon).
  * 3. On the left, next to "Services", press +. Choose "Drive API", press Add.
  * 4. In the bar above the code pick "setup" in the list of functions, press Run, and approve:
@@ -34,7 +34,6 @@
  *    repositories" > windy-hill-m7 and croix18-windy-hill-a7. Permissions > Repository
  *    permissions > Contents: Read-only. Expiration: the longest it offers. Paste it ONLY into
  *    that box — never into a chat.
- * 6. Share the Windy Hill folder it makes with your school account, so the panel can open it.
  * The first copy is about 250 MB and takes several runs; the script carries on by itself every
  * minute until it is done, then once an hour. The Status tab says where it is.
  */
@@ -45,7 +44,8 @@ var REPOS = [
   { course: 'A7', repo: 'croix18-windy-hill-a7', packages: 'a7/packages', sheetDir: 'a7/reference', sheet: 'A7 Master Sheet 2026-27.xlsx' },
   { course: 'M7', repo: 'windy-hill-m7', packages: 'm7/packages', sheetDir: 'm7/reference', sheet: 'M7 Master Sheet 2026-27.xlsx' }
 ];
-var HOME = 'Windy Hill';                 // your folder
+var HOME_ID = '1wodkpowCt32TQY_kiTpmcO4sn0Yh3Prb';   // your Windy Hill Master Folder (the one shared with this account)
+var HOME = 'Windy Hill Master Folder';   // … found by this name if that address ever changes
 var MIRROR = 'From Claude';              // everything published, copied here; this script's to manage
 var MINE = 'My versions';                // your edited copies: the same file name, and the links open yours
 var EXTRA = 'My files';                  // anything else of yours; listed on the "My files" tab
@@ -130,8 +130,9 @@ function live_(f) { try { return f && !f.isTrashed(); } catch (e) { return false
 
 function file_(id) { try { var f = DriveApp.getFileById(id); return f.isTrashed() ? null : f; } catch (e) { return null; } }
 
-/** Your Windy Hill folder: the one of that name that is not in the trash (with an Apps folder in it, if there are several). */
+/** Your Windy Hill Master Folder: by its address; failing that, the folder of that name that is not in the trash (with an Apps folder in it, if there are several). */
 function home_() {
+  try { var known = DriveApp.getFolderById(HOME_ID); if (!known.isTrashed()) return known; } catch (e) { /* not shared with this account, or gone: look for it by name */ }
   var it = DriveApp.getFoldersByName(HOME), all = [];
   while (it.hasNext()) { var f = it.next(); if (!f.isTrashed()) all.push(f); }
   for (var i = 0; i < all.length; i++) if (all[i].getFoldersByName(APPS).hasNext()) return all[i];
@@ -314,7 +315,7 @@ function pull_(R, token, state, folders, apps, note, left, props) {
       var name = p.split('/').pop().replace(/^Apps:/, ''), ext = name.split('.').pop().toLowerCase();
       var folder = p.indexOf('Apps:') === 0 ? apps : into_(folders, state, p.split('/').slice(0, -1), R);
       var f = folder.createFile(Utilities.newBlob(res[k].getContent(), MIME[ext] || 'application/octet-stream', name));
-      f.setDescription('From Claude (' + R.repo + ' ' + want[p].sha.slice(0, 10) + '). To change it, save your copy under the same name in Windy Hill > ' + MINE + '.');
+      f.setDescription('From Claude (' + R.repo + ' ' + want[p].sha.slice(0, 10) + '). To change it, save your copy under the same name in ' + MINE + '.');
       var old = state[p] && state[p].kind === 'file' && state[p].state !== 'gone' ? file_(state[p].id) : null;
       state[p] = { sha: want[p].sha, id: f.getId(), kind: 'file', size: want[p].size, changed: f.getLastUpdated().getTime(), state: 'ok', repo: R.repo };
       if (old) old.setTrashed(true);

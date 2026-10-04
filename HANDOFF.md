@@ -151,11 +151,18 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   `python3 drive/hub.py status <transcript>` after downloading the hub as CSV.
   The first design of the same evening (an index of ids baked into the sheets by a session) was
   replaced before he ran it; nothing of it remains.
-  **Which Drive: a new Google account, mrshaffermath@…, that he opened "to handle all of this"**
-  and pointed Claude's Drive connector at (checked: a file a session creates is owned by it; its
-  Drive was empty). The hub spreadsheet was made again there — id in `drive/hub.py` — and the one
-  in his personal account is orphaned. The script makes its own `Windy Hill` folder in the new
-  account; he shares it with his school and personal accounts.
+  **Which Drive, and a correction.** His files are in `Windy Hill Master Folder` (his personal
+  account's). He opened a second account, mrshaffermath@…, "to handle all of this", pointed
+  Claude's Drive connector at it and shared the master folder with it as editor: *"I set it up for
+  you to be able to have access to everything."* Tried, and true as far as looking goes: a session
+  can now list every folder and file there, read a file it did not make, and create folders and
+  small files (`From Claude` was made in the master folder as the test). My earlier statement that
+  "the connector sees only files it created" was a wrong generalisation from his personal
+  account's connection; `drive/README.md` has what was measured. What still holds: a session
+  cannot carry a document into Drive (it travels inside the call), cannot edit a file's contents,
+  and was refused when it tried to move a file he had not asked it to move. So the script still
+  does the delivering, and a session can now check its work directly. The hub spreadsheet was
+  made again in the new account (id in `drive/hub.py`); the script finds the master folder by id.
 - **Kinds a tool may meet in `days`**: `extra` (an extra review or catch-up day) and `off` (no
   class) are new. Tally, Cadence and Deckhand have not been told; a reader that switches on `kind`
   should treat both as "no lesson today". `spine.flow` is new and optional to every reader.

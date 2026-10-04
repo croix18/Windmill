@@ -115,8 +115,10 @@ const allAt = (dir, name) => dir.children.filter(c => c.name === name && !c.tras
 const pathOf = x => { const p = []; for (let d = x; d && d !== ROOT; d = d.parent) p.unshift(d.name); return p.join('/'); };
 
 // his Drive before the script ever runs
-mkFolder('Windy Hill', mkFolder('Old stuff', ROOT));                          // another folder of the same name, made earlier, without Apps
-const wh = mkFolder('Windy Hill', ROOT), apps = mkFolder('Apps', wh);
+mkFolder('Windy Hill Master Folder', mkFolder('Old stuff', ROOT));            // another folder of the same name, made earlier, without Apps
+const wh = mkFolder('Windy Hill Master Folder', ROOT), apps = mkFolder('Apps', wh);
+const HOME_ID = '1wodkpowCt32TQY_kiTpmcO4sn0Yh3Prb';                          // the address the script knows his folder by
+delete ALL[wh.id]; wh.id = HOME_ID; ALL[HOME_ID] = wh;
 const his = [
   mkFile('Deckhand.html', apps, Buffer.from('his tool')),
   mkFile('M7 Unit 4 Area - All Slides.html', apps, Buffer.from('a console he uploaded by hand last week')),
@@ -267,7 +269,7 @@ const UrlFetchApp = { fetch: (url, params) => github(Object.assign({ url }, para
 const src = fs.readFileSync(path.join(HERE, 'WindyHill.gs'), 'utf8');
 function load(Drive) {
   return new Function('DriveApp', 'SpreadsheetApp', 'Utilities', 'ScriptApp', 'PropertiesService', 'LockService', 'UrlFetchApp', 'Date', 'Drive',
-    src + '\nreturn { sync, syncMore, setup, setToken, everyHour, stopHourly, onOpen, key_, BUDGET_MS, MIRROR, MINE, EXTRA };')(
+    src + '\nreturn { sync, syncMore, setup, setToken, everyHour, stopHourly, onOpen, key_, home_, HOME_ID, BUDGET_MS, MIRROR, MINE, EXTRA };')(
     DriveApp, SpreadsheetApp, Utilities, ScriptApp, PropertiesService, LockService, UrlFetchApp, FakeDate, Drive);
 }
 let G = load(DriveV3);
@@ -293,8 +295,8 @@ function settle(max) {                               // run until nothing waits,
 const wantPaths = () => {                            // every path the mirror should hold, with its blob
   const out = {};
   for (const R of Object.values(HUB)) {
-    for (const [p, b] of Object.entries(R.blobs)) out['Windy Hill/From Claude/' + R.spec.course + '/' + p] = b;
-    if (R.sheet) out['Windy Hill/From Claude/' + R.spec.sheet] = R.sheet;
+    for (const [p, b] of Object.entries(R.blobs)) out['Windy Hill Master Folder/From Claude/' + R.spec.course + '/' + p] = b;
+    if (R.sheet) out['Windy Hill Master Folder/From Claude/' + R.spec.sheet] = R.sheet;
   }
   return out;
 };
@@ -313,7 +315,7 @@ function mirrorIsRight(when, except) {
   ok(n > 800, `${when}: only ${n} paths looked at`);
   // and nothing in the mirror that is not published
   const extra = [];
-  (function walk(d, p) { for (const c of d.children) { if (c.trashed) continue; const q = p + '/' + c.name; if (c.kind === 'folder') walk(c, q); else if (!(q in want) && !(except || []).includes(q)) extra.push(q); } })(at('Windy Hill/From Claude'), 'Windy Hill/From Claude');
+  (function walk(d, p) { for (const c of d.children) { if (c.trashed) continue; const q = p + '/' + c.name; if (c.kind === 'folder') walk(c, q); else if (!(q in want) && !(except || []).includes(q)) extra.push(q); } })(at('Windy Hill Master Folder/From Claude'), 'Windy Hill Master Folder/From Claude');
   ok(!extra.length, `${when}: in the mirror and not published: ${extra.slice(0, 3)}`);
   ok(untouched() === before || when.includes('his'), `${when}: something of his was touched`);
 }
@@ -322,10 +324,14 @@ const driveTab = () => Object.fromEntries(tab('Index').slice(1).map(r => [r[0], 
 const sheetsCells = () => [HUBSHEET, ...Object.values(BOOKS)].flatMap(b => b._.sheets.flatMap(s => Object.values(s._.cells))).map(String).join('\n');
 
 // ================================================================ A. before there is a token
+ok(G.HOME_ID === HOME_ID && G.home_().getId() === HOME_ID, 'the script should find his folder by its address');
+delete ALL[HOME_ID]; wh.id = 'moved' + HOME_ID; ALL[wh.id] = wh;               // the address stops working: found by name, the one with Apps in it
+ok(G.home_().getId() === wh.id, 'without the address the script should find his folder by name (the one with Apps)');
+delete ALL[wh.id]; wh.id = HOME_ID; ALL[HOME_ID] = wh;
 G.onOpen();
 run(G.setup);
 ok(triggers.filter(t => t.fn === 'sync' && t.every === 1).length === 1, 'setup should turn the hourly sync on, once');
-ok(at('Windy Hill/From Claude') && at('Windy Hill/My versions') && at('Windy Hill/My files'), 'setup should make the three folders in HIS Windy Hill folder (the one with Apps)');
+ok(at('Windy Hill Master Folder/From Claude') && at('Windy Hill Master Folder/My versions') && at('Windy Hill Master Folder/My files'), 'setup should make the three folders in HIS master folder');
 ok(Object.values(ALL).filter(x => x.kind === 'folder' && x.name === 'Apps' && !x.trashed).length === 1, 'a second Apps folder was made');
 ok(status()[0][0] === 'windy-hill-status' && HUBSHEET.getSheets()[0].getName() === 'Status', 'the first tab should be Status');
 ok(line('PROBLEM').some(r => /No GitHub token yet/.test(r[1])) && line('State')[0][1] === 'NEEDS A LOOK', 'without a token the Status tab should say so');
@@ -347,8 +353,8 @@ ok(triggers.some(t => t.fn === 'syncMore'), 'saving the token should start the f
 // ================================================================ C. the first copy, over several runs; one repository hidden
 let runs = settle();
 ok(line('PROBLEM').some(r => /^M7: the token cannot see this repository/.test(r[1])), 'the hidden repository should be named: ' + JSON.stringify(line('PROBLEM')));
-ok(Object.keys(HUB['croix18-windy-hill-a7'].blobs).every(p => at('Windy Hill/From Claude/A7/' + p)), 'A7 should be copied although M7 cannot be read');
-ok(!at('Windy Hill/From Claude/M7'), 'M7 was copied though the token cannot see it');
+ok(Object.keys(HUB['croix18-windy-hill-a7'].blobs).every(p => at('Windy Hill Master Folder/From Claude/A7/' + p)), 'A7 should be copied although M7 cannot be read');
+ok(!at('Windy Hill Master Folder/From Claude/M7'), 'M7 was copied though the token cannot see it');
 GH.hidden = null;
 runs += settle();
 ok(runs >= 4, 'the first copy fitted in ' + runs + ' runs: the time limit is not being honoured (or the fake is too fast)');
@@ -382,7 +388,7 @@ for (const R of Object.values(HUB)) {
   const dirs = new Set(); for (const p of paths) { const parts = p.split('/'); for (let k = 1; k < parts.length; k++) dirs.add(parts.slice(0, k).join('/')); }
   for (const p of [...paths, ...dirs]) { const n = p.split('/').pop(); count[n] = (count[n] || 0) + 1; }
   for (const p of [...paths, ...dirs]) {
-    const parts = p.split('/'), name = parts[parts.length - 1], node = at(`Windy Hill/From Claude/${c}/${p}`), codes = [];
+    const parts = p.split('/'), name = parts[parts.length - 1], node = at(`Windy Hill Master Folder/From Claude/${c}/${p}`), codes = [];
     if (parts.length === 1 || (count[name] === 1 && name.startsWith(c + ' '))) codes.push(pyKey(name));
     if (parts.length === 2) codes.push(pyKey(parts[0] + '/' + name));
     for (const k of codes) { coded++; if (!(dt[k] === node.id || (name === his[2].name && false))) ok(false, `the Drive tab does not give ${c}/${p} under ${k}`); }
@@ -431,7 +437,7 @@ mirrorIsRight('nothing new');
 // ================================================================ E. a new commit: a deck rebuilt, a file added, one withdrawn, a new master sheet
 const m7 = HUB['windy-hill-m7'], deck = Object.keys(m7.blobs).find(p => /Lessons\/4\.06\/.* - Slides\.pdf$/.test(p)), gonePath = Object.keys(m7.blobs).find(p => /Lessons\/4\.07\/.* - Lesson Plan\.pdf$/.test(p));
 const added = 'M7 Unit 4 - Area/Lessons/4.06/M7 4.06 Finding Circumference - Handout.pdf';
-const oldDeck = at('Windy Hill/From Claude/M7/' + deck), oldGone = at('Windy Hill/From Claude/M7/' + gonePath);
+const oldDeck = at('Windy Hill Master Folder/From Claude/M7/' + deck), oldGone = at('Windy Hill Master Folder/From Claude/M7/' + gonePath);
 const oldLive = liveLine('M7')[2].match(/\/d\/([^/]+)/)[1];
 // his ticks in the old live sheet
 BOOKS[oldLive].getSheetByName('IXL tracker')._.cells['6,8'] = '✓'; BOOKS[oldLive].getSheetByName('IXL tracker')._.cells['6,9'] = '✓'; BOOKS[oldLive].getSheetByName('IXL tracker')._.cells['7,11'] = 'redo with period 3';
@@ -440,7 +446,7 @@ tick(3600e3); b0 = GH.blobCalls; settle();
 ok(GH.blobCalls - b0 === 3, `the new commit downloaded ${GH.blobCalls - b0} files (the deck, the new handout, the master sheet)`);
 mirrorIsRight('new commit');
 ok(oldDeck.trashed && oldGone.trashed, 'the replaced deck and the withdrawn file should be in the trash');
-ok(dt[pyKey(path.posix.basename(deck))] === oldDeck.id && driveTab()[pyKey(path.posix.basename(deck))] === at('Windy Hill/From Claude/M7/' + deck).id && driveTab()[pyKey(path.posix.basename(deck))] !== oldDeck.id, 'the Drive tab should give the rebuilt deck\'s new id');
+ok(dt[pyKey(path.posix.basename(deck))] === oldDeck.id && driveTab()[pyKey(path.posix.basename(deck))] === at('Windy Hill Master Folder/From Claude/M7/' + deck).id && driveTab()[pyKey(path.posix.basename(deck))] !== oldDeck.id, 'the Drive tab should give the rebuilt deck\'s new id');
 ok(driveTab()[pyKey(path.posix.basename(added))] && !(pyKey(path.posix.basename(gonePath)) in driveTab()), 'the new file should be in the Drive tab and the withdrawn one out of it');
 const newLive = liveLine('M7')[2].match(/\/d\/([^/]+)/)[1];
 ok(newLive !== oldLive && ALL[oldLive].trashed && !gone(ALL[newLive]) && allAt(wh, 'M7 Master Sheet 2026-27').length === 1, 'a new master sheet should replace the live one');
@@ -450,10 +456,10 @@ ok(JSON.stringify(BOOKS[newLive].getSheetByName('Drive').table()) === JSON.strin
 ok(liveLine('A7')[2].includes(Object.keys(BOOKS).find(id => ALL[id].name.startsWith('A7') && !gone(ALL[id]))), 'A7\'s live sheet should be untouched by M7\'s commit');
 
 // ================================================================ F. his own copy in My versions
-const mine = at('Windy Hill/My versions'), deckName = path.posix.basename(deck);
+const mine = at('Windy Hill Master Folder/My versions'), deckName = path.posix.basename(deck);
 tick(3600e3);
 const hisDeck = mkFile(deckName, mkFolder('Unit 4', mine), Buffer.from('his edited deck'), 'application/pdf');
-const hisOther = mkFile('M7 4.06 warm-up I made.pdf', at('Windy Hill/My files'), Buffer.from('his own'), 'application/pdf');
+const hisOther = mkFile('M7 4.06 warm-up I made.pdf', at('Windy Hill Master Folder/My files'), Buffer.from('his own'), 'application/pdf');
 const frozen = () => [hisDeck, hisOther].map(f => [f.id, f.trashed, f.updated, f.bytes.toString(), f.parent.id].join('|')).join('\n'), frozen0 = frozen();
 b0 = GH.blobCalls; run();
 ok(driveTab()[pyKey(deckName)] === hisDeck.id, 'his copy in My versions should take the link');
@@ -468,43 +474,43 @@ tick(3600e3);
 publish('windy-hill-m7', R => { R.blobs[deck] = { sha: sha1('deck v3 — a correction'), size: 400000 }; });
 settle();
 ok(driveTab()[pyKey(deckName)] === hisDeck.id, 'his copy should still take the link after a newer one is published');
-ok(at('Windy Hill/From Claude/M7/' + deck).bytes.equals(content(sha1('deck v3 — a correction'))), 'the newer published deck should be in the mirror all the same');
+ok(at('Windy Hill Master Folder/From Claude/M7/' + deck).bytes.equals(content(sha1('deck v3 — a correction'))), 'the newer published deck should be in the mirror all the same');
 ok(line('A NEWER VERSION IS PUBLISHED').some(r => r[1] === deckName) && tab('My files').some(r => r[1] === deckName && /CLAUDE HAS PUBLISHED A NEWER VERSION SINCE/.test(r[4])), 'he should be told a newer version exists: ' + JSON.stringify(line('A NEWER VERSION IS PUBLISHED')));
 ok(frozen() === frozen0, 'his files in My versions and My files were touched');
 // he deletes his copy: ours opens again
 hisDeck.trashed = true; tick(3600e3); run();
-ok(driveTab()[pyKey(deckName)] === at('Windy Hill/From Claude/M7/' + deck).id && !line('A NEWER VERSION IS PUBLISHED').length, 'with his copy deleted the published deck should open');
+ok(driveTab()[pyKey(deckName)] === at('Windy Hill Master Folder/From Claude/M7/' + deck).id && !line('A NEWER VERSION IS PUBLISHED').length, 'with his copy deleted the published deck should open');
 
 // ================================================================ G. a file he edits in place, inside From Claude
-const te = Object.keys(m7.blobs).find(p => /Lessons\/4\.05\/.* - Teacher Edition\.pdf$/.test(p)), teFile = at('Windy Hill/From Claude/M7/' + te);
+const te = Object.keys(m7.blobs).find(p => /Lessons\/4\.05\/.* - Teacher Edition\.pdf$/.test(p)), teFile = at('Windy Hill Master Folder/From Claude/M7/' + te);
 tick(3600e3); teFile.bytes = Buffer.from('he wrote notes into it'); teFile.updated = NOW;
 publish('windy-hill-m7', R => { R.blobs[te] = { sha: sha1('te v2'), size: 300000 }; });
 tick(600e3); settle();
 ok(!teFile.trashed && teFile.bytes.toString() === 'he wrote notes into it' && allAt(teFile.parent, teFile.name).length === 1, 'a file he edited in place was replaced');
 ok(line('A NEWER VERSION IS PUBLISHED').some(r => r[1] === 'M7/' + te), 'he should be told his edited file is behind: ' + JSON.stringify(line('A NEWER VERSION IS PUBLISHED')));
 ok(driveTab()[pyKey(path.posix.basename(te))] === teFile.id, 'the link should still open the file he edited');
-mirrorIsRight('edited in place (his)', ['Windy Hill/From Claude/M7/' + te]);
+mirrorIsRight('edited in place (his)', ['Windy Hill Master Folder/From Claude/M7/' + te]);
 tick(3600e3); run();
 ok(line('A NEWER VERSION IS PUBLISHED').some(r => r[1] === 'M7/' + te), 'the note about his edited file should not vanish an hour later');
 // he deletes it: the published version comes back by itself (the audit finds it gone)
 teFile.trashed = true;
-for (let n = 0; n < 12 && !at('Windy Hill/From Claude/M7/' + te); n++) { tick(3600e3); settle(); }
-ok(at('Windy Hill/From Claude/M7/' + te) && at('Windy Hill/From Claude/M7/' + te).bytes.equals(content(sha1('te v2'))), 'after he deleted his edited file the published one should return');
+for (let n = 0; n < 12 && !at('Windy Hill Master Folder/From Claude/M7/' + te); n++) { tick(3600e3); settle(); }
+ok(at('Windy Hill Master Folder/From Claude/M7/' + te) && at('Windy Hill Master Folder/From Claude/M7/' + te).bytes.equals(content(sha1('te v2'))), 'after he deleted his edited file the published one should return');
 ok(!line('A NEWER VERSION IS PUBLISHED').length, 'the note should go once the published file is back');
 mirrorIsRight('edited file deleted');
 
 // ================================================================ H. a published file he deletes by accident; a withdrawn file he had edited
 const lp = Object.keys(m7.blobs).find(p => /Lessons\/4\.03\/.* - Lesson Plan\.pdf$/.test(p));
-at('Windy Hill/From Claude/M7/' + lp).trashed = true;
-let back = 0; for (; back < 12 && !at('Windy Hill/From Claude/M7/' + lp); back++) { tick(3600e3); settle(); }
-ok(at('Windy Hill/From Claude/M7/' + lp), 'a published file he deleted should come back within a day');
-ok(driveTab()[pyKey(path.posix.basename(lp))] === at('Windy Hill/From Claude/M7/' + lp).id, 'the Drive tab should give the restored file');
-const wd = Object.keys(m7.blobs).find(p => /Lessons\/4\.02\/.* - Lesson Plan\.pdf$/.test(p)), wdFile = at('Windy Hill/From Claude/M7/' + wd);
+at('Windy Hill Master Folder/From Claude/M7/' + lp).trashed = true;
+let back = 0; for (; back < 12 && !at('Windy Hill Master Folder/From Claude/M7/' + lp); back++) { tick(3600e3); settle(); }
+ok(at('Windy Hill Master Folder/From Claude/M7/' + lp), 'a published file he deleted should come back within a day');
+ok(driveTab()[pyKey(path.posix.basename(lp))] === at('Windy Hill Master Folder/From Claude/M7/' + lp).id, 'the Drive tab should give the restored file');
+const wd = Object.keys(m7.blobs).find(p => /Lessons\/4\.02\/.* - Lesson Plan\.pdf$/.test(p)), wdFile = at('Windy Hill Master Folder/From Claude/M7/' + wd);
 tick(3600e3); wdFile.bytes = Buffer.from('his notes'); wdFile.updated = NOW;
 publish('windy-hill-m7', R => { delete R.blobs[wd]; });
 tick(600e3); settle();
 ok(!wdFile.trashed && line('Edited by you, kept').some(r => r[1] === 'M7/' + wd), 'a withdrawn file he had edited should be kept, and said so');
-mirrorIsRight('withdrawn but edited (his)', ['Windy Hill/From Claude/M7/' + wd]);
+mirrorIsRight('withdrawn but edited (his)', ['Windy Hill Master Folder/From Claude/M7/' + wd]);
 
 // ================================================================ I. his own console in Apps, then deleted
 his[1].trashed = true; tick(3600e3); settle();
@@ -519,21 +525,21 @@ const bigDeck = Object.keys(m7.blobs).find(p => /Lessons\/4\.08\/.* - Slides\.pp
 publish('windy-hill-m7', R => { R.blobs[bigDeck] = { sha: sha1('pptx v2'), size: 900000 }; });
 GH.failBlob = sha1('pptx v2'); run();
 ok(line('PROBLEM').some(r => /GitHub answered 500/.test(r[1])) && line('State')[0][1] === 'NEEDS A LOOK', 'a failed download should be reported');
-ok(at('Windy Hill/From Claude/M7/' + bigDeck) && !at('Windy Hill/From Claude/M7/' + bigDeck).bytes.equals(content(sha1('pptx v2'))), 'a failed download should leave the old file in place');
+ok(at('Windy Hill Master Folder/From Claude/M7/' + bigDeck) && !at('Windy Hill Master Folder/From Claude/M7/' + bigDeck).bytes.equals(content(sha1('pptx v2'))), 'a failed download should leave the old file in place');
 GH.failBlob = null; tick(3600e3); settle();
-ok(at('Windy Hill/From Claude/M7/' + bigDeck).bytes.equals(content(sha1('pptx v2'))) && !line('PROBLEM').length, 'the failed download should be fetched on the next run');
+ok(at('Windy Hill Master Folder/From Claude/M7/' + bigDeck).bytes.equals(content(sha1('pptx v2'))) && !line('PROBLEM').length, 'the failed download should be fetched on the next run');
 publish('croix18-windy-hill-a7', R => { R.blobs['A7 Unit 9 - New/Lessons/9.01/A7 9.01 New - Slides.pdf'] = { sha: sha1('a7 new'), size: 1000 }; });
 GH.truncate = true; tick(3600e3); run();
-ok(line('PROBLEM').some(r => /GitHub cut the list of files short/.test(r[1])) && !at('Windy Hill/From Claude/A7/A7 Unit 9 - New'), 'a list cut short must not be acted on');
+ok(line('PROBLEM').some(r => /GitHub cut the list of files short/.test(r[1])) && !at('Windy Hill Master Folder/From Claude/A7/A7 Unit 9 - New'), 'a list cut short must not be acted on');
 GH.truncate = false; tick(3600e3); settle();
-ok(at('Windy Hill/From Claude/A7/A7 Unit 9 - New/Lessons/9.01/A7 9.01 New - Slides.pdf') && driveTab()[pyKey('A7 Unit 9 - New')] === at('Windy Hill/From Claude/A7/A7 Unit 9 - New').id, 'a new unit should arrive, folder and all, and be in the Drive tab');
+ok(at('Windy Hill Master Folder/From Claude/A7/A7 Unit 9 - New/Lessons/9.01/A7 9.01 New - Slides.pdf') && driveTab()[pyKey('A7 Unit 9 - New')] === at('Windy Hill Master Folder/From Claude/A7/A7 Unit 9 - New').id, 'a new unit should arrive, folder and all, and be in the Drive tab');
 const realToken = PROPS.GITHUB_TOKEN; PROPS.GITHUB_TOKEN = 'github_pat_' + 'expired'.repeat(5);
 tick(3600e3); run();
 ok(line('PROBLEM').filter(r => /GitHub refused the token/.test(r[1])).length === 2, 'an expired token should be reported for both courses');
 ok(tab('Index').length > 500 && liveLine('M7')[2], 'with GitHub out of reach the Drive side should carry on');
 PROPS.GITHUB_TOKEN = realToken; tick(3600e3); run();
 ok(!line('PROBLEM').length, 'problems should clear once the token works again');
-mirrorIsRight('after the refusals (his)', ['Windy Hill/From Claude/M7/' + wd]);
+mirrorIsRight('after the refusals (his)', ['Windy Hill Master Folder/From Claude/M7/' + wd]);
 
 // ================================================================ K. the Drive service: its older version, and absent
 G = load(DriveV2);
@@ -546,7 +552,7 @@ publish('croix18-windy-hill-a7', R => { R.sheet = { sha: sha1('a7 sheet 3'), siz
 const a7Mid = liveLine('A7')[2].match(/\/d\/([^/]+)/)[1];
 tick(3600e3); settle();
 ok(line('PROBLEM').some(r => /the Drive service is not turned on/.test(r[1])), 'without the Drive service the Status tab should say how to turn it on');
-ok(!ALL[a7Mid].trashed && at('Windy Hill/From Claude/A7 Master Sheet 2026-27.xlsx').bytes.equals(content(sha1('a7 sheet 3'))), 'without the Drive service the new .xlsx should still arrive and the old live sheet stay');
+ok(!ALL[a7Mid].trashed && at('Windy Hill Master Folder/From Claude/A7 Master Sheet 2026-27.xlsx').bytes.equals(content(sha1('a7 sheet 3'))), 'without the Drive service the new .xlsx should still arrive and the old live sheet stay');
 G = load(DriveV3); tick(3600e3); settle();
 ok(!line('PROBLEM').length && !liveLine('A7')[2].includes(a7Mid), 'with the service back the new sheet should be converted');
 
@@ -560,7 +566,7 @@ ok(!sheetsCells().includes(TOKEN) && !sheetsCells().includes('expired'), 'a toke
 const st = stateOf(), dup = Object.values(st).map(x => x.id);
 ok(new Set(dup).size === dup.length, 'two lines of the Mirror tab share an id');
 ok(Object.values(ALL).filter(x => x.kind === 'folder' && !gone(x) && ['From Claude', 'My versions', 'My files', 'Apps'].includes(x.name)).length === 4, 'a managed folder was made twice');
-mirrorIsRight('the end (his)', ['Windy Hill/From Claude/M7/' + wd]);
+mirrorIsRight('the end (his)', ['Windy Hill Master Folder/From Claude/M7/' + wd]);
 
 console.log(bad.length ? bad.join('\n') + `\n${bad.length} problems` : `Drive script: ${checks} checks passed${live ? '' : ' on the kept list of package paths'} — first copy in ${runs} runs (${firstBlobCalls} files), ${GH.calls} GitHub requests in all, ${Object.keys(BOOKS).length} master sheets converted`);
 process.exit(bad.length ? 1 : 0);
