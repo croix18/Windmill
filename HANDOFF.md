@@ -19,6 +19,34 @@ Form B. If a session ends mid-way, every repository is pushed and each handoff's
 room" section says what that tool still owes. Each tool's own handoff carries a "Windmill and the room" note pointing
 here (added 3 Oct).
 
+## The build kit (4 Oct 2026) — `kit/`
+
+Croix, 4 Oct: "Adapt m7 to a7 and the family", all four parts — classroom parity, **one shared
+toolchain**, the M7 repository laid out like A7, and the family hooks. The toolchain is `kit/`: the
+two courses' forked build libraries merged into one code base, published here, vendored into each
+course's `build/` by `tools/vendor_into.py` and held there by `KIT.sha256` (`kitcheck` in the
+course's own check suite refuses a copy that differs). `kit/README.md` is the manual. What a
+takeover needs to know:
+
+- **Edit the kit here, never in a course repository.** Then `python3 tools/kit_manifest.py`,
+  `bash tools/check.sh` (the kit's tests run under a profile shaped like each course), vendor into
+  both (`python3 tools/vendor_windmill.py` in each course repository), rebuild a unit of each.
+- **A course difference is a name in `kit/lib/profile.py`** with a family default, set in that
+  course's `build/course.py`. `python3 -m lib.profile` (from a course's `build/`) prints the profile
+  and marks what the course set. Today the courses differ on: the independent set (A7 a printed
+  handout, M7 a slide), the "Before You Go" slide (M7), the bank (A7 docx, M7 one markdown file),
+  the teacher's-edition and lesson-plan styles, the review day inside the unit deck (M7), the colour
+  code (A7 base/exponent read off the layout; M7 named slots a spec marks), the capcheck boundaries,
+  the IXL SmartScore (67 / 60).
+- **Proof it is one kit:** A7 Units 3–4 and M7 Units 4–5 each rebuild at `checks: 0 findings`
+  (eighteen checks) from the same 29 files. A7's Unit 3 against its pre-kit output: 100 documents
+  identical in structure, 7 differ, every one explained (a title line that used to sit on its box's
+  edge; three two-line answer boxes now sized for two lines).
+- **What the merge found in shipped work** is listed in each course's handoff (M7 `NOTES.md`, A7
+  `HOUSE STYLE.md` §8): M7's colour code missing from a third of its decks, M7 boards that never
+  keyed D, questions hidden in grey hint lines, a parallelogram's height drawn outside the figure,
+  two distractors that were the same number, a misquoted MTR; A7's seven overflowing title lines.
+
 ## Why this exists (3 Oct 2026)
 
 Five tools, three layers: curriculum (A7 and M7 repos: specs → decks, teacher editions, assessments),
@@ -105,6 +133,9 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026** — `kit/`: the shared build kit (see its section above), `tools/kit_manifest.py`,
+  `tools/vendor_into.py`; `check.sh` and CI run the manifest check and the kit tests under both
+  course profiles.
 - **3 Oct 2026, later** — `tests/room-test/` (the four panel tests and `room.gs`); the reader's header
   comment no longer carries literal script tags (it is inlined into pages, where `</script` would end
   the block — found when the A7 console first loaded it); the console shipped in A7 against this

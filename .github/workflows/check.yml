@@ -9,7 +9,7 @@ jobs:
         with: { node-version: 20 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install jsonschema
+      - run: pip install jsonschema sympy python-docx python-pptx matplotlib Pillow
       # the source repositories are private to Croix; CI validates the committed spine and runs the
       # room conformance test. Regeneration happens in a session with the three checkouts beside this one.
       - run: bash tools/check.sh

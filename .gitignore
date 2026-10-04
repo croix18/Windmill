@@ -5,3 +5,5 @@ __pycache__/
 node_modules/
 out/
 .DS_Store
+kit/figs/
+kit/out/

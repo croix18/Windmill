@@ -25,4 +25,13 @@ python3 spine/validate.py spine/spine.json
 echo "== room"
 python3 tools/check_fixtures.py
 node room/test.js
+echo "== kit (the build kit both courses vendor)"
+python3 tools/kit_manifest.py --check
+if python3 -c "import sympy, docx, pptx, matplotlib, PIL" 2>/dev/null; then
+  for prof in course_on course_acc; do
+    KIT_COURSE=kit/tests/$prof.py python3 kit/tests/test_kit.py | tail -1
+  done
+else
+  echo "   kit tests skipped: sympy, python-docx, python-pptx, matplotlib and Pillow are needed (CI installs them)"
+fi
 echo "all checks passed"

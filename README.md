@@ -20,7 +20,8 @@ project memory.
 | `room/benchmarks.json` | The versioned benchmark list the compact room code indexes into. Changing the codes needs a version bump (`BUMP_LIST=1`), or the generator refuses. |
 | `room/fixtures/` | Rooms for the conformance test: empty, plan-only, tally, panel, stale, conflicting copies, a newer version, a planted name, a planted score, a roster. Synthetic first names only. |
 | `room/test.js` | **The conformance test.** `node room/test.js path/to/your/room-reader.js` — a repo that embeds the reader runs this in its own CI against its copy. |
-| `tools/check.sh` | Secrets and names guard, spine regeneration (when the sources are beside this repo) and validation, fixtures against the schema, the conformance test. `tools/push.sh` runs it, commits, pushes and verifies the remote head. |
+| `kit/` | **The build kit.** The one code base that turns a lesson spec into its deck (pptx and the HTML console), teacher's edition, lesson plan and question documents, for both courses — gates, checks, drivers. Vendored into each course's `build/` by `tools/vendor_into.py`, held there by `kit/KIT.sha256`. Edit it here only. See `kit/README.md`. |
+| `tools/check.sh` | Secrets and names guard, spine regeneration (when the sources are beside this repo) and validation, fixtures against the schema, the conformance test, the kit's manifest and its tests under both course profiles. `tools/push.sh` runs it, commits, pushes and verifies the remote head. |
 
 ## The room codes
 
