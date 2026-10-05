@@ -544,10 +544,94 @@ class Deck:
                        "Show the step that does the work, not just the answer.",
                        "Silence until the six minutes are up."], gap=0.14)
 
-    def independent_set(self, minutes, note, questions):
-        """Ruling 21, the set on the slide: the six questions themselves, no handout (Croix,
-        20 September: three files per lesson, the bank kept in Reference)."""
-        self.section("Independent Practice", "Six questions. On your own, in writing.", minutes, note, "set")
+    def _flow(self, text, x, y, w, size=23, color=INK, draw=True):
+        """A paragraph of words and $math$ wrapped to the width w, each line's pieces centred on
+        its text. Returns its height. The math is the 'slide' image, cut for 23 pt type and scaled
+        with the type. draw=False measures without drawing."""
+        import re
+        k = size / 23.0
+        lines = [[]]                                  # a line is a list of ["txt", run] / ["img", path, w, h]
+        def width(line):
+            return sum(_textw(p[1].replace("\ue000", "$"), size) if p[0] == "txt" else p[2] for p in line)
+        for part in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")):
+            if not part:
+                continue
+            if part.startswith("$"):
+                path, mw, mh = mathimg.m(part[1:-1].replace("\ue000", "\\$"), "slide", color)
+                piece = ["img", path, mw * k, mh * k]
+                if lines[-1] and width(lines[-1] + [piece]) > w:
+                    lines.append([])
+                lines[-1].append(piece)
+                continue
+            for word in re.findall(r"\s*\S+\s*|\s+", part):
+                line = lines[-1]
+                trial = (line[:-1] + [["txt", line[-1][1] + word]]) if line and line[-1][0] == "txt" else line + [["txt", word]]
+                if line and width(trial) > w:
+                    lines.append([["txt", word.lstrip()]])
+                else:
+                    lines[-1] = trial
+        yy = y
+        for line in lines:
+            lh = max([0.45 * k] + [p[3] for p in line if p[0] == "img"])
+            xx = x + (0.08 if line and line[0][0] == "img" else 0.0)     # a text box has an inset; a picture has none
+            for p_ in line:
+                if p_[0] == "img":
+                    if draw:
+                        self.s.shapes.add_picture(p_[1], Inches(xx), Inches(yy + (lh - p_[3]) / 2), Inches(p_[2]), Inches(p_[3]))
+                    xx += p_[2]
+                else:
+                    tw = _textw(p_[1].replace("\ue000", "$"), size)
+                    if draw:
+                        self._text(xx, yy + (lh - 0.5 * k) / 2, tw + 0.15, 0.5 * k, p_[1].replace("\ue000", "\\$"), size, color=color, anchor="middle", wrap=False)
+                    xx += tw
+            yy += lh + 0.03
+        return yy - y - 0.03
+
+    def _flow_first(self, text, w, size):
+        """Height of the first line of a flowed paragraph (its number is centred on that line)."""
+        import re
+        k = size / 23.0
+        first = re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000"))
+        hmax = 0.45 * k; used = 0.0
+        for part in first:
+            if not part:
+                continue
+            if part.startswith("$"):
+                _, mw, mh = mathimg.m(part[1:-1].replace("\ue000", "\\$"), "slide", INK)
+                if used and used + mw * k > w:
+                    break
+                used += mw * k; hmax = max(hmax, mh * k)
+            else:
+                tw = _textw(part.replace("\ue000", "$"), size)
+                if used + tw > w:
+                    break                       # the line ends somewhere inside this run: no later math is on it
+                used += tw
+        return hmax
+
+    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set"):
+        """Ruling 21, the set on the slide: the six questions themselves (Croix, 20 September, for
+        the course with no handout; 4 October for the other — "the individual review portion of
+        the slides needs to put the problems on the board"; there the same six are also the
+        printed page)."""
+        self.section(title, "Six questions. On your own, in writing.", minutes, note, kind)
+        if any("$" in q.replace("\\$", "") for q in questions):
+            # questions with mathematics in them: wrapped lines of words and typeset math, the type
+            # stepping down until the six end above the footer — never split across two slides,
+            # because ruling 21 is that a student works all six at their own pace
+            x, w, top = 1.05, 11.4, 1.66
+            for size, gap in ((23, 0.2), (21, 0.17), (19, 0.14), (18, 0.11), (17, 0.09), (16, 0.07)):
+                hs = [self._flow(q, x + 0.65, 0, w - 0.65, size, draw=False) for q in questions]
+                if top + sum(hs) + gap * (len(hs) - 1) <= FOOT_Y - 0.14:
+                    break
+            else:
+                raise RuntimeError("the six questions do not fit one slide even at 16 pt \u2014 shorten them")
+            y = top
+            for i, (q, h) in enumerate(zip(questions, hs)):
+                self._text(x, y + (min(h, self._flow_first(q, w - 0.65, size)) - 0.5 * size / 23.0) / 2, 0.6, 0.5 * size / 23.0, f"{i + 1}.", size, bold=True, color=VOCAB, anchor="middle")
+                self._flow(q, x + 0.65, y, w - 0.65, size)
+                y += h + gap
+            self.cursor = y
+            return
         # the six have to fit one slide — shrink the type rather than split the set across two,
         # because ruling 21 is that a student works all six at their own pace
         for size, gap in ((19, 0.10), (18, 0.08), (17, 0.06), (16, 0.05)):

@@ -232,10 +232,21 @@ class HtmlDeck:
                        "Show the step that does the work, not just the answer.",
                        "Silence until the six minutes are up."])
 
-    def independent_set(self, minutes, note, questions):
-        """Ruling 21 with the six questions on the slide (no handout)."""
-        self.section("Independent Practice", "Six questions. On your own, in writing.", minutes, note, "set")
-        size = 19 if sum(len(q) for q in questions) < 520 else 17
+    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set"):
+        """Ruling 21 with the six questions on the slide (in the handout course too: the same six
+        are the printed page)."""
+        self.section(title, "Six questions. On your own, in writing.", minutes, note, kind)
+        if any("$" in q.replace("\\$", "") for q in questions):
+            # the largest type at which the six end above the footer: a line of plain words is 1.35 em
+            # tall, a line with a stacked fraction about twice that (KaTeX, display style), and the
+            # list has about 1,090 px of width and 500 px of height on the 1,333 by 750 stage
+            def tall(q, px):
+                chars = len(re.sub(r"\$[^$]+\$", "xxxxxxxx", q))
+                lines = max(1, -(-int(chars * 0.5 * px) // 1090))
+                return ((2.65 if "\\frac" in q else 1.35) + 1.35 * (lines - 1)) * px + 10
+            size = next((sz for sz in (23, 21, 19, 18, 17, 16) if sum(tall(q, sz * 100 / 72) for q in questions) <= 500), 16)
+        else:
+            size = 19 if sum(len(q) for q in questions) < 520 else 17
         self.numbered(questions, size=size, gap=0.08)
 
     def close(self, lines, minutes=1, note=""):

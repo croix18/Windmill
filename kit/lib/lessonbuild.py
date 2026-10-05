@@ -689,11 +689,17 @@ def _fill_deck(D, L):
     # ---- the independent set (ruling 21), the close where the course has one, then IXL last
     T = L["te"]
     if not L.get("no_set"):           # Croix, 27 September: the M7 Unit 4 lessons carry no six-question set
+        # the six questions are ON the slide in both courses (Croix, 4 October: "the individual
+        # review portion of the slides needs to put the problems on the board"). Where the course
+        # also prints them (SET == "handout") the slide keeps the handout's name and its block in
+        # the plan; the page and its key are still built.
+        qs = [slotmark.strip(q["stem"]) for q in L["independent"] if not q.get("heading")]
+        assert len(qs) == 6, f"{L['code']}: the independent set is six questions, got {len(qs)}"
         if C.SET == "handout":
-            D.independent(INDEP_MIN)
+            D.independent_set(INDEP_MIN, T.get("set_note", "Hand out the Independent Set; the same six questions are on the board. "
+                                               "Silent work. Circulate and mark what you see; do not teach. "
+                                               "Whatever is not finished goes home."), qs, title="Independent Set", kind="independent")
         else:
-            qs = [slotmark.strip(q["stem"]) for q in L["independent"] if not q.get("heading")]
-            assert len(qs) == 6, f"{L['code']}: the independent set is six questions, got {len(qs)}"
             D.independent_set(INDEP_MIN, T.get("set_note", "Silent, on paper, at their own pace. Circulate and "
                                                "mark the first two only; what is not finished goes home."), qs)
     if C.CLOSE:

@@ -356,6 +356,17 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, the last request of the night — the independent set's six questions on the board
+  in both courses (kit).** Croix: *"Also, the individual review portion of the slides needs to
+  put the problems on the board."* A7's deck had a slide that said only "Six questions. Work down
+  the page…" (the questions were on the handout); M7's already showed its six. Now
+  `lessonbuild` always calls `independent_set`; with `SET == "handout"` the slide keeps the
+  title Independent Set and the plan's `independent` block, and the handout and its key are
+  still built. A7's stems carry mathematics, which the PowerPoint's numbered list printed as
+  source: `deckkit._flow` lays out a wrapped paragraph of words and typeset math, the type
+  stepping down (23 → 16 pt) until the six fit; `htmlkit` picks its size from the questions'
+  height. All sixteen A7 lessons and M7's twelve fit; five new kit tests (76 and 77 pass).
+
 - **4 Oct 2026, after that — the console and the decks on a tablet (kit).** Opened the way a
   touch browser opens a page (Playwright, `is_mobile`), the unit console laid itself out 1,733 px
   wide on an 800 px tablet held upright and stayed there: `fit()` sized the slide by

@@ -84,7 +84,7 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 | `examples` | list of 2 dicts | see below |
 | `whiteboard` | list of exactly 9 dicts | see below; #9 is `kind="written"` |
 | `bank`, `additional` | list of item dicts | the two question banks; `additional` mirrors `bank` position by position with new numbers |
-| `independent` | list of exactly 6 item dicts | the independent set (ruling 21), unless `no_set=True`. Printed as a handout with a key, or set on one slide with its six answers in the teacher's edition — the profile's `SET` decides |
+| `independent` | list of exactly 6 item dicts | the independent set (ruling 21), unless `no_set=True`. Printed as a handout with a key, or set on one slide with its six answers in the teacher's edition — the profile's `SET` decides **The six questions are on a slide in both courses** (4 Oct 2026: "the individual review portion of the slides needs to put the problems on the board"); `SET` only decides whether they are printed as a page as well. Mathematics in a stem is typeset on the slide and the type steps down until the six fit — a set that does not fit at 16 pt is refused, not split. |
 | `no_set` | bool, optional | the lesson carries no six-question set (M7 Unit 4 — Croix, 27 September) |
 | `review` | bool, optional | the spec is the review day built as a lesson (`uN/review.py`); it joins the unit deck where the profile's `REVIEW_IN_DECK` is set and writes nothing to the bank |
 | `handout` | str, optional | names a printed page the lesson uses that the build does not make (4.05's measuring sheet); printed under Materials |
@@ -345,7 +345,7 @@ read from the deck side-cars, never typed.
 
 | name | accelerated (A7) | on-level (M7) | what it decides |
 |---|---|---|---|
-| `SET` | `"handout"` | `"slide"` | the six-question independent set is a printed page with a key, or one slide with its answers in the teacher's edition |
+| `SET` | `"handout"` | `"slide"` | the six-question independent set is on one slide in both; `"handout"` also prints it as a page with a key (the slide is then titled Independent Set and is the plan's `independent` block), `"slide"` prints its six answers in the teacher's edition |
 | `CLOSE` | no | yes | a "Before You Go" slide before IXL (`te.close`) |
 | `BANK` | `"docx"` | `"md"` | Question Bank and Additional as documents with keys per lesson, or one `BANK - Unit N.md` per unit |
 | `TE_STYLE` | `"lines"` | `"table"` | the teacher's edition's boards inline, or as a table (`te.watch` required) |

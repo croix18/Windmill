@@ -192,6 +192,29 @@ ok("slides: the HTML deck prints no text in the place of the grey line", not re.
 ok("slides: the title slide's note gives the teacher the line to say", "Today the rope is cut twice." in P.side[0]["note"])
 ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",
    bool(re.search(r"function fit\(\)\{[^}]*transformOrigin='center'[^}]*translate\(-50%,-50%\) scale", open(consolekit.__file__, encoding="utf-8").read())))
+# Croix, 4 October: "the individual review portion of the slides needs to put the problems on the board"
+I_ = copy.deepcopy(L)
+I_.update(yesterday="y", today="t"); I_.pop("no_set", None)
+I_["independent"] = copy.deepcopy(I_["independent"])
+I_["independent"][0]["stem"] = "Find the value.  $\\left(\\frac{2}{5}\\right)^{-2}$"
+I_["independent"][1]["stem"] = "A question long enough that it has to run on to a second line of the slide, with $3^{2}$ in the middle of it, and then some more words after that so that it wraps."
+with tempfile.TemporaryDirectory() as tmp:
+    P2 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(P2, I_)
+    pptx2 = os.path.join(tmp, "i.pptx"); P2.save(pptx2, sidecar=False)
+    z2 = zipfile.ZipFile(pptx2)
+    itext = " ".join(" ".join(re.findall(r"<a:t>([^<]*)</a:t>", z2.read(nm).decode("utf-8"))) for nm in z2.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", nm))
+    H2 = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(H2, I_)
+    ihtml = render_page(H2); ihtml = re.sub(r"<[^>]+>", " ", ihtml[ihtml.index('<section class="slide'):])
+_six = [slotmark.strip(q["stem"]) for q in I_["independent"]]
+ok("the six independent questions are on the slide in the PowerPoint, whichever way the course hands them out",
+   "Find the value." in itext and "has to run on to a second line" in itext and all(re.sub(r"\$[^$]+\$", "", q).split("  ")[0].strip()[:25] in itext for q in _six[2:]), itext[-300:])
+ok("the six independent questions are on the slide in the HTML deck", all(re.sub(r"\$[^$]+\$", "", q).split("  ")[0].strip()[:25] in ihtml for q in _six))
+ok("the slide that only said to work down the page is gone", "Work down the page" not in itext and "Work down the page" not in ihtml)
+ok("mathematics in a question is typeset on the slide, not printed as its source", "\\frac" not in itext and "$" not in itext)
+ok("the handout course keeps the handout's name on that slide and its place in the plan",
+   [x for x in P2.side if x["kind"] in ("set", "independent")][0]["title"] == ("Independent Set" if C.SET == "handout" else "Independent Practice")
+   and [x["kind"] for x in P2.side if x["kind"] in ("set", "independent")] == ["independent" if C.SET == "handout" else "set"])
+
 from lib import htmlkit as _hk
 _cjs = re.sub(r"//[^\n]*", "", open(consolekit.__file__, encoding="utf-8").read()); _hjs = re.sub(r"//[^\n]*", "", open(_hk.__file__, encoding="utf-8").read())
 ok("console and deck: the slide is sized by the document's own box, never window.innerWidth (a touch screen reports the zoomed-out width there)",
