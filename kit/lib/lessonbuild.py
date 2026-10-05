@@ -1211,7 +1211,7 @@ def stepcheck_rows(rows, where, final=None):
     computed must be true (exactly; '≈' to the places the right side shows), each '=' between two
     expressions in the same letters must be an identity, and the last number the steps arrive at
     must be the item's checked value. Returns (findings, how many equalities were verified)."""
-    out = []; n = 0; last = None
+    out = []; n = 0; last = None; reached = []
     for row in rows:
         for span in re.findall(r"\$([^$]+)\$", slotmark.strip(row).replace("\\$", "")):
             parts = re.split(r"(=|\\approx)", span)
@@ -1237,12 +1237,15 @@ def stepcheck_rows(rows, where, final=None):
                     if sp.simplify(a - b) != 0:
                         out.append(f"{where}: a step is not an identity \u2014 {sa.strip()} = {sb.strip()}")
             nums = [v for v in vals if v is not None and not v.free_symbols]
+            reached += nums
             if nums:
                 last = nums[-1]
+    # the checked value is somewhere the steps arrive — usually their last number, but a check
+    # may hold the 25 of an answer written 25π, or the 4 of "four times board 1"
     if final is not None and last is not None and not final.free_symbols:
         n += 1
-        if abs(sp.N(last - final)) > 1e-9:
-            out.append(f"{where}: the steps end at {sp.nsimplify(last)} and the checked answer is {sp.nsimplify(final)}")
+        if not any(abs(sp.N(v - final)) <= 1e-9 for v in reached):
+            out.append(f"{where}: the steps end at {sp.nsimplify(last)} and never reach the checked answer, {sp.nsimplify(final)}")
     return out, n
 
 
