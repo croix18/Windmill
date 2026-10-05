@@ -9,10 +9,11 @@
 For every lesson spec of the units named it runs EVERY gate `build_lesson` runs (units, mathcheck,
 distractorcheck, capcheck, rulingcheck, balancecheck, stepcheck), lays the lesson out as a
 PowerPoint and as an HTML deck exactly as the build would (so "cannot hold its steps", "a line of
-this figure runs through its label" and "line runs off the slide" all show), and then opens the
-HTML decks — and a trial unit console made from the first lesson — in a browser with the real
-`checks.check_html`: footer overruns, how far a slide had to be set smaller, KaTeX errors, the
-colour reading against mathtext, the console's placement at every screen size.
+this figure runs through its label" and "line runs off the slide" all show), builds each unit's
+whole-unit deck and its console the way `build_unit.py` does (the unit balance check with it),
+and then opens every HTML deck and console in a browser with the real `checks.check_html`: footer
+overruns, how far a slide had to be set smaller, KaTeX errors, the colour reading against
+mathtext, the console's reveal, its lesson index and its placement at every screen size.
 
 It needs no LibreOffice and writes nothing into the course: decks and images go to a scratch
 folder (`--keep DIR` to look at them afterwards). By default it uses the kit AS IT STANDS IN THIS
@@ -23,8 +24,8 @@ Why this exists (5 October 2026): three full rebuilds were lost in one morning t
 only showed at the end of the build — `capcheck` reading the scientific-notation rule into
 `steps`, the HTML check finding the pi face's line metrics, KaTeX's multiplication dot coming from
 the wrong font. Each would have shown here in two minutes. What it does NOT cover: anything read
-off the rendered PDFs (slidefit, overlap, footer, pages, glyph's PDF fonts), the unit papers, and
-the whole-unit deck. Run it before `build_all.py`, not instead of it.
+off the rendered PDFs (slidefit, overlap, footer, pages, glyph's PDF fonts) and the unit papers.
+Run it before `build_all.py`, not instead of it.
 """
 import glob, importlib.util, os, sys, tempfile, time
 
@@ -67,8 +68,9 @@ def load(path):
 
 
 print(f"dry run of {C.COURSE} {' '.join(units)} with the kit in {kit}")
-bad = 0; decks = []; first = None
+bad = 0; decks = []
 for u in units:
+    unit_lessons = []
     specs = sorted(glob.glob(os.path.join(build, u, "l[0-9]*.py")))
     rv = os.path.join(build, u, "review.py")
     if C.REVIEW_IN_DECK and os.path.exists(rv):
@@ -100,22 +102,29 @@ for u in units:
         try:
             H = htmlkit.HtmlDeck(C.COURSE, L["unit"], "Lesson", L["title"], "dry run"); lb._fill_deck(H, L)
             H.save(os.path.join(out, stem + ".html")); decks.append(os.path.join(out, stem + ".html"))
-            if first is None:
-                first = (L, stem)
+            unit_lessons.append(L)
         except (Exception, SystemExit) as e:
             found.append(f"HTML deck: {str(e)[:400]}")
         bad += len(found)
         print(f"  {L.get('code', stem):6} {have} of {total} answer slides with steps, {eqs} equalities worked, {len(found)} findings   [{time.time() - t0:.0f} s]", flush=True)
         for x in found:
             print("       " + x)
+    # the whole-unit deck and its console, by the build's own function (a console made from one
+    # lesson has no lesson index, and its Today screen then fails at some hours of the day and not
+    # at others — which is how this tool first reported a fault that was its own, 5 October)
+    if unit_lessons:
+        try:
+            n = unit_lessons[0]["unit"]
+            rows = [("Review" if L.get("review") else L["code"], L["title"]) for L in unit_lessons]
+            udir = os.path.join(out, u + "_unit"); os.makedirs(udir, exist_ok=True)
+            lb.build_unit_deck(unit_lessons, rows, {"unit": n, "title": getattr(C, "UNITS", {}).get(n, f"Unit {n}")}, udir)
+            con = glob.glob(os.path.join(udir, "*.html"))
+            decks += con
+            print(f"  {u}: whole-unit deck and console built ({len(unit_lessons)} lessons)", flush=True)
+        except (Exception, SystemExit) as e:
+            print(f"  {u}: the whole-unit deck could not be built — {str(e)[:400]}"); bad += 1
 
 if "--no-html" not in flags and decks:
-    try:                                                         # a console, so the console probes run too
-        L, stem = first
-        H = htmlkit.HtmlDeck(C.COURSE, L["unit"], "Lesson", L["title"], "dry run"); H.page_title = "dry-run console"; lb._fill_deck(H, L)
-        H.save(os.path.join(out, "zz_console.html"), console=True); decks.append(os.path.join(out, "zz_console.html"))
-    except (Exception, SystemExit) as e:
-        print(f"  the trial console could not be made — {str(e)[:300]}"); bad += 1
     import checks                                                # noqa: E402
     found = [x for x in checks.check_html(decks)]
     bad += len(found)
