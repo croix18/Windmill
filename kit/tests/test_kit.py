@@ -249,6 +249,14 @@ if _mcs:
     _opt = T_["whiteboard"][_mcs[0]]["choices"][0]
     ok("steps: a choice board's answer slide shows its working in place of the four options",
        len(_rev) == 1 and "A." not in " ".join(re.findall(r"<a:t>([^<]*)</a:t>", _rev[0])))
+if "sci" in C.CAPS:
+    _wb = copy.deepcopy(L); _wb["whiteboard"] = copy.deepcopy(_wb["whiteboard"])
+    _wb["whiteboard"][0]["steps"] = ["Match the powers:  $1.3 \\times 10^{3} = 0.013 \\times 10^{5}$"]
+    _cap_steps = [x for x in lb.capcheck_lesson(slotmark.strip_deep(_wb)) if "coefficient" in x]
+    _wb["whiteboard"][0]["answer"] = "$0.013 \\times 10^{5}$"
+    _cap_ans = [x for x in lb.capcheck_lesson(slotmark.strip_deep(_wb)) if "coefficient" in x]
+    ok("steps: working may pass through a form that is not yet scientific notation; an answer may not",
+       _cap_steps == [] and len(_cap_ans) == 1 and "whiteboard[0].answer" in _cap_ans[0], str(_cap_steps + _cap_ans))
 _req = C.STEPS; C.STEPS = "required"
 ok("steps: where the course requires them, an answer slide with none is refused", any("ruling 39" in x for x in lb.stepcheck_lesson(slotmark.strip_deep(L))[0]))
 C.STEPS = _req
@@ -274,6 +282,58 @@ ok("font: a sign Lexend has no glyph for is set in the fallback by name, and the
 ok("font: the HTML deck carries Lexend itself and asks for nothing from the network",
    "font-family:'Lexend'" in h3 and "size-adjust:95%" in h3 and "fonts.googleapis" not in h3 and "Schola" not in h3)
 ok("font: the faces are in the kit under their licence", all(os.path.exists(os.path.join(os.path.dirname(_dk.__file__), "..", "assets", f)) for f in ("Lexend-Regular.ttf", "Lexend-Bold.ttf", "LEXEND-OFL.txt", "lexend-regular.woff2", "lexend-bold.woff2", "lexend-fallback.woff2")))
+
+# ---- ruling 40, second half: the mathematics on a slide, and the lettering of a figure, are in Lexend too
+import json
+from lib import mathimg as _mi
+from lib import htmlkit as _hk
+def _glyphs(tex, surface):
+    pt = _mi.SIZES[surface]
+    if surface.startswith("slide"):
+        tex, pt, face = _mi.slide_form(tex, pt)
+    else:
+        face = "stix"
+    r = _mi._PARSER.parse(f"${tex}$", dpi=72, prop=_mi._prop(pt, face))
+    return [(chr(g[2]), g[0].family_name, g[0].style_name) for g in r.glyphs]
+_g = _glyphs(r"3x^{2} \times 4 = 12x^{2} - \frac{1}{2}", "slide")
+ok("math: on a slide every digit, letter and sign of an expression is drawn in Lexend", _g and all(f == "Lexend" for _, f, _ in _g), str(_g[:4]))
+_gd = _glyphs(r"3x^{2} \times 4 = 12x^{2} - \frac{1}{2}", "doc")
+ok("math: on a printed page the same expression is still STIX", _gd and all(f.startswith("STIX") for _, f, _ in _gd), str(_gd[:4]))
+_gp = dict((c, (f, st)) for c, f, st in _glyphs(r"C = 2\pi r", "slide"))
+ok("math: pi is the one sign a slide does not take from Lexend (STIX bold: the textbook's pi, at Lexend's weight)",
+   _gp["\u03c0"] == ("STIXGeneral", "Bold") and _gp["C"][0] == "Lexend" and _gp["r"][0] == "Lexend", str(_gp))
+_gc = _glyphs(r"2.5 \cdot 10^{3}", "slide")
+ok("math: the multiplication dot is Lexend's own raised dot, as heavy as the decimal point beside it",
+   ("\u00b7", "Lexend", "Regular") in _gc and (".", "Lexend", "Regular") in _gc and not any(c == "\u22c5" for c, _, _ in _gc), str(_gc))
+ok("math: a variable l is set as the script l, never Lexend's bare stroke", [c for c, _, _ in _glyphs(r"A = lw", "slide")] == ["A", "=", "\u2113", "w"])
+ok("math: words inside an expression are left as written (the l of 'ml' is a letter, not a variable)",
+   _mi.lexend_tex(r"250\text{ ml} \leq \left(l\right) \ldots") == r"250\text{ ml} \leq \left(\ell \right) \ldots")
+ok("math: a slot mark survives the slide face", slotmark.strip(_mi.lexend_tex(r"\sA{l}^{\sB{2}} \cdot \pi")) == "\\ell ^{2} \\hspace{0.2}\u00b7\\hspace{0.2} \\mathtt{\\pi}")
+_mi_figs = (_mi.FIGS, _mi.INDEX); _mi.FIGS = tempfile.mkdtemp(prefix="kitmath"); _mi.INDEX = os.path.join(_mi.FIGS, "index.json")
+_pa = _mi.m(r"6.02 \times 10^{-3}", "slide")[0]
+_keep = _mi.SLIDE_FACE; _mi.SLIDE_FACE = ""
+_pb = _mi.m(r"6.02 \times 10^{-3}", "slide")[0]
+_mi.SLIDE_FACE = _keep
+ok("math: the face is part of an image's fingerprint (a STIX image is never served as Lexend)", _pa != _pb and os.path.exists(_pa) and os.path.exists(_pb))
+_sa, _sb = _mi.m(r"\frac{3}{4} + \frac{5}{8}", "slide"), None
+_mi.SLIDE_FACE = ""; _sb = _mi.m(r"\frac{3}{4} + \frac{5}{8}", "slide"); _mi.SLIDE_FACE = _keep
+ok("math: at its 95% an expression in Lexend stands as tall as the STIX one it replaces (within 6%)", abs(_sa[2] / _sb[2] - 1) < 0.06, f"{_sa[2]:.3f} against {_sb[2]:.3f} in")
+import slotaudit as _sl
+_worst = max(_sl.geometry_differs(t, 40) for t in (r"3x^{2} \cdot x^{5} = 3x^{7}", r"\left(\frac{2}{3}\right)^{4} = \frac{2^{4}}{3^{4}}", r"\sA{3}^{\sB{2}} \cdot \pi r^{2}", r"\sqrt[3]{27} + 2^{3}"))
+ok("math: in the slide face the colour code still changes the ink's colour and nothing else", _worst < 0.005, f"worst {_worst:.2%}")
+_mi.FIGS, _mi.INDEX = _mi_figs
+ok("font: a pi in a sentence is set in the one-glyph pi face, and nothing else is",
+   _dk._by_font("C = 2\u03c0r") == [("C = 2", "Lexend"), ("\u03c0", "WindyPi"), ("r", "Lexend")])
+from fontTools.ttLib import TTFont as _TT
+_assets = os.path.join(os.path.dirname(_dk.__file__), "..", "assets")
+ok("font: the pi face holds exactly one glyph, and travels with its licence",
+   sorted(_TT(os.path.join(_assets, "WindyPi.ttf")).getBestCmap()) == [0x3C0] and sorted(_TT(os.path.join(_assets, "windypi.woff2")).getBestCmap()) == [0x3C0]
+   and os.path.exists(os.path.join(_assets, "STIX-OFL.txt")))
+ok("font: the HTML deck sets its mathematics in the slide font, with the pi face first in every stack",
+   ".katex{font-family:'WindyPi','Lexend'" in h3 and "font-family:'WindyPi';" in h3 and "html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend'" in h3
+   and ".katex .mathnormal,.katex .mathit,.katex .boldsymbol{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Math;font-style:normal}" in h3
+   and "const KMACROS=" + json.dumps(_hk.KMACROS) + ";" in h3 and _hk.KMACROS["\\cdot"] == "\\mathbin{\\text{\u00b7}}", h3[h3.find("const KMACROS"):h3.find("const KMACROS") + 70])
+ok("font: the HTML deck hands KaTeX a variable l as the script l", _hk._tex("A = lw", False) == r"A = \ell w" and _hk._tex(r"3\text{ ml}", False) == r"3\text{ ml}")
 
 from lib import htmlkit as _hk
 _cjs = re.sub(r"//[^\n]*", "", open(consolekit.__file__, encoding="utf-8").read()); _hjs = re.sub(r"//[^\n]*", "", open(_hk.__file__, encoding="utf-8").read())
@@ -325,6 +385,22 @@ _fig = dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="7 cm"), dict(t="
 ok("figures: a figure in centimetres answered in square inches is refused",
    _raises(lambda: figkit.units_agree(dict(whiteboard=[dict(fig=_fig, text=["Find the area."], answer="60 in²")])), "disagree about the unit"))
 ok("figures: the same figure answered in square centimetres passes", figkit.units_disagree(dict(whiteboard=[dict(fig=_fig, answer="60 cm²")])) == [])
+_sq = dict(kind="shapes", fs=22, pt=18, **{"in": 3.0}, shapes=[dict(t="poly", pts=[(0, 0), (12, 0), (12, 8), (0, 8)], fill="#FFFFFF"),
+                                                         dict(t="text", xy=(6, 0), s="12 m", va="top", off=(0, -0.3)), dict(t="text", xy=(6, 4), s="2\u03c0r")])
+_fa, _fb = figkit.draw(_sq, 3.0)[0], figkit.draw(figkit.slide(_sq), 3.0)[0]
+def _same(a, b):
+    from PIL import Image, ImageChops
+    A, B = Image.open(a).convert("RGBA"), Image.open(b).convert("RGBA")
+    return A.size == B.size and ImageChops.difference(A, B).getbbox() is None
+ok("figures: a slide's figure is lettered in the slide font and filed apart from the printed page's", _fa != _fb and not _same(_fa, _fb) and figkit.slide(figkit.slide(_sq)) == figkit.slide(_sq))
+_seen = []
+_orig_struck = figkit._struck
+figkit._struck = lambda fig, ax: (_seen.append([(t.get_text(), t.get_fontfamily()) for t in ax.texts]), _orig_struck(fig, ax))[1]
+figkit.draw(figkit.slide(dict(_sq, note="again")), 3.0); figkit.draw(dict(_sq, note="again"), 3.0)
+figkit._struck = _orig_struck
+ok("figures: on a slide the labels are Lexend and a pi is the textbook's; on paper they are as they were",
+   ("12 m", ["Lexend", "DejaVu Sans"]) in _seen[0] and ("2$\\mathtt{\\pi}$r", ["Lexend", "DejaVu Sans"]) in _seen[0]
+   and ("2\u03c0r", ["STIXGeneral"]) in _seen[1], str(_seen))
 ok("figures: a scale problem may say so (units_ok)", figkit.units_disagree(dict(whiteboard=[dict(fig=_fig, answer="6 m", units_ok=True)])) == [])
 ok("figures: an Example with a figure starts higher only when its lines and its figure need the room",
    lb._example_top(["One line."], None) == 2.3 and lb._example_top(["One line.", "Two."], None) == 1.9

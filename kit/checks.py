@@ -36,12 +36,13 @@ W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 NATIVE_DOC_FONTS = {"Times New Roman", "Georgia", "FreeSerif", "Arial"}
-DECK_FONTS = {"Lexend", "DejaVu Sans"}          # the slide font (ruling 40) and the face its missing signs are set in
+DECK_FONTS = {"Lexend", "DejaVu Sans", "WindyPi"}   # the slide font (ruling 40), the face its missing signs are set in, and the one-glyph pi
 FONT_FILES = {"Times New Roman": "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",
               "Georgia": "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
               "FreeSerif": "/usr/share/fonts/truetype/freefont/FreeSerif.ttf",
               "Century Schoolbook": "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-regular.otf",
               "Lexend": os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "Lexend-Regular.ttf"),
+              "WindyPi": os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "WindyPi.ttf"),
               "DejaVu Sans": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"}
 
 
@@ -209,6 +210,11 @@ def check_glyph(files):
                     if '<a:rPr' in run and re.search(r'<a:rPr[^>]*\bi="1"', run):
                         findings.append(f"glyph: italic type on a slide (the slide font has none, so it would be slanted by machine) — {base}")
                     for t in re.findall(r"<a:t>([^<]*)</a:t>", run):
+                        # pi is never Lexend's on a slide (a flat-topped box): it is the one-glyph face, and that face is only pi
+                        if "\u03c0" in t and font != "WindyPi":
+                            findings.append(f"glyph: a pi on a slide is set in {font}, not the pi face — {base}")
+                        if font == "WindyPi" and t.strip("\u03c0"):
+                            findings.append(f"glyph: the pi face is asked for '{t}' — it has one glyph — {base}")
                         for ch in t:
                             if ord(ch) > 127:
                                 chars += 1
@@ -229,7 +235,7 @@ def check_glyph(files):
         used = {re.sub(r"^[A-Z]{6}\+", "", ln.split()[0]) for ln in out if ln.strip()}
         if not any(u.startswith("Lexend") for u in used):
             findings.append(f"glyph: the PDF does not carry Lexend (fonts drawn: {', '.join(sorted(used)) or 'none'}) — {base}")
-        odd = sorted(u for u in used if not u.startswith(("Lexend", "DejaVuSans")))
+        odd = sorted(u for u in used if not u.startswith(("Lexend", "DejaVuSans", "WindyPi")))
         if odd:
             findings.append(f"glyph: the PDF draws text in {', '.join(odd)} — {base}")
     findings = sorted(set(findings))

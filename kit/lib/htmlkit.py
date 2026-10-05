@@ -13,6 +13,7 @@ Ctrl-P prints one slide per page.
 """
 import os, re, json, html, base64
 from . import figkit    # geometry figures, drawn from the numbers, embedded as data URIs
+from . import mathimg   # the slide face's rules (ruling 40) are written once, there
 from . import slotmark
 from .profile import C
 
@@ -31,8 +32,14 @@ def _read(name, binary=False):
 
 
 def _font_face(style, weight, italic=False):
-    """The slide font, inlined: Lexend (ruling 40), and under the name LexendFallback the few signs
-    it has no glyph for. `style` is regular, bold or fallback."""
+    """The slide font, inlined: Lexend (ruling 40); under the name LexendFallback the few signs
+    it has no glyph for; and WindyPi, a face of one glyph — the pi a slide uses in place of
+    Lexend's (deckkit.PI_FONT) — which every font stack lists first. `style` is regular, bold,
+    fallback or pi."""
+    if style == "pi":
+        data = base64.b64encode(_read("windypi.woff2", True)).decode()
+        return (f"@font-face{{font-family:'WindyPi';font-weight:100 900;font-style:normal;size-adjust:95%;"
+                f"src:url(data:font/woff2;base64,{data}) format('woff2')}}")
     data = base64.b64encode(_read(f"lexend-{style}.woff2", True)).decode()
     fam = "LexendFallback" if style == "fallback" else "Lexend"
     # size-adjust: the same 95% the PowerPoint sets Lexend at (deckkit.SCALE), so a line is as long
@@ -47,8 +54,12 @@ def esc(t):
 
 def _tex(latex, slots):
     """The LaTeX KaTeX is handed: a named slot becomes \\textcolor where the teacher shows, and is
-    dropped (its body kept) everywhere else."""
-    return slotmark.textcolor(latex) if slots else slotmark.strip(latex)
+    dropped (its body kept) everywhere else. A variable l becomes the script l, as on the
+    PowerPoint (mathimg.lexend_tex): Lexend's l is a bare stroke, the mark of an absolute value."""
+    latex = slotmark.textcolor(latex) if slots else slotmark.strip(latex)
+    if mathimg.SLIDE_FACE:
+        latex = mathimg.lexend_tex(latex, pi=r"\pi ", cdot=r"\cdot ", ell=r"\ell ")
+    return latex
 
 
 def rich(text, size=None, slots=False):
@@ -231,7 +242,7 @@ class HtmlDeck:
 
     def figure_steps(self, spec, rows, gap=0.16, size=23, rgap=0.1):
         """An answer slide with a picture and working: the figure on the left, the steps beside it."""
-        path, w, h = figkit.draw(spec, spec.get("in", 4.2))
+        path, w, h = figkit.draw(figkit.slide(spec), spec.get("in", 4.2))
         with open(path, "rb") as f:
             b = base64.b64encode(f.read()).decode("ascii")
         lines = "".join(f'<p class="t left s-slide{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
@@ -289,7 +300,7 @@ class HtmlDeck:
     def figure(self, spec, gap=0.16):
         """A geometry figure drawn from its numbers (figkit), the same PNG the PowerPoint carries,
         embedded as a data URI at its natural size (100 px per inch of the 13.33-inch stage)."""
-        path, w, h = figkit.draw(spec, spec.get("in", 4.2))
+        path, w, h = figkit.draw(figkit.slide(spec), spec.get("in", 4.2))
         with open(path, "rb") as f:
             b = base64.b64encode(f.read()).decode("ascii")
         # natural size at most; the figure is the slide's one flexible block, so when the text
@@ -337,8 +348,20 @@ class HtmlDeck:
         return path
 
 
+# Ruling 40 in the browser: KaTeX lays the expression out, and the digits, letters and signs in
+# it are drawn in the slide font. Only KaTeX's own grown brackets, radicals and big operators keep
+# their fonts (they are built from pieces made to stack). A variable is upright: Lexend has no
+# italic and a slide carries none. WindyPi comes first so a pi is the textbook's, not Lexend's.
+MATHFACE = r"""
+.katex{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Main,math,serif}
+.katex .mathnormal,.katex .mathit,.katex .boldsymbol{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Math;font-style:normal}
+.katex .textrm,.katex .mathrm,.katex .mainrm,.katex .mathbf,.katex .textbf{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Main;font-style:normal}
+"""
+
+KMACROS = {"\\cdot": "\\mathbin{\\text{\u00b7}}"}
+
 CSS = r"""
-html,body{margin:0;height:100%;background:#2b2b2b;font-family:'Lexend','LexendFallback','DejaVu Sans',Verdana,sans-serif;color:#INK}
+html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend','LexendFallback','DejaVu Sans',Verdana,sans-serif;color:#INK}
 #stage{position:absolute;left:50%;top:50%;width:WPXpx;height:HPXpx;transform-origin:0 0;background:#fff;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.6)}
 .slide{display:none;position:absolute;inset:0;padding:40px 85px 84px 85px;box-sizing:border-box;flex-direction:column}
 .slide.on{display:flex}
@@ -370,6 +393,7 @@ table.tbl{border-collapse:collapse;margin:4px auto}table.tbl th,table.tbl td{bor
 p.s-slidemid .k:not(.d){font-size:32pt}p.s-slidebig .k:not(.d){font-size:40pt}p.s-slide .k:not(.d){font-size:26pt}
 .body{gap:14px}
 .katex{font-size:1em}
+MATHFACE
 .worked{display:flex;align-items:center;gap:36px;padding-left:115px}.worked .k.d{display:inline-block;padding:0;margin:0}
 ol.choices{margin:6px 0 0;padding:0 0 0 40px;list-style:none;font-size:24pt}
 ol.choices.two{display:grid;grid-template-columns:1fr 1fr;row-gap:12px}
@@ -414,8 +438,10 @@ JS = r"""
   document.querySelectorAll('a[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();show(+a.dataset.go)}));
   }
   // ---- math: KaTeX, display style everywhere so fractions stay full-size on a projector
+  // (KMACROS: in the slide face the multiplication dot is Lexend's own, as heavy as a decimal point is)
+  const KMACROS=/*KMACROS*/{};
   document.querySelectorAll('.k').forEach(el=>{
-    try{const d=el.classList.contains('d');katex.render(d?el.dataset.tex:'\\displaystyle '+el.dataset.tex,el,{displayMode:d,throwOnError:true,strict:'ignore'});}
+    try{const d=el.classList.contains('d');katex.render(d?el.dataset.tex:'\\displaystyle '+el.dataset.tex,el,{displayMode:d,throwOnError:true,strict:'ignore',macros:KMACROS});}
     catch(err){el.textContent='[math error] '+el.dataset.tex;el.classList.add('katex-error');console.error(err);}
   });
   // ---- the slot colour code (HOUSE STYLE 2a): base blue, exponent orange, on .slots surfaces.
@@ -474,7 +500,10 @@ def render_page(D):
     css = (CSS.replace("WPX", f"{W:.2f}").replace("HPX", f"{H:.0f}").replace("#INK", "#" + INK).replace("#GRAY", "#" + GRAY)
            .replace("#VOCAB", "#" + VOCAB).replace("#RED", "#" + RED).replace("#LT", "#" + LT).replace("#FILL", "#" + FILL))
     js = JS.replace("WPX", f"{W:.2f}").replace("HPX", f"{H:.0f}")
-    fonts = _font_face("regular", 400) + _font_face("bold", 700) + _font_face("fallback", 400)
+    fonts = _font_face("pi", 400) + _font_face("regular", 400) + _font_face("bold", 700) + _font_face("fallback", 400)
+    css = css.replace("MATHFACE", MATHFACE if mathimg.SLIDE_FACE else "")
+    if mathimg.SLIDE_FACE:
+        js = js.replace("/*KMACROS*/{}", json.dumps(KMACROS))
     out = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
            f"<title>{esc(getattr(D, 'page_title', D.title))}</title>", "<style>", fonts, _read("katex.inline.css"), css, "</style></head><body>",
            '<div id="stage">']

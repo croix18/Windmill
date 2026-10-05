@@ -330,9 +330,42 @@ Lexend, set at 95% of the size the layout asks for (`deckkit.SCALE`; `size-adjus
 at that size a line is as long as it was in Century Schoolbook, so every measured layout holds,
 and the letters are still 7% taller. Nothing on a slide is italic (Lexend has none). A sign Lexend
 lacks (→ ∠ △ ✓) is set in DejaVu Sans by name. Printed documents (Teacher's Edition, plans,
-papers, handouts) are unchanged. **Not yet Lexend:** typeset mathematics and the labels on
-figures — next. `checks.py glyph` refuses a slide run in any other face, an italic run, and a deck
-PDF that does not carry Lexend.
+papers, handouts) are unchanged. `checks.py glyph` refuses a slide run in any other face, an
+italic run, and a deck PDF that does not carry Lexend.
+
+**The mathematics and the figures (5 October — the "math next" half).** A slide's expressions and
+the lettering on its figures are Lexend too; a printed page's are STIX, as before, and the two
+never share a file (the face is in each image's fingerprint).
+
+- *PowerPoint and PDF* — `mathimg.m(…, "slide…")` sets the expression with matplotlib's `custom`
+  math fontset pointed at the kit's own Lexend files, at 95% (`mathimg.LEXEND_SCALE`): a Lexend
+  digit then stands as tall as the STIX digit it replaces, so rows keep their height; a row is
+  about a tenth longer, and the fit gates (`_yt_fit`, `_wb_fit`, slidefit, overlap) decide what
+  still fits. Radicals, grown brackets and arrows are STIX's (Lexend has none). Variables are
+  upright. `mathimg.SLIDE_FACE = ""` puts slides back in STIX in one line.
+- *Three signs are not Lexend's*, in every surface, and the kit makes the change itself — a spec
+  goes on writing `\pi`, `\cdot` and `l`:
+  - **π** — Lexend's is a flat-topped box that reads as an n. A slide's π is the π of STIX
+    General Bold (the textbook's, at Lexend's weight): `\mathtt{\pi}` in an expression, the
+    one-glyph face **WindyPi** (`assets/WindyPi.ttf`, `windypi.woff2`, cut by `make_assets.py
+    make_pi`) for a π typed in words or on a figure. `deckkit._by_font` names it for the run; the
+    HTML lists it first in every font stack. `checks.py glyph` refuses a π set in anything else.
+  - **the multiplication dot** — `\cdot` is drawn with Lexend's own raised dot (U+00B7, the dot
+    a spec types in words and tables), which is exactly as heavy as Lexend's decimal point. The
+    STIX dot beside Lexend digits is fainter than the decimal point next to it.
+  - **a variable l** — Lexend's is a bare stroke, the mark of an absolute-value bar; it is set as
+    the script ℓ. Letters inside `\text{}` are words and are left alone.
+- *HTML decks and the console* — KaTeX lays the expression out; `htmlkit.MATHFACE` draws its
+  digits, letters and signs in the slide font (KaTeX's own fonts remain for stacked brackets,
+  radicals and big operators), `KMACROS` makes `\cdot` the Lexend dot, `_tex` makes a variable l
+  the script ℓ.
+- *Figures* — a slide draws `figkit.slide(spec)` (the same spec with `face="slide"`): labels in
+  Lexend at 95%, a π in a label set as the textbook's. `dockit` draws the plain spec, so a
+  handout's figure is unchanged. The struck-label check runs on each face separately.
+- **Working rows and scientific notation.** An item's `steps` may pass through a form that is not
+  yet scientific notation (1.3 × 10³ = 0.013 × 10⁵ — matching the powers is the method);
+  `capcheck` no longer reads the [1, 10) rule into `steps`. Every such line is still held true by
+  `stepcheck`, and the item's answer is still scanned.
 
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 

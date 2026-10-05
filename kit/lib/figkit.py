@@ -12,6 +12,10 @@ Kinds:
   poly      a closed polygon with side labels   dict(kind="poly", pts=[(x,y)...], labels=[...])
   grid      a polygon on a unit grid            dict(kind="grid", cols=, rows=, pts=[...])
 Every kind may carry `title`. Lengths are in the figure's own units and the drawing is to scale.
+
+Two faces, as in mathimg: a figure on a printed page is lettered in STIX; the same figure on a
+slide is lettered in Lexend (ruling 40). A caller asks for the slide's by passing slide(spec);
+the face is part of the spec, so it is part of the fingerprint and the two never share a file.
 """
 import os, json, hashlib
 import matplotlib
@@ -268,8 +272,28 @@ def _side_labels(ax, pts, labels, fs):
                 fontsize=fs, color=INK)
 
 
+SLIDE_FACE = "Lexend"            # "" letters slide figures in STIX again
+SLIDE_SCALE = 0.95               # deckkit.SCALE: Lexend at 95% stands as tall as the type it replaces
+
+
+def slide(spec):
+    """The same figure as a SLIDE draws it: lettered in the slide font. Idempotent."""
+    if not SLIDE_FACE or spec.get("face") == "slide":
+        return spec
+    return dict(spec, face="slide")
+
+
 def draw(spec, target_in=None):
     """Render `spec` (a dict) and return (path, width_in, height_in)."""
+    if spec.get("face") == "slide":
+        from . import mathimg
+        mathimg._face_ready()                # registers Lexend and points the custom math fontset at it
+        with matplotlib.rc_context({"font.family": ["Lexend", "DejaVu Sans"], "mathtext.fontset": "custom"}):
+            return _draw(spec, target_in)
+    return _draw(spec, target_in)
+
+
+def _draw(spec, target_in=None):
     idx = _load()
     k = _key(spec)
     path = os.path.join(FIGS, f"g{k}.png")
@@ -281,6 +305,8 @@ def draw(spec, target_in=None):
         return path, tw, h * scale
 
     fs = spec.get("fs", 13)
+    if spec.get("face") == "slide" and not spec.get("_pass2"):
+        fs = round(fs * SLIDE_SCALE, 2)      # (the two-pass kind scales its own `pt` below)
     if kind in ("rect", "rects"):
         boxes = [spec["a"]] if kind == "rect" else [spec["a"], spec["b"]]
         names = spec.get("names", [""] * len(boxes))
@@ -337,7 +363,8 @@ def draw(spec, target_in=None):
         ppath, pw, ph = draw(probe, 20.0 / 20.0 * 6.0)      # draw at a nominal width
         im = Image.open(ppath); w0 = im.width / DPI          # natural width at fs 20
         factor = tw / w0
-        final = dict(spec); final["_pass2"] = True; final["fs"] = round(spec["pt"] / factor, 2)
+        pt = spec["pt"] * (SLIDE_SCALE if spec.get("face") == "slide" else 1.0)
+        final = dict(spec); final["_pass2"] = True; final["fs"] = round(pt / factor, 2)
         fpath, fw, fh = draw(final, tw)
         idx = _load(); idx[k] = idx.get(_key(final)); _save(idx)
         return fpath, fw, fh
@@ -410,6 +437,12 @@ def draw(spec, target_in=None):
 
     os.makedirs(FIGS, exist_ok=True)
     ax.set_aspect("equal"); ax.axis("off")
+    if spec.get("face") == "slide":
+        # pi is the one sign a slide never takes from Lexend (its pi is a flat-topped box; see
+        # mathimg): a label's pi is set as the textbook pi, from STIX bold
+        for t in ax.texts:
+            if "\u03c0" in t.get_text() and "$" not in t.get_text():
+                t.set_text(t.get_text().replace("\u03c0", r"$\mathtt{\pi}$"))
     if not spec.get("_probe"):          # the sizing pass is not the figure; the figure itself is checked
         hit = _struck(fig, ax)
         if hit:

@@ -14,3 +14,8 @@ Regenerate everything with `python3 make_assets.py <katex dist folder>` (the fol
 - `lexend-fallback.woff2` — the signs of the block list that Lexend has no glyph for (arrows, the
   angle and triangle signs, the tick), cut from DejaVu Sans, so none of them falls back to
   whatever the browser happens to have. The PowerPoint sets those signs in DejaVu Sans by name.
+- `WindyPi.ttf`, `windypi.woff2` — a face of ONE glyph: π, cut from STIX General Bold as matplotlib
+  ships it (SIL Open Font License, `STIX-OFL.txt`; renamed, as the licence asks). A slide never
+  uses Lexend's own π (a flat-topped box): `deckkit` names WindyPi for a π in a run of words and
+  installs it for LibreOffice beside Lexend, the HTML decks list it first in every font stack, and
+  `mathimg` sets the same glyph in an expression. Rebuilt by `make_assets.py` (`make_pi`).

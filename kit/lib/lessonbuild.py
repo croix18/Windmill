@@ -397,7 +397,12 @@ def capcheck_lesson(L):
         if isinstance(obj, dict):
             skip = tuple(skip) + tuple(f for f in ("not_sci", "not_gap", "not_bound") if obj.get(f))
             for k, v in obj.items():
-                scan(v, f"{where}.{k}", skip)
+                # An item's `steps` are its working (ruling 39), and the working of scientific
+                # notation passes through forms that are not yet scientific notation — matching
+                # the powers before adding (1.3 × 10³ = 0.013 × 10⁵), renaming a product
+                # (20 × 10⁴ = 2 × 10⁵). That is the method, not a wrong answer: every such line
+                # is held true by stepcheck, and the item's ANSWER is still scanned here.
+                scan(v, f"{where}.{k}", skip + (("not_sci",) if k == "steps" else ()))
         elif isinstance(obj, (list, tuple)):
             for i, v in enumerate(obj):
                 scan(v, f"{where}[{i}]", skip)
@@ -571,7 +576,7 @@ def _example_top(prompt, fig):
         else:
             wid = _textw(slotmark.strip(row).replace("\\$", "$"), 24)
             rows += 0.45 * max(1, -(-int(wid * 100) // int((CW - 0.1) * 100))) * (24 / 23) + 0.12
-    h = figkit.draw(fig, fig.get("in", 4.2))[2]
+    h = figkit.draw(figkit.slide(fig), fig.get("in", 4.2))[2]
     return max(TOP, min(start, FOOT_Y - rows - h - fig.get("reserve", 0.7)))
 
 

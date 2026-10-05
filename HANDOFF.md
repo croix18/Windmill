@@ -356,6 +356,28 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **5 Oct 2026, 7 am — the mathematics and the figures are in Lexend (kit; the second half of
+  ruling 40).** Croix chose "words now, math next"; this is the "next". A slide's expressions
+  (PowerPoint/PDF through `mathimg`, HTML through KaTeX with `htmlkit.MATHFACE`) and the labels on
+  its figures (`figkit.slide(spec)`) are set in Lexend at 95%; printed pages are STIX as before.
+  Three signs are deliberately NOT Lexend's and the kit swaps them itself (a spec goes on writing
+  `\pi`, `\cdot`, `l`): **π** is the π of STIX General Bold everywhere — in expressions, and as
+  the one-glyph face **WindyPi** in words, figures and the HTML font stacks (Lexend's π is a
+  flat-topped box that reads as an n); **the multiplication dot** is Lexend's own raised dot,
+  as heavy as its decimal point; **a variable l** is the script ℓ. `checks.py glyph` knows the pi
+  face and refuses a π set in anything else. `slotaudit` and the colour-geometry check run in the
+  slide's face. Found on the way, and fixed: `capcheck` read the scientific-notation [1, 10) rule
+  into `steps`, which refused the A7 Unit 3 and 4 builds once every lesson had steps (3.08, 4.01:
+  "0.75 × 10¹ = 7.5", "1.3 × 10³ = 0.013 × 10⁵" — working, not answers); `steps` are now outside
+  that one rule, still held true line by line by `stepcheck`. Kit tests 111 and 112 (16 new;
+  switching the face off fails 7 of them, removing the π swap in figures fails 1). All 38 lessons
+  pass every build gate and lay out in both decks with the new face before any rebuild
+  (scratch `mathlex/dry2.py` — a dry run should run EVERY gate of `build_lesson`, which the
+  earlier one did not: that is how the capcheck refusal reached a 20-minute build). One line to
+  go back: `mathimg.SLIDE_FACE = ""` and `figkit.SLIDE_FACE = ""`. Seen, not yet changed: inline
+  mathematics is set larger than the words beside it (26 pt against 23 — it always was, and in
+  one typeface it shows); Croix has not been asked.
+
 - **5 Oct 2026, morning — every lesson's steps written; the answer slide fits itself (kit + both
   courses).** All 38 lessons carry `steps` on every board and Your Turn (M7 Units 4–5: 22
   lessons, 242 answer slides; A7 Units 3–4: 16 lessons, 176) and both `course.py`s say

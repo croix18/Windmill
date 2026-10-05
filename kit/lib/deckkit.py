@@ -34,12 +34,19 @@ SCALE = 0.95
 _ASSETS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets"))
 _FONT_FILES = {False: os.path.join(_ASSETS, "Lexend-Regular.ttf"), True: os.path.join(_ASSETS, "Lexend-Bold.ttf")}
 _FONT_CACHE = {}
+# pi is the one sign a slide never takes from Lexend: Lexend's pi is a flat-topped box that reads
+# as an n from the back row. WindyPi is a face of one glyph — the pi of STIX General Bold, the
+# same glyph mathimg sets in a slide's expressions — so the pi in a sentence, in an expression
+# and on a figure is one shape (assets/make_assets.py make_pi).
+PI_FONT = "WindyPi"
+NOT_LEXEND = {"\u03c0": PI_FONT}
+_PI_FILE = os.path.join(_ASSETS, "WindyPi.ttf")
 
 
 def _install_deck_font():
     import shutil, subprocess
     dst = os.path.expanduser("~/.local/share/fonts/windy-hill")
-    need = [f for f in _FONT_FILES.values() if not os.path.exists(os.path.join(dst, os.path.basename(f)))]
+    need = [f for f in list(_FONT_FILES.values()) + [_PI_FILE] if not os.path.exists(os.path.join(dst, os.path.basename(f)))]
     if need:
         os.makedirs(dst, exist_ok=True)
         for f in need:
@@ -59,7 +66,7 @@ def _by_font(text):
         _CMAP = set(TTFont(_FONT_FILES[False]).getBestCmap())
     out = []
     for ch in text:
-        f = FONT if (ord(ch) < 128 or ord(ch) in _CMAP) else FALLBACK
+        f = NOT_LEXEND.get(ch) or (FONT if (ord(ch) < 128 or ord(ch) in _CMAP) else FALLBACK)
         if out and out[-1][1] == f:
             out[-1][0] += ch
         else:
@@ -526,12 +533,12 @@ class Deck:
 
     def _fit_figure(self, spec, maxw, maxh):
         """The figure's picture and the size to place it at, inside maxw by maxh inches."""
-        path, w, h = figkit.draw(spec, min(spec.get("in", 4.2), maxw))
+        path, w, h = figkit.draw(figkit.slide(spec), min(spec.get("in", 4.2), maxw))
         if h > maxh and maxh > 0.4:
             k = maxh / h
             try:
                 # drawn again smaller with its labels at their full size, where they still fit …
-                path, w, h = figkit.draw(spec, w * k)
+                path, w, h = figkit.draw(figkit.slide(spec), w * k)
             except ValueError as e:
                 # … and where they do not (a side would run through a label), the checked picture
                 # is made smaller whole, labels and all — as long as they stay readable

@@ -6,8 +6,10 @@ Writes katex.min.js (copied), katex.inline.css (katex.min.css with every @font-f
 replaced by its .woff2 as a data URI, so a deck is ONE file that needs no network) and the web
 faces of the slide font: lexend-regular.woff2 and lexend-bold.woff2 (Lexend, whole) and
 lexend-fallback.woff2 (the signs of a fixed, generous block list — arrows, mathematical operators,
-geometric shapes, the tick — that Lexend has no glyph for, cut from DejaVu Sans). The decks' own
-characters are checked against the fonts by checks.py `glyph`.
+geometric shapes, the tick — that Lexend has no glyph for, cut from DejaVu Sans), and WindyPi
+(WindyPi.ttf, windypi.woff2): a face of ONE glyph, the pi of STIX General Bold, which slides use
+in place of Lexend's own. The decks' own characters are checked against the fonts by checks.py
+`glyph`.
 """
 import base64, os, re, shutil, sys
 from fontTools import subset
@@ -47,6 +49,32 @@ def make_lexend():
     _subset(LEXEND_FALLBACK, os.path.join(HERE, "lexend-fallback.woff2"), sorted(want - have))
 
 
+def make_pi():
+    """WindyPi: one glyph, pi (U+03C0), cut from STIX General Bold as matplotlib ships it — the
+    very glyph mathimg sets in a slide's expressions — under a family name of its own, so the
+    PowerPoint can name it for a run and the HTML decks can list it first in every font stack.
+    Lexend's pi is a flat-topped box; this is the pi of the textbook, at Lexend's weight. (STIX is
+    under the SIL Open Font License, STIX-OFL.txt; the cut is renamed, as the licence asks.)"""
+    import matplotlib
+    d = os.path.join(matplotlib.get_data_path(), "fonts", "ttf")
+    src = os.path.join(d, "STIXGeneralBol.ttf")
+    shutil.copy2(os.path.join(d, "LICENSE_STIX"), os.path.join(HERE, "STIX-OFL.txt"))
+    for dst, flavor in (("WindyPi.ttf", None), ("windypi.woff2", "woff2")):
+        opts = subset.Options(flavor=flavor, hinting=False, desubroutinize=True, name_IDs=[1, 2, 3, 4, 6],
+                              notdef_outline=True, layout_features=[])
+        font = subset.load_font(src, opts)
+        sub = subset.Subsetter(opts)
+        sub.populate(unicodes=[0x3C0])
+        sub.subset(font)
+        for rec in font["name"].names:
+            rec.string = {1: "WindyPi", 2: "Regular", 3: "WindyPi: pi of STIX General Bold", 4: "WindyPi", 6: "WindyPi"}[rec.nameID]
+        font["OS/2"].usWeightClass = 400          # offered as the regular face: never emboldened twice
+        font["OS/2"].fsSelection = 0x40
+        font["head"].macStyle = 0
+        subset.save_font(font, os.path.join(HERE, dst), opts)
+        print(f"{dst}: {os.path.getsize(os.path.join(HERE, dst))} bytes, {sorted(TTFont(os.path.join(HERE, dst)).getBestCmap())}")
+
+
 def make_katex(dist):
     shutil.copy2(os.path.join(dist, "katex.min.js"), os.path.join(HERE, "katex.min.js"))
     css = open(os.path.join(dist, "katex.min.css"), encoding="utf-8").read()
@@ -69,6 +97,7 @@ def make_katex(dist):
 
 if __name__ == "__main__":
     make_lexend()
+    make_pi()
     if len(sys.argv) > 1:
         make_katex(sys.argv[1])
     else:

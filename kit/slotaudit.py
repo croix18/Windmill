@@ -74,7 +74,8 @@ def collect(unit):
 def show_named(latex, pt):
     """A marked expression as the renderer coloured it: each run of one slot's glyphs in ⟨…⟩."""
     latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
-    r, col, rcol = mathimg.named_colors(latex, pt, dpi=72)
+    latex, pt, face = mathimg.slide_form(latex, pt)        # as the slide sets it (ruling 40)
+    r, col, rcol = mathimg.named_colors(latex, pt, dpi=72, face=face)
     key = {v: k for k, v in slotmark.SLOT.items()}
     out, prev = [], None
     for g, c in zip(r.glyphs, col):
@@ -91,7 +92,8 @@ def show(latex, pt):
     if slotmark.has(latex):
         return show_named(latex, pt)
     latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
-    r = mathimg._PARSER.parse(f"${latex}$", dpi=72, prop=FontProperties(size=pt))
+    latex, pt, face = mathimg.slide_form(latex, pt)        # as the slide sets it (ruling 40)
+    r = mathimg._PARSER.parse(f"${latex}$", dpi=72, prop=mathimg._prop(pt, face))
     col = mathimg._slot_colors(r.glyphs, pt)
     out, prev = [], None
     for g, c in zip(r.glyphs, col):
@@ -117,8 +119,12 @@ def geometry_differs(latex, pt, render_colour=None):
     latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
     d = tempfile.mkdtemp()
     a, b = os.path.join(d, "black.png"), os.path.join(d, "colour.png")
-    mathimg._render(slotmark.strip(latex), pt, a, "#1A1A1A")
-    (render_colour or (mathimg._render_named if slotmark.has(latex) else mathimg._render_slots))(latex, pt, b)
+    latex, pt, face = mathimg.slide_form(latex, pt)        # both renders in the slide's own face
+    mathimg._render(slotmark.strip(latex), pt, a, "#1A1A1A", face)
+    if render_colour:
+        render_colour(latex, pt, b)
+    else:
+        (mathimg._render_named if slotmark.has(latex) else mathimg._render_slots)(latex, pt, b, face)
     A = np.asarray(Image.open(a).split()[-1]) > 128
     B = np.asarray(Image.open(b).split()[-1]) > 128
     if abs(A.shape[0] - B.shape[0]) > 6 or abs(A.shape[1] - B.shape[1]) > 6:
