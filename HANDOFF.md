@@ -397,6 +397,10 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   Each glyph's real font was read back from Chrome (scratch `mathlex/fonts.js`): digits, letters,
   × ÷ − + = ≤ ≥ ≈ ± … from Lexend; π from WindyPi; → ∘ from the DejaVu cut; grown brackets and
   radicals from KaTeX's own. Kit tests 119 and 120 (4 of them open a browser).
+  (5) *The fit is cheap and says when it is done*: it walks only the slides whose body spills
+  (a 414-slide console loads in 0.7 s where the first version took 1.7 s), runs once after load
+  and again when a late font lands, and sets `data-fitted` on the page; `htmlcheck` waits for
+  that instead of a fixed pause, so a busy machine cannot make it measure too early.
   **Before a rebuild, run the real gates and the real `htmlcheck` on dry decks** (scratch
   `mathlex/dry2.py`, then `checks.check_html` over its HTML): three 20-minute builds were lost this
   morning to refusals a two-minute dry run would have shown.

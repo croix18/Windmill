@@ -794,6 +794,14 @@ def check_html(files):
         for f in decks:
             base = os.path.basename(f); n += 1
             pg.goto("file://" + os.path.abspath(f)); pg.wait_for_timeout(400)
+            # the page fits its slides after it loads, and again when a late font lands (htmlkit
+            # fitSlides): measure only once it says it is done, however busy this machine is
+            try:
+                for _ in range(2):
+                    pg.wait_for_function("document.documentElement.dataset.fitted && !document.documentElement.dataset.fitting", timeout=30000)
+                    pg.wait_for_timeout(150)
+            except Exception:
+                findings.append(f"htmlcheck: the page never finished fitting its slides (no data-fitted after 30 s) — {base}")
             r = pg.evaluate(HTML_PROBE)
             c = pg.evaluate(CONSOLE_PROBE)
             if c:

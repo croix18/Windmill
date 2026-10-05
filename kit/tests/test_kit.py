@@ -366,7 +366,7 @@ if _browser:
         H.section("Your Turn", "", 1, "n", "yourturn"); H.text("A problem.", 24, align="center")
         H.section("Your Turn", "", 1, "n", "yourturn"); H.text("A problem.", 24, align="center"); H.steps([_row] * nrows); H.answer_line("42")
         page = render_page(H)
-        return page if fit else page.replace("fitSlides();", "").replace("document.fonts.ready.then(fitSlides)", "0").replace("addEventListener('load',fitSlides);", "")
+        return page if fit else page.replace("fitT=setTimeout(fitSlides,20)", "fitT=setTimeout(()=>{const R=document.documentElement;delete R.dataset.fitting;R.dataset.fitted=1},20)")
     with tempfile.TemporaryDirectory() as tmp:
         _res = {}
         for name, nrows, fit in (("fits", 6, True), ("unfitted", 6, False), ("far too much", 12, True)):

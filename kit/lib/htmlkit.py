@@ -517,6 +517,7 @@ JS = r"""
     slides.forEach(sl=>{const b=bodyOf(sl);if(b)b.style.zoom='';delete sl.dataset.fit;});
     slides.forEach(sl=>{sl.style.visibility='hidden';sl.style.display='flex';});
     const measure=sl=>{const b=bodyOf(sl),f=sl.querySelector('.foot');if(!b||!f)return null;
+      if(b.scrollHeight<=b.clientHeight+1)return null;       // nothing spills out of the body: no need to walk it (a unit console has 400 slides)
       const top=b.getBoundingClientRect().top,foot=f.getBoundingClientRect().top;let bot=top;
       b.querySelectorAll('*').forEach(el=>{if(!el.getClientRects().length||el.closest('.katex-mathml')||el.closest('svg'))return;
         const r=el.getBoundingClientRect();if(r.height>0&&r.bottom>bot)bot=r.bottom;});
@@ -535,10 +536,14 @@ JS = r"""
       const pair=sl.dataset.kind==='wb'?(a&&c&&a.i===c.i&&a.lesson===c.lesson&&!a.reveal&&c.reveal):sl.dataset.kind==='yourturn';
       if(pair){const b=bodyOf(pv);if(b){b.style.zoom=sl.dataset.fit;pv.dataset.fit=sl.dataset.fit;pv.dataset.fitpair='1';}}});
     slides.forEach(sl=>{sl.style.visibility='';sl.style.display='';});
+    const R=document.documentElement;delete R.dataset.fitting;R.dataset.fitted=(+R.dataset.fitted||0)+1;   // htmlcheck waits for this
   }
-  fitSlides();
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSlides);
-  addEventListener('load',fitSlides);
+  // once the page has loaded, and again whenever a font arrives afterwards: a face used only on
+  // slides that are not showing is fetched the first time they are laid out — which is this
+  // measuring — and the mathematics changes height when it lands
+  let fitT=0;const refit=()=>{document.documentElement.dataset.fitting='1';clearTimeout(fitT);fitT=setTimeout(fitSlides,20);};
+  if(document.readyState==='complete')refit();else addEventListener('load',refit);
+  if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',refit);
   if(!CONSOLE)show(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
 })();
 """
