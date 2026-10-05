@@ -184,6 +184,57 @@ ok("slides: the title slide's note gives the teacher the line to say", "Today th
 ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",
    bool(re.search(r"function fit\(\)\{[^}]*transformOrigin='center'[^}]*translate\(-50%,-50%\) scale", open(consolekit.__file__, encoding="utf-8").read())))
 
+# ---- figures: no line through a label, a label's clearance in its own type size, units (ruling 38)
+import tempfile
+from lib import figkit
+figkit.FIGS = tempfile.mkdtemp(prefix="kitfigs"); figkit.INDEX = os.path.join(figkit.FIGS, "figindex.json")
+def _raises(fn, needle):
+    try:
+        fn(); return False
+    except RuntimeError as e:
+        return needle in str(e)
+def _roof(label_at, **kw):       # a low triangle with one label; the label is the thing under test
+    return dict(kind="shapes", fs=22, pt=18, **{"in": 1.6}, shapes=[
+        dict(t="poly", pts=[(0, 0), (14, 0), (7, 3)]), dict(t="text", xy=label_at, s="6 m", **kw)])
+def _draws(spec):
+    try:
+        figkit.draw(spec, spec["in"]); return True
+    except ValueError as e:
+        return "runs through its label" not in str(e) and None
+ok("figures: a label a side runs through is refused", _draws(_roof((2.5, 1.0))) is False)
+ok("figures: the same label clear of the sides is drawn", _draws(_roof((7, 0), va="top", off=(0, -0.3))) is True)
+ok("figures: a label inside a shaded piece is not a struck label (a fill is not a line)", _draws(dict(kind="shapes", fs=22, pt=18, **{"in": 3.0}, shapes=[
+    dict(t="poly", pts=[(0, 0), (12, 0), (12, 8), (0, 8)]), dict(t="text", xy=(6, 4), s="A")])) is True)
+ok("figures: a label on a dashed height is refused too", _draws(dict(kind="shapes", fs=22, pt=18, **{"in": 3.0}, shapes=[
+    dict(t="poly", pts=[(0, 0), (12, 0), (12, 8), (0, 8)]), dict(t="seg", a=(6, 0), b=(6, 8), dash=True),
+    dict(t="text", xy=(6, 4), s="8 m")])) is False)
+def _gap(inches):                # the white between a bottom side and the label under it, in points on the page
+    import numpy as np
+    from PIL import Image
+    spec = dict(kind="shapes", fs=22, pt=18, **{"in": inches}, shapes=[
+        dict(t="poly", pts=[(0, 0), (12, 0), (12, 8), (0, 8)], fill="#FFFFFF"),
+        dict(t="text", xy=(6, 0), s="12 m", va="top", off=(0, -0.3))])
+    path, w, h = figkit.draw(spec, inches)
+    a = np.asarray(Image.open(path).convert("RGBA")); ink = (a[..., 3] > 128) & (a[..., :3].min(axis=2) < 120)
+    rows = np.where(ink.any(axis=1))[0]
+    breaks = [(rows[i], rows[i + 1]) for i in range(len(rows) - 1) if rows[i + 1] - rows[i] > 2]
+    return (breaks[-1][1] - breaks[-1][0]) * (w / a.shape[1]) * 72
+g1, g2 = _gap(1.5), _gap(4.0)
+ok("figures: a label keeps its clearance when the figure is drawn small (a step in the label's own type size)",
+   abs(g1 - g2) < 1.5 and 3 < g1 < 12, f"{g1:.1f} pt at 1.5 in, {g2:.1f} pt at 4 in")
+ok("figures: the name of an L-shape is put inside it, clear of its notch", figkit._label_point([(1, 1), (5, 1), (5, 4), (3, 4), (3, 3), (1, 3)]) == (3.0, 2.0))
+ok("figures: the name of a rectangle stays at its middle", figkit._label_point([(0, 0), (4, 0), (4, 3), (0, 3)]) == (2.0, 1.5))
+_fig = dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="7 cm"), dict(t="text", xy=(1, 0), s="13 cm")])
+ok("figures: a figure in centimetres answered in square inches is refused",
+   _raises(lambda: figkit.units_agree(dict(whiteboard=[dict(fig=_fig, text=["Find the area."], answer="60 in²")])), "disagree about the unit"))
+ok("figures: the same figure answered in square centimetres passes", figkit.units_disagree(dict(whiteboard=[dict(fig=_fig, answer="60 cm²")])) == [])
+ok("figures: a scale problem may say so (units_ok)", figkit.units_disagree(dict(whiteboard=[dict(fig=_fig, answer="6 m", units_ok=True)])) == [])
+ok("figures: an Example with a figure starts higher only when its lines and its figure need the room",
+   lb._example_top(["One line."], None) == 2.3 and lb._example_top(["One line.", "Two."], None) == 1.9
+   and lb._example_top(["One line."], dict(_roof((7, 0), va="top", off=(0, -0.3)), reserve=0.7)) == 1.9
+   and lb.TOP <= lb._example_top(["A line of the problem."] * 4, dict(kind="shapes", fs=22, pt=18, reserve=0.9, **{"in": 3.4}, shapes=[
+       dict(t="poly", pts=[(0, 0), (10, 0), (10, 10), (0, 10)])])) < 1.9)
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

@@ -356,6 +356,29 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, later still — figures: no line through a number, and three lengths that could not
+  exist (kit + M7 Unit 4).** Looking at the rebuilt 4.04 for the morning, the barn of Example 1
+  had its roof drawn through the "6 m" of its own height (it had been so before that night's
+  change too). Rather than move one label, `figkit` now refuses any figure a line runs through a
+  label of (drawn twice and compared pixel by pixel — `_struck`; `FIG_REPORT=<file>` surveys
+  instead of refusing). The survey over all four built units found **13 struck figures, every one
+  in M7 Unit 4 plus one in M7 5.07, none in A7**: both rhombus drawings, the three kites of the
+  unit test's forms, the review's trapezoid and window, 4.05's "radius", 4.01's p and q. Cause:
+  label steps written in the figure's units, which shrink with the figure while the type does
+  not. Cure: a `text` shape takes `off=(dx, dy)` in ems; M7's `figs.py` uses it for the repaired
+  figures, and `rhombus` now prints its diagonals outside on dimension lines. A grid polygon's
+  name goes where it has room (`_label_point`). An Example's slide starts higher when its figure
+  needs the room (`lessonbuild._example_top`). **And reading the figures found three math errors,
+  now fixed and each refused by the build from here on:** (1) three lesson trapezoids printed a
+  slanted leg that their own figure contradicts — review Example 1 a 5 cm leg across a 6 cm gap
+  (impossible; redrawn as the isosceles trapezoid its words describe, 3-4-5 each side), 4.01
+  board 3 an 8 where the leg is 8.49 (now 8.5), review board 2 a 7 where it is 8.49 (now bases 3
+  and 11, leg 10, same answer 42); `figs.trapezoid` and `figs.trapezoid_h` refuse a leg that is
+  not √(gap² + h²). (2) 4.01 board 3 was drawn in centimetres and answered in square inches (the
+  figure is now in inches); `figkit.units_agree` runs on every lesson and unit spec. The unit
+  test's own trapezoids were already right (6-8-10, 3-4-5, 5-12-13). Eleven new kit tests (68 and
+  69 pass). Ruling 38 in both HOUSE STYLEs; `kit/SPEC SCHEMA.md` § Figures.
+
 - **4 Oct 2026, last of the night — the slides lose their comments, and the console is put where
   it belongs (kit).** Croix, about M7's notes for the next morning: *"Those are terrible. Please,
   on all slides remove the comments in the boxes and in parenthesis. If a problem is in

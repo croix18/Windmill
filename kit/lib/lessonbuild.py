@@ -15,7 +15,8 @@ from sympy import Rational as F, sqrt, Integer, nsimplify
 from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
                                         implicit_multiplication_application, convert_xor, rationalize)
 from .dockit import Doc, INK, VOCAB, RED, GRAY
-from .deckkit import Deck, LM, CW, FOOT_Y
+from .deckkit import Deck, LM, CW, FOOT_Y, _textw
+from . import figkit
 from .htmlkit import HtmlDeck
 from . import tekit
 from . import slotmark
@@ -546,6 +547,26 @@ def _math_row(row):
 TOP = 1.6      # where a slide's body starts when it starts straight under the rules (the PowerPoint's inches)
 
 
+def _example_top(prompt, fig):
+    """Where an Example's question slide starts. Its usual place is a little way under the rules;
+    when the problem's lines and its figure do not both fit from there, it starts as much higher
+    as it needs — up to straight under the rules — so the figure is the one thing that is not
+    made small to pay for the words above it (M7 4.04 Example 1: three lines of problem left the
+    barn 1.5 inches wide, and its roof ran through its own height label)."""
+    start = 1.9 if len(prompt) > 1 or fig else 2.3
+    if not fig:
+        return start
+    rows = 0.0
+    for row in prompt:
+        if _math_row(row):
+            rows += 0.9
+        else:
+            wid = _textw(slotmark.strip(row).replace("\\$", "$"), 24)
+            rows += 0.45 * max(1, -(-int(wid * 100) // int((CW - 0.1) * 100))) * (24 / 23) + 0.12
+    h = figkit.draw(fig, fig.get("in", 4.2))[2]
+    return max(TOP, min(start, FOOT_Y - rows - h - fig.get("reserve", 0.7)))
+
+
 def _bare_math(row):
     """A row that is one expression and nothing else: "$2^{3}\\cdot 2^{4}$"."""
     r = row.replace("\\$", "").strip()
@@ -597,14 +618,14 @@ def _fill_deck(D, L):
     for ex in L["examples"]:
         D.section(ex["title"], ex.get("sub", ""), ex["min_q"], ex["note_q"], "example")
         D.no_band()
-        D.cursor = 1.9 if len(ex["prompt"]) > 1 or ex.get("fig") else 2.3
+        fig = ex.get("fig")
+        if fig and ex.get("ask"):           # the figure gives up what the bold line under it needs (one line, or two)
+            ask_h = 0.47 * max(1, -(-len(ex["ask"]) // 76))
+            fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.02))
+        D.cursor = _example_top(ex["prompt"], fig)
         for row in ex["prompt"]:
             D.math_row(row, surface="slidemid", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
-        if ex.get("fig"):
-            fig = ex["fig"]
-            if ex.get("ask"):               # the figure gives up what the bold line under it needs (one line, or two)
-                ask_h = 0.47 * max(1, -(-len(ex["ask"]) // 76))
-                fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.02))
+        if fig:
             D.figure(fig)
         if ex.get("ask"):
             D.cursor += 0.2
@@ -1146,6 +1167,7 @@ def rulingcheck_lesson(L):
 def build_lesson(L, outdir):
     os.makedirs(outdir, exist_ok=True)
     P = slotmark.strip_deep(L)          # the gates and every printed page read the spec without its colour marks
+    figkit.units_agree(P)               # a figure in centimetres is not answered in square inches
     findings, n = mathcheck_lesson(P)
     d = distractorcheck_lesson(P)
     c = capcheck_lesson(P)

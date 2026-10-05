@@ -30,6 +30,7 @@ INK = "#1A1A1A"
 FILL = "#EDEDEA"
 GRID = "#C8C8C8"
 RED = "#9E1B32"
+STRUCK = []         # with FIG_REPORT set: (labels, spec) for each figure with a struck label, instead of refusing
 
 
 
@@ -71,8 +72,173 @@ def _in_poly(pt, poly, eps=1e-6):
     return c
 
 
+CHECKED = "label-clear-1"       # part of every fingerprint: change it and every figure is redrawn and re-checked
+
+
+def _seg_dist(p, a, b):
+    (x, y), (x1, y1), (x2, y2) = p, a, b
+    dx, dy = x2 - x1, y2 - y1
+    L = dx * dx + dy * dy
+    t = 0.0 if L == 0 else max(0.0, min(1.0, ((x - x1) * dx + (y - y1) * dy) / L))
+    return ((x - x1 - t * dx) ** 2 + (y - y1 - t * dy) ** 2) ** 0.5
+
+
+def _label_point(pts, room=1.0, step=0.25):
+    """Where a polygon's name goes: the middle of its corners if that point has `room` units clear
+    of every side, and otherwise the nearest point inside that does (or, in a thin shape, the
+    point with the most room there is). The middle of the corners of an L sits on its notch
+    (M7 5.07 shipped with the 'P' of its original on the corner, found 4 October)."""
+    n = len(pts)
+    cx = sum(p[0] for p in pts) / n; cy = sum(p[1] for p in pts) / n
+    def clear(q):
+        return min(_seg_dist(q, pts[i], pts[(i + 1) % n]) for i in range(n))
+    def inside(q):
+        x, y = q; c = False
+        for i in range(n):
+            (x1, y1), (x2, y2) = pts[i], pts[(i + 1) % n]
+            if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1:
+                c = not c
+        return c
+    if inside((cx, cy)) and clear((cx, cy)) >= room - 1e-9:
+        return cx, cy
+    x0 = min(p[0] for p in pts); x1 = max(p[0] for p in pts)
+    y0 = min(p[1] for p in pts); y1 = max(p[1] for p in pts)
+    cand = []
+    i = 0
+    while x0 + i * step <= x1 + 1e-9:
+        j = 0
+        while y0 + j * step <= y1 + 1e-9:
+            q = (x0 + i * step, y0 + j * step)
+            if inside(q):
+                cand.append((clear(q), q))
+            j += 1
+        i += 1
+    if not cand:
+        return cx, cy
+    best = max(c for c, _ in cand)
+    need = min(room, best) - 1e-9
+    ok = [q for c, q in cand if c >= need]
+    return min(ok, key=lambda q: (round((q[0] - cx) ** 2 + (q[1] - cy) ** 2, 9), q[1], q[0]))
+
+
+_UNIT = r"(mm|cm|km|mi|ft|yd|in|m)"
+
+
+def units_disagree(spec):
+    """Every item in a lesson or unit spec that carries a figure and words: the units printed on
+    the figure against the units in the item's own text and answer. Returns a list of
+    (where, units on the figure, units in the words) for each item whose words use a unit the
+    figure does not show. A scale drawing that is in centimetres and answered in metres says so
+    with units_ok=True. (M7 4.01 board 3 was drawn in centimetres and answered in square
+    inches, found 4 October.)"""
+    import re
+    def on_figure(fig):
+        out = set()
+        def walk(o):
+            if isinstance(o, dict):
+                for v in o.values():
+                    walk(v)
+            elif isinstance(o, (list, tuple)):
+                for v in o:
+                    walk(v)
+            elif isinstance(o, str):
+                out.update(re.findall(r"\d\s*" + _UNIT + r"\b", o))
+        walk(fig)
+        return out
+    def in_words(o):
+        words = []
+        for k in ("answer", "text", "prompt", "stem", "gloss", "hint", "ask", "why"):
+            v = o.get(k)
+            words += [v] if isinstance(v, str) else [x for x in v if isinstance(x, str)] if isinstance(v, (list, tuple)) else []
+        for w in o.get("worked") or []:
+            if isinstance(w, dict) and isinstance(w.get("answer"), str):
+                words.append(w["answer"])
+        out = set()
+        for t in words:
+            out.update(re.findall(r"\d\s*" + _UNIT + r"(?:²|³|\b)", t))
+        return out
+    bad = []
+    def visit(o, where):
+        if isinstance(o, dict):
+            if isinstance(o.get("fig"), dict) and not o.get("units_ok"):
+                f, w = on_figure(o["fig"]), in_words(o)
+                if f and w and not w <= f:
+                    bad.append((where, sorted(f), sorted(w)))
+            for k, v in o.items():
+                visit(v, f"{where}.{k}")
+        elif isinstance(o, (list, tuple)):
+            for i, v in enumerate(o):
+                visit(v, f"{where}[{i}]")
+    visit(spec, "spec")
+    return bad
+
+
+def units_agree(spec):
+    """Refuse a spec whose figure and words disagree about the unit."""
+    bad = units_disagree(spec)
+    if bad:
+        raise RuntimeError("a figure and its own problem disagree about the unit \u2014 " + "; ".join(
+            f"{where}: the figure is in {', '.join(f)}, the words say {', '.join(w)}" for where, f, w in bad)
+            + " (units_ok=True on the item if that is the point of the problem)")
+
+
 def _key(spec):
-    return hashlib.sha1(json.dumps(spec, sort_keys=True).encode()).hexdigest()[:16]
+    return hashlib.sha1((json.dumps(spec, sort_keys=True) + CHECKED).encode()).hexdigest()[:16]
+
+
+def _ink(fig, dark=160):
+    """The drawn figure as a True/False grid: True where there is ink. Light grey (the unit grid
+    behind a figure) is not ink; every outline, height, cut and letter is."""
+    import numpy as np
+    fig.canvas.draw()
+    a = np.asarray(fig.canvas.buffer_rgba())
+    return (a[..., :3].min(axis=2) < dark) & (a[..., 3] > 0)
+
+
+def _struck(fig, ax):
+    """The labels a line of the figure runs through, as a list of their text.
+
+    A label is the number a student reads off the picture, so a stroke through it is a wrong
+    number waiting to be read (M7 4.04 Example 1 shipped with the barn's roof drawn through the
+    "6" of its height, 4 October). Nothing is estimated from boxes: the figure is drawn with its
+    lines alone, then once for each label alone, and the two are laid over each other. A label and
+    a line that share ink, or come within a hair of it, are reported. A fill is not a line — a
+    letter sits on a shaded piece — and neither is the pale unit grid."""
+    import numpy as np
+    texts = [t for t in ax.texts if t.get_text().strip() and t.get_visible()]
+    if not texts:
+        return []
+    dpi0 = fig.get_dpi(); fig.set_dpi(200)
+    faces = [(p, p.get_facecolor()) for p in ax.patches]
+    try:
+        for p, _ in faces:
+            p.set_facecolor("none")
+        for t in texts:
+            t.set_visible(False)
+        lines = _ink(fig).copy()
+        others = [a for a in ax.get_children() if a not in texts and a.get_visible()
+                  and a is not ax.patch and not hasattr(a, "get_major_ticks")]
+        for a in others:
+            a.set_visible(False)
+        hit = []
+        for t in texts:
+            t.set_visible(True)
+            m = _ink(fig)
+            t.set_visible(False)
+            near = m.copy()                       # the label, grown by a hair on every side
+            for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
+                near |= np.roll(m, (dy, dx), axis=(0, 1))
+            if int((near & lines).sum()) >= 6:
+                hit.append(t.get_text())
+        for a in others:
+            a.set_visible(True)
+    finally:
+        for p, fc in faces:
+            p.set_facecolor(fc)
+        for t in texts:
+            t.set_visible(True)
+        fig.set_dpi(dpi0)
+    return hit
 
 
 def _finish(fig, ax, path, target_in):
@@ -157,7 +323,7 @@ def draw(spec, target_in=None):
             ax.add_patch(MplPoly(pts, closed=True, facecolor=gp.get("fill", FILL),
                                  edgecolor=gp.get("edge", INK), linewidth=1.6, zorder=2))
             if gp.get("name"):
-                cx = sum(p[0] for p in pts) / len(pts); cy = sum(p[1] for p in pts) / len(pts)
+                cx, cy = _label_point(pts)
                 ax.text(cx, cy, gp["name"], ha="center", va="center", fontsize=fs + 1,
                         color=INK, fontweight="bold", zorder=3)
         ax.set_xlim(-0.6, cols + 0.6); ax.set_ylim(-0.6, rows + 0.6)
@@ -167,7 +333,7 @@ def draw(spec, target_in=None):
         # Two passes: draw once to learn the saved width, then redraw with the font size that
         # lands the labels at `pt` points AFTER the figure is scaled to its target width, so every
         # figure in the corpus carries labels of one size whatever its shape.
-        probe = dict(spec); probe["_pass2"] = True; probe["fs"] = 20
+        probe = dict(spec); probe["_pass2"] = True; probe["_probe"] = True; probe["fs"] = 20
         ppath, pw, ph = draw(probe, 20.0 / 20.0 * 6.0)      # draw at a nominal width
         im = Image.open(ppath); w0 = im.width / DPI          # natural width at fs 20
         factor = tw / w0
@@ -222,8 +388,18 @@ def draw(spec, target_in=None):
                 ax.plot([x + ux, x + ux + vx, x + vx], [y + uy, y + uy + vy, y + vy],
                         color=INK, linewidth=1.0, zorder=3)
             elif t == "text":
-                ax.text(sh["xy"][0], sh["xy"][1], sh["s"], ha=sh.get("ha", "center"),
-                        va=sh.get("va", "center"), fontsize=sh.get("fs", fs), color=sh.get("color", INK), zorder=4)
+                f = sh.get("fs", fs)
+                kw = dict(ha=sh.get("ha", "center"), va=sh.get("va", "center"), fontsize=f,
+                          color=sh.get("color", INK), zorder=4)
+                if sh.get("off"):
+                    # `off` is a step away from xy measured in the label's own type size (ems), so
+                    # a label keeps the same clearance from its line whatever size the figure is
+                    # drawn. A step given in the figure's units shrinks with the figure while the
+                    # type does not — which is how a label ends up on a line (ruling 38).
+                    ax.annotate(sh["s"], xy=tuple(sh["xy"]), xytext=(sh["off"][0] * f, sh["off"][1] * f),
+                                textcoords="offset points", annotation_clip=False, **kw)
+                else:
+                    ax.text(sh["xy"][0], sh["xy"][1], sh["s"], **kw)
                 xs.append(sh["xy"][0]); ys.append(sh["xy"][1])
             else:
                 raise ValueError(f"unknown shape {t}")
@@ -234,6 +410,18 @@ def draw(spec, target_in=None):
 
     os.makedirs(FIGS, exist_ok=True)
     ax.set_aspect("equal"); ax.axis("off")
+    if not spec.get("_probe"):          # the sizing pass is not the figure; the figure itself is checked
+        hit = _struck(fig, ax)
+        if hit:
+            if os.environ.get("FIG_REPORT"):        # a survey: list every struck label, refuse nothing
+                STRUCK.append((hit, spec))
+                with open(os.environ["FIG_REPORT"], "a") as f:
+                    f.write(json.dumps({"labels": hit, "png": path, "spec": spec}) + "\n")
+            else:
+                plt.close(fig)
+                raise ValueError("a line of this figure runs through its label "
+                                 + ", ".join(f"\u201c{h}\u201d" for h in hit)
+                                 + f" \u2014 move the label or the line: {str(spec)[:300]}")
     fig.savefig(path, dpi=DPI, bbox_inches="tight", pad_inches=0.05, transparent=True)
     plt.close(fig)
     im = Image.open(path)

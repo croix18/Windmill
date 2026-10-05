@@ -275,6 +275,38 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
 - An item may carry `fig` (a figure from the unit's `figs.py`, drawn from its numbers — a height
   that ends outside its figure is refused) and `table`.
 
+## Figures — what the kit refuses (ruling 38, 4 October 2026)
+
+A figure is the one place a student reads a number off a picture, so `lib/figkit.py` checks the
+picture itself, every time it draws one (lesson figures and unit-paper figures alike):
+
+- **No line through a label.** The figure is drawn with its lines alone and then once for each
+  label alone, and the two are compared pixel by pixel. A label that shares ink with a side, a
+  dashed height, a dimension line or a circle — or comes within a hair of one — stops the build
+  ("a line of this figure runs through its label “6 m”"). A fill is not a line, and neither is the
+  pale unit grid. `FIG_REPORT=<file>` turns the refusal into a survey: every struck label in a
+  build is appended to the file as a JSON line and nothing is refused.
+- **`off` — a label's clearance in its own type size.** A `text` shape may carry
+  `off=(dx, dy)`, a step away from its `xy` measured in ems of the label's type. Use it for every
+  label that sits beside a line: `_t(w / 2, 0, "14 m", va="top", off=(0, -0.3))` is under the
+  bottom side by a third of a line whatever size the figure is drawn. A step written in the
+  figure's own units (`-h * 0.16`) shrinks with the figure while the type does not, which is how
+  thirteen Unit 4 figures came to have a side through a number.
+- **A grid polygon's `name`** is put at the middle of its corners when that point has a unit of
+  room, and otherwise at the nearest point inside that does (`_label_point`) — the middle of an
+  L's corners is on its notch.
+- **Units.** `figkit.units_agree(spec)` runs at the start of every lesson and unit build: an item
+  with a `fig` whose words (`text`, `prompt`, `stem`, `answer`, a worked `answer`, …) use a unit
+  the figure does not print is refused. A scale problem drawn in centimetres and answered in
+  metres carries `units_ok=True`.
+- **A length that follows from the others is computed, not typed.** The unit's own `figs.py`
+  refuses a slanted side that disagrees with its figure (`figs.trapezoid`, `figs.trapezoid_h` in
+  M7 Unit 4): the number that is "not needed" is still a length of that figure.
+
+An Example's question slide starts a little under the rules; when its lines and its figure do not
+both fit from there it starts as much higher as it needs (`lessonbuild._example_top`), so the
+figure is not the thing made small.
+
 ## `M` — the manifest (`manifest.py`)
 
 The manifest belongs to the course's own `install_unit.py` (packaging is each course's), so its

@@ -15,6 +15,7 @@ from .dockit import Doc, GRAY, RED
 from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capcheck_lesson,
                           balancecheck_lesson, COURSE, PREFIX, _fmt_q, _ev)
 from . import slotmark
+from . import figkit
 
 # Ruling 33 (24 September): a unit test ships as Form A and Form B, plus the practice test — three
 # parallel forms, no number lining up. A spec may give `assessment.forms = {"A": sections,
@@ -407,6 +408,7 @@ def build_form(U, outdir, key, form="test", student=False):
 
 def build_unit(U, outdir):
     U = slotmark.strip_deep(U)          # every unit document is a printed page: no colour marks
+    figkit.units_agree(U)               # a figure in centimetres is not answered in square inches
     findings, n = check_unit(U)
     print(f"unitcheck U{U['unit']}: {n} items checked, {len(findings)} findings")
     for f in findings:
