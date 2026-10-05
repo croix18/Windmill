@@ -546,6 +546,12 @@ def _math_row(row):
 TOP = 1.6      # where a slide's body starts when it starts straight under the rules (the PowerPoint's inches)
 
 
+def _bare_math(row):
+    """A row that is one expression and nothing else: "$2^{3}\\cdot 2^{4}$"."""
+    r = row.replace("\\$", "").strip()
+    return r.startswith("$") and r.endswith("$") and r.count("$") == 2
+
+
 def _fill_deck(D, L):
     """Every slide of one lesson, appended to D. Colour (the slots, HOUSE STYLE §2a) goes on the
     surfaces where the teacher shows — Notes, worked examples, and every reveal — and is withheld
@@ -620,14 +626,24 @@ def _fill_deck(D, L):
                 D.items(w["items"], size=23, slots=True)
         yt = ex.get("your_turn")
         if yt:
+            # A Your Turn says what to do. The grey line used to ("Same steps, your numbers."), and a
+            # Your Turn that was only an expression leaned on it: such a one now carries its Example's
+            # bold instruction ("Which law? Then find the value."), or its own `ask` when it has one.
+            yt_ask = yt.get("ask", ex.get("ask") if all(_bare_math(r) for r in yt["prompt"]) else None)
             D.section("Your Turn", "Same steps, your numbers. Boards up when done.", yt.get("min", 2), yt["note"], "yourturn")
             D.cursor = 2.4
             for row in yt["prompt"]:
                 D.math_row(row, surface="slidebig", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
+            if yt_ask:
+                D.cursor += 0.2
+                D.text(yt_ask, 24, bold=True, align="center")
             D.section("Your Turn", "Answer.", 1, "Reveal; name what a wrong board most likely did (see the note above).", "yourturn")
             D.cursor = 2.4
             for row in yt["prompt"]:
                 D.math_row(row, surface="slidebig", gap=0.35, slots=True) if _math_row(row) else D.text(row, 24, align="center", slots=True)
+            if yt_ask:
+                D.cursor += 0.2
+                D.text(yt_ask, 24, bold=True, align="center")
             if yt.get("gloss"):
                 D.text(yt["gloss"], 24, color=GRAY, align="center", slots=True)
             if yt.get("answer_latex"):

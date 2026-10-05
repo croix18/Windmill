@@ -117,7 +117,7 @@ is not on the slide. A `not_sci=True` key on a notes dict exempts it from the co
 ### example
 `dict(title, sub, min_q, note_q, prompt=[rows], ask, worked=[…], check, your_turn={…}, yt_check)`.
 `prompt` rows: a `$…$` row is centered math; a plain row is centered text (wraps). **The prompt is
-the whole problem** — the story and the givens first, then what is asked; `sub` is not on the slide.
+the whole problem** — what the thing is and what is to be found, with nothing that leans on another slide ("the fountain", "he"); `sub` is not on the slide. A `your_turn` states its own question in its `prompt`; one whose prompt is a bare expression is given this Example's `ask` on its slides (or its own `ask`).
 `ask` is the bold instruction line ("" to omit). Each `worked` entry: `dict(sub, lead, min, note, rows, answer)` where
 `lead` (optional) is a question to the room, set bold above the rows, and
 `rows` are `(latex, gloss)` tuples — the latex is set at the left, the gray gloss beside it (keep
