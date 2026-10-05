@@ -25,11 +25,14 @@ def key(name):
     return "k" + hashlib.md5(unicodedata.normalize("NFC", name).encode("utf-8")).hexdigest()[:12]
 
 
+TITLE = "Windy Hill — Drive status"      # the Status tab's first cell (TITLE in the script); version 2 wrote "windy-hill-status"
+
+
 def parse(text):
     """The Status tab's CSV -> [(label, value, more)]. Refuses anything else."""
     rows = [(r + ["", "", ""])[:3] for r in csv.reader(io.StringIO(text)) if any(c.strip() for c in r)]
-    if not rows or rows[0][0] != "windy-hill-status":
-        raise SystemExit("not the hub's Status tab (its first cell should read windy-hill-status)"
+    if not rows or rows[0][0] not in (TITLE, "windy-hill-status"):
+        raise SystemExit(f"not the hub's Status tab (its first cell should read {TITLE!r})"
                          + (": the script has not run yet" if rows and rows[0][0].startswith(("Windy Hill Drive Index", "windy-hill-index")) else ""))
     return rows
 
@@ -45,7 +48,7 @@ def from_transcript(path, sheet_id=SHEET_ID):
                 text = base64.b64decode(m.group(1)).decode("utf-8")
             except Exception:
                 continue
-            if text.startswith(("windy-hill-status", "Windy Hill Drive Index", "windy-hill-index")):
+            if text.startswith((TITLE, "windy-hill-status", "Windy Hill Drive Index", "windy-hill-index")):
                 best = text
     if best is None:
         raise SystemExit("no download of the hub in that transcript")

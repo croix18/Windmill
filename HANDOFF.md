@@ -145,10 +145,37 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   `=HYPERLINK(Links!…)` and the Links cell looks the code up in `Drive!A:B`, falling back to a
   search by exact title; each check takes every such cell apart; `tools/test_live_links.py` there
   recalculates with a stand-in Drive tab.
-  **State at this commit: written and tested against stand-ins (in `tools/check.sh`); NOT yet
-  set up in his account** — he was sent the script and the six setup steps. Until he does, the
-  sheets' links are searches and he uploads as before. To see where it stands:
-  `python3 drive/hub.py status <transcript>` after downloading the hub as CSV.
+  **State at this commit: version 3 of the script, written and tested against stand-ins (in
+  `tools/check.sh`; `python3 drive/mutations.py` breaks it 78 ways and requires the test to notice
+  each); NOT yet set up in his account.** He asked (4 Oct, late): *"fix anything that needs
+  fixing. Move anything that needs moving. Make sure that script is premiumly built. When done,
+  give me a fresh set of instructions."* What version 3 adds over the first: every download held
+  to its git SHA-1 before it is stored; each file labelled in its Drive description (repository,
+  git name, MD5) so that a lost record or a run stopped half way is recovered without a second
+  download or a second copy; edits told by fingerprint, not date; a file he moves is his; a copy
+  he uploaded that is exactly the published file is taken on; a new master sheet goes into the
+  SAME Google Sheet (its address stays), ticks kept on a hidden Kept tab; retries, pauses for
+  GitHub's and Google's allowances; a coloured Status tab, an Activity log, optional email; the
+  token's expiry warned of two weeks ahead; one Google account runs it (`takeOver` moves it).
+  He was sent the script and the setup steps again — **in a private window signed in only as
+  mrshaffermath@…** (several signed-in accounts muddle the script editor). In his Drive a session
+  made `My versions` and `My files` beside `From Claude`; the hub is in `Apps`.
+  Both master sheets' About tabs were corrected with it (`windy-hill-m7` `3651a47`,
+  `croix18-windy-hill-a7` `db8ea24`): the yellow IXL cells are carried into each new edition of
+  the live sheet; only they are.
+  **Unverified, and to be said plainly to him:** the script has never run against Google or
+  GitHub. `drive/README.md`, "What to know before trusting it", lists what the stand-ins assume
+  in order of doubt (replacing a sheet's contents in place; byte arrays; who may bin a file;
+  Google's daily allowances; Drive's title search). If his Status tab says NEEDS A LOOK after the
+  first run, read it through the connector (`hub.py`) and fix the script; he pastes the new one
+  over the old.
+  **Nothing of ours is in his Drive yet: no consoles, no master sheets** — only September's
+  uploads in `A7`, `M7`, `Latest`, under their old names. Leave those until the mirror is
+  verified, then offer to move them into an `Archive` folder (he has said "move anything that
+  needs moving"; they are his only copies until then). Until he sets the script up, the sheets'
+  links are searches and he uploads as before. To see where it stands:
+  `python3 drive/hub.py status <transcript>` after downloading the hub as CSV — or just list
+  `From Claude` through the connector.
   The first design of the same evening (an index of ids baked into the sheets by a session) was
   replaced before he ran it; nothing of it remains.
   **Which Drive, and a correction.** His files are in `Windy Hill Master Folder` (his personal
@@ -329,6 +356,11 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, latest** — `drive/WindyHill.gs` version 3 ("premiumly built"): downloads held to
+  their git names, files labelled so a lost record or a stopped run is recovered, edits told by
+  fingerprint, a moved file is his, exact copies taken on, live sheets replaced in place with the
+  ticks kept, consoles and master sheets first and the courses in turn, pauses and retries, a
+  dressed Status tab, an Activity log, optional email, one account at a time; `drive/mutations.py`.
 - **4 Oct 2026, late** — the phone's plan page (`plan/page.html`, `make_page.py`, `pagecore.js`,
   `applylog.js`, `bake_log.py`, `test_page.js`), published as a private artifact with its own log.
 - **4 Oct 2026, night (later)** — the plan follows the class: `kit/lib/flow.py`, `kit/lib/flow.js`,
