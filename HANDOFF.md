@@ -372,8 +372,8 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   that one rule, still held true line by line by `stepcheck`. Kit tests 111 and 112 (16 new;
   switching the face off fails 7 of them, removing the π swap in figures fails 1). All 38 lessons
   pass every build gate and lay out in both decks with the new face before any rebuild
-  (scratch `mathlex/dry2.py` — a dry run should run EVERY gate of `build_lesson`, which the
-  earlier one did not: that is how the capcheck refusal reached a 20-minute build). One line to
+  (`tools/dry_run.py`, below — a dry run must run EVERY gate of `build_lesson`; the scratch one
+  used overnight did not, which is how the capcheck refusal reached a 20-minute build). One line to
   go back: `mathimg.SLIDE_FACE = ""` and `figkit.SLIDE_FACE = ""`.
   **Then, the same morning (kit after `23b8e1b`), three things the first rebuild showed:**
   (1) *A line of working is one size* — a step's words and mathematics were 23 pt with 26 pt
@@ -406,9 +406,12 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   sets `data-fit="ready"` when they are in. The same console opens in 0.7 s (1.6 s slowed).
   `htmlcheck` waits for the ready mark, turns to each slide and lets the page fit it before
   measuring. On paper (`beforeprint`) every slide is fitted.
-  **Before a rebuild, run the real gates and the real `htmlcheck` on dry decks** (scratch
-  `mathlex/dry2.py`, then `checks.check_html` over its HTML): three 20-minute builds were lost this
-  morning to refusals a two-minute dry run would have shown.
+  **Before a rebuild: `python3 tools/dry_run.py <course build dir> u3 u4`** (new, this
+  repository). Every gate of `build_lesson` on every lesson, both decks laid out, and the real
+  `htmlcheck` in a browser on the HTML decks and a trial console — two minutes, no LibreOffice,
+  nothing written into the course, and by default with the kit as it stands HERE, so a kit change
+  is rehearsed before it is vendored. Three 15-minute builds were lost this morning to refusals
+  it would have shown. It does not read PDFs (slidefit, overlap, footer) or build the unit papers.
 
 - **5 Oct 2026, morning — every lesson's steps written; the answer slide fits itself (kit + both
   courses).** All 38 lessons carry `steps` on every board and Your Turn (M7 Units 4–5: 22
