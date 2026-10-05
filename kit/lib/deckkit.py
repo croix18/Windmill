@@ -1,4 +1,4 @@
-"""pptx builder: the house deck geometry (13.33 x 7.5 in, Century Schoolbook, INK/VOCAB/RED/GRAY,
+"""pptx builder: the house deck geometry (13.33 x 7.5 in, Lexend, INK/VOCAB/RED/GRAY,
 double rule under the title, footer rule + running title + page number), one kit for both courses.
 No speaker notes in the deck (ruling 12): every slide's minutes and teaching note go to a
 side-car JSON beside the .pptx, which the teacher's edition reads at build time.
@@ -20,23 +20,65 @@ from . import slotmark
 from .profile import C
 
 INK, VOCAB, RED, GRAY, LT, FILL = "1A1A1A", "0B5394", "9E1B32", "6B6B6B", "D9D9D9", "F2F2F0"
-FONT = "Century Schoolbook"
-
-_FONT_FILES = {False: "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-regular.otf",
-               True: "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-bold.otf"}
+# The slide font is Lexend (ruling 40 — Croix, 4 October 2026: "start making every slide in the
+# Google dislexia font"; asked, he chose Lexend, "words now, math next"). The two faces are in
+# assets/ under the Open Font License, measured from there, and installed for LibreOffice — which
+# renders the PDFs with whatever fonts the machine knows — the first time this module is loaded.
+FONT = "Lexend"
+FALLBACK = "DejaVu Sans"       # the few signs Lexend has no glyph for (→ ∠ △ ✓) are set in this, by name
+ITALIC = False                 # Lexend has no italic, and a slanted face is what such a font is chosen to avoid
+# Lexend's letters are larger for their point size than Century Schoolbook's (x-height 0.525 em
+# against 0.466) and its lines about 5% longer. Set at 95% of the size a slide asks for, a line is
+# as long as it was — so every measured layout holds — and the letters are still 7% taller.
+SCALE = 0.95
+_ASSETS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets"))
+_FONT_FILES = {False: os.path.join(_ASSETS, "Lexend-Regular.ttf"), True: os.path.join(_ASSETS, "Lexend-Bold.ttf")}
 _FONT_CACHE = {}
+
+
+def _install_deck_font():
+    import shutil, subprocess
+    dst = os.path.expanduser("~/.local/share/fonts/windy-hill")
+    need = [f for f in _FONT_FILES.values() if not os.path.exists(os.path.join(dst, os.path.basename(f)))]
+    if need:
+        os.makedirs(dst, exist_ok=True)
+        for f in need:
+            shutil.copy2(f, os.path.join(dst, os.path.basename(f)))
+        subprocess.run(["fc-cache", "-f", dst], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+_install_deck_font()
+_CMAP = None
+
+
+def _by_font(text):
+    """[(piece, font)]: the text cut wherever it leaves the slide font's own characters."""
+    global _CMAP
+    if _CMAP is None:
+        from fontTools.ttLib import TTFont
+        _CMAP = set(TTFont(_FONT_FILES[False]).getBestCmap())
+    out = []
+    for ch in text:
+        f = FONT if (ord(ch) < 128 or ord(ch) in _CMAP) else FALLBACK
+        if out and out[-1][1] == f:
+            out[-1][0] += ch
+        else:
+            out.append([ch, f])
+    return [(a, b) for a, b in out]
+
+
 def _textw(text, size, bold=False):
-    """Width in inches of a text piece at `size` pt, measured with the Schola metrics (the Century
-    Schoolbook clone LibreOffice renders with) plus a 6% margin, falling back to the old estimate."""
+    """Width in inches of a text piece at `size` pt, measured with the slide font's own metrics
+    plus a 6% margin, falling back to an estimate."""
     try:
         from PIL import ImageFont
         key = (bool(bold), int(size * 4))
         f = _FONT_CACHE.get(key)
         if f is None:
             f = _FONT_CACHE[key] = ImageFont.truetype(_FONT_FILES[bool(bold)], int(size * 4))
-        return f.getlength(text) / 4 / 72 * 1.06 + 0.08
+        return f.getlength(text) / 4 / 72 * SCALE * 1.06 + 0.08
     except Exception:
-        return len(text) * size / 72 * (0.58 if bold else 0.52) + 0.08
+        return len(text) * size / 72 * (0.58 if bold else 0.54) + 0.08
 
 W, H = 13.3333, 7.5
 LM, CW = 0.85, 11.6
@@ -103,11 +145,12 @@ class Deck:
             # shows; anywhere else the mark is dropped and the words stay (lib/slotmark.py)
             for part, slot in (slotmark.pieces(t) if slots else [(slotmark.strip(t), None)]):
                 for piece, sup in _split_sup(part):
-                    r = para.add_run(); r.text = piece.replace("\\$", "$")   # \$ = a literal dollar sign
-                    r.font.name = FONT; r.font.size = Pt(sz); r.font.bold = b; r.font.italic = i
-                    r.font.color.rgb = _rgb(slot or c)
-                    if sup:
-                        r.font._element.set("baseline", "30000")
+                    for bit, face in _by_font(piece.replace("\\$", "$")):     # \$ = a literal dollar sign
+                        r = para.add_run(); r.text = bit
+                        r.font.name = face; r.font.size = Pt(round(sz * SCALE, 1)); r.font.bold = b; r.font.italic = bool(i) and ITALIC
+                        r.font.color.rgb = _rgb(slot or c)
+                        if sup:
+                            r.font._element.set("baseline", "30000")
         return tb
 
     def _line(self, x, y, w, weight=1.5, color=INK):
@@ -322,9 +365,9 @@ class Deck:
                 cell.vertical_anchor = MSO_ANCHOR.MIDDLE
                 tf = cell.text_frame; tf.word_wrap = True
                 para = tf.paragraphs[0]; para.alignment = PP_ALIGN.CENTER
-                for piece, sup in _split_sup(val):
+                for piece, sup, face in [(bit, sup_, face_) for piece_, sup_ in _split_sup(val) for bit, face_ in _by_font(piece_)]:
                     r = para.add_run(); r.text = piece
-                    r.font.name = FONT; r.font.size = Pt(size); r.font.bold = (header and ri == 0)
+                    r.font.name = face; r.font.size = Pt(round(size * SCALE, 1)); r.font.bold = (header and ri == 0)
                     r.font.color.rgb = _rgb(INK)
                     if sup:
                         r.font._element.set("baseline", "30000")
@@ -427,6 +470,34 @@ class Deck:
         wdt, hgt = self.math(latex, "slidemid", align="left", x=2.0, slots=slots)
         self.cursor = y0 + hgt + 0.3
 
+    def _row_h(self, row, surface="slide"):
+        """Height of one mixed row: a line of type, or its tallest piece of mathematics."""
+        import re
+        h = 0.45
+        for part in re.split(r"(\$[^$]+\$)", row.replace("\\$", "\ue000")):
+            if part.startswith("$") and len(part) > 2:
+                h = max(h, mathimg.m(slotmark.strip(part[1:-1]).replace("\ue000", "\\$"), surface, INK)[2])
+        return h
+
+    def steps_height(self, rows, gap=0.1):
+        return sum(self._row_h(r) for r in rows) + gap * (len(rows) - 1)
+
+    def steps(self, rows, gap=0.1, size=23, surface="slide"):
+        """The working on an answer slide: one step to a line, in the slide's own black type, the
+        lines sharing a left edge and the block centred — the way it would be written on the board.
+        (Croix, 4 October: "the answers should always show easy to follow steps". This is the
+        mathematics, not a remark about it: the grey line that used to sit here is gone, ruling 37.)"""
+        wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
+        if wmax > CW - 0.1:
+            raise RuntimeError(f"a step is one line; this one is {wmax:.2f} in of {CW - 0.1:.1f}: {max(rows, key=len)}")
+        x = LM + (CW - wmax) / 2
+        y = self.cursor + 0.08
+        for r in rows:
+            # a line that opens with mathematics is a picture, which has no inset; a text box has one
+            _, hh = self._mixed(r, x + (0.06 if r.lstrip().startswith("$") else 0.0), y, surface, size, INK, slots=True)
+            y += hh + gap
+        self.cursor = y - gap
+
     def ask(self, text, y=None):
         """The board's standing instruction, low on the slide. No hint under it (ruling 37)."""
         y = max(self.cursor + 0.15, 4.75) if y is None else y
@@ -453,18 +524,56 @@ class Deck:
         self._text(x, y + (h - 0.6) / 2, lw, 0.6, "Answer:", 32, bold=True, color=RED, anchor="middle")
         self.s.shapes.add_picture(path, Inches(x + lw), Inches(y), Inches(w), Inches(h))
 
+    def _fit_figure(self, spec, maxw, maxh):
+        """The figure's picture and the size to place it at, inside maxw by maxh inches."""
+        path, w, h = figkit.draw(spec, min(spec.get("in", 4.2), maxw))
+        if h > maxh and maxh > 0.4:
+            k = maxh / h
+            try:
+                # drawn again smaller with its labels at their full size, where they still fit …
+                path, w, h = figkit.draw(spec, w * k)
+            except ValueError as e:
+                # … and where they do not (a side would run through a label), the checked picture
+                # is made smaller whole, labels and all — as long as they stay readable
+                if "runs through its label" not in str(e):
+                    raise
+                if spec.get("pt", 18) * k < 11.5:
+                    raise RuntimeError(f"a figure has {maxh:.2f} in of a slide and its labels would be {spec.get('pt', 18) * k:.0f} pt there: "
+                                       f"give it room (fewer lines of text or steps on this slide) — {str(spec)[:120]}")
+                w, h = w * k, h * k
+        return path, w, h
+
     def figure(self, spec, gap=0.16):
         """Place a geometry figure, centred, at the cursor. The figure is drawn from the numbers
         (lib/figkit), so a drawing that disagrees with its own labels cannot happen."""
-        avail = FOOT_Y - self.cursor - spec.get("reserve", 0.7)
-        path, w, h = figkit.draw(spec, spec.get("in", 4.2))
-        if h > avail and avail > 0.4:
-            path, w, h = figkit.draw(spec, spec.get("in", 4.2) * (avail / h))
+        path, w, h = self._fit_figure(spec, CW, FOOT_Y - self.cursor - spec.get("reserve", 0.7))
         if self.cursor + h > FOOT_Y:
             raise RuntimeError(f"figure does not fit the slide ({h:.2f} in tall): {spec}")
         self.s.shapes.add_picture(path, Inches(LM + (CW - w) / 2), Inches(self.cursor),
                                   Inches(w), Inches(h))
         self.cursor += h + gap
+
+    def figure_steps(self, spec, rows, gap=0.16, size=23, rgap=0.1):
+        """An answer slide that has a picture AND working: the figure on the left, the steps beside
+        it on the right, the two centred on each other — so neither is made small to stack them.
+        If the steps are too wide to leave the figure a column, they go under it instead."""
+        wmax = max(self.measure(slotmark.strip(r), "slide", size) for r in rows)
+        colw = CW - wmax - 0.8
+        if colw < 2.6:
+            self.figure(dict(spec, reserve=spec.get("reserve", 0.7) + self.steps_height(rows, rgap) + 0.3), gap)
+            self.steps(rows, rgap, size)
+            return
+        top = self.cursor
+        hs = self.steps_height(rows, rgap)
+        path, w, h = self._fit_figure(spec, min(colw, 5.2), FOOT_Y - top - spec.get("reserve", 0.7))
+        block = max(h, hs)
+        left = LM + max(0.0, (CW - (w + 0.8 + wmax)) / 2)            # the pair centred on the slide
+        self.s.shapes.add_picture(path, Inches(left), Inches(top + (block - h) / 2), Inches(w), Inches(h))
+        y = top + (block - hs) / 2
+        for r in rows:
+            _, hh = self._mixed(r, left + w + 0.8 + (0.06 if r.lstrip().startswith("$") else 0.0), y, "slide", size, INK, slots=True)
+            y += hh + rgap
+        self.cursor = top + block + gap
 
     def choices(self, opts, size=24, correct=None, two_col=True):
         """A–D options. On an answer slide pass correct=index to colour it red.

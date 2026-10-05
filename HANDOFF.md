@@ -356,6 +356,25 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **5 Oct 2026, just after midnight — Lexend on every slide, and steps on every answer slide
+  (kit; rulings 39 and 40).** Croix: *"Also, start making every slide in the Google dislexia
+  font. But the answers should always show easy to follow steps."* Asked: **Lexend**, and
+  **"words now, math next"**.
+  *Font.* `deckkit.FONT = "Lexend"` at `SCALE = 0.95` (same line lengths as before, taller
+  letters), no italics, missing signs in DejaVu Sans by name; the faces are in `kit/assets/`
+  (OFL) and install themselves for LibreOffice; `htmlkit` inlines them. `glyph` now reads each
+  deck PDF's fonts. Printed documents are untouched. Typeset mathematics and figure labels are
+  still the old faces — the "math next" half, not started.
+  *Steps.* A board and a Your Turn take `steps=[…]`; the answer slide draws them (beside the
+  figure when there is one; in place of the options on a choice board); `stepcheck` works every
+  equality and the final value. `STEPS` in a course profile turns "missing" into a refusal —
+  not set yet: **steps are written for M7 4.04 and A7 3.T1 (the lessons of 5 October) and for
+  no other lesson so far.** That is the open work: every other lesson of M7 Units 4–5 and A7
+  Units 3–4, then `STEPS = "required"` in both `course.py`s.
+  Also: a figure too tall for its slide is first redrawn smaller with full-size labels and, if a
+  side would then run through a label, shrunk whole instead (`_fit_figure`); M7's `lnotch` and
+  `lshape` labels use `off=`.
+
 - **4 Oct 2026, the last request of the night — the independent set's six questions on the board
   in both courses (kit).** Croix: *"Also, the individual review portion of the slides needs to
   put the problems on the board."* A7's deck had a slide that said only "Six questions. Work down

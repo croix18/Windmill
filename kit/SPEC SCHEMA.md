@@ -295,6 +295,39 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
 - An item may carry `fig` (a figure from the unit's `figs.py`, drawn from its numbers — a height
   that ends outside its figure is refused) and `table`.
 
+## Answer slides show their steps (ruling 39, 4 October 2026)
+
+*"But the answers should always show easy to follow steps."* A board (`whiteboard` item) and a
+Your Turn (`your_turn`) each carry **`steps`: a list of one to five rows**, drawn on the answer
+slide above the red answer, in the slide's own black type. A row is plain words with `$latex$`
+spans — `"Rectangle:  $14 \\times 8 = 112$"` — one step to a line, the way it would be written on
+the board: a short label where it names a piece ("Whole box:", "The a's:"), then the arithmetic.
+It is the mathematics, not a remark about it (the grey `gloss` and `hint` stay off the slide).
+
+- With a figure, the steps sit beside it (figure left, steps right); without one, under the
+  question. One or two short rows are set as large as a worked line.
+- A multiple-choice board's answer slide shows the steps in place of the four options; its
+  answer line names the letter and the value.
+- **Every step is worked by the build** (`lessonbuild.stepcheck_lesson`): each `=` between two
+  sides that compute must be true; `\\approx` is held to the places its right side shows (so write
+  `3.14 \\times 14 = 43.96`, not `\\pi`); an `=` between expressions in the same letters must be an
+  identity; and the last number the steps reach must be the item's `check` value. A false step
+  refuses the build. Keep units outside the `$…$`.
+- A slide without steps is a finding where the course profile says `STEPS = "required"`; until a
+  unit's steps are all written it is only counted ("N of M answer slides show their steps").
+
+## The slide font is Lexend (ruling 40, 4 October 2026)
+
+*"Start making every slide in the Google dislexia font."* — Lexend; asked, "words now, math
+next". Every word on a slide (PowerPoint, its PDF, the HTML deck, the console's slides) is
+Lexend, set at 95% of the size the layout asks for (`deckkit.SCALE`; `size-adjust` in the HTML):
+at that size a line is as long as it was in Century Schoolbook, so every measured layout holds,
+and the letters are still 7% taller. Nothing on a slide is italic (Lexend has none). A sign Lexend
+lacks (→ ∠ △ ✓) is set in DejaVu Sans by name. Printed documents (Teacher's Edition, plans,
+papers, handouts) are unchanged. **Not yet Lexend:** typeset mathematics and the labels on
+figures — next. `checks.py glyph` refuses a slide run in any other face, an italic run, and a deck
+PDF that does not carry Lexend.
+
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 
 A figure is the one place a student reads a number off a picture, so `lib/figkit.py` checks the

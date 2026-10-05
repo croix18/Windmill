@@ -215,6 +215,52 @@ ok("the handout course keeps the handout's name on that slide and its place in t
    [x for x in P2.side if x["kind"] in ("set", "independent")][0]["title"] == ("Independent Set" if C.SET == "handout" else "Independent Practice")
    and [x["kind"] for x in P2.side if x["kind"] in ("set", "independent")] == ["independent" if C.SET == "handout" else "set"])
 
+# ---- ruling 39: an answer slide shows its steps; ruling 40: every word on a slide is in Lexend
+import sympy as _sp
+def _st(rows, final=None):
+    return lb.stepcheck_rows(rows, "t", _sp.sympify(final) if final is not None else None)
+ok("steps: true arithmetic, a fraction, and the checked answer at the end pass",
+   _st(["Rectangle:  $14 \\times 8 = 112$", "Triangle:  $\\frac{1}{2} \\times 14 \\times 6 = 42$", "Add:  $112 + 42 = 154$"], 154) == ([], 4))
+ok("steps: a false line is caught", len(_st(["$9 \\times 3 = 28$"])[0]) == 1)
+ok("steps: steps that end somewhere other than the checked answer are caught", any("checked answer" in x for x in _st(["$108 - 12 = 96$"], 95)[0]))
+ok("steps: an identity in the same letters is worked, and a false one caught",
+   _st(["$x^{5} \\cdot x^{8} = x^{5+8} = x^{13}$"]) == ([], 2) and len(_st(["$x^{5} \\cdot x^{8} = x^{40}$"])[0]) == 1)
+ok("steps: an equation to be solved is not mistaken for an identity", _st(["$3 + n = 11$", "$n = 11 - 3 = 8$"], 8)[0] == [])
+ok("steps: a rounded line is held to the places it shows", _st(["$71.6 \\div 3.14 \\approx 22.8$"])[0] == [] and len(_st(["$71.6 \\div 3.14 \\approx 22.9$"])[0]) == 1)
+T_ = copy.deepcopy(L)
+T_.update(yesterday="y", today="t", no_set=True); T_.pop("independent")
+T_["whiteboard"] = copy.deepcopy(T_["whiteboard"])
+T_["whiteboard"][0]["steps"] = ["First line of working:  $1 + 1 = 2$"]
+_mcs = [i for i, q in enumerate(T_["whiteboard"]) if q.get("kind") == "mc"]
+if _mcs:
+    T_["whiteboard"][_mcs[0]]["steps"] = ["Working shown on a choice board."]
+with tempfile.TemporaryDirectory() as tmp:
+    P3 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(P3, T_)
+    pptx3 = os.path.join(tmp, "s.pptx"); P3.save(pptx3, sidecar=False)
+    z3 = zipfile.ZipFile(pptx3)
+    sx = [z3.read(nm).decode("utf-8") for nm in sorted(z3.namelist()) if re.fullmatch(r"ppt/slides/slide\d+\.xml", nm)]
+    H3 = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(H3, T_)
+    h3 = render_page(H3)
+stext = " ".join(" ".join(re.findall(r"<a:t>([^<]*)</a:t>", x)) for x in sx)
+ok("steps: a board's working is on its answer slide and nowhere else (PowerPoint and HTML)",
+   stext.count("First line of working:") == 1 and h3.count("First line of working:") == 1)
+if _mcs:
+    _rev = [x for x in sx if "Working shown on a choice board." in x]
+    _opt = T_["whiteboard"][_mcs[0]]["choices"][0]
+    ok("steps: a choice board's answer slide shows its working in place of the four options",
+       len(_rev) == 1 and "A." not in " ".join(re.findall(r"<a:t>([^<]*)</a:t>", _rev[0])))
+ok("steps: a lesson with no steps is a finding only where the course requires them",
+   [x for x in lb.stepcheck_lesson(slotmark.strip_deep(L))[0] if "ruling 39" in x] == [] or getattr(C, "STEPS", "optional") == "required")
+_faces = set(re.findall(r'typeface="([^"]+)"', " ".join(sx)))
+ok("font: every run on a slide is set in Lexend (or, for a sign it lacks, the named fallback)", _faces <= {"Lexend", "DejaVu Sans"} and "Lexend" in _faces, str(_faces))
+ok("font: nothing on a slide is italic", not re.search(r'<a:rPr[^>]*\bi="1"', " ".join(sx)) and "font-style:italic" not in h3[h3.index('<section class="slide'):])
+from lib import deckkit as _dk
+ok("font: a sign Lexend has no glyph for is set in the fallback by name, and the rest stays",
+   _dk._by_font("A \u2192 B") == [("A ", "Lexend"), ("\u2192", "DejaVu Sans"), (" B", "Lexend")])
+ok("font: the HTML deck carries Lexend itself and asks for nothing from the network",
+   "font-family:'Lexend'" in h3 and "size-adjust:95%" in h3 and "fonts.googleapis" not in h3 and "Schola" not in h3)
+ok("font: the faces are in the kit under their licence", all(os.path.exists(os.path.join(os.path.dirname(_dk.__file__), "..", "assets", f)) for f in ("Lexend-Regular.ttf", "Lexend-Bold.ttf", "LEXEND-OFL.txt", "lexend-regular.woff2", "lexend-bold.woff2", "lexend-fallback.woff2")))
+
 from lib import htmlkit as _hk
 _cjs = re.sub(r"//[^\n]*", "", open(consolekit.__file__, encoding="utf-8").read()); _hjs = re.sub(r"//[^\n]*", "", open(_hk.__file__, encoding="utf-8").read())
 ok("console and deck: the slide is sized by the document's own box, never window.innerWidth (a touch screen reports the zoomed-out width there)",

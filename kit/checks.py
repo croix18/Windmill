@@ -36,11 +36,13 @@ W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 NATIVE_DOC_FONTS = {"Times New Roman", "Georgia", "FreeSerif", "Arial"}
-DECK_FONTS = {"Century Schoolbook"}
+DECK_FONTS = {"Lexend", "DejaVu Sans"}          # the slide font (ruling 40) and the face its missing signs are set in
 FONT_FILES = {"Times New Roman": "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",
               "Georgia": "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
               "FreeSerif": "/usr/share/fonts/truetype/freefont/FreeSerif.ttf",
-              "Century Schoolbook": "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-regular.otf"}
+              "Century Schoolbook": "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-regular.otf",
+              "Lexend": os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "Lexend-Regular.ttf"),
+              "DejaVu Sans": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"}
 
 
 def is_student(name):
@@ -201,15 +203,37 @@ def check_glyph(files):
             else:
                 for run in re.findall(r"<a:r>(.*?)</a:r>", x, re.S):
                     fm = re.search(r'typeface="([^"]+)"', run)
-                    font = fm.group(1) if fm else "Century Schoolbook"
+                    font = fm.group(1) if fm else "Lexend"
+                    if font not in DECK_FONTS:          # ruling 40: every word on a slide is in the slide font
+                        findings.append(f"glyph: a slide's text is set in {font}, not the slide font — {base}")
+                    if '<a:rPr' in run and re.search(r'<a:rPr[^>]*\bi="1"', run):
+                        findings.append(f"glyph: italic type on a slide (the slide font has none, so it would be slanted by machine) — {base}")
                     for t in re.findall(r"<a:t>([^<]*)</a:t>", run):
                         for ch in t:
                             if ord(ch) > 127:
                                 chars += 1
                                 if font in cmaps and ord(ch) not in cmaps[font]:
                                     findings.append(f"glyph: U+{ord(ch):04X} '{ch}' not in {font} — {base}")
+    # and what LibreOffice actually drew: a deck's PDF carries the slide font itself, not a
+    # substitute picked because the font was not installed on the machine that built it
+    decks_pdf = 0
+    for f in files:
+        base = os.path.basename(f)
+        if not (f.endswith(".pdf") and (names.is_kind(base, "Slides") or "All Slides" in base)):
+            continue
+        decks_pdf += 1
+        try:
+            out = subprocess.run(["pdffonts", f], capture_output=True, text=True, timeout=60).stdout.split("\n")[2:]
+        except Exception:
+            findings.append(f"glyph: pdffonts could not read {base}"); continue
+        used = {re.sub(r"^[A-Z]{6}\+", "", ln.split()[0]) for ln in out if ln.strip()}
+        if not any(u.startswith("Lexend") for u in used):
+            findings.append(f"glyph: the PDF does not carry Lexend (fonts drawn: {', '.join(sorted(used)) or 'none'}) — {base}")
+        odd = sorted(u for u in used if not u.startswith(("Lexend", "DejaVuSans")))
+        if odd:
+            findings.append(f"glyph: the PDF draws text in {', '.join(odd)} — {base}")
     findings = sorted(set(findings))
-    print(f"glyph: {n} documents, {chars} non-ASCII characters, {len(findings)} findings")
+    print(f"glyph: {n} documents, {chars} non-ASCII characters, {decks_pdf} deck PDFs' fonts read, {len(findings)} findings")
     return findings
 
 

@@ -30,9 +30,14 @@ def _read(name, binary=False):
         return f.read()
 
 
-def _font_face(style, weight, italic):
-    data = base64.b64encode(_read(f"schola-{style}.woff2", True)).decode()
-    return (f"@font-face{{font-family:'Schola';font-weight:{weight};font-style:{'italic' if italic else 'normal'};"
+def _font_face(style, weight, italic=False):
+    """The slide font, inlined: Lexend (ruling 40), and under the name LexendFallback the few signs
+    it has no glyph for. `style` is regular, bold or fallback."""
+    data = base64.b64encode(_read(f"lexend-{style}.woff2", True)).decode()
+    fam = "LexendFallback" if style == "fallback" else "Lexend"
+    # size-adjust: the same 95% the PowerPoint sets Lexend at (deckkit.SCALE), so a line is as long
+    # in the browser as on the slide and the measured layouts agree
+    return (f"@font-face{{font-family:'{fam}';font-weight:{weight};font-style:normal;size-adjust:95%;"
             f"src:url(data:font/woff2;base64,{data}) format('woff2')}}")
 
 
@@ -110,11 +115,11 @@ class HtmlDeck:
     def _text(self, x, y, w, h, text, size=23, bold=False, italic=False, color=INK, align="left",
               anchor="top", runs=None, wrap=True, foot=False, slots=False):
         if runs:
-            inner = "".join(f'<span style="font-size:{sz}pt;{"font-weight:700;" if b else ""}{"font-style:italic;" if i else ""}color:#{c}">{rich(t, slots=slots)}</span>'
+            inner = "".join(f'<span style="font-size:{sz}pt;{"font-weight:700;" if b else ""}color:#{c}">{rich(t, slots=slots)}</span>'
                             for (t, sz, b, i, c) in runs)
             self._add(f'<p class="t {align}" style="font-size:{size}pt">{inner}</p>')
         else:
-            st = f"font-size:{size}pt;color:#{color};" + ("font-weight:700;" if bold else "") + ("font-style:italic;" if italic else "")
+            st = f"font-size:{size}pt;color:#{color};" + ("font-weight:700;" if bold else "")
             self._add(f'<p class="t {align}" style="{st}">{rich(text, slots=slots)}</p>')
 
     def _mixed(self, text, x, y, surface="slidemid", size=26, color=INK, bold=False, align="left", width=None, slots=False):
@@ -221,6 +226,23 @@ class HtmlDeck:
         # the expression alone: the grey reason beside it is not on a slide (ruling 37)
         self._add(f'<div class="worked"><span class="k d mid{" slots" if slots and AUTO_SLOTS else ""}" data-tex="{esc(_tex(latex, slots))}"></span></div>')
 
+    def steps_height(self, rows, gap=0.1):
+        return 0.0
+
+    def figure_steps(self, spec, rows, gap=0.16, size=23, rgap=0.1):
+        """An answer slide with a picture and working: the figure on the left, the steps beside it."""
+        path, w, h = figkit.draw(spec, spec.get("in", 4.2))
+        with open(path, "rb") as f:
+            b = base64.b64encode(f.read()).decode("ascii")
+        lines = "".join(f'<p class="t left s-slide{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
+        self._add(f'<div class="figsteps"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{min(w, 5.2) * 100:.0f}px" alt=""></div>'
+                  f'<div class="steps"><div>{lines}</div></div></div>')
+
+    def steps(self, rows, gap=0.1, size=23, surface="slide"):
+        """The working on an answer slide: one step to a line, left edges shared, the block centred."""
+        self._add('<div class="steps"><div>' + "".join(
+            f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows) + "</div></div>")
+
     def ask(self, text, y=None):
         self._add(f'<div class="ask bottom"><p>{esc(text)}</p></div>')
 
@@ -316,20 +338,22 @@ class HtmlDeck:
 
 
 CSS = r"""
-html,body{margin:0;height:100%;background:#2b2b2b;font-family:'Schola',Georgia,'Times New Roman',serif;color:#INK}
+html,body{margin:0;height:100%;background:#2b2b2b;font-family:'Lexend','LexendFallback','DejaVu Sans',Verdana,sans-serif;color:#INK}
 #stage{position:absolute;left:50%;top:50%;width:WPXpx;height:HPXpx;transform-origin:0 0;background:#fff;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.6)}
 .slide{display:none;position:absolute;inset:0;padding:40px 85px 84px 85px;box-sizing:border-box;flex-direction:column}
 .slide.on{display:flex}
 .slide h1{font-size:36pt;font-weight:700;margin:0;line-height:1.15}
 .slide .rules{border-top:2px solid #INK;border-bottom:1px solid #INK;height:6px;margin:8px 0 6px}
-.slide .sub{font-size:17pt;font-style:italic;color:#GRAY;margin:0 0 14px}
+.slide .sub{font-size:17pt;color:#GRAY;margin:0 0 14px}
 .slide .sub.band{height:33px}
 .slide .lead{font-size:24pt;font-weight:700;margin:0 0 6px;line-height:1.3;padding-left:0}
 .body{flex:1 1 auto;display:flex;flex-direction:column;gap:10px;min-height:0;padding-bottom:8px;overflow:visible}
 .katex-display{margin:.15em 0}
-.foot{position:absolute;left:85px;right:85px;bottom:0;height:72px;border-top:1px solid #GRAY;display:flex;justify-content:space-between;align-items:flex-start;padding-top:6px;font-size:11pt;font-style:italic;color:#GRAY}
+.foot{position:absolute;left:85px;right:85px;bottom:0;height:72px;border-top:1px solid #GRAY;display:flex;justify-content:space-between;align-items:flex-start;padding-top:6px;font-size:11pt;color:#GRAY}
 .foot .n{font-style:normal}
 p.t{margin:0;line-height:1.3}
+.figsteps{display:flex;align-items:center;justify-content:center;gap:80px;min-height:0;flex:0 1 auto}.figsteps .fig{flex:0 1 auto;min-width:0;min-height:0;margin:0}.figsteps .steps{flex:0 0 auto;margin:0}
+.steps{text-align:center;margin:10px 0 4px}.steps>div{display:inline-block;text-align:left}.steps p.t{margin:7px 0;padding-left:0}
 .left{text-align:left;padding-left:40px}.center{text-align:center}.right{text-align:right}
 h3.head{font-size:25pt;margin:4px 0 2px;padding-bottom:4px;border-bottom:1px solid #INK}
 ol.items{margin:0;padding-left:52px;line-height:1.35}
@@ -359,9 +383,9 @@ ol.choices.mathy{row-gap:14px}ol.choices.mathy li{display:flex;align-items:cente
 .cover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:60px}
 .cover .eyebrow{font-size:15pt;color:#GRAY;letter-spacing:.04em;margin:0 0 10px}.cover h2{font-size:34pt;margin:0 0 16px}
 .cover .rule{width:610px;border-top:2px solid #INK;border-bottom:1px solid #INK;height:6px;margin-bottom:16px}
-.cover .bm{font-size:16pt;font-weight:700;margin:0 0 8px}.cover .target{font-size:19pt;font-style:italic;margin:0 0 8px;max-width:1100px}
+.cover .bm{font-size:16pt;font-weight:700;margin:0 0 8px}.cover .target{font-size:19pt;margin:0 0 8px;max-width:1100px}
 .contents{padding:0 40px}.contents a{display:flex;justify-content:space-between;text-decoration:none;color:#INK;font-size:22pt;padding:6px 0;border-bottom:1px solid #LT}
-.contents.tight a{font-size:19pt;padding:2px 0;line-height:1.3}.contents a b{display:inline-block;width:150px}.contents a span.n{font-size:17pt;font-style:italic;color:#GRAY}
+.contents.tight a{font-size:19pt;padding:2px 0;line-height:1.3}.contents a b{display:inline-block;width:150px}.contents a span.n{font-size:17pt;color:#GRAY}
 .fig{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;margin:4px 0}.fig img{max-width:100%;max-height:100%;width:auto;height:auto}
 sup{font-size:.62em;vertical-align:.45em;line-height:0}
 #hud{position:fixed;right:14px;bottom:10px;color:#bbb;font:13px/1.2 system-ui,sans-serif;opacity:.7}
@@ -450,7 +474,7 @@ def render_page(D):
     css = (CSS.replace("WPX", f"{W:.2f}").replace("HPX", f"{H:.0f}").replace("#INK", "#" + INK).replace("#GRAY", "#" + GRAY)
            .replace("#VOCAB", "#" + VOCAB).replace("#RED", "#" + RED).replace("#LT", "#" + LT).replace("#FILL", "#" + FILL))
     js = JS.replace("WPX", f"{W:.2f}").replace("HPX", f"{H:.0f}")
-    fonts = _font_face("regular", 400, False) + _font_face("bold", 700, False) + _font_face("italic", 400, True) + _font_face("bolditalic", 700, True)
+    fonts = _font_face("regular", 400) + _font_face("bold", 700) + _font_face("fallback", 400)
     out = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
            f"<title>{esc(getattr(D, 'page_title', D.title))}</title>", "<style>", fonts, _read("katex.inline.css"), css, "</style></head><body>",
            '<div id="stage">']

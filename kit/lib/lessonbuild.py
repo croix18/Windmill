@@ -547,6 +547,13 @@ def _math_row(row):
 TOP = 1.6      # where a slide's body starts when it starts straight under the rules (the PowerPoint's inches)
 
 
+def _steps_size(rows):
+    """One or two short steps on a slide with room are set as large as a worked line; more, or
+    longer, at the size of the slide's ordinary text."""
+    plain = max(len(re.sub(r"\$[^$]+\$", "x" * 9, slotmark.strip(r))) for r in rows)
+    return dict(size=26, surface="slidemid", gap=0.14) if len(rows) <= 2 and plain <= 48 else dict(size=23, surface="slide", gap=0.1)
+
+
 def _example_top(prompt, fig):
     """Where an Example's question slide starts. Its usual place is a little way under the rules;
     when the problem's lines and its figure do not both fit from there, it starts as much higher
@@ -652,23 +659,25 @@ def _fill_deck(D, L):
             # bold instruction ("Which law? Then find the value."), or its own `ask` when it has one.
             yt_ask = yt.get("ask", ex.get("ask") if all(_bare_math(r) for r in yt["prompt"]) else None)
             D.section("Your Turn", "Same steps, your numbers. Boards up when done.", yt.get("min", 2), yt["note"], "yourturn")
-            D.cursor = 2.4
+            D.cursor = 1.75 if yt.get("steps") else 2.4       # where its answer slide puts it, so nothing jumps on the reveal
             for row in yt["prompt"]:
                 D.math_row(row, surface="slidebig", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
             if yt_ask:
                 D.cursor += 0.2
                 D.text(yt_ask, 24, bold=True, align="center")
             D.section("Your Turn", "Answer.", 1, "Reveal; name what a wrong board most likely did (see the note above).", "yourturn")
-            D.cursor = 2.4
+            D.cursor = 1.75 if yt.get("steps") else 2.4      # with its working under it the problem starts higher
             for row in yt["prompt"]:
                 D.math_row(row, surface="slidebig", gap=0.35, slots=True) if _math_row(row) else D.text(row, 24, align="center", slots=True)
             if yt_ask:
                 D.cursor += 0.2
                 D.text(yt_ask, 24, bold=True, align="center")
+            if yt.get("steps"):
+                D.steps(yt["steps"], **_steps_size(yt["steps"]))
             if yt.get("answer_latex"):
-                D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.2, 4.9))
+                D.answer_math(yt["answer_latex"], y=min(max(D.cursor + 0.2, 4.9), FOOT_Y - 0.66))
             else:
-                D.answer_line(yt["answer"], y=max(D.cursor + 0.2, 5.0))
+                D.answer_line(yt["answer"], y=min(max(D.cursor + 0.2, 5.0), FOOT_Y - 0.62) if yt.get("steps") else max(D.cursor + 0.2, 5.0))
     # ---- whiteboards: nine questions, question + reveal each
     wb = L["whiteboard"]
     N = C.WB_COUNT
@@ -763,9 +772,14 @@ def _wb_body(D, q, reveal):
         # on a reveal, the ask on the question, the options on either
         # — and is drawn smaller rather than pushing them into each other (4.06 boards 1–3)
         below = 0.85 if reveal else 0.75
-        below += 1.75 if kind == "mc" else 0.0
-        D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)))
-    if kind == "mc":
+        below += 1.75 if kind == "mc" and not (reveal and q.get("steps")) else 0.0
+        if reveal and q.get("steps"):      # the answer slide: the picture, and its working beside it
+            D.figure_steps(dict(fig, reserve=max(fig.get("reserve", 0.7), below)), q["steps"])
+        else:
+            D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)))
+    if kind == "mc" and not (reveal and q.get("steps")):
+        # the four options are on the question slide; an answer slide that shows its working shows
+        # the working in their place, and its answer line names the letter and the value
         D.cursor += 0.1
         D.choices(q["choices"], correct=(q["correct"] if reveal else None))
     if not reveal:
@@ -774,6 +788,8 @@ def _wb_body(D, q, reveal):
         # (ruling 37 as widened: "But also those comments. Half the box. It's still a rhombus")
         D.ask("Write your answer in sentences." if kind == "written" else "Answer it.")
     else:
+        if q.get("steps") and not fig:     # the working, then the answer under it (beside the figure when there is one)
+            D.steps(q["steps"], **_steps_size(q["steps"]))
         y = min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
         if q.get("answer_latex"):
             D.answer_math(q["answer_latex"], y=y)
@@ -1086,7 +1102,7 @@ MTR_TEXT = {
 }
 
 # Every field a board may carry. A field no builder reads would ship as nothing — it is refused.
-WB_FIELDS = {"kind", "latex", "text", "hint", "gloss", "answer", "answer_latex", "te_answer", "fig", "fig_a",
+WB_FIELDS = {"kind", "latex", "text", "hint", "gloss", "steps", "answer", "answer_latex", "te_answer", "fig", "fig_a",
              "note", "note_a", "check", "wrong", "choices", "correct", "errors", "qtext", "unneeded", "ack",
              "form_only", "not_sci", "not_gap", "not_bound"}
 
@@ -1166,6 +1182,97 @@ def rulingcheck_lesson(L):
     return out
 
 
+def _stepval(side):
+    """One side of a step's equation as sympy, or None when it is not something to compute
+    (a name being given a value — 'A', 'k' — or words). \\pi is π; \\text{…} and units are dropped."""
+    s = side.strip()
+    s = re.sub(r"\\text\{[^{}]*\}", "", s)
+    s = s.replace("\\left", "").replace("\\right", "").replace("{,}", "").replace("\\,", "").replace("\\;", "").replace("\\!", "")
+    s = s.replace("\\cdot", "*").replace("\\times", "*").replace("\\div", "/").replace("\\pi", " pi ").replace("\\%", "/100")
+    s = s.replace("\u2212", "-").replace("\u2013", "-")
+    try:
+        s = _opt_latex_calls(s)
+    except ValueError:
+        return None
+    s = re.sub(r"\^\{([^{}]*)\}", r"**(\1)", s)
+    s = re.sub(r"\^(-?\d)", r"**(\1)", s).replace("{", "(").replace("}", ")")
+    s = re.sub(r"(?<=\d),(?=\d{3}\b)", "", s)
+    if not s.strip() or "\\" in s or re.search(r"[A-Za-z]{2,}", re.sub(r"sqrt|cbrt|pi", "", s)):
+        return None
+    try:
+        return sp.simplify(parse_expr(s, local_dict={**_OPT_SYMS, "pi": sp.pi, "sqrt": sp.sqrt, "cbrt": lambda v: sp.real_root(v, 3)},
+                                      transformations=_OPT_TR, evaluate=True))
+    except Exception:
+        return None
+
+
+def stepcheck_rows(rows, where, final=None):
+    """Every equation in an answer slide's steps, worked: each '=' between two sides that can be
+    computed must be true (exactly; '≈' to the places the right side shows), each '=' between two
+    expressions in the same letters must be an identity, and the last number the steps arrive at
+    must be the item's checked value. Returns (findings, how many equalities were verified)."""
+    out = []; n = 0; last = None
+    for row in rows:
+        for span in re.findall(r"\$([^$]+)\$", slotmark.strip(row).replace("\\$", "")):
+            parts = re.split(r"(=|\\approx)", span)
+            sides = parts[0::2]; ops = parts[1::2]
+            vals = [_stepval(x) for x in sides]
+            for a, op, b, sa, sb in zip(vals, ops, vals[1:], sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                fa, fb = a.free_symbols, b.free_symbols
+                if not fa and not fb:
+                    n += 1
+                    if op == "=":
+                        good = sp.simplify(a - b) == 0
+                    else:
+                        m = re.fullmatch(r"\s*-?[\d,]*\.?(\d*)\s*", sb)
+                        tol = sp.Rational(1, 2) * sp.Rational(1, 10) ** len(m.group(1)) if m else abs(b) / 200
+                        good = abs(sp.N(a - b)) <= sp.N(tol) + 1e-12
+                    if not good:
+                        sign = "=" if op == "=" else "\u2248"
+                        out.append(f"{where}: a step is not true \u2014 {sa.strip()} {sign} {sb.strip()}  ({sp.nsimplify(a)} against {sp.nsimplify(b)})")
+                elif fa and fb and fa == fb and len(sides[0].strip()) > 1:
+                    n += 1
+                    if sp.simplify(a - b) != 0:
+                        out.append(f"{where}: a step is not an identity \u2014 {sa.strip()} = {sb.strip()}")
+            nums = [v for v in vals if v is not None and not v.free_symbols]
+            if nums:
+                last = nums[-1]
+    if final is not None and last is not None and not final.free_symbols:
+        n += 1
+        if abs(sp.N(last - final)) > 1e-9:
+            out.append(f"{where}: the steps end at {sp.nsimplify(last)} and the checked answer is {sp.nsimplify(final)}")
+    return out, n
+
+
+def stepcheck_lesson(L):
+    """Ruling 39: every answer slide — each board's reveal and each Your Turn's — shows its steps.
+    Returns (findings, slides with steps, slides in all, equalities verified). A slide without
+    steps is a finding only where the course profile says STEPS = "required"; wrong steps always are."""
+    out = []; have = 0; total = 0; eqs = 0
+    def final_of(chk):
+        try:
+            return _ev(chk[2]) if chk and chk[0] == "eq" else None
+        except Exception:
+            return None
+    items = [(f"{L['code']} board {i + 1}", q, q.get("check")) for i, q in enumerate(L.get("whiteboard", []))]
+    items += [(f"{L['code']} {ex['title']} Your Turn", ex["your_turn"], ex.get("yt_check")) for ex in L.get("examples", []) if ex.get("your_turn")]
+    for where, q, chk in items:
+        total += 1
+        rows = q.get("steps")
+        if not rows:
+            if getattr(C, "STEPS", "optional") == "required":
+                out.append(f"{where}: ruling 39 \u2014 the answer slide shows no steps")
+            continue
+        have += 1
+        if not (1 <= len(rows) <= 5):
+            out.append(f"{where}: {len(rows)} steps \u2014 an answer slide carries one to five lines of working")
+        f, k = stepcheck_rows(rows, where, final_of(chk))
+        out += f; eqs += k
+    return out, have, total, eqs
+
+
 def build_lesson(L, outdir):
     os.makedirs(outdir, exist_ok=True)
     P = slotmark.strip_deep(L)          # the gates and every printed page read the spec without its colour marks
@@ -1174,10 +1281,12 @@ def build_lesson(L, outdir):
     d = distractorcheck_lesson(P)
     c = capcheck_lesson(P)
     r = rulingcheck_lesson(P) + balancecheck_lesson(P)
+    st, have, total, eqs = stepcheck_lesson(P)
     print(f"mathcheck {L['code']}: {n} items checked, {len(findings)} findings")
-    for f in findings + d + c + r:
+    print(f"stepcheck {L['code']}: {have} of {total} answer slides show their steps, {eqs} equalities worked, {len(st)} findings")
+    for f in findings + d + c + r + st:
         print("  ", f)
-    if findings or d or c or r:
+    if findings or d or c or r or st:
         raise SystemExit(f"{L['code']}: build refused")
     from . import plankit
     out = {}

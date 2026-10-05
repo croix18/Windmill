@@ -3,36 +3,48 @@
     python3 make_assets.py /path/to/katex/package/dist      # from `npm pack katex@0.19.0`
 
 Writes katex.min.js (copied), katex.inline.css (katex.min.css with every @font-face source
-replaced by its .woff2 as a data URI, so a deck is ONE file that needs no network) and the four
-schola-*.woff2 subsets of TeX Gyre Schola (the Century Schoolbook clone the pptx decks render with
-under LibreOffice). The subset is a fixed, generous block list — Latin-1, Latin Extended-A,
-general punctuation, currency, letterlike, arrows, mathematical operators, Greek — NOT the
-characters the current specs happen to use, so a glyph a later unit introduces does not fall back
-to a system font. (The decks' own characters are checked against the fonts by checks.py `glyph`.)
+replaced by its .woff2 as a data URI, so a deck is ONE file that needs no network) and the web
+faces of the slide font: lexend-regular.woff2 and lexend-bold.woff2 (Lexend, whole) and
+lexend-fallback.woff2 (the signs of a fixed, generous block list — arrows, mathematical operators,
+geometric shapes, the tick — that Lexend has no glyph for, cut from DejaVu Sans). The decks' own
+characters are checked against the fonts by checks.py `glyph`.
 """
 import base64, os, re, shutil, sys
 from fontTools import subset
 from fontTools.ttLib import TTFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCHOLA = "/usr/share/texmf/fonts/opentype/public/tex-gyre"
 UNICODES = ("U+0020-007E,U+00A0-017F,U+02C6-02DC,U+0370-03FF,U+2000-206F,U+20A0-20BF,"
             "U+2100-214F,U+2190-21FF,U+2200-22FF,U+2260,U+25A0-25FF,U+2713-2717")
 
 
-def make_schola():
-    for style, name in [("regular", "regular"), ("bold", "bold"), ("italic", "italic"), ("bolditalic", "bolditalic")]:
-        src = os.path.join(SCHOLA, f"texgyreschola-{style}.otf")
-        dst = os.path.join(HERE, f"schola-{name}.woff2")
-        opts = subset.Options(flavor="woff2", layout_features=["kern", "liga"], hinting=False,
-                              desubroutinize=True, name_IDs=["*"])
-        font = subset.load_font(src, opts)
-        s = subset.Subsetter(opts)
-        s.populate(unicodes=subset.parse_unicodes(UNICODES))
-        s.subset(font)
-        subset.save_font(font, dst, opts)
-        n = len(TTFont(dst).getBestCmap())
-        print(f"{os.path.basename(dst)}: {os.path.getsize(dst)} bytes, {n} code points")
+LEXEND_FALLBACK = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+
+
+def _subset(src, dst, unicodes):
+    opts = subset.Options(flavor="woff2", layout_features=["kern", "liga"], hinting=False,
+                          desubroutinize=True, name_IDs=["*"])
+    font = subset.load_font(src, opts)
+    s = subset.Subsetter(opts)
+    s.populate(unicodes=unicodes)
+    s.subset(font)
+    subset.save_font(font, dst, opts)
+    n = len(TTFont(dst).getBestCmap())
+    print(f"{os.path.basename(dst)}: {os.path.getsize(dst)} bytes, {n} code points")
+
+
+def make_lexend():
+    """The slide font (ruling 40): Lexend Regular and Bold, whole, as woff2 for the HTML decks; and
+    one small face cut from DejaVu Sans holding only the signs of the block list that Lexend has
+    no glyph for (arrows, the angle and triangle signs, the tick), so that none of them falls
+    back to whatever the browser happens to have."""
+    have = set()
+    for style in ("Regular", "Bold"):
+        src = os.path.join(HERE, f"Lexend-{style}.ttf")
+        have |= set(TTFont(src).getBestCmap())
+        _subset(src, os.path.join(HERE, f"lexend-{style.lower()}.woff2"), sorted(TTFont(src).getBestCmap()))
+    want = set(subset.parse_unicodes(UNICODES)) & set(TTFont(LEXEND_FALLBACK).getBestCmap())
+    _subset(LEXEND_FALLBACK, os.path.join(HERE, "lexend-fallback.woff2"), sorted(want - have))
 
 
 def make_katex(dist):
@@ -56,7 +68,7 @@ def make_katex(dist):
 
 
 if __name__ == "__main__":
-    make_schola()
+    make_lexend()
     if len(sys.argv) > 1:
         make_katex(sys.argv[1])
     else:
