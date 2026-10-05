@@ -249,6 +249,9 @@ if _mcs:
     _opt = T_["whiteboard"][_mcs[0]]["choices"][0]
     ok("steps: a choice board's answer slide shows its working in place of the four options",
        len(_rev) == 1 and "A." not in " ".join(re.findall(r"<a:t>([^<]*)</a:t>", _rev[0])))
+_req = C.STEPS; C.STEPS = "required"
+ok("steps: where the course requires them, an answer slide with none is refused", any("ruling 39" in x for x in lb.stepcheck_lesson(slotmark.strip_deep(L))[0]))
+C.STEPS = _req
 ok("steps: a lesson with no steps is a finding only where the course requires them",
    [x for x in lb.stepcheck_lesson(slotmark.strip_deep(L))[0] if "ruling 39" in x] == [] or getattr(C, "STEPS", "optional") == "required")
 _faces = set(re.findall(r'typeface="([^"]+)"', " ".join(sx)))

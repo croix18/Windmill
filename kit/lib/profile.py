@@ -26,6 +26,8 @@ DEFAULTS = dict(
     SET="handout",             # "handout": the six questions are a printed page and its key
                                # "slide":   the six questions are on a slide; no handout
     CLOSE=False,               # True: a "Before You Go" slide before IXL
+    STEPS="optional",          # ruling 39 — "required": an answer slide with no steps refuses the build;
+                               # "optional" only while a course's steps are still being written
     BANK="docx",               # "docx": Question Bank + Additional, each with a key
                                # "md":    one BANK - Unit N.md per unit, no per-lesson bank files
     TE_STYLE="lines",          # "lines": one line per slide, the boards inline
