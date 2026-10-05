@@ -362,6 +362,23 @@ never share a file (the face is in each image's fingerprint).
 - *Figures* — a slide draws `figkit.slide(spec)` (the same spec with `face="slide"`): labels in
   Lexend at 95%, a π in a label set as the textbook's. `dockit` draws the plain spec, so a
   handout's figure is unchanged. The struck-label check runs on each face separately.
+- **A line of working is one size.** On an answer slide the words of a step and its mathematics
+  are set at one size (`deckkit.step_sizes`: 24.5 pt, or 29 pt for one or two short steps; the
+  HTML sets the step's KaTeX at `1em`). They used to be two sizes (23 with 26, 26 with 32) —
+  invisible across two typefaces, plain in one: the 40 of "40 ft would be" sat smaller than the 40
+  of "40 ÷ 5" on the same line. Each pair meets in the middle, so a row is as long as it was.
+- **The HTML deck fits itself.** The PowerPoint is laid out by measurement and refuses what does
+  not fit; a browser lays the same slide out itself and KaTeX's stacked fractions stand taller. So
+  the page measures every slide once it is typeset (`htmlkit` `fitSlides`): a slide whose content
+  is taller than the space above its footer rule is set smaller, whole, by what it needs
+  (`data-fit`), and a board's or Your Turn's question slide takes its answer slide's factor.
+  `htmlcheck` counts them and refuses a slide set under 75% (`checks.FIT_FLOOR`): that slide
+  carries too much, and it wants fewer or shorter steps.
+- **The pi face is measured like Lexend.** `WindyPi` carries Lexend's own ascent and descent and
+  is offered for U+03C0 only (`unicode-range`), so a line with a π in it — and a browser's idea of
+  the slide font's line — is no taller than its neighbours. (With STIX's metrics every digit KaTeX
+  set stood 13 px deeper and M7 Unit 5 ran 4–7 px past the footer rule; `htmlcheck` caught it.)
+  `deckkit` reinstalls a face whose bytes differ from the kit's, so a recut face reaches LibreOffice.
 - **Working rows and scientific notation.** An item's `steps` may pass through a form that is not
   yet scientific notation (1.3 × 10³ = 0.013 × 10⁵ — matching the powers is the method);
   `capcheck` no longer reads the [1, 10) rule into `steps`. Every such line is still held true by

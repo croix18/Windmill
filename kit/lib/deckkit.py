@@ -46,7 +46,10 @@ _PI_FILE = os.path.join(_ASSETS, "WindyPi.ttf")
 def _install_deck_font():
     import shutil, subprocess
     dst = os.path.expanduser("~/.local/share/fonts/windy-hill")
-    need = [f for f in list(_FONT_FILES.values()) + [_PI_FILE] if not os.path.exists(os.path.join(dst, os.path.basename(f)))]
+    def stale(f):                    # missing, or not the kit's own bytes (a face the kit has since recut)
+        d = os.path.join(dst, os.path.basename(f))
+        return not os.path.exists(d) or open(d, "rb").read() != open(f, "rb").read()
+    need = [f for f in list(_FONT_FILES.values()) + [_PI_FILE] if stale(f)]
     if need:
         os.makedirs(dst, exist_ok=True)
         for f in need:
@@ -56,6 +59,19 @@ def _install_deck_font():
 
 _install_deck_font()
 _CMAP = None
+
+
+def step_sizes(big=False):
+    """The size of a line of working on an answer slide, as steps() keywords: its words and its
+    mathematics are ONE size. They used to be two (words 23 with mathematics 26; 26 with 32 for
+    one or two short steps) and in two typefaces nobody could tell; in one typeface a label is
+    visibly smaller than the numbers after it, and the 40 in "40 ft would be" is smaller than the
+    40 in "40 ÷ 5" on the same line. Each pair now meets in the middle, so a row is as long as it
+    was and every layout holds. With the slide face switched off the old pairs come back."""
+    if not mathimg.SLIDE_FACE:
+        return dict(size=26, surface="slidemid") if big else dict(size=23, surface="slide")
+    surface = "slidestepmid" if big else "slidestep"
+    return dict(size=mathimg.SIZES[surface], surface=surface)
 
 
 def _by_font(text):
@@ -477,7 +493,8 @@ class Deck:
         wdt, hgt = self.math(latex, "slidemid", align="left", x=2.0, slots=slots)
         self.cursor = y0 + hgt + 0.3
 
-    def _row_h(self, row, surface="slide"):
+    def _row_h(self, row, surface=None):
+        surface = surface or step_sizes()["surface"]
         """Height of one mixed row: a line of type, or its tallest piece of mathematics."""
         import re
         h = 0.45
@@ -489,11 +506,12 @@ class Deck:
     def steps_height(self, rows, gap=0.1):
         return sum(self._row_h(r) for r in rows) + gap * (len(rows) - 1)
 
-    def steps(self, rows, gap=0.1, size=23, surface="slide"):
+    def steps(self, rows, gap=0.1, size=None, surface=None):
         """The working on an answer slide: one step to a line, in the slide's own black type, the
         lines sharing a left edge and the block centred — the way it would be written on the board.
         (Croix, 4 October: "the answers should always show easy to follow steps". This is the
         mathematics, not a remark about it: the grey line that used to sit here is gone, ruling 37.)"""
+        size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
         wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
         if wmax > CW - 0.1:
             raise RuntimeError(f"a step is one line; this one is {wmax:.2f} in of {CW - 0.1:.1f}: {max(rows, key=len)}")
@@ -560,11 +578,12 @@ class Deck:
                                   Inches(w), Inches(h))
         self.cursor += h + gap
 
-    def figure_steps(self, spec, rows, gap=0.16, size=23, rgap=0.1):
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1):
         """An answer slide that has a picture AND working: the figure on the left, the steps beside
         it on the right, the two centred on each other — so neither is made small to stack them.
         If the steps are too wide to leave the figure a column, they go under it instead."""
-        wmax = max(self.measure(slotmark.strip(r), "slide", size) for r in rows)
+        size = size or step_sizes()["size"]; surface = step_sizes()["surface"]
+        wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
         colw = CW - wmax - 0.8
         if colw < 2.6:
             self.figure(dict(spec, reserve=spec.get("reserve", 0.7) + self.steps_height(rows, rgap) + 0.3), gap)
@@ -578,7 +597,7 @@ class Deck:
         self.s.shapes.add_picture(path, Inches(left), Inches(top + (block - h) / 2), Inches(w), Inches(h))
         y = top + (block - hs) / 2
         for r in rows:
-            _, hh = self._mixed(r, left + w + 0.8 + (0.06 if r.lstrip().startswith("$") else 0.0), y, "slide", size, INK, slots=True)
+            _, hh = self._mixed(r, left + w + 0.8 + (0.06 if r.lstrip().startswith("$") else 0.0), y, surface, size, INK, slots=True)
             y += hh + rgap
         self.cursor = top + block + gap
 

@@ -30,7 +30,9 @@ INDEX = os.path.join(FIGS, "index.json")
 DPI = 300
 # One digit size per surface. Documents: 13 pt (body is 11 pt; larger on purpose, §8).
 # Slides: whiteboard display 40 pt, inline 26 pt.
-SIZES = {"doc": 13, "docbig": 16, "slide": 26, "slidebig": 40, "slidemid": 32}
+SIZES = {"doc": 13, "docbig": 16, "slide": 26, "slidebig": 40, "slidemid": 32,
+         # a line of WORKING on an answer slide: its words are set at this same size (deckkit.step_sizes)
+         "slidestep": 24.5, "slidestepmid": 29}
 
 # ---- the slot colour code (HOUSE STYLE §2a), slides only ---------------------------------------
 # One colour per slot in the expression: the BASE is the first slot, the EXPONENT is the second.

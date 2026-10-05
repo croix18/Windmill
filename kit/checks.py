@@ -660,7 +660,7 @@ HTML_PROBE = r"""
       if (r.right > st.right - 60 + 1) wide = Math.max(wide, r.right - (st.right - 60));
       if (r.left < st.left + 60 - 1 && r.width > 0) wide = Math.max(wide, (st.left + 60) - r.left);
     });
-    out.slides.push({n: i + 1, over: Math.round(over), wide: Math.round(wide)});
+    out.slides.push({n: i + 1, over: Math.round(over), wide: Math.round(wide), fit: parseFloat(sl.dataset.fit || '1')});
   });
   out.errors = document.querySelectorAll('.katex-error').length;
   const B = 'rgb(30, 90, 168)', E = 'rgb(192, 90, 0)';
@@ -742,6 +742,7 @@ STAGE_PROBE = r"""
 """
 SCREENS = ((1920, 1080), (1366, 768), (1024, 768), (2560, 1440))     # the panel, a laptop, a tablet, a large monitor
 TOUCH = ((800, 1280), (1280, 800), (412, 915))                        # a tablet upright, on its side, and a phone
+FIT_FLOOR = 0.75          # an HTML slide may set itself this much smaller to clear its footer, and no more: at 75% a line of working is still 17.5 pt, above the 15 pt a table on a slide is already set in
 
 
 def _placed(g):
@@ -781,7 +782,7 @@ def check_html(files):
     nothing on any slide reaches below the footer rule or past the side margins; and the colour
     code the page applies to KaTeX's structure reads every expression exactly as mathimg reads
     the mathtext layout for the pptx — [base]^{exponent}, compared string for string."""
-    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0; ntouch = 0
+    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0; ntouch = 0; nfit = 0; minfit = 1.0
     decks = [f for f in files if f.endswith(".html")]
     if not decks:
         return ["htmlcheck: examined no HTML decks — a check that examined nothing cannot be clean"]
@@ -833,6 +834,13 @@ def check_html(files):
             for sl in r["slides"]:
                 if sl["over"] > 2:
                     findings.append(f"htmlcheck: content runs {sl['over']} px below the footer rule — {base} slide {sl['n']}")
+                # the page sets a slide smaller, whole, when its content is taller than its space
+                # (htmlkit fitSlides); a little is the browser's taller fractions, a lot is a slide
+                # carrying too much — and that is the spec's to fix, not the browser's to hide
+                if sl.get("fit", 1) < 1:
+                    nfit += 1; minfit = min(minfit, sl["fit"])
+                    if sl["fit"] < FIT_FLOOR:
+                        findings.append(f"htmlcheck: the slide had to be set at {sl['fit']:.0%} of its size to clear the footer (under {FIT_FLOOR:.0%}: fewer or shorter steps) — {base} slide {sl['n']}")
                 if sl["wide"] > 2:
                     findings.append(f"htmlcheck: content runs {sl['wide']} px past the side margin — {base} slide {sl['n']}")
             seen = set()
@@ -867,7 +875,7 @@ def check_html(files):
         b.close()
     if ncon == 0:
         findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
-    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {len(findings)} findings")
+    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {nfit} slides set smaller to clear the footer (smallest {minfit:.0%}; floor {FIT_FLOOR:.0%}), {len(findings)} findings")
     return findings
 
 

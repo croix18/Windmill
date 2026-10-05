@@ -374,9 +374,22 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   pass every build gate and lay out in both decks with the new face before any rebuild
   (scratch `mathlex/dry2.py` — a dry run should run EVERY gate of `build_lesson`, which the
   earlier one did not: that is how the capcheck refusal reached a 20-minute build). One line to
-  go back: `mathimg.SLIDE_FACE = ""` and `figkit.SLIDE_FACE = ""`. Seen, not yet changed: inline
-  mathematics is set larger than the words beside it (26 pt against 23 — it always was, and in
-  one typeface it shows); Croix has not been asked.
+  go back: `mathimg.SLIDE_FACE = ""` and `figkit.SLIDE_FACE = ""`.
+  **Then, the same morning (kit after `23b8e1b`), three things the first rebuild showed:**
+  (1) *A line of working is one size* — a step's words and mathematics were 23 pt with 26 pt
+  (26 with 32 for short steps), and in one typeface the label was visibly smaller than its own
+  numbers; `deckkit.step_sizes` sets both at 24.5 (29), and a row is as long as it was. Other
+  mixed lines (a notes item, a prompt with a formula in it) still set the formula larger than the
+  words, on purpose: there it reads as the formula being the point. (2) *The pi face had STIX's
+  vertical metrics* and, listed first in the font stacks, became the font the browser measured
+  lines by — `htmlcheck` refused M7 Unit 5 (4–7 px past the footer rule on two slides). WindyPi
+  now carries Lexend's metrics and is scoped to U+03C0. (3) *A7's answer slides overflowed in the
+  browser* — never seen before because A7's fraction lessons had no steps until today and the
+  builds that had them stopped at `capcheck` before `htmlcheck` ran. The HTML deck now fits
+  itself (`fitSlides`; SPEC SCHEMA): 14 answer slides in A7 Units 3–4 are set at 79–98%, with
+  their question slides; `htmlcheck` refuses under 75%. One A7 step row was shortened to stay one
+  line at the new size (3.05 board 9: "…flips the fraction. The sign stays."). Kit tests 115 and
+  120 (4 of them open a browser).
 
 - **5 Oct 2026, morning — every lesson's steps written; the answer slide fits itself (kit + both
   courses).** All 38 lessons carry `steps` on every board and Your Turn (M7 Units 4–5: 22

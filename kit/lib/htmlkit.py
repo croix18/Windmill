@@ -38,7 +38,10 @@ def _font_face(style, weight, italic=False):
     fallback or pi."""
     if style == "pi":
         data = base64.b64encode(_read("windypi.woff2", True)).decode()
-        return (f"@font-face{{font-family:'WindyPi';font-weight:100 900;font-style:normal;size-adjust:95%;"
+        # unicode-range: the face is offered for pi and nothing else, so it is never the font a
+        # line is measured by (CSS takes that from the first face that could draw a space); the
+        # file's own vertical metrics are Lexend's as well (make_assets.make_pi)
+        return (f"@font-face{{font-family:'WindyPi';font-weight:100 900;font-style:normal;size-adjust:95%;unicode-range:U+03C0;"
                 f"src:url(data:font/woff2;base64,{data}) format('woff2')}}")
     data = base64.b64encode(_read(f"lexend-{style}.woff2", True)).decode()
     fam = "LexendFallback" if style == "fallback" else "Lexend"
@@ -240,17 +243,21 @@ class HtmlDeck:
     def steps_height(self, rows, gap=0.1):
         return 0.0
 
-    def figure_steps(self, spec, rows, gap=0.16, size=23, rgap=0.1):
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1):
         """An answer slide with a picture and working: the figure on the left, the steps beside it."""
+        from .deckkit import step_sizes
+        size = size or step_sizes()["size"]; surface = step_sizes()["surface"]
         path, w, h = figkit.draw(figkit.slide(spec), spec.get("in", 4.2))
         with open(path, "rb") as f:
             b = base64.b64encode(f.read()).decode("ascii")
-        lines = "".join(f'<p class="t left s-slide{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
+        lines = "".join(f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
         self._add(f'<div class="figsteps"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{min(w, 5.2) * 100:.0f}px" alt=""></div>'
                   f'<div class="steps"><div>{lines}</div></div></div>')
 
-    def steps(self, rows, gap=0.1, size=23, surface="slide"):
+    def steps(self, rows, gap=0.1, size=None, surface=None):
         """The working on an answer slide: one step to a line, left edges shared, the block centred."""
+        from .deckkit import step_sizes
+        size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
         self._add('<div class="steps"><div>' + "".join(
             f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows) + "</div></div>")
 
@@ -391,6 +398,7 @@ table.tbl{border-collapse:collapse;margin:4px auto}table.tbl th,table.tbl td{bor
 .k.d.big{font-size:40pt}.k.d.mid{font-size:32pt}
 .k:not(.d){font-size:1.05em}
 p.s-slidemid .k:not(.d){font-size:32pt}p.s-slidebig .k:not(.d){font-size:40pt}p.s-slide .k:not(.d){font-size:26pt}
+p.s-slidestep .k:not(.d),p.s-slidestepmid .k:not(.d){font-size:1em}
 .body{gap:14px}
 .katex{font-size:1em}
 MATHFACE
@@ -491,6 +499,39 @@ JS = r"""
     k.querySelectorAll('.msupsub').forEach(ms=>paint(ms,CB2));
     k.querySelectorAll('.root').forEach(r=>paint(r,getComputedStyle(k).color)); // root index: never an exponent
   });
+  // ---- nothing runs into the footer. The PowerPoint is laid out by measurement and refuses what does
+  // not fit; a browser lays the same slide out itself, and KaTeX's stacked fractions stand taller than
+  // the PowerPoint's. So the page measures every slide once it is typeset: a slide whose content is
+  // taller than the space above its footer rule is set smaller, whole, by exactly what it needs
+  // (data-fit records the factor; htmlcheck reads it and refuses a slide shrunk past FIT_FLOOR).
+  // A board's or a Your Turn's question slide takes its answer slide's factor, so the two agree.
+  function fitSlides(){
+    const bodyOf=sl=>sl.querySelector(':scope > .body');
+    slides.forEach(sl=>{const b=bodyOf(sl);if(b)b.style.zoom='';delete sl.dataset.fit;});
+    slides.forEach(sl=>{sl.style.visibility='hidden';sl.style.display='flex';});
+    const measure=sl=>{const b=bodyOf(sl),f=sl.querySelector('.foot');if(!b||!f)return null;
+      const top=b.getBoundingClientRect().top,foot=f.getBoundingClientRect().top;let bot=top;
+      b.querySelectorAll('*').forEach(el=>{if(!el.getClientRects().length||el.closest('.katex-mathml')||el.closest('svg'))return;
+        const r=el.getBoundingClientRect();if(r.height>0&&r.bottom>bot)bot=r.bottom;});
+      return {b,have:foot-top,need:bot-top};};
+    for(let pass=0;pass<5;pass++){
+      const ms=slides.map(measure);let again=false;
+      ms.forEach((m,k)=>{if(!m||m.have<=0||m.need<=m.have+0.25)return;
+        const k0=parseFloat(m.b.style.zoom)||1,z=Math.max(0.5,Math.floor(k0*m.have/m.need*0.99*1000)/1000);
+        if(z<k0){m.b.style.zoom=z;slides[k].dataset.fit=z;again=true;}});
+      if(!again)break;
+    }
+    const wbOf=sl=>{try{return JSON.parse(sl.dataset.wb||'null')}catch(e){return null}};
+    slides.forEach((sl,k)=>{if(!sl.dataset.fit||k===0)return;const pv=slides[k-1];
+      if(pv.dataset.fit||pv.dataset.kind!==sl.dataset.kind)return;
+      const a=wbOf(pv),c=wbOf(sl);
+      const pair=sl.dataset.kind==='wb'?(a&&c&&a.i===c.i&&a.lesson===c.lesson&&!a.reveal&&c.reveal):sl.dataset.kind==='yourturn';
+      if(pair){const b=bodyOf(pv);if(b){b.style.zoom=sl.dataset.fit;pv.dataset.fit=sl.dataset.fit;pv.dataset.fitpair='1';}}});
+    slides.forEach(sl=>{sl.style.visibility='';sl.style.display='';});
+  }
+  fitSlides();
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSlides);
+  addEventListener('load',fitSlides);
   if(!CONSOLE)show(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
 })();
 """

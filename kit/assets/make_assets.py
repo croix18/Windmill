@@ -69,8 +69,19 @@ def make_pi():
         for rec in font["name"].names:
             rec.string = {1: "WindyPi", 2: "Regular", 3: "WindyPi: pi of STIX General Bold", 4: "WindyPi", 6: "WindyPi"}[rec.nameID]
         font["OS/2"].usWeightClass = 400          # offered as the regular face: never emboldened twice
-        font["OS/2"].fsSelection = 0x40
         font["head"].macStyle = 0
+        # Lexend's vertical metrics, to the unit: a face listed first in a font stack is the one a
+        # browser measures a line by, and LibreOffice spaces a line by the tallest face on it. With
+        # STIX's own (ascent 1055, descent 455) a line with a pi in it, and every digit KaTeX set,
+        # stood 13 px deeper than its neighbours (htmlcheck: "content runs 7 px below the footer
+        # rule", M7 Unit 5, 5 October).
+        lex = TTFont(os.path.join(HERE, "Lexend-Regular.ttf"))
+        assert lex["head"].unitsPerEm == font["head"].unitsPerEm == 1000
+        font["OS/2"].version = max(font["OS/2"].version, 4)      # Lexend's fsSelection uses a version-4 bit
+        for tbl, names_ in (("hhea", ("ascent", "descent", "lineGap")),
+                            ("OS/2", ("sTypoAscender", "sTypoDescender", "sTypoLineGap", "usWinAscent", "usWinDescent", "fsSelection", "sxHeight", "sCapHeight"))):
+            for nm in names_:
+                setattr(font[tbl], nm, getattr(lex[tbl], nm))
         subset.save_font(font, os.path.join(HERE, dst), opts)
         print(f"{dst}: {os.path.getsize(os.path.join(HERE, dst))} bytes, {sorted(TTFont(os.path.join(HERE, dst)).getBestCmap())}")
 

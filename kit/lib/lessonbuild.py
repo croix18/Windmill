@@ -15,7 +15,7 @@ from sympy import Rational as F, sqrt, Integer, nsimplify
 from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
                                         implicit_multiplication_application, convert_xor, rationalize)
 from .dockit import Doc, INK, VOCAB, RED, GRAY
-from .deckkit import Deck, LM, CW, FOOT_Y, _textw
+from .deckkit import Deck, LM, CW, FOOT_Y, _textw, step_sizes
 from . import figkit
 from . import mathimg
 from .htmlkit import HtmlDeck
@@ -557,7 +557,8 @@ def _steps_size(rows):
     """One or two short steps on a slide with room are set as large as a worked line; more, or
     longer, at the size of the slide's ordinary text."""
     plain = max(len(re.sub(r"\$[^$]+\$", "x" * 9, slotmark.strip(r))) for r in rows)
-    return dict(size=26, surface="slidemid", gap=0.14) if len(rows) <= 2 and plain <= 48 else dict(size=23, surface="slide", gap=0.1)
+    big = len(rows) <= 2 and plain <= 48
+    return dict(gap=0.14 if big else 0.1, **step_sizes(big))
 
 
 def _example_top(prompt, fig):

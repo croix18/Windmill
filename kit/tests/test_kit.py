@@ -266,7 +266,9 @@ _yt = dict(prompt=["$2^{3}\\cdot 2^{4}$"], answer="128", steps=["$2^{3} \\cdot 2
 ok("steps: an answer slide that fits keeps its usual place and size", lb._yt_fit(_yt, "Find the value.") == (1.75, "slidebig"))
 _tall = "$\\left(\\frac{2}{3}\\right)^{5} \\cdot \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{2}{3}\\right)^{3}$"
 _big = dict(prompt=["$\\left[\\left(\\frac{2}{3}\\right)^{5}\\cdot\\left(\\frac{2}{3}\\right)^{-2}\\right]^{3}$"], answer_latex="\\left(\\frac{2}{3}\\right)^{9}", steps=[_tall] * 3)
-ok("steps: one that does not is set higher, or with its problem a size smaller", lb._yt_fit(_big, "Write it with one base.") == (1.62, "slidemid"))
+_tower = dict(prompt=["$\\frac{\\left(\\frac{2}{3}\\right)^{5}}{\\left(\\frac{2}{3}\\right)^{2}}$"], answer_latex="\\left(\\frac{2}{3}\\right)^{3}", steps=[_tall, "$2^{3} = 8$"])
+ok("steps: one that does not is set higher, or with its problem a size smaller",
+   lb._yt_fit(_big, "Write it with one base.") == (1.62, "slidebig") and lb._yt_fit(_tower, "Write it with one base.") == (1.62, "slidemid"))
 def _too_much():
     try:
         lb._yt_fit(dict(_big, steps=[_tall] * 5), "Write it with one base."); return False
@@ -333,6 +335,50 @@ ok("font: the HTML deck sets its mathematics in the slide font, with the pi face
    ".katex{font-family:'WindyPi','Lexend'" in h3 and "font-family:'WindyPi';" in h3 and "html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend'" in h3
    and ".katex .mathnormal,.katex .mathit,.katex .boldsymbol{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Math;font-style:normal}" in h3
    and "const KMACROS=" + json.dumps(_hk.KMACROS) + ";" in h3 and _hk.KMACROS["\\cdot"] == "\\mathbin{\\text{\u00b7}}", h3[h3.find("const KMACROS"):h3.find("const KMACROS") + 70])
+_lexm, _pim = _TT(os.path.join(_assets, "Lexend-Regular.ttf")), _TT(os.path.join(_assets, "WindyPi.ttf"))
+ok("font: the pi face stands on Lexend's own vertical metrics (a line with a pi in it is no taller than its neighbours)",
+   all(getattr(_pim[t], k) == getattr(_lexm[t], k) for t, ks in (("hhea", ("ascent", "descent", "lineGap")), ("OS/2", ("sTypoAscender", "sTypoDescender", "usWinAscent", "usWinDescent"))) for k in ks)
+   and "font-family:'WindyPi';font-weight:100 900;font-style:normal;size-adjust:95%;unicode-range:U+03C0;" in h3)
+_ss, _sb = _dk.step_sizes(), _dk.step_sizes(True)
+_mi.SLIDE_FACE = ""; _so = (_dk.step_sizes(), _dk.step_sizes(True)); _mi.SLIDE_FACE = _keep
+ok("steps: a line of working is one size — its words and its mathematics (and the old pairs come back with the face off)",
+   _ss == dict(size=24.5, surface="slidestep") and _sb == dict(size=29, surface="slidestepmid")
+   and all(x["size"] == _mi.SIZES[x["surface"]] for x in (_ss, _sb))
+   and _so == (dict(size=23, surface="slide"), dict(size=26, surface="slidemid")), str((_ss, _sb, _so)))
+_stp = re.findall(r'<div class="steps"><div>(<p class="t left s-(\w+)[^"]*" style="font-size:([\d.]+)pt">)', h3)
+ok("steps: in the HTML deck the mathematics of a step is set at the size of the words beside it",
+   _stp and all(surf in ("slidestep", "slidestepmid") and float(pt) == _mi.SIZES[surf] for _, surf, pt in _stp)
+   and "p.s-slidestep .k:not(.d),p.s-slidestepmid .k:not(.d){font-size:1em}" in h3, str(_stp)[:200])
+_runs = [(float(sz) / 100, t) for sz, t in re.findall(r'<a:rPr[^>]*\bsz="(\d+)"[^>]*>.*?</a:rPr><a:t>([^<]*)</a:t>', " ".join(sx), re.S) if "First line of working" in t]
+ok("steps: and in the PowerPoint the words of a step are set at the size its mathematics is drawn",
+   _runs and all(abs(sz - round(_mi.SIZES[s_] * _dk.SCALE, 1)) < 0.06 for sz, _ in _runs for s_ in ("slidestepmid",)), str(_runs))
+# ---- the HTML deck fits itself: nothing runs into the footer, and a slide carrying far too much is still refused
+try:
+    import checks as _ck
+    from playwright.sync_api import sync_playwright as _sp_          # noqa: F401
+    _browser = True
+except Exception:
+    _browser = False
+if _browser:
+    _row = "$\\left(\\frac{2}{3}\\right)^{5} \\cdot \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{2}{3}\\right)^{3}$"
+    def _page(nrows, fit=True):
+        H = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot")
+        H.section("Your Turn", "", 1, "n", "yourturn"); H.text("A problem.", 24, align="center")
+        H.section("Your Turn", "", 1, "n", "yourturn"); H.text("A problem.", 24, align="center"); H.steps([_row] * nrows); H.answer_line("42")
+        page = render_page(H)
+        return page if fit else page.replace("fitSlides();", "").replace("document.fonts.ready.then(fitSlides)", "0").replace("addEventListener('load',fitSlides);", "")
+    with tempfile.TemporaryDirectory() as tmp:
+        _res = {}
+        for name, nrows, fit in (("fits", 6, True), ("unfitted", 6, False), ("far too much", 12, True)):
+            pth = os.path.join(tmp, name.replace(" ", "_") + ".html"); open(pth, "w", encoding="utf-8").write(_page(nrows, fit))
+            import io, contextlib
+            with contextlib.redirect_stdout(io.StringIO()) as _out:
+                _res[name] = (_ck.check_html([pth]), _out.getvalue())
+    ok("html fit: a slide a little too tall is set smaller, whole, and clears its footer (and the check says how many were)",
+       not any("below the footer rule" in x or "had to be set" in x for x in _res["fits"][0]) and "2 slides set smaller to clear the footer" in _res["fits"][1], str(_res["fits"])[:300])
+    ok("html fit: its question slide takes the same factor, so the pair agree", "2 slides set smaller" in _res["fits"][1])
+    ok("html fit: without the fit the same slide runs into the footer, and the check sees it", any("below the footer rule" in x for x in _res["unfitted"][0]), str(_res["unfitted"][0])[:300])
+    ok("html fit: a slide that would have to be set under the floor is refused — that is the spec's to fix", any("had to be set at" in x for x in _res["far too much"][0]), str(_res["far too much"][0])[:300])
 ok("font: the HTML deck hands KaTeX a variable l as the script l", _hk._tex("A = lw", False) == r"A = \ell w" and _hk._tex(r"3\text{ ml}", False) == r"3\text{ ml}")
 
 from lib import htmlkit as _hk
