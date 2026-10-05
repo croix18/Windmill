@@ -350,9 +350,11 @@ never share a file (the face is in each image's fingerprint).
     one-glyph face **WindyPi** (`assets/WindyPi.ttf`, `windypi.woff2`, cut by `make_assets.py
     make_pi`) for a π typed in words or on a figure. `deckkit._by_font` names it for the run; the
     HTML lists it first in every font stack. `checks.py glyph` refuses a π set in anything else.
-  - **the multiplication dot** — `\cdot` is drawn with Lexend's own raised dot (U+00B7, the dot
-    a spec types in words and tables), which is exactly as heavy as Lexend's decimal point. The
-    STIX dot beside Lexend digits is fainter than the decimal point next to it.
+  - **the multiplication dot** — `\cdot` is drawn with Lexend's own raised dot (U+2219: the size
+    of the middle dot a spec types in words and tables, exactly as heavy as Lexend's decimal
+    point, and the one dot KaTeX will also take from Lexend). The STIX dot beside Lexend digits
+    is fainter than the decimal point next to it. In the browser `\neq` is likewise Lexend's own
+    sign (`htmlkit.KMACROS`).
   - **a variable l** — Lexend's is a bare stroke, the mark of an absolute-value bar; it is set as
     the script ℓ. Letters inside `\text{}` are words and are left alone.
 - *HTML decks and the console* — KaTeX lays the expression out; `htmlkit.MATHFACE` draws its

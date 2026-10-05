@@ -388,8 +388,18 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   builds that had them stopped at `capcheck` before `htmlcheck` ran. The HTML deck now fits
   itself (`fitSlides`; SPEC SCHEMA): 14 answer slides in A7 Units 3–4 are set at 79–98%, with
   their question slides; `htmlcheck` refuses under 75%. One A7 step row was shortened to stay one
-  line at the new size (3.05 board 9: "…flips the fraction. The sign stays."). Kit tests 115 and
-  120 (4 of them open a browser).
+  line at the new size (3.05 board 9: "…flips the fraction. The sign stays."). (4) *The browser's
+  multiplication dot was not Lexend's*: KaTeX turns a typed middle dot (U+00B7) back into its own
+  U+22C5, which Lexend lacks, so the dot came small from a fallback face — `htmlcheck`'s colour
+  reading caught it (233 findings on A7 Unit 3). Both renderers now draw `\cdot` with U+2219,
+  which Lexend carries at exactly the size of its decimal point; and `\neq` in the browser is
+  Lexend's own sign (KaTeX's is an equals with a thin slash laid over it from another font).
+  Each glyph's real font was read back from Chrome (scratch `mathlex/fonts.js`): digits, letters,
+  × ÷ − + = ≤ ≥ ≈ ± … from Lexend; π from WindyPi; → ∘ from the DejaVu cut; grown brackets and
+  radicals from KaTeX's own. Kit tests 119 and 120 (4 of them open a browser).
+  **Before a rebuild, run the real gates and the real `htmlcheck` on dry decks** (scratch
+  `mathlex/dry2.py`, then `checks.check_html` over its HTML): three 20-minute builds were lost this
+  morning to refusals a two-minute dry run would have shown.
 
 - **5 Oct 2026, morning — every lesson's steps written; the answer slide fits itself (kit + both
   courses).** All 38 lessons carry `steps` on every board and Your Turn (M7 Units 4–5: 22

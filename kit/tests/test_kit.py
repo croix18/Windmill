@@ -306,11 +306,11 @@ ok("math: pi is the one sign a slide does not take from Lexend (STIX bold: the t
    _gp["\u03c0"] == ("STIXGeneral", "Bold") and _gp["C"][0] == "Lexend" and _gp["r"][0] == "Lexend", str(_gp))
 _gc = _glyphs(r"2.5 \cdot 10^{3}", "slide")
 ok("math: the multiplication dot is Lexend's own raised dot, as heavy as the decimal point beside it",
-   ("\u00b7", "Lexend", "Regular") in _gc and (".", "Lexend", "Regular") in _gc and not any(c == "\u22c5" for c, _, _ in _gc), str(_gc))
+   ("\u2219", "Lexend", "Regular") in _gc and (".", "Lexend", "Regular") in _gc and not any(c in "\u22c5\u00b7" for c, _, _ in _gc), str(_gc))
 ok("math: a variable l is set as the script l, never Lexend's bare stroke", [c for c, _, _ in _glyphs(r"A = lw", "slide")] == ["A", "=", "\u2113", "w"])
 ok("math: words inside an expression are left as written (the l of 'ml' is a letter, not a variable)",
    _mi.lexend_tex(r"250\text{ ml} \leq \left(l\right) \ldots") == r"250\text{ ml} \leq \left(\ell \right) \ldots")
-ok("math: a slot mark survives the slide face", slotmark.strip(_mi.lexend_tex(r"\sA{l}^{\sB{2}} \cdot \pi")) == "\\ell ^{2} \\hspace{0.2}\u00b7\\hspace{0.2} \\mathtt{\\pi}")
+ok("math: a slot mark survives the slide face", slotmark.strip(_mi.lexend_tex(r"\sA{l}^{\sB{2}} \cdot \pi")) == "\\ell ^{2} \\hspace{0.2}\u2219\\hspace{0.2} \\mathtt{\\pi}")
 _mi_figs = (_mi.FIGS, _mi.INDEX); _mi.FIGS = tempfile.mkdtemp(prefix="kitmath"); _mi.INDEX = os.path.join(_mi.FIGS, "index.json")
 _pa = _mi.m(r"6.02 \times 10^{-3}", "slide")[0]
 _keep = _mi.SLIDE_FACE; _mi.SLIDE_FACE = ""
@@ -334,7 +334,7 @@ ok("font: the pi face holds exactly one glyph, and travels with its licence",
 ok("font: the HTML deck sets its mathematics in the slide font, with the pi face first in every stack",
    ".katex{font-family:'WindyPi','Lexend'" in h3 and "font-family:'WindyPi';" in h3 and "html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend'" in h3
    and ".katex .mathnormal,.katex .mathit,.katex .boldsymbol{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Math;font-style:normal}" in h3
-   and "const KMACROS=" + json.dumps(_hk.KMACROS) + ";" in h3 and _hk.KMACROS["\\cdot"] == "\\mathbin{\\text{\u00b7}}", h3[h3.find("const KMACROS"):h3.find("const KMACROS") + 70])
+   and "const KMACROS=" + json.dumps(_hk.KMACROS) + ";" in h3 and _hk.KMACROS["\\cdot"] == "\\bullet " and _hk.KMACROS["\\neq"] == _hk.KMACROS["\\ne"] == "\\mathrel{\\char\"2260}", h3[h3.find("const KMACROS"):h3.find("const KMACROS") + 70])
 _lexm, _pim = _TT(os.path.join(_assets, "Lexend-Regular.ttf")), _TT(os.path.join(_assets, "WindyPi.ttf"))
 ok("font: the pi face stands on Lexend's own vertical metrics (a line with a pi in it is no taller than its neighbours)",
    all(getattr(_pim[t], k) == getattr(_lexm[t], k) for t, ks in (("hhea", ("ascent", "descent", "lineGap")), ("OS/2", ("sTypoAscender", "sTypoDescender", "usWinAscent", "usWinDescent"))) for k in ks)

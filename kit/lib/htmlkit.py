@@ -365,7 +365,14 @@ MATHFACE = r"""
 .katex .textrm,.katex .mathrm,.katex .mainrm,.katex .mathbf,.katex .textbf{font-family:'WindyPi','Lexend','LexendFallback',KaTeX_Main;font-style:normal}
 """
 
-KMACROS = {"\\cdot": "\\mathbin{\\text{\u00b7}}"}
+# \cdot is drawn with U+2219, which Lexend carries at exactly the size of its decimal point.
+# (KaTeX turns a typed middle dot, U+00B7, back into its own U+22C5 whatever it is wrapped in —
+# \text, \char — and Lexend has no U+22C5, so that dot came from a fallback face, small and faint.
+# htmlcheck's colour reading caught the difference, 5 October.)
+# \neq is drawn with Lexend's own not-equal sign: KaTeX builds its own from an equals sign and a
+# slash laid over it from another font, and over Lexend's heavier, wider equals the slash sits thin
+# and off-centre. (\char reaches the glyph; a typed sign is turned back into \neq.)
+KMACROS = {"\\cdot": "\\bullet ", "\\neq": "\\mathrel{\\char\"2260}", "\\ne": "\\mathrel{\\char\"2260}"}
 
 CSS = r"""
 html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend','LexendFallback','DejaVu Sans',Verdana,sans-serif;color:#INK}

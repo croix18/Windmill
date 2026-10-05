@@ -53,7 +53,7 @@ CB1, CB2, SLOT_INK = "1E5AA8", "C05A00", "1A1A1A"
 # stand as tall as the STIX digits they replace, so a row keeps its height.
 SLIDE_FACE = "Lexend"            # "" sets slides back in STIX — one line, and every image is re-keyed
 LEXEND_SCALE = 0.95
-FACE_VERSION = "lexend-v3"
+FACE_VERSION = "lexend-v4"
 _ASSETS = None
 
 
@@ -81,12 +81,13 @@ def _face_ready():
 _TEXTLIKE = ("text", "mathrm", "textbf", "mathbf", "operatorname", "mathtt", "mathcal", "mathsf", "mathit")
 
 
-def lexend_tex(latex, pi=r"\mathtt{\pi}", cdot="\\hspace{0.2}\u00b7\\hspace{0.2}", ell=r"\ell "):
+def lexend_tex(latex, pi=r"\mathtt{\pi}", cdot="\\hspace{0.2}\u2219\\hspace{0.2}", ell=r"\ell "):
     r"""The same expression, written so the slide face sets it soundly. Three things change and
     nothing else — the mathematics is untouched:
       * \pi            -> STIX bold pi (see above);
-      * \cdot          -> Lexend's own raised dot (U+00B7, the dot a spec types in words and
-                          tables), with a binary operator's space either side. STIX's dot beside
+      * \cdot          -> Lexend's own raised dot (U+2219: the same size as the middle dot a spec
+                          types in words and tables, and the one dot KaTeX will also draw from
+                          Lexend), with a binary operator's space either side. STIX's dot beside
                           Lexend's digits is fainter than the decimal point of the number next
                           to it, and 2.5 . 10 must never be mistaken for 2.510;
       * a variable l   -> the script l, so it cannot be read as a 1 or as a bar.
