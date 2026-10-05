@@ -731,6 +731,21 @@ CONSOLE_PROBE = r"""
     UNIT.lessons.forEach(L => { if (Flow.indexOf(F, L.code, L.plan) < 0) out.problems.push(`flow: ${L.code} is not a day of the year's sequence`); });
     if (typeof Console.flow !== 'function') out.problems.push('flow: the console does not answer where a period is');
   }
+  // the stepped reveal: an answer slide comes on with its answer AND its working under the veil, and
+  // one press shows both (the working is the answer, a line at a time)
+  if (typeof Console === 'object' && typeof Console.show === 'function' && typeof Console.unveil === 'function') {
+    const all = [...document.querySelectorAll('.slide')];
+    const k = all.findIndex(s => s.querySelector('.steps') && s.querySelector('.answer'));
+    if (k >= 0) {
+      const vis = sel => getComputedStyle(all[k].querySelector(sel)).visibility;
+      all[k].classList.remove('shown'); Console.show(k, {silent: true});
+      if (!all[k].classList.contains('veiled') || vis('.steps') !== 'hidden' || vis('.answer') !== 'hidden')
+        out.problems.push(`an answer slide comes on with its working or its answer showing (slide ${k + 1}: steps ${vis('.steps')}, answer ${vis('.answer')})`);
+      Console.unveil();
+      if (vis('.steps') !== 'visible' || vis('.answer') !== 'visible') out.problems.push(`one press does not show an answer slide's working and answer (slide ${k + 1})`);
+      all[k].classList.remove('shown');
+    }
+  }
   return out;
 }
 """

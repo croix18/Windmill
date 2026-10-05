@@ -184,10 +184,10 @@ body.norail #rail{display:none}
 #tPickList button small{float:right;color:#8fd6a8;font-size:12px;margin-left:8px}
 #tHist{margin-top:10px;color:#9fb4c7;font-size:13px}#tHist summary{cursor:pointer}#tHistBody{margin-top:6px;line-height:1.5}#tHistBody b{color:#ddd}
 #codeIn{width:100%;box-sizing:border-box;font:16px/1.3 ui-monospace,monospace;padding:10px;border-radius:8px;border:1px solid #2a2f36;background:#0f1216;color:#fff}
-.slide.veiled .answer,.slide.veiled .wa{visibility:hidden}
+.slide.veiled .answer,.slide.veiled .wa,.slide.veiled .steps{visibility:hidden}
 .slide.veiled ol.choices li.correct{color:inherit;font-weight:400}
 body.console #hud{display:none}
-@media print{#bar,#rail,#today,#codeBox{display:none!important}.slide.veiled .answer,.slide.veiled .wa{visibility:visible}}
+@media print{#bar,#rail,#today,#codeBox{display:none!important}.slide.veiled .answer,.slide.veiled .wa,.slide.veiled .steps{visibility:visible}}
 """
 
 JS = r"""
@@ -244,8 +244,10 @@ JS = r"""
   function lessonByCode(c){if(!c)return null;return U.lessons.find(L=>L.code===c)||U.lessons.find(L=>L.plan===c)||U.lessons.find(L=>c.indexOf(L.code+'+')===0)||null;}
   function show(n,opts){opts=opts||{};n=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('on',k===n));cur=n;
     const L=lessonOf(n),seg=segOf(L,n);
-    // stepped reveal: an answer slide shows its question first; Space / click lifts the veil
-    const hasAns=slides[n].querySelector('.answer, .wa, ol.choices li.correct');
+    // stepped reveal: an answer slide shows its question first; Space / click lifts the veil — and
+    // the veil covers the working with the answer (ruling 39 put steps on these slides; for a day
+    // they showed the moment the slide came on, with the answer line still hidden under them)
+    const hasAns=slides[n].querySelector('.answer, .wa, .steps, ol.choices li.correct');
     slides[n].classList.toggle('veiled',!!hasAns&&!opts.unveiled&&!slides[n].classList.contains('shown'));
     // the URL is an input (#s=17, #L=3.06, #period=3 from Deckhand), never rewritten: a reload comes back to Today and Resume
     resetTimer();                                   // a board's clock belongs to that board: leaving the slide ends it

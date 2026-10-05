@@ -383,6 +383,8 @@ ok("font: the HTML deck hands KaTeX a variable l as the script l", _hk._tex("A =
 
 from lib import htmlkit as _hk
 _cjs = re.sub(r"//[^\n]*", "", open(consolekit.__file__, encoding="utf-8").read()); _hjs = re.sub(r"//[^\n]*", "", open(_hk.__file__, encoding="utf-8").read())
+ok("console: the veil over an answer slide covers its working as well as its answer",
+   ".slide.veiled .answer,.slide.veiled .wa,.slide.veiled .steps{visibility:hidden}" in _cjs and "querySelector('.answer, .wa, .steps, ol.choices li.correct')" in _cjs)
 ok("console and deck: the slide is sized by the document's own box, never window.innerWidth (a touch screen reports the zoomed-out width there)",
    not re.search(r"\binner(Width|Height)\b", _cjs) and not re.search(r"\binner(Width|Height)\b", _hjs)
    and "document.documentElement.clientWidth" in _cjs and "document.documentElement.clientWidth" in _hjs)

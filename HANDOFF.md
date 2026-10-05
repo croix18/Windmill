@@ -406,6 +406,13 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   sets `data-fit="ready"` when they are in. The same console opens in 0.7 s (1.6 s slowed).
   `htmlcheck` waits for the ready mark, turns to each slide and lets the page fit it before
   measuring. On paper (`beforeprint`) every slide is fitted.
+  (6) *The console's veil did not cover the working.* The console brings an answer slide on with
+  its answer hidden and shows it on the next press (the stepped reveal). Steps were added to
+  those slides on the 4th and nothing told the veil: for one day (the consoles sent the morning
+  of the 5th) an answer slide came on with its working showing and only the red answer line
+  hidden under it. The veil now covers `.steps` with `.answer`, one press shows both, and the
+  console probe in `htmlcheck` turns to an answer slide and checks exactly that. Found by driving
+  the console by keyboard at the panel's size and looking, not by a check — every check passed.
   **Before a rebuild: `python3 tools/dry_run.py <course build dir> u3 u4`** (new, this
   repository). Every gate of `build_lesson` on every lesson, both decks laid out, and the real
   `htmlcheck` in a browser on the HTML decks and a trial console — two minutes, no LibreOffice,
