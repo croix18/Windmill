@@ -17,6 +17,7 @@ from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
 from .dockit import Doc, INK, VOCAB, RED, GRAY
 from .deckkit import Deck, LM, CW, FOOT_Y, _textw
 from . import figkit
+from . import mathimg
 from .htmlkit import HtmlDeck
 from . import tekit
 from . import slotmark
@@ -658,26 +659,11 @@ def _fill_deck(D, L):
             # Your Turn that was only an expression leaned on it: such a one now carries its Example's
             # bold instruction ("Which law? Then find the value."), or its own `ask` when it has one.
             yt_ask = yt.get("ask", ex.get("ask") if all(_bare_math(r) for r in yt["prompt"]) else None)
+            top, surf = _yt_fit(yt, yt_ask)
             D.section("Your Turn", "Same steps, your numbers. Boards up when done.", yt.get("min", 2), yt["note"], "yourturn")
-            D.cursor = 1.75 if yt.get("steps") else 2.4       # where its answer slide puts it, so nothing jumps on the reveal
-            for row in yt["prompt"]:
-                D.math_row(row, surface="slidebig", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
-            if yt_ask:
-                D.cursor += 0.2
-                D.text(yt_ask, 24, bold=True, align="center")
+            _yt_body(D, yt, yt_ask, False, top, surf)
             D.section("Your Turn", "Answer.", 1, "Reveal; name what a wrong board most likely did (see the note above).", "yourturn")
-            D.cursor = 1.75 if yt.get("steps") else 2.4      # with its working under it the problem starts higher
-            for row in yt["prompt"]:
-                D.math_row(row, surface="slidebig", gap=0.35, slots=True) if _math_row(row) else D.text(row, 24, align="center", slots=True)
-            if yt_ask:
-                D.cursor += 0.2
-                D.text(yt_ask, 24, bold=True, align="center")
-            if yt.get("steps"):
-                D.steps(yt["steps"], **_steps_size(yt["steps"]))
-            if yt.get("answer_latex"):
-                D.answer_math(yt["answer_latex"], y=min(max(D.cursor + 0.2, 4.9), FOOT_Y - 0.66))
-            else:
-                D.answer_line(yt["answer"], y=min(max(D.cursor + 0.2, 5.0), FOOT_Y - 0.62) if yt.get("steps") else max(D.cursor + 0.2, 5.0))
+            _yt_body(D, yt, yt_ask, True, top, surf)
     # ---- whiteboards: nine questions, question + reveal each
     wb = L["whiteboard"]
     N = C.WB_COUNT
@@ -687,14 +673,15 @@ def _fill_deck(D, L):
         title = f"Whiteboards   ·   Question {qi + 1} of {N}"
         subq = "Take your time. Boards up when you have written it." if last else "Boards up on three."
         meta = _board_meta(L, qi, q)
+        top, surf = _wb_fit(q)             # where both of its slides start, and how large its expression is set
         D.section(title, subq, 0, q["note"], "wb")
         D.tag(wb=dict(meta, reveal=False))
-        D.cursor = 2.4
-        _wb_body(D, q, reveal=False)
+        D.cursor = 2.4 if top is None else top
+        _wb_body(D, q, reveal=False, surface=surf)
         D.section(title, "Answer.", 0, q.get("note_a", "Reveal. Scan the back row first; question the blank boards before the wrong ones."), "wb")
         D.tag(wb=dict(meta, reveal=True))
-        D.cursor = 2.3
-        _wb_body(D, q, reveal=True)
+        D.cursor = 2.3 if top is None else top
+        _wb_body(D, q, reveal=True, surface=surf)
     # ---- the independent set (ruling 21), the close where the course has one, then IXL last
     T = L["te"]
     if not L.get("no_set"):           # Croix, 27 September: the M7 Unit 4 lessons carry no six-question set
@@ -737,10 +724,89 @@ def _board_meta(L, qi, q):
     return meta
 
 
-def _wb_body(D, q, reveal):
+def _yt_body(D, yt, yt_ask, reveal, top, surf):
+    """A Your Turn's slide: its problem, its instruction and — on the answer slide — its steps and
+    the answer. `top` and `surf` come from _yt_fit, the same for both slides, so nothing moves
+    when the answer is shown."""
+    D.cursor = top
+    for row in yt["prompt"]:
+        D.math_row(row, surface=surf, gap=0.35, slots=reveal) if _math_row(row) else D.text(row, 24, align="center", slots=reveal)
+    if yt_ask:
+        D.cursor += 0.2
+        D.text(yt_ask, 24, bold=True, align="center")
+    if not reveal:
+        return
+    if yt.get("steps"):
+        D.steps(yt["steps"], **_steps_size(yt["steps"]))
+        _room_for_answer(D, yt)
+        if yt.get("answer_latex"):
+            D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.15, 4.9))
+        else:
+            D.answer_line(yt["answer"], y=max(D.cursor + 0.15, 5.0))
+    elif yt.get("answer_latex"):
+        D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.2, 4.9))
+    else:
+        D.answer_line(yt["answer"], y=max(D.cursor + 0.2, 5.0))
+
+
+def _room_for_answer(D, q):
+    """Refuse an answer slide whose steps leave the answer no room above the footer (the PowerPoint
+    has a real cursor; the HTML deck lays itself out and is measured by htmlcheck)."""
+    if not isinstance(D, Deck):
+        return
+    ah = mathimg.m(slotmark.strip(q["answer_latex"]), "slidebig", RED)[2] if q.get("answer_latex") else \
+        0.59 * max(1, -(-int(D.measure("Answer:   " + q["answer"], "slide", 32, bold=True) * 100) // int((CW - 0.4) * 100)))
+    if D.cursor + 0.15 + ah > FOOT_Y + 0.02:
+        raise RuntimeError(f"the answer has no room under its steps (they end at {D.cursor:.2f} in and the answer is {ah:.2f} in tall)")
+
+
+_SCRATCH = []
+
+
+def _trial(draw):
+    """Does this layout fit a slide? Drawn on a scratch PowerPoint that is never saved."""
+    if not _SCRATCH:
+        _SCRATCH.append(Deck(C.COURSE, 0, "trial", "trial", "trial"))
+    S = _SCRATCH[0]
+    S.section("trial", "", 0, "", "content")
+    try:
+        draw(S)
+        return True
+    except RuntimeError:
+        return False
+
+
+def _yt_fit(yt, yt_ask):
+    """(top, surface) for a Your Turn's two slides: the usual place and size when the answer slide
+    — problem, instruction, steps, answer — fits from there, and otherwise higher, then with the
+    problem's mathematics one size smaller. The first that fits; the build refuses if none does."""
+    if not yt.get("steps"):
+        return 2.4, "slidebig"
+    for top, surf in ((1.75, "slidebig"), (1.62, "slidebig"), (1.62, "slidemid")):
+        if _trial(lambda S: _yt_body(S, yt, yt_ask, True, top, surf)):
+            return top, surf
+    raise RuntimeError(f"a Your Turn's answer slide cannot hold its steps \u2014 fewer or shorter steps: {yt['prompt'][0][:60]}")
+
+
+def _wb_fit(q):
+    """(top, surface) for a board's two slides, by the same trial. top None = the usual places."""
+    if not q.get("steps") or q.get("fig"):
+        return None, "slidebig"
+    def draw(top, surf):
+        def go(S):
+            S.cursor = top
+            _wb_body(S, q, True, surf)
+        return go
+    for top, surf in ((2.3, "slidebig"), (1.8, "slidebig"), (1.8, "slidemid"), (1.62, "slidemid")):
+        if _trial(draw(top, surf)):
+            return (None if top == 2.3 else top), surf
+    raise RuntimeError(f"a board's answer slide cannot hold its steps \u2014 fewer or shorter steps: {board_text(q)[:70]}")
+
+
+def _wb_body(D, q, reveal, surface="slidebig"):
     kind = q.get("kind", "free")
     if q.get("latex"):
-        D.math(q["latex"], "slidebig", slots=reveal)
+        D.math(q["latex"], surface, slots=reveal)
     rows = q.get("text", [])
     word = any(r.startswith("**") for r in rows)
     if word:
@@ -749,7 +815,7 @@ def _wb_body(D, q, reveal):
         # every centred version ("the formatting is horrible, I often don't understand what they
         # are asking", 3 Oct). The ask is ON the slide, in the text: M7's first decks kept it in
         # the grey hint under "Answer it.", or only in the teacher's edition (found 4 Oct).
-        D.cursor = 2.05
+        D.cursor = min(D.cursor, 2.05)
         for r in rows:
             bold = r.startswith("**")
             r = r.lstrip("*")
@@ -790,7 +856,9 @@ def _wb_body(D, q, reveal):
     else:
         if q.get("steps") and not fig:     # the working, then the answer under it (beside the figure when there is one)
             D.steps(q["steps"], **_steps_size(q["steps"]))
-        y = min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
+        if q.get("steps"):
+            _room_for_answer(D, q)
+        y = max(D.cursor + 0.15, 5.1) if q.get("steps") else min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
         if q.get("answer_latex"):
             D.answer_math(q["answer_latex"], y=y)
         else:

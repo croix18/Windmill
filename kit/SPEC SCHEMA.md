@@ -313,6 +313,12 @@ It is the mathematics, not a remark about it (the grey `gloss` and `hint` stay o
   `3.14 \\times 14 = 43.96`, not `\\pi`); an `=` between expressions in the same letters must be an
   identity; and the last number the steps reach must be the item's `check` value. A false step
   refuses the build. Keep units outside the `$…$`.
+- **The slide fits itself.** A board's or a Your Turn's question slide and answer slide start at
+  the same place and set the problem at the same size, chosen by laying the answer slide out on a
+  scratch deck: the usual place if everything fits, then higher, then the problem's mathematics
+  one size smaller. If nothing fits the build says "cannot hold its steps" — write fewer or
+  shorter rows (two tall fraction rows are usually the limit under a tall problem; a label row
+  and one chained line of mathematics is shorter than two lines of mathematics).
 - A slide without steps is a finding where the course profile says `STEPS = "required"`; until a
   unit's steps are all written it is only counted ("N of M answer slides show their steps").
 

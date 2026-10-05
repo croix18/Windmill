@@ -356,6 +356,17 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **5 Oct 2026, morning — every lesson's steps written; the answer slide fits itself (kit + both
+  courses).** All 38 lessons carry `steps` on every board and Your Turn (M7 Units 4–5: 22
+  lessons, 242 answer slides; A7 Units 3–4: 16 lessons, 176) and both `course.py`s say
+  `STEPS = "required"`. In the kit: `stepcheck`'s final-answer rule is "the checked value is
+  somewhere the steps arrive"; a board's and a Your Turn's two slides take their place and the
+  size of the problem's mathematics from a trial layout of the answer slide on a scratch deck
+  (`_wb_fit`, `_yt_fit` — the usual place; higher; then one size smaller; else the build refuses
+  with "cannot hold its steps"), so the question slide and its answer slide always agree and
+  nothing reaches the footer. How steps are written is in `kit/SPEC SCHEMA.md` (ruling 39) and
+  each course's notes. Still open from this request: **mathematics and figure labels in Lexend**.
+
 - **5 Oct 2026, just after midnight — Lexend on every slide, and steps on every answer slide
   (kit; rulings 39 and 40).** Croix: *"Also, start making every slide in the Google dislexia
   font. But the answers should always show easy to follow steps."* Asked: **Lexend**, and

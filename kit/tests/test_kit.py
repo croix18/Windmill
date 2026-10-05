@@ -254,6 +254,17 @@ ok("steps: where the course requires them, an answer slide with none is refused"
 C.STEPS = _req
 ok("steps: a lesson with no steps is a finding only where the course requires them",
    [x for x in lb.stepcheck_lesson(slotmark.strip_deep(L))[0] if "ruling 39" in x] == [] or getattr(C, "STEPS", "optional") == "required")
+_yt = dict(prompt=["$2^{3}\\cdot 2^{4}$"], answer="128", steps=["$2^{3} \\cdot 2^{4} = 2^{3+4} = 2^{7}$", "$2^{7} = 128$"])
+ok("steps: an answer slide that fits keeps its usual place and size", lb._yt_fit(_yt, "Find the value.") == (1.75, "slidebig"))
+_tall = "$\\left(\\frac{2}{3}\\right)^{5} \\cdot \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{2}{3}\\right)^{3}$"
+_big = dict(prompt=["$\\left[\\left(\\frac{2}{3}\\right)^{5}\\cdot\\left(\\frac{2}{3}\\right)^{-2}\\right]^{3}$"], answer_latex="\\left(\\frac{2}{3}\\right)^{9}", steps=[_tall] * 3)
+ok("steps: one that does not is set higher, or with its problem a size smaller", lb._yt_fit(_big, "Write it with one base.") == (1.62, "slidemid"))
+def _too_much():
+    try:
+        lb._yt_fit(dict(_big, steps=[_tall] * 5), "Write it with one base."); return False
+    except RuntimeError as e:
+        return "cannot hold its steps" in str(e)
+ok("steps: and one that cannot fit at all is refused, not let run into the footer", _too_much())
 _faces = set(re.findall(r'typeface="([^"]+)"', " ".join(sx)))
 ok("font: every run on a slide is set in Lexend (or, for a sign it lacks, the named fallback)", _faces <= {"Lexend", "DejaVu Sans"} and "Lexend" in _faces, str(_faces))
 ok("font: nothing on a slide is italic", not re.search(r'<a:rPr[^>]*\bi="1"', " ".join(sx)) and "font-style:italic" not in h3[h3.index('<section class="slide'):])
