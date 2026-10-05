@@ -153,13 +153,18 @@ S_.pop("independent")
 S_["notes"] = [dict(numeral="I", head="What a rope is", min=2, sub="Copy all three lines.", note="n", items=["A rope has a length."], letters=False)]
 S_["examples"] = [dict(title="Example 1", sub="A label for the Teacher's Edition only.", min_q=1, note_q="n",
                        prompt=["A rope is 9 m long and is cut into 3 equal pieces.", "How long is each piece?"], ask="Decide first.",
-                       worked=[dict(sub="A worked label.", lead="Divide, or subtract?", min=1, note="n", rows=[("9 \\div 3 = 3", "equal pieces")], answer="3 m")],
+                       worked=[dict(sub="A worked label.", lead="Divide, or subtract?", min=1, note="n", rows=[("9 \\div 3 = 3", "a remark beside a step")], answer="3 m")],
                        check=("eq", "9/3", "3"),
-                       your_turn=dict(min=1, note="n", prompt=["A rope is 8 m long and is cut in half.", "How long is each piece?"], answer="4 m"), yt_check=("eq", "8/2", "4")),
+                       your_turn=dict(min=1, note="n", prompt=["A rope is 8 m long and is cut in half.", "How long is each piece?"], gloss="halve it, said in grey", answer="4 m"), yt_check=("eq", "8/2", "4")),
                   dict(title="Example 2", sub="Another label.", min_q=1, note_q="n", prompt=["$2^{3}$"], ask="Find the value of it.",
                        worked=[dict(sub="Worked.", min=1, note="n", rows=[("2^{3} = 8", "three twos")], answer="8")], check=("eq", "2**3", "8"),
                        your_turn=dict(min=1, note="n", prompt=["$3^{2}$"], answer="9"), yt_check=("eq", "3**2", "9"))]
-GONE = ["Copy all three lines.", "A label for the Teacher", "A worked label.", "Boards up on three.", "Take your time. Boards up", "On your own. Four minutes.",
+S_["whiteboard"] = copy.deepcopy(S_["whiteboard"])
+S_["whiteboard"][0].update(hint="A grey hint under the ask.", gloss="a grey line above the answer")
+# the same night, of what was left: "But also those comments. Half the box. It's still a rhombus" —
+# the hint under "Answer it.", then (asked) "Remove both": the remark beside a worked step and the
+# line above a reveal's answer
+GONE = ["A grey hint under the ask.", "a grey line above the answer", "a remark beside a step", "three twos", "halve it, said in grey", "Copy all three lines.", "A label for the Teacher", "A worked label.", "Boards up on three.", "Take your time. Boards up", "On your own. Four minutes.",
         "Same steps, your numbers.", "Last five minutes.", "Yesterday you measured ropes.", "Today the rope is cut twice."]
 KEPT = ["A rope is 9 m long and is cut into 3 equal pieces.", "How long is each piece?", "Divide, or subtract?", "What a rope is", "A rope has a length.", "Decide first."]
 with tempfile.TemporaryDirectory() as tmp:
@@ -179,6 +184,10 @@ ok("slides: the problem, the lead and the notes are in the HTML deck", all(k in 
 ok("slides: a Your Turn that is only an expression carries its Example's instruction (question and answer slides)", ptext.count("Find the value of it.") == 3 and htext.count("Find the value of it.") == 3, f"{ptext.count('Find the value of it.')} and {htext.count('Find the value of it.')}")
 ok("slides: a Your Turn that asks its own question is not given the Example's", ptext.count("Decide first.") == 1 and htext.count("Decide first.") == 1)
 ok("slides: the labels are still the Teacher's Edition's (the side-car)", any(x["sub"] == "Copy all three lines." for x in P.side) and any(x["sub"] == "Answer." for x in P.side) and [x["sub"] for x in P.side] == [x["sub"] for x in H.side])
+ok("slides: the HTML deck has no hint, no remark beside a worked step and no line above an answer",
+   not re.search(r'class="(hint|gloss|why)"', slides_html) and ".hint{" not in html and ".gloss{" not in html and ".why{" not in html)
+ok("slides: a board still carries its instruction, and a worked slide its steps and answer",
+   ptext.count("Answer it.") == len([q for q in S_["whiteboard"] if q.get("kind") != "written"]) and "Answer it." in htext and "3 m" in ptext and "3 m" in htext)
 ok("slides: the HTML deck prints no text in the place of the grey line", not re.search(r'<p class="sub[^"]*">[^<]', slides_html) and 'class="box"' not in slides_html)
 ok("slides: the title slide's note gives the teacher the line to say", "Today the rope is cut twice." in P.side[0]["note"])
 ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",

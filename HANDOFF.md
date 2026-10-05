@@ -356,6 +356,20 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, the last change of the night — every remaining comment off the slides (kit + M7
+  Unit 4 specs).** Shown the rebuilt decks, Croix: *"But also those comments. Half the box. It's
+  still a rombus..."* (the grey hint under "Answer it."); asked about the grey remark beside each
+  worked step and the grey line above a reveal's answer: **"Remove both"**; then, of 4.04 Example
+  1's bold bottom line: *"Nothing on paper yet. Decide the pieces first. That comes off so weird.
+  Get rid of that."* In the kit: `ask()` takes no hint, `worked_row()` draws no remark, there is
+  no `gloss()`; `hint`, `gloss` and the remark stay in the specs. Ruling 37 as widened, in both
+  HOUSE STYLEs and `kit/SPEC SCHEMA.md`: nothing grey on a slide but the footer and the title's
+  eyebrow, and an Example's `ask` is the problem's own question or absent. M7 Unit 4: eight
+  stage directions removed or replaced by "Find both mistakes." (4.02 both, 4.03 Ex 2, 4.04 both,
+  4.06 both, 4.07 Ex 1). **Not done, and offered to him:** the removed hints and working are
+  printed nowhere now (the Teacher's Edition is capped at four pages) — PowerPoint speaker notes
+  would be the place if he wants them.
+
 - **4 Oct 2026, later still — figures: no line through a number, and three lengths that could not
   exist (kit + M7 Unit 4).** Looking at the rebuilt 4.04 for the morning, the barn of Example 1
   had its roof drawn through the "6 m" of its own height (it had been so before that night's

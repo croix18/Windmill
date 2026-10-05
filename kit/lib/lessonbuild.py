@@ -621,7 +621,7 @@ def _fill_deck(D, L):
         fig = ex.get("fig")
         if fig and ex.get("ask"):           # the figure gives up what the bold line under it needs (one line, or two)
             ask_h = 0.47 * max(1, -(-len(ex["ask"]) // 76))
-            fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.02))
+            fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.14))    # and the ask stands clear of the footer rule
         D.cursor = _example_top(ex["prompt"], fig)
         for row in ex["prompt"]:
             D.math_row(row, surface="slidemid", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
@@ -665,8 +665,6 @@ def _fill_deck(D, L):
             if yt_ask:
                 D.cursor += 0.2
                 D.text(yt_ask, 24, bold=True, align="center")
-            if yt.get("gloss"):
-                D.text(yt["gloss"], 24, color=GRAY, align="center", slots=True)
             if yt.get("answer_latex"):
                 D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.2, 4.9))
             else:
@@ -755,23 +753,21 @@ def _wb_body(D, q, reveal):
     # and the face for an area, so the answer slide says what was measured before the number
     fig = q.get("fig_a") if (reveal and q.get("fig_a")) else q.get("fig")
     if fig:
-        # the figure is the flexible block: it keeps the room what follows it needs — the gloss
-        # and the answer on a reveal, the ask and its hint on the question, the options on either
+        # the figure is the flexible block: it keeps the room what follows it needs — the answer
+        # on a reveal, the ask on the question, the options on either
         # — and is drawn smaller rather than pushing them into each other (4.06 boards 1–3)
-        below = ((0.75 if q.get("gloss") else 0.0) + 0.85) if reveal else (1.15 if q.get("hint") or kind == "written" else 0.75)
+        below = 0.85 if reveal else 0.75
         below += 1.75 if kind == "mc" else 0.0
         D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)))
     if kind == "mc":
         D.cursor += 0.1
         D.choices(q["choices"], correct=(q["correct"] if reveal else None))
     if not reveal:
-        if kind == "written":
-            D.ask("Write your answer in sentences.", q.get("hint", "This one is written work. Say why."))
-        else:
-            D.ask("Answer it.", q.get("hint"))     # the hint is a scaffold, shown when the spec gives one
+        # the instruction and nothing under it: a board's `hint` and `gloss` stay in the spec — the
+        # grey hint under the ask and the grey line above a reveal's answer are not on a slide
+        # (ruling 37 as widened: "But also those comments. Half the box. It's still a rhombus")
+        D.ask("Write your answer in sentences." if kind == "written" else "Answer it.")
     else:
-        if q.get("gloss"):
-            D.gloss(q["gloss"])
         y = min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
         if q.get("answer_latex"):
             D.answer_math(q["answer_latex"], y=y)

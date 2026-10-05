@@ -217,16 +217,12 @@ class HtmlDeck:
         for stem, answer in pairs:
             self._add(f'<p class="t left" style="font-size:23pt">{rich(stem)}<span class="wa">{rich(answer)}</span></p>')
 
-    def worked_row(self, latex, gloss, slots=False):
-        self._add(f'<div class="worked"><span class="k d mid{" slots" if slots and AUTO_SLOTS else ""}" data-tex="{esc(_tex(latex, slots))}"></span>'
-                  f'<span class="why">{rich(gloss, slots=slots)}</span></div>')
+    def worked_row(self, latex, gloss=None, slots=False):
+        # the expression alone: the grey reason beside it is not on a slide (ruling 37)
+        self._add(f'<div class="worked"><span class="k d mid{" slots" if slots and AUTO_SLOTS else ""}" data-tex="{esc(_tex(latex, slots))}"></span></div>')
 
-    def ask(self, text, hint=None, y=None):
-        h = f'<p class="hint">{rich(hint)}</p>' if hint else ""
-        self._add(f'<div class="ask bottom"><p>{esc(text)}</p>{h}</div>')
-
-    def gloss(self, text):
-        self._add(f'<p class="gloss">{rich(text, slots=True)}</p>')
+    def ask(self, text, y=None):
+        self._add(f'<div class="ask bottom"><p>{esc(text)}</p></div>')
 
     def independent(self, minutes=6):
         self.section("Independent Set", "Six questions. On your own, in silence.", minutes,
@@ -339,7 +335,7 @@ table.tbl{border-collapse:collapse;margin:4px auto}table.tbl th,table.tbl td{bor
 p.s-slidemid .k:not(.d){font-size:32pt}p.s-slidebig .k:not(.d){font-size:40pt}p.s-slide .k:not(.d){font-size:26pt}
 .body{gap:14px}
 .katex{font-size:1em}
-.worked{display:flex;align-items:center;gap:36px;padding-left:115px}.worked .k.d{display:inline-block;padding:0;margin:0}.worked .why{font-size:21pt;font-style:italic;color:#GRAY}
+.worked{display:flex;align-items:center;gap:36px;padding-left:115px}.worked .k.d{display:inline-block;padding:0;margin:0}
 ol.choices{margin:6px 0 0;padding:0 0 0 40px;list-style:none;font-size:24pt}
 ol.choices.two{display:grid;grid-template-columns:1fr 1fr;row-gap:12px}
 ol.choices li .L{font-weight:700;display:inline-block;width:1.4em}
@@ -347,8 +343,7 @@ ol.choices li.correct{color:#RED;font-weight:700}
 ol.choices.mathy{row-gap:14px}ol.choices.mathy li{display:flex;align-items:center;min-height:2.6em}ol.choices.mathy li .k{font-size:1.15em}
 .bottom{margin-top:auto}
 .answer{text-align:center;font-size:32pt;font-weight:700;color:#RED;margin:10px 0 0}.answer .lab{margin-right:.4em}.answer .k{font-size:40pt}
-.ask{text-align:center}.ask p{margin:0;font-size:26pt;font-weight:700}.ask .hint{font-size:19pt;font-style:italic;color:#GRAY;font-weight:400;margin-top:2px}
-.gloss{text-align:center;font-size:24pt;color:#GRAY;margin:0}
+.ask{text-align:center}.ask p{margin:0;font-size:26pt;font-weight:700}
 .wa{color:#RED;font-weight:700;margin-left:.9em}
 .cover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:60px}
 .cover .eyebrow{font-size:15pt;color:#GRAY;letter-spacing:.04em;margin:0 0 10px}.cover h2{font-size:34pt;margin:0 0 16px}

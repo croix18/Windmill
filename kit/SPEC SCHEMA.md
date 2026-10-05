@@ -105,6 +105,26 @@ therefore **the slide's label in the Teacher's Edition and nothing else**. Whate
 is in the body: an Example's whole problem in `prompt`; a question a worked slide puts to the room
 in that slide's `lead` (one bold line of main text; the build refuses one that does not fit a line).
 
+**And then the rest of the grey went too (the same night).** Shown the rebuilt slides, Croix:
+*"But also those comments. Half the box. It's still a rhombus..."* — the hint under "Answer it."
+Asked about the two grey things left, he chose **"Remove both"**. So no slide carries:
+
+- a board's `hint` (it was the grey line under "Answer it."; a written board shows only "Write
+  your answer in sentences.");
+- the remark beside a worked step — the second member of a `rows` tuple `(latex, remark)`;
+- a board's or a Your Turn's `gloss` (it was the grey line above the answer on the reveal).
+
+All three **stay in the spec**: they are the author's reasons and the checks still read them. A
+reveal shows the answer; a worked slide shows its steps and the answer; a question shows the
+question. Nothing on a slide is grey but the footer and a title slide's eyebrow.
+
+**An Example's `ask` is the problem's own question, or it is not there.** *"Also the thing at the
+bottom. Nothing on paper yet. Decide the pieces first. That comes off so weird. Get rid of
+that."* The bold line under an Example is "Find its area." or "Find both mistakes." — what the
+student is to find — never a direction about how the room is to work ("Nothing on paper yet",
+"Thirty seconds", "Do not say them yet"). Those are the teacher's to say and belong in `note_q`.
+A prompt that already ends in its question takes no `ask`.
+
 ### notes slide
 `dict(numeral, head, min, sub, note, …)` plus any of: `items` (lettered rows: plain strings,
 `"**bold row**"`, or `(term, rest)` vocab tuples), `letters=False` to drop the letters,
@@ -128,7 +148,7 @@ gloss, answer | answer_latex)`. `check` and `yt_check` are re-derived by sympy l
 `dict(kind="free"|"mc"|"written", latex | text=[rows], hint, gloss, answer | answer_latex, note,
 check, wrong, …)`. `latex` is set large and centered; `text` rows are centered (a row with `$`
 is a mixed row and must fit one line). `hint` prints small and grey under the question on the question slide — **it is a nudge, never the question**: a board whose ask lived in its hint shipped in M7 Unit 5 as a story with no question a student could read from the back of the room. A board with a `**` ask row shows its hint too, when it has one, so leave `hint` off a story board unless the nudge is worth a line.
-A `text` row beginning `**` is the ASK and is set bold; a board with any such row (or with `unneeded`) is laid out as a left-aligned 24 pt block — story in roman, ask in bold — not centred lines; keep each row under about 60 characters plus its math. `fig` (a figure from the unit's `figs.py`) and `fig_a` (the figure the reveal shows instead) sit under the text; `te_answer` is the answer as the teacher's edition prints it when the slide's `answer` is too terse. **The ask names a thing in the story and the answer is that thing** ("What fraction of the sheet is the top layer?", "Which drive holds more?"); an ask that begins "Write", "Rewrite" or "What is the value of" on a board with a story is a computation in costume — write that board bare (HOUSE STYLE, ruling 22 in practice). `gloss` is the gray line on the reveal. `note` is the TE note; `note_a` optionally the reveal's.
+A `text` row beginning `**` is the ASK and is set bold; a board with any such row (or with `unneeded`) is laid out as a left-aligned 24 pt block — story in roman, ask in bold — not centred lines; keep each row under about 60 characters plus its math. `fig` (a figure from the unit's `figs.py`) and `fig_a` (the figure the reveal shows instead) sit under the text; `te_answer` is the answer as the teacher's edition prints it when the slide's `answer` is too terse. **The ask names a thing in the story and the answer is that thing** ("What fraction of the sheet is the top layer?", "Which drive holds more?"); an ask that begins "Write", "Rewrite" or "What is the value of" on a board with a story is a computation in costume — write that board bare (HOUSE STYLE, ruling 22 in practice). `gloss` is the working in a phrase and `hint` the scaffold: both are kept in the spec and **neither is on a slide** (ruling 37). `note` is the TE note; `note_a` optionally the reveal's.
 `wrong` is the TE's named-wrong-answers line for free/written questions: `"value — error name
 [benchmark cite]; …"`. **`kind="mc"`** adds `choices` (4 strings, unicode superscripts allowed),
 `correct` (index), `answer` ("A — 25m⁶") and **`errors`** — a dict from every wrong letter to

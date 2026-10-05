@@ -419,27 +419,19 @@ class Deck:
                 _, h2 = self._mixed(answer, LM + 2.0, y0 + hh + 0.05, "slide", 23, RED, True)
                 self.cursor = y0 + hh + 0.05 + h2 + 0.22
 
-    def worked_row(self, latex, gloss, slots=False):
-        """A worked line: the expression at the left, its one-phrase reason in grey beside it."""
+    def worked_row(self, latex, gloss=None, slots=False):
+        """A worked line: the expression, and nothing beside it. The one-phrase reason that used
+        to sit in grey at its right (`gloss`) is the spec's, not the slide's (ruling 37, as Croix
+        widened it the same night: "But also those comments" — "Remove both")."""
         y0 = self.cursor
         wdt, hgt = self.math(latex, "slidemid", align="left", x=2.0, slots=slots)
-        gx = 2.0 + wdt + 0.5
-        self._text(gx, y0 + (hgt - 0.5) / 2, min(7.0, LM + CW - gx), 0.55, gloss, 21, italic=True, color=GRAY, anchor="middle", slots=slots)
         self.cursor = y0 + hgt + 0.3
 
-    def ask(self, text, hint=None, y=None):
-        """The board's standing instruction, low on the slide, with an optional grey hint under it."""
+    def ask(self, text, y=None):
+        """The board's standing instruction, low on the slide. No hint under it (ruling 37)."""
         y = max(self.cursor + 0.15, 4.75) if y is None else y
-        y = min(y, FOOT_Y - 0.56 - (0.45 if hint else 0))
+        y = min(y, FOOT_Y - 0.56)
         self._text(0.85, y, 11.6, 0.5, text, 26, bold=True, align="center")
-        if hint:
-            self._text(0.85, y + 0.53, 11.6, 0.4, hint, 19, italic=True, color=GRAY, align="center")
-
-    def gloss(self, text):
-        """The grey one-liner above a reveal's answer. A reveal is where the teacher shows, so a
-        named slot in it is coloured."""
-        self._text(2.0, self.cursor + 0.05, 9.3, 0.6, text, 24, color=GRAY, align="center", slots=True)
-        self.cursor += 0.7
 
     def answer_line(self, text, y=5.2):
         """The red answer under a question. A long answer wraps, and a box sized for one line lets
