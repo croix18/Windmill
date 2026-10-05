@@ -508,42 +508,62 @@ JS = r"""
   });
   // ---- nothing runs into the footer. The PowerPoint is laid out by measurement and refuses what does
   // not fit; a browser lays the same slide out itself, and KaTeX's stacked fractions stand taller than
-  // the PowerPoint's. So the page measures every slide once it is typeset: a slide whose content is
-  // taller than the space above its footer rule is set smaller, whole, by exactly what it needs
-  // (data-fit records the factor; htmlcheck reads it and refuses a slide shrunk past FIT_FLOOR).
-  // A board's or a Your Turn's question slide takes its answer slide's factor, so the two agree.
-  function fitSlides(){
-    const bodyOf=sl=>sl.querySelector(':scope > .body');
-    slides.forEach(sl=>{const b=bodyOf(sl);if(b)b.style.zoom='';delete sl.dataset.fit;});
-    slides.forEach(sl=>{sl.style.visibility='hidden';sl.style.display='flex';});
-    const measure=sl=>{const b=bodyOf(sl),f=sl.querySelector('.foot');if(!b||!f)return null;
-      if(b.scrollHeight<=b.clientHeight+1)return null;       // nothing spills out of the body: no need to walk it (a unit console has 400 slides)
+  // the PowerPoint's. So a slide measures itself as it comes onto the screen: if its content is taller
+  // than the space above its footer rule, the slide's body is set smaller, whole, by exactly what it
+  // needs (data-fit records the factor; htmlcheck reads it and refuses a slide set under FIT_FLOOR).
+  // A board's or a Your Turn's question slide and its answer slide take the smaller of their two
+  // factors, so the problem is the same size on both. One slide is measured at a time — laying out
+  // all 350 slides of a unit console at once took five seconds on a slow machine (5 October).
+  const bodyOf=sl=>sl.querySelector(':scope > .body');
+  const wbOf=sl=>{try{return JSON.parse(sl.dataset.wb||'null')}catch(e){return null}};
+  function spill(sl){                                   // the factor this slide's own content needs: 1, or less
+    const b=bodyOf(sl),f=sl.querySelector('.foot');if(!b||!f)return 1;
+    b.style.zoom='';let z=1;
+    for(let pass=0;pass<5;pass++){
+      if(b.scrollHeight<=b.clientHeight+1)break;        // nothing spills out of the body: no need to walk it
       const top=b.getBoundingClientRect().top,foot=f.getBoundingClientRect().top;let bot=top;
       b.querySelectorAll('*').forEach(el=>{if(!el.getClientRects().length||el.closest('.katex-mathml')||el.closest('svg'))return;
         const r=el.getBoundingClientRect();if(r.height>0&&r.bottom>bot)bot=r.bottom;});
-      return {b,have:foot-top,need:bot-top};};
-    for(let pass=0;pass<5;pass++){
-      const ms=slides.map(measure);let again=false;
-      ms.forEach((m,k)=>{if(!m||m.have<=0||m.need<=m.have+0.25)return;
-        const k0=parseFloat(m.b.style.zoom)||1,z=Math.max(0.5,Math.floor(k0*m.have/m.need*0.99*1000)/1000);
-        if(z<k0){m.b.style.zoom=z;slides[k].dataset.fit=z;again=true;}});
-      if(!again)break;
+      const have=foot-top,need=bot-top;if(have<=0||need<=have+0.25)break;
+      const nz=Math.max(0.5,Math.floor(z*have/need*0.99*1000)/1000);if(nz>=z)break;
+      z=nz;b.style.zoom=z;
     }
-    const wbOf=sl=>{try{return JSON.parse(sl.dataset.wb||'null')}catch(e){return null}};
-    slides.forEach((sl,k)=>{if(!sl.dataset.fit||k===0)return;const pv=slides[k-1];
-      if(pv.dataset.fit||pv.dataset.kind!==sl.dataset.kind)return;
-      const a=wbOf(pv),c=wbOf(sl);
-      const pair=sl.dataset.kind==='wb'?(a&&c&&a.i===c.i&&a.lesson===c.lesson&&!a.reveal&&c.reveal):sl.dataset.kind==='yourturn';
-      if(pair){const b=bodyOf(pv);if(b){b.style.zoom=sl.dataset.fit;pv.dataset.fit=sl.dataset.fit;pv.dataset.fitpair='1';}}});
-    slides.forEach(sl=>{sl.style.visibility='';sl.style.display='';});
-    const R=document.documentElement;delete R.dataset.fitting;R.dataset.fitted=(+R.dataset.fitted||0)+1;   // htmlcheck waits for this
+    return z;
   }
-  // once the page has loaded, and again whenever a font arrives afterwards: a face used only on
-  // slides that are not showing is fetched the first time they are laid out — which is this
-  // measuring — and the mathematics changes height when it lands
-  let fitT=0;const refit=()=>{document.documentElement.dataset.fitting='1';clearTimeout(fitT);fitT=setTimeout(fitSlides,20);};
-  if(document.readyState==='complete')refit();else addEventListener('load',refit);
-  if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',refit);
+  function laidOut(sl,fn){                              // run fn with the slide laid out, showing or not
+    if(sl.getClientRects().length)return fn();
+    const v=sl.style.visibility,d=sl.style.display;sl.style.visibility='hidden';sl.style.display='flex';
+    try{return fn()}finally{sl.style.visibility=v;sl.style.display=d;}
+  }
+  function partner(sl){                                 // the other slide of a question-and-answer pair, or null
+    const k=slides.indexOf(sl),kind=sl.dataset.kind;
+    if(kind==='wb'){const c=wbOf(sl);if(!c)return null;const o=slides[k+(c.reveal?-1:1)],a=o&&wbOf(o);
+      return a&&o.dataset.kind==='wb'&&a.i===c.i&&a.lesson===c.lesson&&!!a.reveal!==!!c.reveal?o:null;}
+    if(kind==='yourturn'){let s=k;while(s>0&&slides[s-1].dataset.kind==='yourturn')s--;
+      const o=slides[k+((k-s)%2===0?1:-1)];return o&&o.dataset.kind==='yourturn'?o:null;}
+    return null;
+  }
+  function fitSlide(sl){
+    if(!bodyOf(sl))return;
+    let z=laidOut(sl,()=>spill(sl));const o=partner(sl);
+    if(o){const zo=laidOut(o,()=>spill(o));z=Math.min(z,zo);
+      [sl,o].forEach(x=>{bodyOf(x).style.zoom=z<1?z:'';if(z<1)x.dataset.fit=z;else delete x.dataset.fit;});}
+    else if(z<1)sl.dataset.fit=z;else delete sl.dataset.fit;
+  }
+  const fitShown=()=>slides.forEach(sl=>{if(sl.classList.contains('on'))fitSlide(sl);});
+  // whichever script brings a slide on — this one, the console's, a check's — the slide fits itself
+  new MutationObserver(recs=>{const seen=new Set();recs.forEach(r=>{const t=r.target;
+    if(t.classList&&t.classList.contains('slide')&&t.classList.contains('on')&&!seen.has(t)){seen.add(t);fitSlide(t);}});})
+    .observe(stage,{attributes:true,attributeFilter:['class'],subtree:true});
+  // every face the page carries is asked for now (a browser fetches a face only when a slide that
+  // uses it is laid out, and the mathematics changes height when it lands); when they are in, and
+  // if one ever lands late, the slide that is showing fits itself again
+  if(document.fonts){try{document.fonts.forEach(f=>{f.load().catch(()=>{});});}catch(e){}
+    document.fonts.ready.then(()=>{fitShown();document.documentElement.dataset.fit='ready';});
+    if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',fitShown);}
+  else document.documentElement.dataset.fit='ready';
+  addEventListener('load',fitShown);
+  addEventListener('beforeprint',()=>slides.forEach(fitSlide));     // on paper every slide shows at once
   if(!CONSOLE)show(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
 })();
 """

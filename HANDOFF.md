@@ -397,10 +397,15 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   Each glyph's real font was read back from Chrome (scratch `mathlex/fonts.js`): digits, letters,
   × ÷ − + = ≤ ≥ ≈ ± … from Lexend; π from WindyPi; → ∘ from the DejaVu cut; grown brackets and
   radicals from KaTeX's own. Kit tests 119 and 120 (4 of them open a browser).
-  (5) *The fit is cheap and says when it is done*: it walks only the slides whose body spills
-  (a 414-slide console loads in 0.7 s where the first version took 1.7 s), runs once after load
-  and again when a late font lands, and sets `data-fitted` on the page; `htmlcheck` waits for
-  that instead of a fixed pause, so a busy machine cannot make it measure too early.
+  (5) *The fit works one slide at a time.* The first version laid out every slide of the page at
+  once to measure them; on A7's 344-slide Unit 3 console that took 5.7 s to open here and 16 s
+  with the processor slowed four times (it was 0.5 s before). A slide now fits itself as it comes
+  onto the screen (`fitSlide`, driven by a MutationObserver on the slides' `class`, so the deck's
+  own keys, the console's navigation and a check all take the same path), with its question-and-
+  answer partner measured alongside; the page asks for all its fonts at once when it opens and
+  sets `data-fit="ready"` when they are in. The same console opens in 0.7 s (1.6 s slowed).
+  `htmlcheck` waits for the ready mark, turns to each slide and lets the page fit it before
+  measuring. On paper (`beforeprint`) every slide is fitted.
   **Before a rebuild, run the real gates and the real `htmlcheck` on dry decks** (scratch
   `mathlex/dry2.py`, then `checks.check_html` over its HTML): three 20-minute builds were lost this
   morning to refusals a two-minute dry run would have shown.

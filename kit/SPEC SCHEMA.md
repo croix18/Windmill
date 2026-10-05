@@ -371,9 +371,10 @@ never share a file (the face is in each image's fingerprint).
   of "40 ÷ 5" on the same line. Each pair meets in the middle, so a row is as long as it was.
 - **The HTML deck fits itself.** The PowerPoint is laid out by measurement and refuses what does
   not fit; a browser lays the same slide out itself and KaTeX's stacked fractions stand taller. So
-  the page measures every slide once it is typeset (`htmlkit` `fitSlides`): a slide whose content
-  is taller than the space above its footer rule is set smaller, whole, by what it needs
-  (`data-fit`), and a board's or Your Turn's question slide takes its answer slide's factor.
+  a slide measures itself as it comes onto the screen (`htmlkit` `fitSlide`): if its content is
+  taller than the space above its footer rule it is set smaller, whole, by what it needs
+  (`data-fit`), and a board's or Your Turn's question slide and answer slide take the smaller of
+  their two factors. One slide at a time — never the whole page (a unit console has 350).
   `htmlcheck` counts them and refuses a slide set under 75% (`checks.FIT_FLOOR`): that slide
   carries too much, and it wants fewer or shorter steps.
 - **The pi face is measured like Lexend.** `WindyPi` carries Lexend's own ascent and descent and

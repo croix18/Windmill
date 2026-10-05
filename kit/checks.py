@@ -644,11 +644,15 @@ def check_slotgeometry(files):
 
 
 HTML_PROBE = r"""
-() => {
+async () => {
   const out = {slides: [], exprs: [], errors: 0};
   const slides = [...document.querySelectorAll('.slide')];
-  slides.forEach((sl, i) => {
+  if (document.fonts) await document.fonts.ready;
+  for (let i = 0; i < slides.length; i++) { const sl = slides[i];
     slides.forEach(x => x.classList.remove('on')); sl.classList.add('on');
+    // the page fits a slide as it comes on (htmlkit fitSlide, by a MutationObserver): let that run,
+    // exactly as it does when a person turns to the slide, and measure what they would then see
+    await Promise.resolve(); await new Promise(r => setTimeout(r, 0));
     const body = sl.querySelector('.body') || sl.querySelector('.cover');
     const foot = sl.querySelector('.foot').getBoundingClientRect();
     let over = 0, wide = 0;
@@ -661,7 +665,7 @@ HTML_PROBE = r"""
       if (r.left < st.left + 60 - 1 && r.width > 0) wide = Math.max(wide, (st.left + 60) - r.left);
     });
     out.slides.push({n: i + 1, over: Math.round(over), wide: Math.round(wide), fit: parseFloat(sl.dataset.fit || '1')});
-  });
+  }
   out.errors = document.querySelectorAll('.katex-error').length;
   const B = 'rgb(30, 90, 168)', E = 'rgb(192, 90, 0)';
   document.querySelectorAll('.slots .k').forEach(k => {
@@ -794,14 +798,12 @@ def check_html(files):
         for f in decks:
             base = os.path.basename(f); n += 1
             pg.goto("file://" + os.path.abspath(f)); pg.wait_for_timeout(400)
-            # the page fits its slides after it loads, and again when a late font lands (htmlkit
-            # fitSlides): measure only once it says it is done, however busy this machine is
+            # the page asks for all its fonts when it opens and says when they are in (htmlkit):
+            # measure only then, however busy this machine is
             try:
-                for _ in range(2):
-                    pg.wait_for_function("document.documentElement.dataset.fitted && !document.documentElement.dataset.fitting", timeout=30000)
-                    pg.wait_for_timeout(150)
+                pg.wait_for_function("document.documentElement.dataset.fit === 'ready'", timeout=30000)
             except Exception:
-                findings.append(f"htmlcheck: the page never finished fitting its slides (no data-fitted after 30 s) — {base}")
+                findings.append(f"htmlcheck: the page never said its fonts were in and its fit ready (data-fit) — {base}")
             r = pg.evaluate(HTML_PROBE)
             c = pg.evaluate(CONSOLE_PROBE)
             if c:
