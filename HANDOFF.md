@@ -4,6 +4,27 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (5 Oct 2026, 10:20 am) — read this first
+
+Everything is pushed and clean: Windmill `40db72a` (kit `cef1f2cdc3ff`), M7 `27e06e3`, A7
+`cbeda99`; all four units (M7 4–5, A7 3–4) are built and installed from that kit at 0 findings.
+Rulings 39 and 40 are done in full: every answer slide in the four units shows its steps, and
+every slide is in Lexend — words, mathematics and figure labels (the History entry of 5 Oct,
+7 am, has all of it, including the three signs that are deliberately not Lexend's). Croix has
+the final consoles for A7 Unit 3 and M7 Unit 4 and Tuesday's M7 PDFs (4.05, 4.06).
+
+Open, in order of who is waiting:
+- **Croix has not seen any of this on the real panel.** The consoles are checked in a headless
+  browser at the panel's size, a laptop's, a tablet's and a phone's; nothing replaces him opening one.
+- **Not asked, worth asking:** a prompt or notes line that carries a formula still sets the
+  formula larger than its words (on purpose; only a line of working was made one size); warm-up
+  answers show no steps; the hints and remarks taken off the slides (ruling 37) are printed
+  nowhere — PowerPoint speaker notes were offered and not taken up.
+- **Deferred by Croix:** setting up the Drive script (`drive/WindyHill.gs`) in his account.
+- Then: M7 Unit 6 Teacher's Edition by 19 Oct; A7 Unit 5 from 2 Nov (write its specs with
+  `steps`, labels placed with `off=`, whole-problem prompts). Rehearse with `tools/dry_run.py`
+  before any `build_all.py`.
+
 ## The plan, and where each tool stands (3 Oct 2026, end of day)
 
 The design is the *Room Coordination Plan*, a Claude doc Croix owns:
