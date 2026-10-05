@@ -79,7 +79,7 @@ def _plan_sections(L, deck_path, outdir):
         seg = b["seg"]
         mins = wb_min if b["kind"] == "wb" else b["min"]
         if b["kind"] == "title":
-            t, s_ = "Post the target; say the 'today' line and nothing else yet.", "Copy the target."
+            t, s_ = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Copy the target."
         elif b["kind"] == "warmup":
             t, s_ = "Two minutes silent, then reveal. One sentence of reteach per question at most.", "Four retrieval questions, alone, no notes."
         elif b["kind"] == "notes":
@@ -286,7 +286,7 @@ def _moves(b):
     """What the teacher does and what students do, per segment kind."""
     k = b["kind"]
     return {
-        "title": ("Post the target; say the 'today' line and nothing else yet.", "Settle, copy the target."),
+        "title": ("Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Settle, copy the target."),
         "warmup": ("Two minutes silent, then reveal; one sentence of reteach per question at most.",
                    "Four retrieval questions from memory, on their own, no notes."),
         "notes": ("Teach from the front; the off-slide sentence is said, not shown.",

@@ -136,37 +136,45 @@ class Deck:
         self.side.append({"n": self._n, "title": title, "sub": sub, "min": minutes, "note": note, "kind": kind})
         self._text(LM, 0.4, CW, 0.7, title, 36 if len(title) < 30 else 34, bold=True)
         self._line(LM, 1.2, CW, 1.5); self._line(LM, 1.29, CW, 0.75)
-        if sub:
-            self._text(LM, 1.38, CW, 0.34, sub, 17, italic=True, color=GRAY)
+        # `sub` is NOT drawn. It was the small grey italic line under the rules ("Copy all three
+        # lines.", "Boards up on three.", an Example's story). Croix, 4 October 2026: "remove the
+        # comments ... I want that whole thing eliminated across both slide decks" — and, asked
+        # whether on every slide: "Remove it everywhere." It stays in the side-car as the slide's
+        # label for the Teacher's Edition. Anything a student needs is in the body (lessonbuild).
         self.cursor = 1.9
         self._foot()
         return self.s
 
     # ---------- slide types ----------
     def title_slide(self, benchmark, target, yesterday, today, minutes=1, note=""):
-        # the yesterday/today box holds one 17-pt line each; a longer line wraps out of the box
-        # (M7 4.01's first deck did — 28 Sep). Measured against the box, not counted.
-        for line, bold in ((yesterday, False), (today, True)):
-            wid = (_textw(line, 17, bold) - 0.08) / 1.06      # the font's own width, without _textw's safety margin
-            if wid > 7.6 - 0.1:
-                raise RuntimeError(f"title-slide line does not fit its box ({wid:.2f} in of 7.5): {line}")
+        # No yesterday/today box (Croix, 4 October 2026: the comments in the boxes go). The two
+        # lines are the teacher's to say; the Teacher's Edition prints them in this slide's note.
+        # The block that is left sits half an inch lower, where the box used to balance it.
         self.s = self.p.slides.add_slide(self.blank); self._n += 1
         self.side.append({"n": self._n, "title": self.title, "sub": "", "min": minutes, "note": note, "kind": "title"})
         eyebrow = f"{self.course}  ·  UNIT {self.unit}  ·  {self.lesson_label}".upper()
-        self._text(LM, 1.85, CW, 0.38, eyebrow, 15, color=GRAY, align="center")
-        self._text(LM, 2.24, CW, 1.1, self.title, 34, bold=True, align="center", anchor="middle")
-        self._line(3.6, 3.56, 6.1, 1.5); self._line(3.6, 3.65, 6.1, 0.75)
-        self._text(LM, 3.83, CW, 0.34, benchmark, 16, bold=True, align="center")
+        dy = 0.5
+        self._text(LM, 1.85 + dy, CW, 0.38, eyebrow, 15, color=GRAY, align="center")
+        self._text(LM, 2.24 + dy, CW, 1.1, self.title, 34, bold=True, align="center", anchor="middle")
+        self._line(3.6, 3.56 + dy, 6.1, 1.5); self._line(3.6, 3.65 + dy, 6.1, 0.75)
+        self._text(LM, 3.83 + dy, CW, 0.34, benchmark, 16, bold=True, align="center")
         tl = max(1, -(-len(target) // 84))
-        self._text(LM, 4.2, CW, 0.4 * tl, target, 19, italic=True, align="center")
-        by = 4.8 + 0.38 * (tl - 1)
-        self._rect(2.6, by, 8.1, 1.15, FILL, "BFBFBF")
-        self._text(2.85, by + 0.17, 7.6, 0.4, yesterday, 17, italic=True, color=GRAY, align="center")
-        self._text(2.85, by + 0.59, 7.6, 0.4, today, 17, bold=True, align="center")
+        self._text(LM, 4.2 + dy, CW, 0.4 * tl, target, 19, italic=True, align="center")
         self._foot()
+
+    def lead(self, text):
+        """One bold line of main text directly under the rules, where the grey line used to be:
+        a question the worked slide puts to the room before its rows. One line, measured."""
+        wid = (_textw(slotmark.strip(text), 24, True) - 0.08) / 1.06
+        if wid > CW - 0.1:
+            raise RuntimeError(f"a lead is one line; this one is {wid:.2f} in of {CW - 0.1:.1f}: {text}")
+        self._text(LM, 1.44, CW, 0.45, text, 24, bold=True)
 
     def section(self, title, sub="", minutes=0, note="", kind="content"):
         return self._new(title, sub, minutes, note, kind)
+
+    def no_band(self):
+        """The HTML deck's word for "start the body straight under the rules"; here the caller sets the cursor."""
 
     # ---------- the whole-unit deck ----------
     def count(self):

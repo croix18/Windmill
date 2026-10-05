@@ -71,7 +71,7 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 | `benchmark` | str | the ONE benchmark on the title slide, e.g. `"MA.8.NSO.1.3"` |
 | `benchmark_text` | str | the benchmark's exact wording (from the Source of Truth) |
 | `target` | str | "I can …" — ≤ ~170 characters or the title slide wraps to three lines |
-| `yesterday`, `today` | str | the two lines in the title-slide box; keep `today` ≤ ~60 characters |
+| `yesterday`, `today` | str | the teacher's two connecting lines. **Not on a slide** since 4 Oct 2026 (ruling 37: the title slide has no box); the Teacher's Edition prints `today` in the title slide's note as the one line to say |
 | `essential` | str | essential question (TE only) |
 | `building_on`, `working_toward` | str | vertical alignment lines (TE) |
 | `vocab` | list of (term, definition) | definition may carry `$…$` |
@@ -97,6 +97,14 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 beside the stem and wraps to a second line if too wide; `band` is the retrieval band; `source`
 names the lesson/unit it retrieves ("3.02 — quotient of powers"); `check` as for items.
 
+### the grey line is gone (ruling 37, 4 October 2026)
+No slide carries a line of small grey italic under its rules any more — not "Copy all three
+lines.", not "Boards up on three.", not an Example's story. Croix: *"remove the comments … I want
+that whole thing eliminated across both slide decks … Remove it everywhere."* Every `sub` below is
+therefore **the slide's label in the Teacher's Edition and nothing else**. Whatever a student needs
+is in the body: an Example's whole problem in `prompt`; a question a worked slide puts to the room
+in that slide's `lead` (one bold line of main text; the build refuses one that does not fit a line).
+
 ### notes slide
 `dict(numeral, head, min, sub, note, …)` plus any of: `items` (lettered rows: plain strings,
 `"**bold row**"`, or `(term, rest)` vocab tuples), `letters=False` to drop the letters,
@@ -108,8 +116,10 @@ is not on the slide. A `not_sci=True` key on a notes dict exempts it from the co
 
 ### example
 `dict(title, sub, min_q, note_q, prompt=[rows], ask, worked=[…], check, your_turn={…}, yt_check)`.
-`prompt` rows: a `$…$` row is centered math; a plain row is centered text (wraps). `ask` is the
-bold instruction line ("" to omit). Each `worked` entry: `dict(sub, min, note, rows, answer)` where
+`prompt` rows: a `$…$` row is centered math; a plain row is centered text (wraps). **The prompt is
+the whole problem** — the story and the givens first, then what is asked; `sub` is not on the slide.
+`ask` is the bold instruction line ("" to omit). Each `worked` entry: `dict(sub, lead, min, note, rows, answer)` where
+`lead` (optional) is a question to the room, set bold above the rows, and
 `rows` are `(latex, gloss)` tuples — the latex is set at the left, the gray gloss beside it (keep
 the gloss ≤ ~45 characters) — or plain strings. `your_turn`: `dict(min, note, prompt=[rows],
 gloss, answer | answer_latex)`. `check` and `yt_check` are re-derived by sympy like any item.

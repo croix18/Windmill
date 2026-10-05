@@ -356,6 +356,23 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, last of the night — the slides lose their comments, and the console is put where
+  it belongs (kit).** Croix, about M7's notes for the next morning: *"Those are terrible. Please,
+  on all slides remove the comments in the boxes and in parenthesis. If a problem is in
+  parenthesis, it should be pulled out into the main text."* — the title slide's yesterday/today
+  box and the small grey italic line under every slide's rules ("Remove it everywhere", both
+  courses). Ruling 37 in both HOUSE STYLEs. In the kit: `deckkit._new` no longer draws `sub` (it
+  is the slide's label in the Teacher's Edition only), `title_slide` has no box, `lead()` is a
+  bold line of main text for a question a worked slide asks; `htmlkit` the same; `lessonbuild`
+  starts warm-ups and notes under the rules and gives an Example's figure the room its bold line
+  needs; an Example's whole problem is in `prompt` (`kit/SPEC SCHEMA.md`); eight new kit tests.
+  **And a defect found while looking: every console shipped on 4 October placed its slide wrongly
+  at every window size but one** — `consolekit`'s `fit()` scaled the stage about its corner
+  (htmlkit's stylesheet says `transform-origin:0 0`) and then moved it by half its UNSCALED size,
+  so at the panel's 1920×1080 the slide sat 140 px right and 80 px low and was cut off, and on a
+  laptop it slid under the rail. One line (`transformOrigin='center'`); `checks.py` `htmlcheck`
+  now measures where the slide sits at four screen sizes, rail open and hidden, in every HTML deck
+  — no check had ever opened a console at a second size. Both courses' units were rebuilt.
 - **4 Oct 2026, latest** — `drive/WindyHill.gs` version 3 ("premiumly built"): downloads held to
   their git names, files labelled so a lost record or a stopped run is recovered, edits told by
   fingerprint, a moved file is his, exact copies taken on, live sheets replaced in place with the

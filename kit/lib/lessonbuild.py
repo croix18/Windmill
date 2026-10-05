@@ -543,25 +543,31 @@ def _math_row(row):
     return "$" in row.replace("\\$", "")
 
 
+TOP = 1.6      # where a slide's body starts when it starts straight under the rules (the PowerPoint's inches)
+
+
 def _fill_deck(D, L):
     """Every slide of one lesson, appended to D. Colour (the slots, HOUSE STYLE §2a) goes on the
     surfaces where the teacher shows — Notes, worked examples, and every reveal — and is withheld
     wherever the student still has to decide: warm-up, example and Your Turn prompts, whiteboard
     questions (rules 4 and 6)."""
     D.title_slide(L["benchmark"], L["target"], L["yesterday"], L["today"], minutes=1,
-                  note=L.get("title_note", "Post the learning target. Say the 'today' line and nothing else yet."))
+                  note=L.get("title_note", f"Post the learning target. Say one line and nothing else yet: \u201c{L['today']}\u201d"))
     # ---- warm-up: four retrieval questions, one slide; reveal slide after
     wu = L["warmup"]
+    # (the second argument of section() is the slide's label in the Teacher's Edition; it is not drawn —
+    #  deckkit._new. A slide that reads from the top — warm-up, notes — starts straight under the rules.)
     D.section("Warm-Up", "On your own. Four minutes. No notes.", 4, L.get("warmup_note", "Spaced retrieval. Two minutes silent, then reveal. One sentence of reteach per question at most."), "warmup")
-    D.cursor = 1.95
+    D.no_band(); D.cursor = TOP
     for i, q in enumerate(wu):
         D.math_row(f"{i + 1}.   " + q["stem"], surface="slide", gap=0.22, size=23, align="left", x=LM + 1.2)
     D.section("Warm-Up", "Answers.", 1, "Reveal. Ask for the band each question came from only if time allows.", "warmup")
-    D.cursor = 1.95
+    D.no_band(); D.cursor = TOP
     D.warmup_answers([(f"{i + 1}.   " + q["stem"], q["answer"]) for i, q in enumerate(wu)])
     # ---- notes
     for ni, note in enumerate(L["notes"]):
         D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
+        D.no_band(); D.cursor = TOP - 0.08
         D.head(note["head"], note.get("numeral"))
         if note.get("items"):
             D.items(note["items"], size=note.get("size", 23), panel=note.get("panel", False), letters=note.get("letters", True), slots=True)
@@ -578,18 +584,29 @@ def _fill_deck(D, L):
         if note.get("items2"):
             D.items(note["items2"], size=note.get("size", 23), letters=note.get("letters", True), start=len(note.get("items", [])), slots=True)
     # ---- examples: question slide, worked slide(s), your turn q + reveal
+    # An Example's `sub` is its label in the Teacher's Edition; it is not on the slide. The whole
+    # problem — the story, the givens, the question — is in `prompt` (Croix, 4 October 2026: "If a
+    # problem is in [the grey line], it should be pulled out into the main text"). The question
+    # slide starts under the rules, so a prompt that carries its story has the room.
     for ex in L["examples"]:
         D.section(ex["title"], ex.get("sub", ""), ex["min_q"], ex["note_q"], "example")
-        D.cursor = 2.3
+        D.no_band()
+        D.cursor = 1.9 if len(ex["prompt"]) > 1 or ex.get("fig") else 2.3
         for row in ex["prompt"]:
             D.math_row(row, surface="slidemid", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
         if ex.get("fig"):
-            D.figure(ex["fig"])
+            fig = ex["fig"]
+            if ex.get("ask"):               # the figure gives up what the bold line under it needs (one line, or two)
+                ask_h = 0.47 * max(1, -(-len(ex["ask"]) // 76))
+                fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.02))
+            D.figure(fig)
         if ex.get("ask"):
             D.cursor += 0.2
             D.text(ex["ask"], 24, bold=True, align="center")
         for wi, w in enumerate(ex["worked"]):
             D.section(ex["title"], w.get("sub", "Worked."), w.get("min", 2), w["note"], "example")
+            if w.get("lead"):               # a question this worked slide puts to the room: main text, one bold line
+                D.lead(w["lead"])
             D.cursor = 2.1
             for row in w["rows"]:
                 if isinstance(row, tuple):

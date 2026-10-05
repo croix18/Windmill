@@ -702,6 +702,32 @@ CONSOLE_PROBE = r"""
 """
 
 
+STAGE_PROBE = r"""
+() => {
+  const st = document.getElementById('stage'); if (!st) return null;
+  const r = st.getBoundingClientRect(), con = document.body.classList.contains('console');
+  const left = con && !document.body.classList.contains('norail') ? 300 : 0, top = con ? 40 : 0;
+  return {l: r.left, t: r.top, r: r.right, b: r.bottom, left, top, iw: innerWidth, ih: innerHeight};
+}
+"""
+SCREENS = ((1920, 1080), (1366, 768), (1024, 768), (2560, 1440))     # the panel, a laptop, a tablet, a large monitor
+
+
+def _placed(g):
+    """Is the slide inside the room the page leaves it (all of the window; in the console, what
+    the bar and the rail leave), centred there, and as large as fits? None if so, else what is wrong.
+    (The consoles of 4 October 2026 scaled the slide about its corner and moved it by half its
+    unscaled size: right only at one window size, cut off at the panel's. No check opened them at
+    another size, so no check saw it.)"""
+    if not (g["l"] >= g["left"] - 1 and g["t"] >= g["top"] - 1 and g["r"] <= g["iw"] + 1 and g["b"] <= g["ih"] + 1):
+        return f"the slide runs outside its space ({g['l']:.0f}–{g['r']:.0f} across, {g['t']:.0f}–{g['b']:.0f} down, in a {g['iw']}×{g['ih']} window)"
+    if abs((g["l"] - g["left"]) - (g["iw"] - g["r"])) > 2 or abs((g["t"] - g["top"]) - (g["ih"] - g["b"])) > 2:
+        return f"the slide is not centred in its space ({g['l']:.0f}–{g['r']:.0f} across, {g['t']:.0f}–{g['b']:.0f} down, in a {g['iw']}×{g['ih']} window)"
+    if abs((g["r"] - g["l"]) - (g["iw"] - g["left"])) > 2 and abs((g["b"] - g["t"]) - (g["ih"] - g["top"])) > 2:
+        return f"the slide does not fill its space either way ({g['r'] - g['l']:.0f}×{g['b'] - g['t']:.0f} in a {g['iw']}×{g['ih']} window)"
+    return None
+
+
 def _norm(s):
     """The reading as an order-free bag of (glyph, colour): KaTeX lays a fraction's denominator
     before its numerator in the DOM and splits a bracketed base around an inner exponent, so
@@ -724,7 +750,7 @@ def check_html(files):
     nothing on any slide reaches below the footer rule or past the side margins; and the colour
     code the page applies to KaTeX's structure reads every expression exactly as mathimg reads
     the mathtext layout for the pptx — [base]^{exponent}, compared string for string."""
-    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0
+    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0
     decks = [f for f in files if f.endswith(".html")]
     if not decks:
         return ["htmlcheck: examined no HTML decks — a check that examined nothing cannot be clean"]
@@ -742,6 +768,19 @@ def check_html(files):
                 ncon += 1
                 for prob in c["problems"]:
                     findings.append(f"htmlcheck: console — {prob} — {base}")
+            # where the slide sits, at the sizes of screen it will meet (the console: rail open, then hidden)
+            for (vw, vh) in SCREENS:
+                pg.set_viewport_size({"width": vw, "height": vh}); pg.wait_for_timeout(60)
+                for hide in ((False, True) if c else (False,)):
+                    if hide:
+                        pg.evaluate("document.getElementById('railBtn').click()")
+                    wrong = _placed(pg.evaluate(STAGE_PROBE))
+                    if wrong:
+                        findings.append(f"htmlcheck: {wrong}{' with the rail hidden' if hide else ''} — {base}")
+                    if hide:
+                        pg.evaluate("document.getElementById('railBtn').click()")
+                    nplaced += 1
+            pg.set_viewport_size({"width": 1333, "height": 750}); pg.wait_for_timeout(60)
             if r["errors"]:
                 findings.append(f"htmlcheck: {r['errors']} expression(s) KaTeX could not typeset — {base}")
             for sl in r["slides"]:
@@ -781,7 +820,7 @@ def check_html(files):
         b.close()
     if ncon == 0:
         findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
-    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, {len(findings)} findings")
+    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes, {len(findings)} findings")
     return findings
 
 

@@ -139,6 +139,46 @@ ok("unit balance: an even spread passes", lb.balancecheck_unit(unit([0, 1, 2, 3,
 ok("unit balance: a unit that never keys D is caught", any("keyed D" in x for x in lb.balancecheck_unit(unit([0, 1, 2, 0, 1, 2, 0, 1, 2]))))
 ok("unit balance: one letter on half the boards is caught", any("are keyed A" in x for x in lb.balancecheck_unit(unit([0, 0, 0, 0, 0, 1, 2, 3, 1, 2]))))
 
+# ---------------------------------------------------------------- what is on a slide, and what is not
+# Croix, 4 October 2026: "on all slides remove the comments in the boxes and in parenthesis. If a
+# problem is in parenthesis, it should be pulled out into the main text." — the title slide's
+# yesterday/today box, and the small grey line under every slide's rules ("Remove it everywhere").
+import re, tempfile, zipfile
+from lib.deckkit import Deck
+from lib.htmlkit import HtmlDeck, render_page
+from lib import consolekit
+S_ = copy.deepcopy(L)
+S_.update(yesterday="Yesterday you measured ropes.", today="Today the rope is cut twice.", no_set=True)
+S_.pop("independent")
+S_["notes"] = [dict(numeral="I", head="What a rope is", min=2, sub="Copy all three lines.", note="n", items=["A rope has a length."], letters=False)]
+S_["examples"] = [dict(title="Example 1", sub="A label for the Teacher's Edition only.", min_q=1, note_q="n",
+                       prompt=["A rope is 9 m long and is cut into 3 equal pieces.", "How long is each piece?"], ask="Decide first.",
+                       worked=[dict(sub="A worked label.", lead="Divide, or subtract?", min=1, note="n", rows=[("9 \\div 3 = 3", "equal pieces")], answer="3 m")],
+                       check=("eq", "9/3", "3"),
+                       your_turn=dict(min=1, note="n", prompt=["A rope is 8 m long and is cut in half.", "How long is each piece?"], answer="4 m"), yt_check=("eq", "8/2", "4"))]
+GONE = ["Copy all three lines.", "A label for the Teacher", "A worked label.", "Boards up on three.", "Take your time. Boards up", "On your own. Four minutes.",
+        "Same steps, your numbers.", "Last five minutes.", "Yesterday you measured ropes.", "Today the rope is cut twice."]
+KEPT = ["A rope is 9 m long and is cut into 3 equal pieces.", "How long is each piece?", "Divide, or subtract?", "What a rope is", "A rope has a length.", "Decide first."]
+with tempfile.TemporaryDirectory() as tmp:
+    P = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(P, S_)
+    pptx = os.path.join(tmp, "d.pptx"); P.save(pptx, sidecar=False)
+    z = zipfile.ZipFile(pptx)
+    ptext = " ".join(" ".join(re.findall(r"<a:t>([^<]*)</a:t>", z.read(nm).decode("utf-8"))) for nm in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", nm))
+    ptext = ptext.replace("&#8217;", "'").replace("&apos;", "'")
+    H = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(H, S_)
+    html = render_page(H)
+    slides_html = html[html.index('<section class="slide'):]
+    htext = re.sub(r"<[^>]+>", " ", slides_html)
+ok("slides: nothing of the grey line or the title box is in the PowerPoint", not [g for g in GONE if g in ptext], str([g for g in GONE if g in ptext]))
+ok("slides: nothing of the grey line or the title box is in the HTML deck", not [g for g in GONE if g in htext], str([g for g in GONE if g in htext]))
+ok("slides: the problem, the lead and the notes are in the PowerPoint", all(k in ptext for k in KEPT), str([k for k in KEPT if k not in ptext]))
+ok("slides: the problem, the lead and the notes are in the HTML deck", all(k in htext for k in KEPT), str([k for k in KEPT if k not in htext]))
+ok("slides: the labels are still the Teacher's Edition's (the side-car)", any(x["sub"] == "Copy all three lines." for x in P.side) and any(x["sub"] == "Answer." for x in P.side) and [x["sub"] for x in P.side] == [x["sub"] for x in H.side])
+ok("slides: the HTML deck prints no text in the place of the grey line", not re.search(r'<p class="sub[^"]*">[^<]', slides_html) and 'class="box"' not in slides_html)
+ok("slides: the title slide's note gives the teacher the line to say", "Today the rope is cut twice." in P.side[0]["note"])
+ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",
+   bool(re.search(r"function fit\(\)\{[^}]*transformOrigin='center'[^}]*translate\(-50%,-50%\) scale", open(consolekit.__file__, encoding="utf-8").read())))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
