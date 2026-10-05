@@ -192,6 +192,11 @@ ok("slides: the HTML deck prints no text in the place of the grey line", not re.
 ok("slides: the title slide's note gives the teacher the line to say", "Today the rope is cut twice." in P.side[0]["note"])
 ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",
    bool(re.search(r"function fit\(\)\{[^}]*transformOrigin='center'[^}]*translate\(-50%,-50%\) scale", open(consolekit.__file__, encoding="utf-8").read())))
+from lib import htmlkit as _hk
+_cjs = re.sub(r"//[^\n]*", "", open(consolekit.__file__, encoding="utf-8").read()); _hjs = re.sub(r"//[^\n]*", "", open(_hk.__file__, encoding="utf-8").read())
+ok("console and deck: the slide is sized by the document's own box, never window.innerWidth (a touch screen reports the zoomed-out width there)",
+   not re.search(r"\binner(Width|Height)\b", _cjs) and not re.search(r"\binner(Width|Height)\b", _hjs)
+   and "document.documentElement.clientWidth" in _cjs and "document.documentElement.clientWidth" in _hjs)
 
 # ---- figures: no line through a label, a label's clearance in its own type size, units (ruling 38)
 import tempfile

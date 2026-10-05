@@ -711,6 +711,7 @@ STAGE_PROBE = r"""
 }
 """
 SCREENS = ((1920, 1080), (1366, 768), (1024, 768), (2560, 1440))     # the panel, a laptop, a tablet, a large monitor
+TOUCH = ((800, 1280), (1280, 800), (412, 915))                        # a tablet upright, on its side, and a phone
 
 
 def _placed(g):
@@ -750,7 +751,7 @@ def check_html(files):
     nothing on any slide reaches below the footer rule or past the side margins; and the colour
     code the page applies to KaTeX's structure reads every expression exactly as mathimg reads
     the mathtext layout for the pptx — [base]^{exponent}, compared string for string."""
-    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0
+    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0; ntouch = 0
     decks = [f for f in files if f.endswith(".html")]
     if not decks:
         return ["htmlcheck: examined no HTML decks — a check that examined nothing cannot be clean"]
@@ -781,6 +782,22 @@ def check_html(files):
                         pg.evaluate("document.getElementById('railBtn').click()")
                     nplaced += 1
             pg.set_viewport_size({"width": 1333, "height": 750}); pg.wait_for_timeout(60)
+            # and held in the hand: a tablet upright and on its side, laid out the way a touch browser
+            # lays a page out. A page wider than the screen is shown zoomed out there, and the console
+            # once sized its slide by that zoomed-out width and so stayed wide (4 October).
+            for (vw, vh) in TOUCH:
+                ctx = b.new_context(viewport={"width": vw, "height": vh}, is_mobile=True, has_touch=True)
+                tp = ctx.new_page()
+                tp.goto("file://" + os.path.abspath(f)); tp.wait_for_timeout(350)
+                at_open = tp.evaluate("innerWidth - document.documentElement.clientWidth")
+                tp.keyboard.press("Escape"); tp.keyboard.press("ArrowRight"); tp.wait_for_timeout(150)
+                on_slide = tp.evaluate("innerWidth - document.documentElement.clientWidth")
+                wrong = _placed(tp.evaluate(STAGE_PROBE))
+                ctx.close(); ntouch += 1
+                if max(at_open, on_slide) > 2:
+                    findings.append(f"htmlcheck: on a {vw}×{vh} touch screen the page is laid out {max(at_open, on_slide)} px wider than the screen (it opens zoomed out) — {base}")
+                elif wrong:
+                    findings.append(f"htmlcheck: on a {vw}×{vh} touch screen {wrong} — {base}")
             if r["errors"]:
                 findings.append(f"htmlcheck: {r['errors']} expression(s) KaTeX could not typeset — {base}")
             for sl in r["slides"]:
@@ -820,7 +837,7 @@ def check_html(files):
         b.close()
     if ncon == 0:
         findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
-    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes, {len(findings)} findings")
+    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {len(findings)} findings")
     return findings
 
 

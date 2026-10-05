@@ -356,6 +356,15 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 ## History
 
+- **4 Oct 2026, after that — the console and the decks on a tablet (kit).** Opened the way a
+  touch browser opens a page (Playwright, `is_mobile`), the unit console laid itself out 1,733 px
+  wide on an 800 px tablet held upright and stayed there: `fit()` sized the slide by
+  `window.innerWidth`, which on a touch screen is the zoomed-out width of a page whose content is
+  wider than the screen — and the unscaled slide is what made it wider. Both `fit()`s (console
+  and single-lesson deck) now read `document.documentElement.clientWidth/Height`. `htmlcheck`
+  opens every HTML deck on three touch screens (tablet upright, tablet on its side, phone) and
+  reports a page laid out wider than its screen. The panel (desktop Chrome) was never affected.
+
 - **4 Oct 2026, the last change of the night — every remaining comment off the slides (kit + M7
   Unit 4 specs).** Shown the rebuilt decks, Croix: *"But also those comments. Half the box. It's
   still a rombus..."* (the grey hint under "Answer it."); asked about the grey remark beside each

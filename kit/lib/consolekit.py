@@ -198,7 +198,11 @@ JS = r"""
   const $=id=>document.getElementById(id);
   const W=1333.33,H=750;
   // ---- geometry: the stage fits the space the bar and rail leave ------------------------------
-  function fit(){const rail=document.body.classList.contains('norail')?0:300;const aw=innerWidth-rail,ah=innerHeight-40;const s=Math.min(aw/W,ah/H);
+  // the screen is the document's own box, not window.innerWidth: on a tablet or phone a page whose content is
+  // wider than the screen is laid out zoomed OUT, innerWidth grows to the content, and a slide sized by it
+  // keeps the page that wide for good (found 4 Oct: 1,733 px of page on an 800 px tablet held upright)
+  const VW=()=>document.documentElement.clientWidth,VH=()=>document.documentElement.clientHeight;
+  function fit(){const rail=document.body.classList.contains('norail')?0:300;const aw=VW()-rail,ah=VH()-40;const s=Math.min(aw/W,ah/H);
     stage.style.transformOrigin='center';   // htmlkit's stylesheet says 0 0, and with that this transform is only right at scale 1
     stage.style.transform=`translate(-50%,-50%) scale(${s})`;stage.style.left=(rail+aw/2)+'px';stage.style.top=(40+ah/2)+'px';}
   addEventListener('resize',fit);
@@ -428,7 +432,7 @@ JS = r"""
     else if(k==='r'||k==='R'){unveil();}
     else if(k==='p'||k==='P'){print();}
     else if(/^[1-9]$/.test(k)){const L=lessonOf(cur);const b=L&&L.boards.find(x=>x.i===+k&&!x.reveal);if(b)show(b.slide);}},true);
-  stage.addEventListener('click',e=>{if(e.target.closest('a'))return;if(e.clientX<innerWidth*0.3)show(cur-1);else advance();},true);
+  stage.addEventListener('click',e=>{if(e.target.closest('a'))return;if(e.clientX<VW()*0.3)show(cur-1);else advance();},true);
   document.querySelectorAll('a[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();show(+a.dataset.go);},true));
   // ---- boot ----------------------------------------------------------------------------------------
   loadRoom();fit();

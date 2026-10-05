@@ -363,7 +363,10 @@ JS = r"""
   const W=WPX,H=HPX, stage=document.getElementById('stage');
   const slides=[...document.querySelectorAll('.slide')];
   let i=0;
-  function fit(){const s=Math.min(innerWidth/W,innerHeight/H);stage.style.transform=`translate(-50%,-50%) scale(${s})`;stage.style.transformOrigin='center';}
+  // sized by the document's own box, not window.innerWidth: on a touch screen a page wider than the screen
+  // is laid out zoomed out and innerWidth is the zoomed-out width (see consolekit's fit)
+  const VW=()=>document.documentElement.clientWidth,VH=()=>document.documentElement.clientHeight;
+  function fit(){const s=Math.min(VW()/W,VH()/H);stage.style.transform=`translate(-50%,-50%) scale(${s})`;stage.style.transformOrigin='center';}
   function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('on',k===n));i=n;history.replaceState(null,'','#'+(n+1));
     document.getElementById('hud').textContent=(n+1)+' / '+slides.length;}
   const CONSOLE=document.body.classList.contains('console');   // the unit console (consolekit) drives navigation itself
@@ -372,7 +375,7 @@ JS = r"""
   addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}
     else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1)}
     else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1)});
-  stage.addEventListener('click',e=>{if(e.target.closest('a'))return;show(e.clientX<innerWidth*0.25?i-1:i+1)});
+  stage.addEventListener('click',e=>{if(e.target.closest('a'))return;show(e.clientX<VW()*0.25?i-1:i+1)});
   document.querySelectorAll('a[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();show(+a.dataset.go)}));
   }
   // ---- math: KaTeX, display style everywhere so fractions stay full-size on a projector
