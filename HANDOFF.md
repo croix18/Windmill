@@ -6,9 +6,10 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (5 Oct 2026, 11:40 pm) — read this first
 
-Everything is pushed and clean: Windmill (this commit; kit `a731e393edc9`, vendored from
-`83cf462`), M7 `a374756`, A7 `bdb708b`. All four units (M7 4–5, A7 3–4) are built and installed
-from that kit at 0 findings. In force since this evening, each with its own section below:
+Everything is pushed and clean: Windmill (this commit; kit `63b38faabc25`, vendored from
+`d9996a7`), M7 `b5d9b36`, A7 `e613d4b`. All four units (M7 4–5, A7 3–4) were built and installed
+at 0 findings from kit `83cf462`; the kit since changed only the arrow gate (ruling 42, narrowed),
+so nothing was rebuilt and the decks are byte for byte what he was sent. In force since this evening, each with its own section below:
 **ruling 41** — a deck is its Slides file (no HTML, no console; Croix runs the PowerPoint as
 Google Slides inside Deckhand) — and **ruling 42** — an arrow never stands in for an equals sign
 (arrows are otherwise welcome).
