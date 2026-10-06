@@ -389,9 +389,9 @@ if _browser:
     ok("html fit: its question slide takes the same factor, so the pair agree", "2 slides set smaller" in _res["fits"][1])
     ok("html fit: without the fit the same slide runs into the footer, and the check sees it", any("below the footer rule" in x for x in _res["unfitted"][0]), str(_res["unfitted"][0])[:300])
     ok("html fit: a slide that would have to be set under the floor is refused — that is the spec's to fix", any("had to be set at" in x for x in _res["far too much"][0]), str(_res["far too much"][0])[:300])
-# ---- ruling 42: an arrow is not an equals sign — none on a student page
+# ---- ruling 42: an arrow never stands in for an equals sign — and is welcome everywhere else
 def _arrows(**kw):
-    X = copy.deepcopy(L); X["whiteboard"] = copy.deepcopy(X["whiteboard"]); X["notes"] = copy.deepcopy(X["notes"])
+    X = copy.deepcopy(L); X["whiteboard"] = copy.deepcopy(X["whiteboard"])
     for k, v in kw.items():
         if k == "board":
             X["whiteboard"][0].update(v)
@@ -400,20 +400,23 @@ def _arrows(**kw):
         else:
             X[k] = v
     return [x for x in lb.rulingcheck_lesson(slotmark.strip_deep(X)) if "ruling 42" in x]
-ok("ruling 42: the lesson as written carries no arrow", _arrows() == [])
-ok("ruling 42: an arrow standing for 'equals' in the notes is refused, and the finding says where",
-   len(_arrows(notes=dict(items=["diameter × π   →   CIRCUMFERENCE:   multiply"]))) == 1
-   and "notes[0].items[0]" in _arrows(notes=dict(items=["diameter × π   →   CIRCUMFERENCE:   multiply"]))[0])
-ok("ruling 42: so is one typeset (\\rightarrow, \\to), one typed (->), and one in a step or on a figure",
-   all(len(_arrows(board=dict(steps=[t]))) == 1 for t in ("$14 \\rightarrow 28$", "$x \\to 2x$", "14 -> 28", "$a \\Rightarrow b$"))
-   and len(_arrows(board=dict(fig=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="AROUND \u2192 circumference")])))) == 1)
-ok("ruling 42: an equals sign, a 'so', an inequality and a minus sign are not arrows",
-   _arrows(board=dict(steps=["$14 \\times 2 = 28$", "$C = 12$,   so   $d = 4$", "$x \\geq -3$", "$5 - 3 > 1$", "$a \\leq b$", "$\\top$ is not used"])) == [])
-ok("ruling 42: a teacher's note may use one (it is prose about the lesson, not a page a student reads)",
-   _arrows(board=dict(note="Book section 3.1.2 \u2192 Notes I.", wrong="14 \u2192 28 — doubled [Notes I]")) == [])
-ok("ruling 42: a mapping is mathematics, and its block may say so", _arrows(board=dict(steps=["$x \\mapsto 2x$"], arrow_ok=True)) == [])
-ok("ruling 42: the unit's papers and reference sheet are student pages too",
-   len(lb.arrowcheck(dict(blocks=[dict(table=([1, 1], [["Rule", "Example"], ["Every nonzero digit counts", "$4{,}207 \\rightarrow 4$"]]))]), "reference", "U90")) == 1)
+ok("ruling 42: the lesson as written carries no arrow standing for an equals sign", _arrows() == [])
+_a1 = _arrows(notes=dict(items=["diameter × π   →   CIRCUMFERENCE:   multiply"]))
+ok("ruling 42: an arrow from a calculation to its result is refused, and the finding says where and why",
+   len(_a1) == 1 and "notes[0].items[0]" in _a1[0] and "from a calculation to its result" in _a1[0], str(_a1)[:200])
+ok("ruling 42: so is an arrow between two things that are equal — numbers, or expressions in the same letters",
+   all(len(_arrows(board=dict(steps=[t]))) == 1 for t in ("$12 \\times 9 \\rightarrow 108$", "$30 \\div 0.08 \\to 375$", "$x^{2} \\cdot x^{3} \\rightarrow x^{5}$", "3/4 -> 0.75", "8⁻³ → 1/8³")))
+ok("ruling 42: an arrow keeps its place — a step leading to the next, a mapping, a change, a label, a rounding",
+   _arrows(board=dict(steps=["C = 12π in   →   d = 12π ÷ π = 12 in", "$x \\mapsto 2x$", "A(2, 3) → A′(4, 6)", "$P = 14 \\rightarrow 28$",
+                                    "Diameter → C = πd", "$1{,}868.4 \\rightarrow 1{,}868$", "4, 3, 2 → 8, 6, 4", "2/3 → 3/2"])) == []
+   and _arrows(board=dict(fig=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="AROUND → circumference")]))) == [])
+ok("ruling 42: an equals sign, a 'so', an inequality and a minus sign were never the question",
+   _arrows(board=dict(steps=["$14 \\times 2 = 28$", "$C = 12$,   so   $d = 4$", "$x \\geq -3$", "$5 - 3 > 1$", "$a \\leq b$"])) == [])
+ok("ruling 42: a teacher's note is not a student page", _arrows(board=dict(note="12 × 9 → 108", wrong="12 × 9 → 108 [Notes I]")) == [])
+ok("ruling 42: a block may overrule a reading the build got wrong", _arrows(board=dict(steps=["$12 \\times 9 \\rightarrow 108$"], arrow_ok=True)) == [])
+ok("ruling 42: the unit's papers and reference sheet are read the same way",
+   len(lb.arrowcheck(dict(blocks=[dict(table=([1, 1], [["Rule", "Example"], ["A product", "$12 \\times 9 \\rightarrow 108$"]]))]), "reference", "U90")) == 1
+   and lb.arrowcheck(dict(blocks=[dict(table=([1, 1], [["Rule", "Example"], ["Every nonzero digit counts", "$4{,}207 \\rightarrow 4$"]]))]), "reference", "U90") == [])
 
 # ---- ruling 41: a deck is its Slides file — no HTML deck, no console, unless the course asks
 ok("ruling 41: the kit builds no HTML unless a course's profile asks for it", C.HTML is False)

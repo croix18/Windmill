@@ -10,7 +10,8 @@ Everything is pushed and clean: Windmill (this commit; kit `a731e393edc9`, vendo
 `83cf462`), M7 `a374756`, A7 `bdb708b`. All four units (M7 4–5, A7 3–4) are built and installed
 from that kit at 0 findings. In force since this evening, each with its own section below:
 **ruling 41** — a deck is its Slides file (no HTML, no console; Croix runs the PowerPoint as
-Google Slides inside Deckhand) — and **ruling 42** — no arrow on a student page.
+Google Slides inside Deckhand) — and **ruling 42** — an arrow never stands in for an equals sign
+(arrows are otherwise welcome).
 
 Croix has, as `.pptx`: M7 4.05 (Tue 6 Oct) and 4.06 (Wed 7 Oct), A7 3.T2 (Tue) and 3.08 (Wed).
 Thursday 8 Oct is a state test for both courses.
@@ -24,21 +25,31 @@ Open:
 - Not asked: warm-up answers show no steps; a formula inside a prompt or notes line is set
   larger than its words; the hints taken off slides by ruling 37 are printed nowhere.
 - Deferred by Croix: the Drive script. Then: M7 Unit 6 Teacher's Edition by 19 Oct; A7 Unit 5
-  from 2 Nov — write its specs with `steps`, `off=` labels, whole-problem prompts and no arrows,
+  from 2 Nov — write its specs with `steps`, `off=` labels, whole-problem prompts, and `=` wherever two things are equal,
   and rehearse with `tools/dry_run.py` before any `build_all.py`.
 
 (The section headed "Where things stand (5 Oct 2026, 10:20 am)" further down is the morning's
 state and is superseded by this one: the consoles it mentions no longer exist.)
 
-## Ruling 42 (5 Oct 2026, evening): an arrow is not an equals sign
+## Ruling 42 (5 Oct 2026, evening): an arrow never stands in for an equals sign
 
 Croix, of 4.07's "diameter × π → CIRCUMFERENCE": *"That needs to be an equal sign not an arrow.
-This is math."* Every arrow on a student page in M7 Units 4–5 and A7 Units 3–4 was replaced by
-what it meant (= · so · ≈ · the multiplication itself · a word · a colon after a label; 30 in M7,
-11 in A7, the Unit 4 reference sheet's table among them), and `rulingcheck` now refuses one
-(`arrowcheck`; `arrow_ok=True` for a real mapping). The table of replacements is in
-`kit/SPEC SCHEMA.md`. Not touched: the "book section → our section" lists in A7's Teacher's
-Editions, which are prose and not mathematics.
+This is math."* **I over-read it.** I replaced every arrow on a student page in the four units
+(30 in M7, 11 in A7) and made the build refuse any arrow at all. He then said: *"I'm not anti
+arrow. Arrows have their place, but they shouldn't be stand ins for equal signs is all I was
+saying."* So:
+
+- **The rule is the narrow one.** `arrowcheck` (in `rulingcheck`) refuses an arrow only where an
+  equals sign belongs: the two sides are equal (numbers, or expressions in the same letters), or
+  it runs from a calculation to the name or number of its result. A step leading to the next, a
+  mapping, a change, a rounding, a label pointing at its formula — all pass. `kit/SPEC SCHEMA.md`
+  has the cases; the kit tests hold both directions.
+- **The replacements made that evening stand** — each reads correctly (=, so, ≈, the
+  multiplication itself, a word, a colon) and the decks he has for Tuesday and Wednesday carry
+  them — but they are not a house rule, and nobody should strip arrows from the next unit. He was
+  offered arrows back on any of them and (as of this entry) had not asked.
+- The lesson for whoever reads this: he said what was wrong with ONE line. Fix that line and its
+  like; do not turn a correction into a ban.
 
 ## Ruling 41 (5 Oct 2026, evening): a deck is its Slides file — no HTML, no console
 

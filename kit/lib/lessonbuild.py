@@ -1212,22 +1212,68 @@ def balancecheck_unit(lessons):
 
 
 # ---- ruling 42 (Croix, 5 October 2026, of "diameter × π → CIRCUMFERENCE" on a 4.07 slide): "That
-# needs to be an equal sign not an arrow. This is math." An arrow on a student page says nothing a
-# student can check: it has stood for "equals", for "so", for "rounds to", for "becomes" and for
-# "means", and only the first of those is an equation. So none is printed. Where two sides are
-# equal the sign is =; where one follows from the other the word is "so"; a rounded value takes ≈;
-# a change is said in a word (become, has, flips to). The one arrow that IS mathematics — a mapping,
-# x → 2x, A → A′ — is allowed where its block says so with arrow_ok=True.
-ARROW = re.compile("[\u2190-\u21ff\u27f0-\u27ff\u2794\u279c\u27a1]"
+# needs to be an equal sign not an arrow. This is math." And, the same night, when the first version
+# of this gate refused every arrow: "I'm not anti arrow. Arrows have their place, but they shouldn't
+# be stand ins for equal signs is all I was saying."
+# So an arrow is refused in one case only — where it stands where an equals sign belongs:
+#   (a) the two things it joins are equal (12 × 9 → 108; 8⁻³ → 1/8³; x² · x³ → x⁵), or
+#   (b) it runs from a calculation to the name or the number of its result
+#       (diameter × π → CIRCUMFERENCE; 450 ÷ 25 → 18 in²).
+# Everything else an arrow is for is left alone: one statement leading to the next
+# (C = 12π → d = 12), a mapping (x → 2x, A → A′), a change (14 → 28), a label pointing at its
+# formula (Diameter → C = πd), a rounding (1,868.4 → 1,868).
+ARROW = re.compile("[←-⇿⟰-⟿➔➜➡]"
                    r"|\\(?:long)?(?:left|right|leftright)arrow(?![A-Za-z])|\\(?:Long)?(?:Left|Right|Leftright)arrow(?![A-Za-z])"
                    r"|\\(?:to|gets|implies|iff|mapsto)(?![A-Za-z])|-+>|=+>")
 STUDENT_PAGES = ("target", "warmup", "notes", "examples", "whiteboard", "bank", "additional", "independent", "vocab")
 NOT_ON_A_STUDENT_PAGE = TEACHER_PROSE | {"why", "gloss", "hint", "te_answer", "sub", "check", "yt_check", "scoring"}
+_STATEMENT = re.compile(r"=|\\approx|≈|\\neq?(?![A-Za-z])|≠|<|>|\\[lg]eq?(?![A-Za-z])|≤|≥")
+_OPERATOR = re.compile(r"[×÷·∙*+]|\\times|\\div|\\cdot|(?<=[\d\s)²³])[−/-](?=[\s\d(])")
+_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"
+_SIDE_END = re.compile(r"[.;:!?,]\s|\s{2,}(?=[A-Za-z]{2,}\s*$)")
+
+
+def _arrow_value(side):
+    """One side of an arrow as a number or an expression in letters, or None when it is words."""
+    t = side.replace("$", " ").replace("\\ ", " ").replace("\\quad", " ").replace("\\qquad", " ")
+    t = re.sub("[" + _SUPS + "]+", lambda m: "^{" + m.group(0).translate(str.maketrans(_SUPS, "0123456789-")) + "}", t)
+    for a, b in (("×", "\\times "), ("÷", "\\div "), ("·", "\\cdot "), ("∙", "\\cdot "), ("π", "\\pi "),
+                 ("½", "\\frac{1}{2}"), ("¼", "\\frac{1}{4}"), ("¾", "\\frac{3}{4}")):
+        t = t.replace(a, b)
+    return _stepval(t)
 
 
 def arrowcheck(obj, where, code):
-    """Ruling 42: every arrow in what a student is shown, as findings."""
+    """Ruling 42: every arrow, in what a student is shown, that stands where an equals sign belongs."""
     out = []
+    def stand_in(text, m):
+        left = text[:m.start()]; right = text[m.end():]
+        prev = [x for x in ARROW.finditer(left)]
+        if prev:
+            left = left[prev[-1].end():]
+        nxt = ARROW.search(right)
+        if nxt:
+            right = right[:nxt.start()]
+        ends = list(_SIDE_END.finditer(left))
+        if ends:
+            left = left[ends[-1].end():]
+        end = _SIDE_END.search(right)
+        if end:
+            right = right[:end.start()]
+        left, right = left.strip(" $"), right.strip(" $")
+        if not left or not right or _STATEMENT.search(left) or _STATEMENT.search(right):
+            return None                              # it joins two statements, or nothing: not an equals sign's place
+        a, b = _arrow_value(left), _arrow_value(right)
+        if a is not None and b is not None:
+            try:
+                if sp.simplify(a - b) == 0:
+                    return f"the two sides are equal ({left} and {right})"
+            except Exception:
+                pass
+            return None                              # two values that differ: a change, a rounding, a mapping
+        if _OPERATOR.search(left) and not _OPERATOR.search(right):
+            return f"it runs from a calculation to its result ({left} to {right})"
+        return None
     def scan(o, w):
         if isinstance(o, dict):
             if o.get("arrow_ok"):
@@ -1239,12 +1285,12 @@ def arrowcheck(obj, where, code):
             for i, v in enumerate(o):
                 scan(v, f"{w}[{i}]")
         elif isinstance(o, str):
-            m = ARROW.search(o)
-            if m:
-                a, b = max(0, m.start() - 28), min(len(o), m.end() + 28)
-                out.append(f"{code} {w}: ruling 42 — an arrow on a student page (…{o[a:b]}…). Write = where the two sides are "
-                           f"equal, and a word where they are not (so; becomes; ≈ for a rounded value). Where the arrow IS the "
-                           f"mathematics — a mapping — tag its block arrow_ok=True")
+            for m in ARROW.finditer(o):
+                why = stand_in(o, m)
+                if why:
+                    out.append(f"{code} {w}: ruling 42 — an arrow is standing in for an equals sign: {why}. Write =. "
+                               f"(An arrow is welcome where it means what an arrow means — one step leading to the next, "
+                               f"a mapping, a change. If the build has read this one wrongly, tag its block arrow_ok=True.)")
     scan(obj, where)
     return out
 

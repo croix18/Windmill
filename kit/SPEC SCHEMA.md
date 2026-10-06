@@ -414,26 +414,28 @@ into Deckhand's Slides card. Asked about the unit console: drop it with the rest
   class"). In the PowerPoint a board is two slides — the question, then the question with its
   steps and answer — so the reveal is the next slide.
 
-## An arrow is not an equals sign (ruling 42, 5 October 2026)
+## An arrow never stands in for an equals sign (ruling 42, 5 October 2026)
 
 *"That needs to be an equal sign not an arrow. This is math."* — Croix, of "diameter × π →
-CIRCUMFERENCE" on a slide. No arrow is printed on a student page. Write what the arrow meant:
+CIRCUMFERENCE" on a slide. And, when the first version of this rule refused every arrow: *"I'm not
+anti arrow. Arrows have their place, but they shouldn't be stand ins for equal signs is all I was
+saying."*
 
-| it meant | write | example |
-|---|---|---|
-| equals | `=` | `diameter × π = CIRCUMFERENCE` · `1 cm : 4 m = 1 cm : 400 cm` |
-| therefore | `so` | `C = 12π in,   so   d = 12π ÷ π = 12 in` |
-| rounds to | `\approx` | `1{,}868.4 \approx 1{,}868` |
-| is multiplied to give | the multiplication | `P = 14 \times 2 = 28` |
-| becomes / has / means | the word, or a colon after a label | `4,3,2 \text{ become } 8,6,4` · `Diameter: C = πd` |
-| the next line of someone's work | one chain of `=` | `Don's work:   A = ½ h (a + b) = ½ (14)(11 + 6)` |
-
-`rulingcheck` refuses an arrow (→ ⇒ ↔ `\rightarrow` `\to` `\Rightarrow` `\mapsto` `->` `=>` …) in a
-lesson's `target`, `warmup`, `notes`, `examples`, `whiteboard`, `bank`, `additional`,
-`independent` and `vocab`, figures' labels included, and the unit gate does the same for
-`review`, `assessment` and `reference`. Teacher's prose inside those (`note`, `note_q`, `wrong`,
-`errors`, `why`, `gloss`, `hint`, `sub`, `te_answer`) is not read, and neither is `te`. Where an
-arrow is the mathematics — a mapping — its block carries `arrow_ok=True`.
+- **Equal things take `=`.** `rulingcheck` (`arrowcheck`) refuses an arrow on a student page in
+  two cases, and only these:
+  - its two sides are equal — numbers (`12 \times 9 \rightarrow 108`, `3/4 → 0.75`) or expressions in
+    the same letters (`x^{2} \cdot x^{3} \rightarrow x^{5}`);
+  - it runs from a calculation to the name or number of its result (`diameter × π →
+    CIRCUMFERENCE`, `450 ÷ 25 → 18 in²`).
+- **Everything else an arrow is for is left alone**: a statement leading to the next
+  (`C = 12π in → d = 12π ÷ π = 12 in` — either side carries its own `=`), a mapping (`x \to 2x`,
+  `A → A′`), a change or a rounding (`P = 14 → 28`, `1,868.4 → 1,868`), a label pointing at its
+  formula (`Diameter → C = πd`).
+- It reads a lesson's `target`, `warmup`, `notes`, `examples`, `whiteboard`, `bank`, `additional`,
+  `independent` and `vocab` (figure labels included) and a unit's `review`, `assessment` and
+  `reference`; teacher's prose inside them (`note`, `note_q`, `wrong`, `errors`, `why`, `gloss`,
+  `hint`, `sub`, `te_answer`) and `te` are not read. `arrow_ok=True` on a block overrules a
+  reading the build got wrong.
 
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 
