@@ -414,6 +414,27 @@ into Deckhand's Slides card. Asked about the unit console: drop it with the rest
   class"). In the PowerPoint a board is two slides — the question, then the question with its
   steps and answer — so the reveal is the next slide.
 
+## An arrow is not an equals sign (ruling 42, 5 October 2026)
+
+*"That needs to be an equal sign not an arrow. This is math."* — Croix, of "diameter × π →
+CIRCUMFERENCE" on a slide. No arrow is printed on a student page. Write what the arrow meant:
+
+| it meant | write | example |
+|---|---|---|
+| equals | `=` | `diameter × π = CIRCUMFERENCE` · `1 cm : 4 m = 1 cm : 400 cm` |
+| therefore | `so` | `C = 12π in,   so   d = 12π ÷ π = 12 in` |
+| rounds to | `\approx` | `1{,}868.4 \approx 1{,}868` |
+| is multiplied to give | the multiplication | `P = 14 \times 2 = 28` |
+| becomes / has / means | the word, or a colon after a label | `4,3,2 \text{ become } 8,6,4` · `Diameter: C = πd` |
+| the next line of someone's work | one chain of `=` | `Don's work:   A = ½ h (a + b) = ½ (14)(11 + 6)` |
+
+`rulingcheck` refuses an arrow (→ ⇒ ↔ `\rightarrow` `\to` `\Rightarrow` `\mapsto` `->` `=>` …) in a
+lesson's `target`, `warmup`, `notes`, `examples`, `whiteboard`, `bank`, `additional`,
+`independent` and `vocab`, figures' labels included, and the unit gate does the same for
+`review`, `assessment` and `reference`. Teacher's prose inside those (`note`, `note_q`, `wrong`,
+`errors`, `why`, `gloss`, `hint`, `sub`, `te_answer`) is not read, and neither is `te`. Where an
+arrow is the mathematics — a mapping — its block carries `arrow_ok=True`.
+
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 
 A figure is the one place a student reads a number off a picture, so `lib/figkit.py` checks the

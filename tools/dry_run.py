@@ -9,8 +9,9 @@
 For every lesson spec of the units named it runs EVERY gate `build_lesson` runs (units, mathcheck,
 distractorcheck, capcheck, rulingcheck, balancecheck, stepcheck), lays the lesson out as a
 PowerPoint exactly as the build would (so "cannot hold its steps", "a line of this figure runs
-through its label" and "line runs off the slide" all show), builds each unit's whole-unit deck
-the way `build_unit.py` does (the unit balance check with it), and reads every PowerPoint with
+through its label" and "line runs off the slide" all show), runs the unit gate over `unit.py`
+(the papers and the reference sheet), builds each unit's whole-unit deck the way `build_unit.py`
+does (the unit balance check with it), and reads every PowerPoint with
 the real `checks.check_glyph`: every run in a face Google Slides has, every sign in a face that
 carries it, nothing italic.
 
@@ -113,6 +114,22 @@ for u in units:
         print(f"  {L.get('code', stem):6} {have} of {total} answer slides with steps, {eqs} equalities worked, {len(found)} findings   [{time.time() - t0:.0f} s]", flush=True)
         for x in found:
             print("       " + x)
+    # the unit's own spec — its papers and reference sheet — through the unit gate
+    upath = os.path.join(build, u, "unit.py")
+    if os.path.exists(upath):
+        try:
+            sys.path.insert(0, os.path.dirname(upath))
+            sp = importlib.util.spec_from_file_location("dry_unit", upath)
+            um = importlib.util.module_from_spec(sp); sp.loader.exec_module(um)
+            sys.path.pop(0)
+            from lib import unitbuild                             # noqa: E402
+            ufound, un = unitbuild.check_unit(slotmark.strip_deep(um.U))
+            bad += len(ufound)
+            print(f"  {u}: unit.py — {un} items re-derived, {len(ufound)} findings", flush=True)
+            for x in ufound:
+                print("       " + x)
+        except (Exception, SystemExit) as e:
+            print(f"  {u}: unit.py could not be checked — {str(e)[:300]}"); bad += 1
     # the whole-unit deck (and, where the course builds HTML, its console), by the build's own
     # function (a console made from one lesson has no lesson index, and its Today screen then fails
     # at some hours of the day and not at others — which is how this tool first reported a fault

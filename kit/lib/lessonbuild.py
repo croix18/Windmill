@@ -1179,7 +1179,7 @@ MTR_TEXT = {
 # Every field a board may carry. A field no builder reads would ship as nothing — it is refused.
 WB_FIELDS = {"kind", "latex", "text", "hint", "gloss", "steps", "answer", "answer_latex", "te_answer", "fig", "fig_a",
              "note", "note_a", "check", "wrong", "choices", "correct", "errors", "qtext", "unneeded", "ack",
-             "form_only", "not_sci", "not_gap", "not_bound"}
+             "form_only", "not_sci", "not_gap", "not_bound", "arrow_ok"}
 
 
 def differentiation_rows(L):
@@ -1211,10 +1211,50 @@ def balancecheck_unit(lessons):
     return out
 
 
+# ---- ruling 42 (Croix, 5 October 2026, of "diameter × π → CIRCUMFERENCE" on a 4.07 slide): "That
+# needs to be an equal sign not an arrow. This is math." An arrow on a student page says nothing a
+# student can check: it has stood for "equals", for "so", for "rounds to", for "becomes" and for
+# "means", and only the first of those is an equation. So none is printed. Where two sides are
+# equal the sign is =; where one follows from the other the word is "so"; a rounded value takes ≈;
+# a change is said in a word (become, has, flips to). The one arrow that IS mathematics — a mapping,
+# x → 2x, A → A′ — is allowed where its block says so with arrow_ok=True.
+ARROW = re.compile("[\u2190-\u21ff\u27f0-\u27ff\u2794\u279c\u27a1]"
+                   r"|\\(?:long)?(?:left|right|leftright)arrow(?![A-Za-z])|\\(?:Long)?(?:Left|Right|Leftright)arrow(?![A-Za-z])"
+                   r"|\\(?:to|gets|implies|iff|mapsto)(?![A-Za-z])|-+>|=+>")
+STUDENT_PAGES = ("target", "warmup", "notes", "examples", "whiteboard", "bank", "additional", "independent", "vocab")
+NOT_ON_A_STUDENT_PAGE = TEACHER_PROSE | {"why", "gloss", "hint", "te_answer", "sub", "check", "yt_check", "scoring"}
+
+
+def arrowcheck(obj, where, code):
+    """Ruling 42: every arrow in what a student is shown, as findings."""
+    out = []
+    def scan(o, w):
+        if isinstance(o, dict):
+            if o.get("arrow_ok"):
+                return
+            for k, v in o.items():
+                if k not in NOT_ON_A_STUDENT_PAGE:
+                    scan(v, f"{w}.{k}")
+        elif isinstance(o, (list, tuple)):
+            for i, v in enumerate(o):
+                scan(v, f"{w}[{i}]")
+        elif isinstance(o, str):
+            m = ARROW.search(o)
+            if m:
+                a, b = max(0, m.start() - 28), min(len(o), m.end() + 28)
+                out.append(f"{code} {w}: ruling 42 — an arrow on a student page (…{o[a:b]}…). Write = where the two sides are "
+                           f"equal, and a word where they are not (so; becomes; ≈ for a rounded value). Where the arrow IS the "
+                           f"mathematics — a mapping — tag its block arrow_ok=True")
+    scan(obj, where)
+    return out
+
+
 def rulingcheck_lesson(L):
-    """Rulings 21, 22, 25, 26 and 28 as facts about the spec, refused at build time like a math error."""
+    """Rulings 21, 22, 25, 26, 28 and 42 as facts about the spec, refused at build time like a math error."""
     out = []
     code = L["code"]
+    for g in STUDENT_PAGES:
+        out += arrowcheck(L.get(g), g, code)
     for i, q in enumerate(L.get("whiteboard", [])):
         for k in sorted(set(q) - WB_FIELDS):
             out.append(f"{code} whiteboard[{i}]: field '{k}' is not read by any builder — "

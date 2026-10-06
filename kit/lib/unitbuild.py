@@ -12,7 +12,7 @@ forms are checked position for position, and no question may share an answer acr
 import os, itertools
 from . import names
 from .dockit import Doc, GRAY, RED
-from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capcheck_lesson,
+from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capcheck_lesson, arrowcheck,
                           balancecheck_lesson, COURSE, PREFIX, _fmt_q, _ev)
 from . import slotmark
 from . import figkit
@@ -103,6 +103,9 @@ def check_unit(U):
         findings += distractorcheck_lesson(pseudo)
         findings += capcheck_lesson(pseudo)
         findings += balancecheck_lesson(pseudo)
+    # ruling 42: no arrow on a paper or a reference sheet either
+    for part in ("review", "assessment", "reference"):
+        findings += arrowcheck(U.get(part), part, f"U{U['unit']}")
     return findings, n
 
 

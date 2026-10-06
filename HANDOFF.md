@@ -4,6 +4,16 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Ruling 42 (5 Oct 2026, evening): an arrow is not an equals sign
+
+Croix, of 4.07's "diameter × π → CIRCUMFERENCE": *"That needs to be an equal sign not an arrow.
+This is math."* Every arrow on a student page in M7 Units 4–5 and A7 Units 3–4 was replaced by
+what it meant (= · so · ≈ · the multiplication itself · a word · a colon after a label; 30 in M7,
+11 in A7, the Unit 4 reference sheet's table among them), and `rulingcheck` now refuses one
+(`arrowcheck`; `arrow_ok=True` for a real mapping). The table of replacements is in
+`kit/SPEC SCHEMA.md`. Not touched: the "book section → our section" lists in A7's Teacher's
+Editions, which are prose and not mathematics.
+
 ## Ruling 41 (5 Oct 2026, evening): a deck is its Slides file — no HTML, no console
 
 Croix: *"I like running my files in deckhand because I can use deckhands tools like the pen and
