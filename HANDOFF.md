@@ -4,6 +4,32 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (5 Oct 2026, 11:40 pm) — read this first
+
+Everything is pushed and clean: Windmill (this commit; kit `a731e393edc9`, vendored from
+`83cf462`), M7 `a374756`, A7 `bdb708b`. All four units (M7 4–5, A7 3–4) are built and installed
+from that kit at 0 findings. In force since this evening, each with its own section below:
+**ruling 41** — a deck is its Slides file (no HTML, no console; Croix runs the PowerPoint as
+Google Slides inside Deckhand) — and **ruling 42** — no arrow on a student page.
+
+Croix has, as `.pptx`: M7 4.05 (Tue 6 Oct) and 4.06 (Wed 7 Oct), A7 3.T2 (Tue) and 3.08 (Wed).
+Thursday 8 Oct is a state test for both courses.
+
+Open:
+- **Nobody has seen these PowerPoints in Google Slides from this side.** The build checks the
+  PDF LibreOffice draws; every font named is one Google Slides has. A screenshot from Croix of
+  anything that wraps or shifts there is the evidence to act on.
+- The Deckhand handoff note (console retired) is not pushed — see ruling 41 below.
+- The π in a run of words is Times New Roman bold on purpose; Croix was told and did not object.
+- Not asked: warm-up answers show no steps; a formula inside a prompt or notes line is set
+  larger than its words; the hints taken off slides by ruling 37 are printed nowhere.
+- Deferred by Croix: the Drive script. Then: M7 Unit 6 Teacher's Edition by 19 Oct; A7 Unit 5
+  from 2 Nov — write its specs with `steps`, `off=` labels, whole-problem prompts and no arrows,
+  and rehearse with `tools/dry_run.py` before any `build_all.py`.
+
+(The section headed "Where things stand (5 Oct 2026, 10:20 am)" further down is the morning's
+state and is superseded by this one: the consoles it mentions no longer exist.)
+
 ## Ruling 42 (5 Oct 2026, evening): an arrow is not an equals sign
 
 Croix, of 4.07's "diameter × π → CIRCUMFERENCE": *"That needs to be an equal sign not an arrow.
