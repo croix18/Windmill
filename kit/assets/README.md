@@ -1,4 +1,9 @@
-# Vendored assets for the HTML decks (htmlkit.py)
+# Vendored assets: the slide font, and what the HTML decks inline (htmlkit.py)
+
+**Since ruling 41 (5 October 2026) no course builds HTML** — a deck is its PowerPoint, run as Google
+Slides. What the PowerPoint uses from here is `Lexend-Regular.ttf` and `Lexend-Bold.ttf` (measuring
+every line, and installed for LibreOffice so the PDF is drawn in Lexend). Everything else below is
+the HTML path, kept and still tested, and switched on by `HTML = True` in a course's `course.py`.
 
 Every `<course> <code>  Slides.html` inlines all of these, so a deck is ONE file that needs no network.
 Regenerate everything with `python3 make_assets.py <katex dist folder>` (the folder from

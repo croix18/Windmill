@@ -1,4 +1,4 @@
-"""Turn one LESSON spec into its deck (.pptx with side-car, and .html), teacher's edition and
+"""Turn one LESSON spec into its deck (.pptx with side-car; and .html where C.HTML), teacher's edition and
 lesson plan, plus whatever the course's profile adds: question banks and their keys, the
 independent set as a handout, or one bank file per unit (lib/profile.py).
 
@@ -513,7 +513,8 @@ def build_unit_deck(lessons, rows, U, outdir):
     each lesson's title slide, then every lesson's slides exactly as its own deck draws them (the
     review day too, where the course builds it as a lesson). The per-lesson decks stay — their
     side-cars feed the Teacher Editions and the lesson plans — so this file carries no side-car
-    of its own. The .html twin is the console (lib/consolekit.py)."""
+    of its own. Where the course builds HTML (C.HTML — off since ruling 41), the .html twin is the
+    console (lib/consolekit.py)."""
     unit = U["unit"]
     bal = balancecheck_unit(lessons)
     for f in bal:
@@ -525,7 +526,7 @@ def build_unit_deck(lessons, rows, U, outdir):
     n = count[len(taught)] if len(taught) < len(count) else str(len(taught))
     what = f"{n} lessons" + (" and the review day," if len(taught) < len(lessons) else "") + " in teaching order"
     paths = []
-    for cls, ext in ((Deck, "pptx"), (HtmlDeck, "html")):
+    for cls, ext in ((Deck, "pptx"),) + (((HtmlDeck, "html"),) if C.HTML else ()):
         D = cls(COURSE, unit, f"Unit {unit}", U["title"], f"{COURSE} · Unit {unit} — {U['title']}")
         D.unit_cover(U["title"], [f"{what}  ·  the next slide jumps to each one"])
         contents = D.section("Contents", "Click a lesson to jump to it. Each lesson numbers its slides from 1, as its Teacher Edition does.", 0, "", "contents")
@@ -1376,7 +1377,8 @@ def build_lesson(L, outdir):
         out["indep"] = build_bank(P, P["independent"], "Independent Set", False, outdir)
         out["indep_key"] = build_bank(P, P["independent"], "Independent Set", True, outdir)
     out["deck"] = build_deck(L, outdir)
-    out["html"] = build_html_deck(L, outdir)
+    if C.HTML:                          # ruling 41: a deck is its Slides file; no HTML unless the course asks
+        out["html"] = build_html_deck(L, outdir)
     out["te"] = build_te(L, out["deck"], outdir)
     out["plan"] = plankit.build_plan(P, out["deck"], outdir)
     if C.BANK == "md" and not L.get("review"):

@@ -4,6 +4,32 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Ruling 41 (5 Oct 2026, evening): a deck is its Slides file — no HTML, no console
+
+Croix: *"I like running my files in deckhand because I can use deckhands tools like the pen and
+timers and stuff. So stop building the html. Keep it as slides files."* Asked: he uploads the
+PowerPoint to Drive, it opens as Google Slides, he pastes the link into Deckhand's Slides card;
+and the unit console goes with the rest.
+
+- **Kit**: `profile.HTML = False` (both courses say so in `course.py`). `build_lesson` and
+  `build_unit_deck` write no HTML; `build_all.py` removes HTML left in `out/` by earlier builds;
+  `htmlcheck` refuses an `.html` deck among the built files. `lib/htmlkit.py`, `lib/consolekit.py`
+  and their tests stay — `HTML = True` in a course brings decks and console back as they were.
+- **The PowerPoint names only faces Google Slides has**: Lexend; Arial for a sign Lexend lacks;
+  Times New Roman bold for a π in words (it was WindyPi for a day — fine in the PDF, unknown to
+  Google Slides). `glyph` enforces it. **Nothing here can open Google Slides**; if a slide wraps
+  or shifts there, Croix's screenshot is the only evidence there will be.
+- **This retires phase 3 of the Room Coordination Plan as built** (the lesson console: Today
+  screen, per-period bookmark, veil, whiteboard tally, `panel.asRun` written from the panel). The
+  plan still moves: a day is logged from the phone view (below, "The plan follows the class").
+  The *Room Coordination Plan* doc is Croix's and has NOT been amended — ask before touching it.
+  Deckhand's own handoff ("the settle-in hands off to the unit console") is annotated, not
+  rewritten: what Deckhand should hand off to now is a Slides card, which it already has.
+- `drive/WindyHill.gs` still has its "consoles go to Apps" branch; with no console published it
+  matches nothing. Left as is until the script is set up in his account.
+- `tools/dry_run.py` rehearses the PowerPoint (gates, layout, the whole-unit deck, `glyph`); it
+  does the HTML part only for a course with `HTML = True`.
+
 ## Where things stand (5 Oct 2026, 10:20 am) — read this first
 
 Everything is pushed and clean: Windmill `40db72a` (kit `cef1f2cdc3ff`), M7 `27e06e3`, A7

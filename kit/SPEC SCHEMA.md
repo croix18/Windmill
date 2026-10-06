@@ -387,6 +387,33 @@ never share a file (the face is in each image's fingerprint).
   `capcheck` no longer reads the [1, 10) rule into `steps`. Every such line is still held true by
   `stepcheck`, and the item's answer is still scanned.
 
+## A deck is its Slides file (ruling 41, 5 October 2026)
+
+*"I like running my files in deckhand because I can use deckhands tools like the pen and timers
+and stuff. So stop building the html. Keep it as slides files."* Asked how a deck reaches
+Deckhand: he uploads the PowerPoint to Drive, it opens as Google Slides, and he pastes that link
+into Deckhand's Slides card. Asked about the unit console: drop it with the rest.
+
+- **No HTML is built.** `profile.HTML` is `False` (a course that wants its HTML decks and console
+  back sets `HTML = True` in `course.py`; `lib/htmlkit.py` and `lib/consolekit.py` are kept, and
+  their tests still run). `build_lesson` writes the `.pptx` (and its PDF); `build_unit_deck`
+  writes `All Slides.pptx` and no console. `checks.py` `htmlcheck` holds the other way round: an
+  `.html` deck left among the built files is a finding — a stale console beside today's slides.
+- **The PowerPoint is what he teaches from, in Google Slides — so it names only faces Google
+  Slides has.** Lexend (a Google font) for every word; **Arial** for a sign Lexend lacks (→);
+  **Times New Roman, bold** for a π in a run of words — the textbook's π at Lexend's weight, and
+  to the eye the π `mathimg` draws in expressions. (For a day the π was WindyPi, a one-glyph face
+  cut for the purpose: right in the PDF, unknown to Google Slides, which swaps a face it lacks
+  without saying so.) A sign Arial lacks too falls to DejaVu Sans for the PDF. `checks.py glyph`
+  refuses any other face on a slide. Mathematics and figures are pictures, so they arrive as
+  drawn. **Nothing here can open Google Slides**: the layout is checked in the PDF LibreOffice
+  draws from the same file, with the same Lexend.
+- **What went with the console**, so nobody looks for it: the Today screen, each period's
+  bookmark, the stepped reveal, the whiteboard tally, and the as-run log written from the panel.
+  A day is logged from the phone view of the plan (Windmill `HANDOFF.md`, "The plan follows the
+  class"). In the PowerPoint a board is two slides — the question, then the question with its
+  steps and answer — so the reveal is the next slide.
+
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 
 A figure is the one place a student reads a number off a picture, so `lib/figkit.py` checks the

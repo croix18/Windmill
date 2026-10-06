@@ -10,7 +10,7 @@ title in every name, one pattern for both courses, and unit folders organised by
     M7 4.06 Finding Circumference - Slides.pptx
     M7 4.06 Finding Circumference - Teacher Edition.pdf
     A7 3.08 Writing Large Numbers in Scientific Notation - Question Bank - Key.docx
-    M7 Unit 4 Area - All Slides.html                      (the .html is the console)
+    M7 Unit 4 Area - All Slides.html                      (the console — only where a course builds HTML; none does since ruling 41)
     M7 Unit 4 Area - Test Form A - Worked Answers.pdf
     M7 Unit 4 Area - Review Day - Slides.pptx             (a review day built as a lesson)
     A7 Unit 3 Exponents and Scientific Notation - Test - Key.docx

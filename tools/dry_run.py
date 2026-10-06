@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 """A two-minute rehearsal of a fifteen-minute build.
 
-    python3 tools/dry_run.py <course build dir> <unit> [<unit> …] [--no-html] [--vendored] [--keep DIR]
+    python3 tools/dry_run.py <course build dir> <unit> [<unit> …] [--vendored] [--keep DIR]
 
     python3 tools/dry_run.py /root/m7/m7/build u4 u5
     python3 tools/dry_run.py /root/windy-hill/a7/build u3 u4
 
 For every lesson spec of the units named it runs EVERY gate `build_lesson` runs (units, mathcheck,
 distractorcheck, capcheck, rulingcheck, balancecheck, stepcheck), lays the lesson out as a
-PowerPoint and as an HTML deck exactly as the build would (so "cannot hold its steps", "a line of
-this figure runs through its label" and "line runs off the slide" all show), builds each unit's
-whole-unit deck and its console the way `build_unit.py` does (the unit balance check with it),
-and then opens every HTML deck and console in a browser with the real `checks.check_html`: footer
-overruns, how far a slide had to be set smaller, KaTeX errors, the colour reading against
-mathtext, the console's reveal, its lesson index and its placement at every screen size.
+PowerPoint exactly as the build would (so "cannot hold its steps", "a line of this figure runs
+through its label" and "line runs off the slide" all show), builds each unit's whole-unit deck
+the way `build_unit.py` does (the unit balance check with it), and reads every PowerPoint with
+the real `checks.check_glyph`: every run in a face Google Slides has, every sign in a face that
+carries it, nothing italic.
+
+Where a course still builds HTML (`HTML = True` in its course.py — neither does since ruling 41)
+it also lays each lesson out as an HTML deck, builds the unit console, and opens them all in a
+browser with the real `checks.check_html`.
 
 It needs no LibreOffice and writes nothing into the course: decks and images go to a scratch
 folder (`--keep DIR` to look at them afterwards). By default it uses the kit AS IT STANDS IN THIS
@@ -68,7 +71,7 @@ def load(path):
 
 
 print(f"dry run of {C.COURSE} {' '.join(units)} with the kit in {kit}")
-bad = 0; decks = []
+bad = 0; decks = []; pptx = []
 for u in units:
     unit_lessons = []
     specs = sorted(glob.glob(os.path.join(build, u, "l[0-9]*.py")))
@@ -97,39 +100,41 @@ for u in units:
         try:
             D = deckkit.Deck(C.COURSE, L["unit"], "Lesson", L["title"], "dry run"); lb._fill_deck(D, L)
             D.save(os.path.join(out, stem + ".pptx"), sidecar=False)
+            unit_lessons.append(L); pptx.append(os.path.join(out, stem + ".pptx"))
         except (Exception, SystemExit) as e:
             found.append(f"PowerPoint: {str(e)[:400]}")
-        try:
-            H = htmlkit.HtmlDeck(C.COURSE, L["unit"], "Lesson", L["title"], "dry run"); lb._fill_deck(H, L)
-            H.save(os.path.join(out, stem + ".html")); decks.append(os.path.join(out, stem + ".html"))
-            unit_lessons.append(L)
-        except (Exception, SystemExit) as e:
-            found.append(f"HTML deck: {str(e)[:400]}")
+        if C.HTML:
+            try:
+                H = htmlkit.HtmlDeck(C.COURSE, L["unit"], "Lesson", L["title"], "dry run"); lb._fill_deck(H, L)
+                H.save(os.path.join(out, stem + ".html")); decks.append(os.path.join(out, stem + ".html"))
+            except (Exception, SystemExit) as e:
+                found.append(f"HTML deck: {str(e)[:400]}")
         bad += len(found)
         print(f"  {L.get('code', stem):6} {have} of {total} answer slides with steps, {eqs} equalities worked, {len(found)} findings   [{time.time() - t0:.0f} s]", flush=True)
         for x in found:
             print("       " + x)
-    # the whole-unit deck and its console, by the build's own function (a console made from one
-    # lesson has no lesson index, and its Today screen then fails at some hours of the day and not
-    # at others — which is how this tool first reported a fault that was its own, 5 October)
+    # the whole-unit deck (and, where the course builds HTML, its console), by the build's own
+    # function (a console made from one lesson has no lesson index, and its Today screen then fails
+    # at some hours of the day and not at others — which is how this tool first reported a fault
+    # that was its own, 5 October)
     if unit_lessons:
         try:
             n = unit_lessons[0]["unit"]
             rows = [("Review" if L.get("review") else L["code"], L["title"]) for L in unit_lessons]
             udir = os.path.join(out, u + "_unit"); os.makedirs(udir, exist_ok=True)
             lb.build_unit_deck(unit_lessons, rows, {"unit": n, "title": getattr(C, "UNITS", {}).get(n, f"Unit {n}")}, udir)
-            con = glob.glob(os.path.join(udir, "*.html"))
-            decks += con
-            print(f"  {u}: whole-unit deck and console built ({len(unit_lessons)} lessons)", flush=True)
+            decks += glob.glob(os.path.join(udir, "*.html")); pptx += glob.glob(os.path.join(udir, "*.pptx"))
+            print(f"  {u}: whole-unit deck built ({len(unit_lessons)} lessons)" + (", and its console" if C.HTML else ""), flush=True)
         except (Exception, SystemExit) as e:
             print(f"  {u}: the whole-unit deck could not be built — {str(e)[:400]}"); bad += 1
 
-if "--no-html" not in flags and decks:
-    import checks                                                # noqa: E402
-    found = [x for x in checks.check_html(decks)]
-    bad += len(found)
-    for x in found:
-        print("   " + x)
+import checks                                                    # noqa: E402
+found = list(checks.check_glyph(pptx)) if pptx else []
+if C.HTML and decks:
+    found += list(checks.check_html(decks))
+bad += len(found)
+for x in found:
+    print("   " + x)
 
 print(f"dry run: {bad} findings" + (f"; decks kept in {out}" if keep else ""))
 sys.exit(1 if bad else 0)

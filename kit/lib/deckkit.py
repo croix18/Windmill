@@ -25,7 +25,13 @@ INK, VOCAB, RED, GRAY, LT, FILL = "1A1A1A", "0B5394", "9E1B32", "6B6B6B", "D9D9D
 # assets/ under the Open Font License, measured from there, and installed for LibreOffice — which
 # renders the PDFs with whatever fonts the machine knows — the first time this module is loaded.
 FONT = "Lexend"
-FALLBACK = "DejaVu Sans"       # the few signs Lexend has no glyph for (→ ∠ △ ✓) are set in this, by name
+# A deck is run as Google Slides (ruling 41: Croix uploads the PowerPoint to Drive and runs it in
+# Deckhand's Slides card), so every face a slide NAMES is one Google Slides has: Lexend, Arial,
+# Times New Roman. A face it does not have is swapped for another without a word, and the slide
+# he teaches from is then not the slide that was checked.
+FALLBACK = "Arial"             # a sign Lexend has no glyph for (→) is set in this, by name
+LAST_RESORT = "DejaVu Sans"    # … and one Arial lacks too (✓ △) in this: LibreOffice has it for the PDF, and
+                               # Google Slides finds such a sign in a face of its own
 ITALIC = False                 # Lexend has no italic, and a slanted face is what such a font is chosen to avoid
 # Lexend's letters are larger for their point size than Century Schoolbook's (x-height 0.525 em
 # against 0.466) and its lines about 5% longer. Set at 95% of the size a slide asks for, a line is
@@ -35,12 +41,17 @@ _ASSETS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__
 _FONT_FILES = {False: os.path.join(_ASSETS, "Lexend-Regular.ttf"), True: os.path.join(_ASSETS, "Lexend-Bold.ttf")}
 _FONT_CACHE = {}
 # pi is the one sign a slide never takes from Lexend: Lexend's pi is a flat-topped box that reads
-# as an n from the back row. WindyPi is a face of one glyph — the pi of STIX General Bold, the
-# same glyph mathimg sets in a slide's expressions — so the pi in a sentence, in an expression
-# and on a figure is one shape (assets/make_assets.py make_pi).
-PI_FONT = "WindyPi"
+# as an n from the back row. In a run of words it is set in Times New Roman, bold — the textbook's
+# pi at Lexend's weight, and to the eye the pi mathimg sets in a slide's expressions (STIX General
+# Bold is a Times) — because that is a face Google Slides has. (For a day it was WindyPi, a face
+# of one glyph cut for the purpose: right in the PDF, and unknown to Google Slides. The cut stays
+# in assets/ for the HTML decks, which carry their own fonts — htmlkit.)
+PI_FONT = "Times New Roman"
+PI_BOLD = True
 NOT_LEXEND = {"\u03c0": PI_FONT}
-_PI_FILE = os.path.join(_ASSETS, "WindyPi.ttf")
+_ARIAL = None
+_ARIAL_FILES = ("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",       # what LibreOffice draws "Arial" with
+                "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf", "/Library/Fonts/Arial.ttf", "C:/Windows/Fonts/arial.ttf")
 
 
 def _install_deck_font():
@@ -49,7 +60,7 @@ def _install_deck_font():
     def stale(f):                    # missing, or not the kit's own bytes (a face the kit has since recut)
         d = os.path.join(dst, os.path.basename(f))
         return not os.path.exists(d) or open(d, "rb").read() != open(f, "rb").read()
-    need = [f for f in list(_FONT_FILES.values()) + [_PI_FILE] if stale(f)]
+    need = [f for f in _FONT_FILES.values() if stale(f)]
     if need:
         os.makedirs(dst, exist_ok=True)
         for f in need:
@@ -76,13 +87,18 @@ def step_sizes(big=False):
 
 def _by_font(text):
     """[(piece, font)]: the text cut wherever it leaves the slide font's own characters."""
-    global _CMAP
+    global _CMAP, _ARIAL
     if _CMAP is None:
         from fontTools.ttLib import TTFont
         _CMAP = set(TTFont(_FONT_FILES[False]).getBestCmap())
+        _ARIAL = False                               # no Arial to read here: take its word for every sign
+        for p in _ARIAL_FILES:
+            if os.path.exists(p):
+                _ARIAL = set(TTFont(p).getBestCmap()); break
     out = []
     for ch in text:
-        f = NOT_LEXEND.get(ch) or (FONT if (ord(ch) < 128 or ord(ch) in _CMAP) else FALLBACK)
+        f = NOT_LEXEND.get(ch) or (FONT if (ord(ch) < 128 or ord(ch) in _CMAP)
+                                   else FALLBACK if (_ARIAL is False or ord(ch) in _ARIAL) else LAST_RESORT)
         if out and out[-1][1] == f:
             out[-1][0] += ch
         else:
@@ -170,7 +186,7 @@ class Deck:
                 for piece, sup in _split_sup(part):
                     for bit, face in _by_font(piece.replace("\\$", "$")):     # \$ = a literal dollar sign
                         r = para.add_run(); r.text = bit
-                        r.font.name = face; r.font.size = Pt(round(sz * SCALE, 1)); r.font.bold = b; r.font.italic = bool(i) and ITALIC
+                        r.font.name = face; r.font.size = Pt(round(sz * SCALE, 1)); r.font.bold = b or (PI_BOLD and face == PI_FONT); r.font.italic = bool(i) and ITALIC
                         r.font.color.rgb = _rgb(slot or c)
                         if sup:
                             r.font._element.set("baseline", "30000")
@@ -390,7 +406,7 @@ class Deck:
                 para = tf.paragraphs[0]; para.alignment = PP_ALIGN.CENTER
                 for piece, sup, face in [(bit, sup_, face_) for piece_, sup_ in _split_sup(val) for bit, face_ in _by_font(piece_)]:
                     r = para.add_run(); r.text = piece
-                    r.font.name = face; r.font.size = Pt(round(size * SCALE, 1)); r.font.bold = (header and ri == 0)
+                    r.font.name = face; r.font.size = Pt(round(size * SCALE, 1)); r.font.bold = (header and ri == 0) or (PI_BOLD and face == PI_FONT)
                     r.font.color.rgb = _rgb(INK)
                     if sup:
                         r.font._element.set("baseline", "30000")

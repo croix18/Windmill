@@ -276,11 +276,12 @@ def _too_much():
         return "cannot hold its steps" in str(e)
 ok("steps: and one that cannot fit at all is refused, not let run into the footer", _too_much())
 _faces = set(re.findall(r'typeface="([^"]+)"', " ".join(sx)))
-ok("font: every run on a slide is set in Lexend (or, for a sign it lacks, the named fallback)", _faces <= {"Lexend", "DejaVu Sans"} and "Lexend" in _faces, str(_faces))
+ok("font: every run on a slide names a face Google Slides has (Lexend; Arial or Times New Roman for a sign it lacks)", _faces <= {"Lexend", "Arial", "Times New Roman"} and "Lexend" in _faces, str(_faces))
 ok("font: nothing on a slide is italic", not re.search(r'<a:rPr[^>]*\bi="1"', " ".join(sx)) and "font-style:italic" not in h3[h3.index('<section class="slide'):])
 from lib import deckkit as _dk
 ok("font: a sign Lexend has no glyph for is set in the fallback by name, and the rest stays",
-   _dk._by_font("A \u2192 B") == [("A ", "Lexend"), ("\u2192", "DejaVu Sans"), (" B", "Lexend")])
+   _dk._by_font("A \u2192 B") == [("A ", "Lexend"), ("\u2192", "Arial"), (" B", "Lexend")]
+   and _dk._by_font("ok \u2713") == [("ok ", "Lexend"), ("\u2713", "DejaVu Sans")])
 ok("font: the HTML deck carries Lexend itself and asks for nothing from the network",
    "font-family:'Lexend'" in h3 and "size-adjust:95%" in h3 and "fonts.googleapis" not in h3 and "Schola" not in h3)
 ok("font: the faces are in the kit under their licence", all(os.path.exists(os.path.join(os.path.dirname(_dk.__file__), "..", "assets", f)) for f in ("Lexend-Regular.ttf", "Lexend-Bold.ttf", "LEXEND-OFL.txt", "lexend-regular.woff2", "lexend-bold.woff2", "lexend-fallback.woff2")))
@@ -324,8 +325,15 @@ import slotaudit as _sl
 _worst = max(_sl.geometry_differs(t, 40) for t in (r"3x^{2} \cdot x^{5} = 3x^{7}", r"\left(\frac{2}{3}\right)^{4} = \frac{2^{4}}{3^{4}}", r"\sA{3}^{\sB{2}} \cdot \pi r^{2}", r"\sqrt[3]{27} + 2^{3}"))
 ok("math: in the slide face the colour code still changes the ink's colour and nothing else", _worst < 0.005, f"worst {_worst:.2%}")
 _mi.FIGS, _mi.INDEX = _mi_figs
-ok("font: a pi in a sentence is set in the one-glyph pi face, and nothing else is",
-   _dk._by_font("C = 2\u03c0r") == [("C = 2", "Lexend"), ("\u03c0", "WindyPi"), ("r", "Lexend")])
+ok("font: a pi in a sentence is set in Times New Roman (a face Google Slides has), and nothing else is",
+   _dk._by_font("C = 2\u03c0r") == [("C = 2", "Lexend"), ("\u03c0", "Times New Roman"), ("r", "Lexend")])
+with tempfile.TemporaryDirectory() as tmp:
+    Pp = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); Pp.section("Notes", "", 1, "n", "notes"); Pp.text("C = 2\u03c0r \u2192 d", 24)
+    Pp.save(os.path.join(tmp, "p.pptx"), sidecar=False)
+    _px = " ".join(zipfile.ZipFile(os.path.join(tmp, "p.pptx")).read(nm).decode("utf-8") for nm in zipfile.ZipFile(os.path.join(tmp, "p.pptx")).namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", nm))
+_pruns = [(re.search(r'typeface="([^"]+)"', r).group(1), bool(re.search(r'<a:rPr[^>]*\bb="1"', r)), "".join(re.findall(r"<a:t>([^<]*)</a:t>", r))) for r in re.findall(r"<a:r>(.*?)</a:r>", _px, re.S)]
+ok("font: the pi is bold (the textbook's pi at Lexend's weight) while the words around it are not; the arrow is Arial",
+   ("Times New Roman", True, "\u03c0") in _pruns and ("Lexend", False, "C = 2") in _pruns and ("Arial", False, "\u2192") in _pruns, str(_pruns))
 from fontTools.ttLib import TTFont as _TT
 _assets = os.path.join(os.path.dirname(_dk.__file__), "..", "assets")
 ok("font: the pi face holds exactly one glyph, and travels with its licence",
@@ -367,6 +375,7 @@ if _browser:
         H.section("Your Turn", "", 1, "n", "yourturn"); H.text("A problem.", 24, align="center"); H.steps([_row] * nrows); H.answer_line("42")
         page = render_page(H)
         return page if fit else page.replace("function fitSlide(sl){", "function fitSlide(sl){return;")
+    _h0 = C.HTML; C.HTML = True                      # the HTML path is kept and still tested; ruling 41 only stops courses building it
     with tempfile.TemporaryDirectory() as tmp:
         _res = {}
         for name, nrows, fit in (("fits", 6, True), ("unfitted", 6, False), ("far too much", 12, True)):
@@ -374,11 +383,40 @@ if _browser:
             import io, contextlib
             with contextlib.redirect_stdout(io.StringIO()) as _out:
                 _res[name] = (_ck.check_html([pth]), _out.getvalue())
+    C.HTML = _h0
     ok("html fit: a slide a little too tall is set smaller, whole, and clears its footer (and the check says how many were)",
        not any("below the footer rule" in x or "had to be set" in x for x in _res["fits"][0]) and "2 slides set smaller to clear the footer" in _res["fits"][1], str(_res["fits"])[:300])
     ok("html fit: its question slide takes the same factor, so the pair agree", "2 slides set smaller" in _res["fits"][1])
     ok("html fit: without the fit the same slide runs into the footer, and the check sees it", any("below the footer rule" in x for x in _res["unfitted"][0]), str(_res["unfitted"][0])[:300])
     ok("html fit: a slide that would have to be set under the floor is refused — that is the spec's to fix", any("had to be set at" in x for x in _res["far too much"][0]), str(_res["far too much"][0])[:300])
+# ---- ruling 41: a deck is its Slides file — no HTML deck, no console, unless the course asks
+ok("ruling 41: the kit builds no HTML unless a course's profile asks for it", C.HTML is False)
+_UL = [dict(copy.deepcopy(L), code="90.01", plan_code=None), dict(copy.deepcopy(L), code="90.02", plan_code=None)]
+with tempfile.TemporaryDirectory() as tmp:
+    import io, contextlib
+    with contextlib.redirect_stdout(io.StringIO()):
+        lb.build_unit_deck(_UL, [(x["code"], x["title"]) for x in _UL], {"unit": 90, "title": "Area and Circles"}, tmp)
+    _off = sorted(os.path.splitext(f)[1] for f in os.listdir(tmp))
+    _hk0 = C.HTML; C.HTML = True
+    _save0 = HtmlDeck.save                           # the console wants a course's vendored spine beside it; here the plain page will do
+    HtmlDeck.save = lambda self, path, sidecar=False, console=False: _save0(self, path, sidecar, False)
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            lb.build_unit_deck(_UL, [(x["code"], x["title"]) for x in _UL], {"unit": 90, "title": "Area and Circles"}, tmp)
+        _on = sorted(os.path.splitext(f)[1] for f in os.listdir(tmp))
+    finally:
+        C.HTML = _hk0; HtmlDeck.save = _save0
+    try:
+        import checks as _ck3
+        open(os.path.join(tmp, "stray - Slides.html"), "w").write("<html></html>")
+        with contextlib.redirect_stdout(io.StringIO()):
+            _stray = _ck3.check_html([os.path.join(tmp, "stray - Slides.html")]); _none = _ck3.check_html([os.path.join(tmp, "x.pptx")])
+    except ImportError:
+        _stray, _none = ["ruling 41"], []
+ok("ruling 41: the whole-unit deck is a PowerPoint and nothing else; with HTML asked for, the console is built beside it",
+   _off == [".pptx"] and _on == [".html", ".pptx"], str((_off, _on)))
+ok("ruling 41: an HTML deck left among the built files is a finding (a stale console beside today's slides); none is clean",
+   len(_stray) == 1 and "ruling 41" in _stray[0] and _none == [], str((_stray, _none)))
 ok("font: the HTML deck hands KaTeX a variable l as the script l", _hk._tex("A = lw", False) == r"A = \ell w" and _hk._tex(r"3\text{ ml}", False) == r"3\text{ ml}")
 
 from lib import htmlkit as _hk

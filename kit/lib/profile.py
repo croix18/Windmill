@@ -26,6 +26,9 @@ DEFAULTS = dict(
     SET="handout",             # "handout": the six questions are a printed page and its key
                                # "slide":   the six questions are on a slide; no handout
     CLOSE=False,               # True: a "Before You Go" slide before IXL
+    HTML=False,                # ruling 41 (Croix, 5 Oct): a deck is its Slides file. No HTML deck and no unit
+                               # console are built — he runs the PowerPoint as Google Slides inside Deckhand,
+                               # for its pen and timers. True builds them again (lib/htmlkit, lib/consolekit).
     STEPS="optional",          # ruling 39 — "required": an answer slide with no steps refuses the build;
                                # "optional" only while a course's steps are still being written
     BANK="docx",               # "docx": Question Bank + Additional, each with a key
