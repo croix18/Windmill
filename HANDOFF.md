@@ -48,7 +48,7 @@ saying."* So:
 - **The replacements made that evening stand** — each reads correctly (=, so, ≈, the
   multiplication itself, a word, a colon) and the decks he has for Tuesday and Wednesday carry
   them — but they are not a house rule, and nobody should strip arrows from the next unit. He was
-  offered arrows back on any of them and (as of this entry) had not asked.
+  offered arrows back on any of them and said: *"Leave em as they are."* Settled.
 - The lesson for whoever reads this: he said what was wrong with ONE line. Fix that line and its
   like; do not turn a correction into a ban.
 
