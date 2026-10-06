@@ -23,8 +23,13 @@ and the unit console goes with the rest.
   screen, per-period bookmark, veil, whiteboard tally, `panel.asRun` written from the panel). The
   plan still moves: a day is logged from the phone view (below, "The plan follows the class").
   The *Room Coordination Plan* doc is Croix's and has NOT been amended — ask before touching it.
-  Deckhand's own handoff ("the settle-in hands off to the unit console") is annotated, not
-  rewritten: what Deckhand should hand off to now is a Slides card, which it already has.
+  **Deckhand's own handoff still says "the settle-in hands off to the unit console"**: the note
+  correcting it was written but could not be pushed from this session (croix18/Deckhand was not
+  among the repositories the session could write, and there was no token file in that checkout).
+  The next session that opens Deckhand adds it to `docs/HANDOFF.md`, above "Deckhand's part":
+  the console is retired by ruling 41; every "hands off to the unit console" means "hands off to
+  the Slides card already on the scene"; there is no `#period=N` hand-off to build and no `panel`
+  part to publish on a console's behalf.
 - `drive/WindyHill.gs` still has its "consoles go to Apps" branch; with no console published it
   matches nothing. Left as is until the script is set up in his account.
 - `tools/dry_run.py` rehearses the PowerPoint (gates, layout, the whole-unit deck, `glyph`); it
