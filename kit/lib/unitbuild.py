@@ -195,6 +195,27 @@ def paper_ledger(U):
     return total, per_bm, per_sec, transfer
 
 
+def transfer_needed(A):
+    """How many transfer items this assessment must carry. Ruling 18 says exactly two. `transfer_cut`
+    on the assessment — a sentence saying who took one off the paper, when and why — makes it one.
+
+    Croix, 7 October 2026, having sat the A7 Unit 3 test himself: "I didnt know the last question.
+    Axe it." It was a transfer item, and ruling 18's own last line covers it: an item that needs a
+    step the unit did not teach "is a new question, not a transfer item, and it goes back". A paper
+    is not held up waiting for a replacement, and no other question is re-labelled to make up the
+    count — the key says that one was cut and why."""
+    return 1 if (A.get("transfer_cut") or "").strip() else 2
+
+
+def transfer_line(A, transfer):
+    """The key's sentence about the transfer items it carries."""
+    if len(transfer) == 2:
+        return (f"Transfer items (ruling 18): questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
+                f"review or in any question bank.")
+    return (f"Transfer item (ruling 18): question {transfer[0]}. Its surface appears on neither the review nor any "
+            f"question bank. A second transfer item was cut from this paper: {A['transfer_cut'].strip()}")
+
+
 def build_paper(U, outdir, key):
     A = U["assessment"]
     total, per_bm, per_sec, transfer = paper_ledger(U)
@@ -202,8 +223,9 @@ def build_paper(U, outdir, key):
     for bm, (qs, pts) in per_bm.items():
         assert A["tracker"][bm] == pts, f"tracker {bm}: declared {A['tracker'][bm]}, ledger {pts}"
     assert sum(A["tracker"].values()) == total
-    # Ruling 18: exactly two transfer items on every unit assessment.
-    assert len(transfer) == 2, f"ruling 18: {len(transfer)} transfer items, need exactly 2 (questions {transfer})"
+    # Ruling 18: exactly two transfer items on every unit assessment (one where the teacher cut one: transfer_cut).
+    need = transfer_needed(A)
+    assert len(transfer) == need, f"ruling 18: {len(transfer)} transfer items, need exactly {need} (questions {transfer})"
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}  ·  Assessment"
     sub = f"{total} points" + ("  ·  two periods; students continue the same paper" if key else "")
     doc = Doc(eyebrow, U["title"], sub, key=key)
@@ -235,8 +257,7 @@ def build_paper(U, outdir, key):
         rows.append([{"text": "Total", "bold": True}, "", {"text": str(total), "bold": True}, ""])
         doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5)
         doc.para(A["follow_through"], size=9.5, italic=True, color=GRAY, before=6, after=4)
-        doc.para(f"Transfer items (ruling 18): questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
-                 f"review or in any question bank.", size=9.5, italic=True, color=GRAY, before=2, after=4)
+        doc.para(transfer_line(A, transfer), size=9.5, italic=True, color=GRAY, before=2, after=4)
     name = names.unit(U["unit"], "Test", "docx", key=key)
     path = os.path.join(outdir, name)
     doc.save(path)
@@ -303,8 +324,8 @@ def check_forms(A):
         if _shape(secs) != _shape(prac):
             f.append(f"form {k} is not parallel to the practice test: {_shape(secs)} vs {_shape(prac)}")
         tp = _transfer_positions(secs)
-        if len(tp) != 2:
-            f.append(f"ruling 18: form {k} carries exactly two transfer items, found {len(tp)}")
+        if len(tp) != transfer_needed(A):
+            f.append(f"ruling 18: form {k} carries exactly {transfer_needed(A)} transfer item(s), found {len(tp)}")
     tps = {k: tuple(_transfer_positions(v)) for k, v in tests.items()}
     if len(set(tps.values())) > 1:
         f.append(f"ruling 33: the transfer items sit at different positions across forms: {tps}")

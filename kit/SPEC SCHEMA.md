@@ -285,7 +285,11 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
   follow-through credit (ruling 19) sits under it. Every lettered part is one point; every
   single-part item is one point. `total` and `tracker` (benchmark → points) are asserted against
   the items at build time; `tracker_order` fixes the Score Tracker's row order.
-- **Exactly two items carry `transfer=True`** (ruling 18) and the build refuses any other count.
+- **Exactly two items carry `transfer=True`** (ruling 18) and the build refuses any other count —
+  unless the assessment carries **`transfer_cut="who cut one, when and why"`**, which makes it exactly
+  one and prints that sentence on the key (Croix, 7 October 2026, of the A7 Unit 3 test's last
+  question: "I didnt know the last question. Axe it." — ruling 18's own last line: an item that
+  needs a step the unit did not teach goes back). Nothing else is re-labelled to make up the count.
   A transfer item is the same benchmark and the same one-operation demand on a surface that
   appears on no review and in no question bank — not harder, not longer, not a chain. The key
   prints *TRANSFER ITEM — not on the practice test. Same benchmark, a surface nobody rehearsed.*

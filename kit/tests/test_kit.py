@@ -627,6 +627,14 @@ ok("ruling 44: it reads an example, a notes slide and a test question the same w
 planted("a board whose words give a length its picture does not show",
         lambda M: M["whiteboard"][0].update(text=["A plate sits on a placemat 30 cm wide.", "**Find the circumference of the plate."],
                                             fig=dict(kind="shapes", fs=22, pt=18, **{"in": 2.0}, shapes=[dict(t="circle", c=(0, 0), r=2), dict(t="text", xy=(0, -0.2), s="20 cm")])), "ruling 44")
+# ---- ruling 18: two transfer items, or one where the teacher cut one and the paper says so
+from lib import unitbuild as _ub18
+ok("ruling 18: a paper needs exactly two transfer items — or one, when transfer_cut says who cut the other, when and why, and the key then says so",
+   _ub18.transfer_needed({}) == 2 and _ub18.transfer_needed({"transfer_cut": "  "}) == 2
+   and _ub18.transfer_needed({"transfer_cut": "Croix, 7 Oct 2026: it needed a step the unit did not teach."}) == 1
+   and "questions 10 and 21" in _ub18.transfer_line({}, [10, 21])
+   and "question 10." in _ub18.transfer_line({"transfer_cut": "Croix, 7 Oct 2026: cut."}, [10])
+   and "Croix, 7 Oct 2026: cut." in _ub18.transfer_line({"transfer_cut": "Croix, 7 Oct 2026: cut."}, [10]))
 # ---- ruling 44's look-through: every picture of a unit drawn beside its words
 import figure_sheets as _fsh
 from lib import figkit as _fk44, mathimg as _mi44

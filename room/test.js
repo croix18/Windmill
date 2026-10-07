@@ -55,7 +55,9 @@ ok('merge: newest copy per part, parts from different copies', () => {
 });
 ok('stale: age is reported, nothing is hidden', () => {
   const r = Room.load({ extra: [{ name: 'x', room: fx('stale') }] });
-  const days = (NOW - Date.parse('2026-09-01T08:00:00-04:00')) / 864e5;
+  // measured against the clock the reader itself reads. This used the fixed NOW above, so the check began to fail on its own
+  // two days after that date (7 October 2026) with nothing changed — a check with a date in it is a check with a fuse.
+  const days = (Date.now() - Date.parse('2026-09-01T08:00:00-04:00')) / 864e5;
   assert.ok(Math.abs(r.age('tally') - days) < 2 && r.age('tally') > 30);
 });
 ok('newer version: refused unless allowed, then only known fields', () => {
