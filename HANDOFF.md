@@ -4,33 +4,61 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## IN PROGRESS (6 Oct 2026, evening) — ruling 43: a practice problem never repeats the notes
+## Where things stand (6 Oct 2026, 9:15 pm EDT) — read this first
 
-**Croix, 6 Oct:** *"There are instances of the exact problem showing up in notes and in your turn
-or whiteboards."* He is right, and it is systematic: I wrote notes lines and then asked the same
-line back on a board (A7 3.T2 boards 4, 5, 7 are Notes II–III verbatim; M7 4.08 Notes II works
-3.14 × 5² = 78.5 and board 1 is r = 5; M7 5.03 boards 1, 2, 4 are Examples 1 and 2).
+**Ruling 43 — a practice problem never repeats what the lesson already showed.** Croix, 6 Oct
+(twice, the second time while the fix was in progress): *"There are instances of the exact problem
+showing up in notes and in your turn or whiteboards."* He was right and it was systematic: I wrote
+notes lines and then asked the same line back on a board. About ninety Your Turns, boards and
+independent questions in M7 Units 4–5 and A7 Units 3–4 re-asked a notes line, a worked example or
+the warm-up. The rule, the rules of the gate and the per-lesson list of what changed are in:
+`kit/SPEC SCHEMA.md` ("A practice problem never repeats…"), both `HOUSE STYLE.md` (ruling 43),
+`m7/NOTES.md` (top section), and both `BUILDING A UNIT.md` (boxed note).
 
-The work, in order — tick these off here as they land:
-1. [x] Wednesday's two decks fixed, built one lesson at a time (`build_lesson.py`), sent as
-   `.pptx`: M7 4.06 board 9 (r = 8.2 in; was Notes III's 14.6π / 45.844) and A7 3.08 boards 7, 9
-   and independent 6. **Specs changed, units NOT yet rebuilt or installed, nothing committed.**
-2. [ ] Every other lesson of M7 4–5 and A7 3–4 (about 45 items). The worklist comes from
-   `repeat.py` in the session scratchpad — it becomes `lessonbuild.repeatcheck_lesson` (step 3).
-   Rule for a fix: change the practice item, not the notes, unless one notes line feeds a whole
-   run of boards (M7 4.09); every dependent value re-derived (answer, steps, check, distractors,
-   `wrong`, `note`, `qtext`, `te_answer`, and the TE prose that quotes the old numbers).
-3. [ ] The gate in the kit (`repeatcheck_lesson`, called beside `rulingcheck_lesson`), kit tests,
-   SPEC SCHEMA and both HOUSE STYLE rulebooks (ruling 43), `repeat_ok=True` as the override.
-4. [ ] `tools/dry_run.py`, then `build_all.py uN --install` for all four units, master sheets,
-   push the three repositories, send the decks.
+State, in order — **tick the open boxes as they land**:
+1. [x] Kit: `kit/lib/repeatcheck.py`, called from `lessonbuild.rulingcheck_lesson`; `repeat_ok` is
+   a board field; 21 tests (153 / 154 pass). Pushed as `050fc2b`, kit `c910a004efaa`, 42 files.
+2. [x] Every flagged item rewritten in the specs (M7 `u4/l04,l06–l10`, `u5/l01–l10, review`;
+   A7 `u3/l01–l10`, `u4/l01,l02,l04–l07`). Five helper agents did A7 U3, A7 U4 and M7 U5 from a
+   written rule sheet; I did M7 U4 and A7 3.08; **I read every changed field of every file**
+   (old against new) and re-checked the arithmetic. Three I changed after review: A7 3.T2 board 3
+   (kept the inverse-square lamp: 5x⁻² at 3 m, not 7x⁻³), M7 5.05 board 6 (7 by 3 at k = 5, not
+   13 by 11), M7 5.08 warm-up 4 (9 m, so it is not board 3's 3 m = 300 cm).
+3. [x] Kit vendored into both courses; `tools/dry_run.py … --vendored` on all four units: 0 findings.
+4. [ ] `build_all.py uN --install` for m7 u4, a7 u3, a7 u4, m7 u5 — started 9:08 pm as a chain
+   (`r43/chain.sh` in the session scratchpad; log `r43/chain.log`, ends `ALLDONE`).
+5. [ ] Master sheets (`tools/master_sheet.py`, recalc, `tools/check_master_sheet.py`), push M7
+   and A7, send the decks.
 
-Scope he named: notes ↔ Your Turn / whiteboards. I am also treating the independent set and a
-later board repeating an earlier one as the same fault. The **question banks** (`bank`,
-`additional`) are NOT in scope — they are his quiz source, not class work — but many bank items
-are copies of boards and examples; that was reported to him, not changed.
+**Uncommitted until step 5:** everything in M7 and A7 (specs, vendored kit, rulebooks, notes).
+If you arrive mid-way: `git status` in `/root/m7` and `/root/windy-hill`, read `r43/chain.log`,
+never start a second LibreOffice build beside a running one, and do not stop a running chain.
 
-## Where things stand (5 Oct 2026, 11:40 pm) — read this first
+Croix has, as `.pptx` with the fix: M7 4.06 and A7 3.08 (Wednesday 7 Oct), built one lesson at a
+time before the rest. The four unit zips he was sent on 5 Oct still hold the old repeats.
+
+Decisions I made that he has not ruled on (said to him in one line; change if he says so):
+- **Scope.** He named notes ↔ Your Turn / whiteboards. I treated the same way: the independent
+  set; a worked EXAMPLE re-asked; the WARM-UP re-asked (its answers are revealed first); and a
+  board that re-asks an earlier board. **Not touched: the question banks** (`bank`,
+  `additional`) — his quiz source, full of copies of boards and examples by design.
+- **Where one notes line fed a run of boards, the notes changed** and the boards stayed (M7 4.07,
+  4.08, 4.09), because the run was designed as a sequence.
+- **`repeat_ok=True`** exists on three boards: M7 4.04 board 3 (board 2's figure by the other
+  method, on purpose) and M7 4.09 boards 3 and 5 (12.56 and 37.68 are also example values — other
+  circles, other questions). Nothing else is tagged.
+- Left alone and listed in `m7/NOTES.md`: two boards sharing a sub-step or a circle on purpose;
+  repeats across lessons; the bank.
+
+What the gate cannot see (so a reader still has to look): the same problem in other words with
+other numbers that give the same working; a sub-step two boards share. Four read-only audit
+agents read a student's-eye digest of every lesson (`dup/digest.py` in the scratchpad) and their
+lists were the worklist together with the gate's — do that again for a new unit, it is cheap.
+
+The lesson for me, again: he said it once on the 6th and had to say it twice because the first
+sweep answered with a count and a plan instead of with decks. Send the fixed thing first.
+
+## Where things stood (5 Oct 2026, 11:40 pm)
 
 Everything is pushed and clean: Windmill (this commit; kit `63b38faabc25`, vendored from
 `d9996a7`), M7 `b5d9b36`, A7 `e613d4b`. All four units (M7 4–5, A7 3–4) were built and installed
