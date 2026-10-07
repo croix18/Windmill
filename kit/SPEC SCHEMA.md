@@ -505,11 +505,40 @@ did the same (4.06 board 4, 4.07 board 5) — all three were ruling 22's "number
   `math`, and the stems of `parts`. A number straight after an equals sign is a result, not a
   given. Teacher's prose is not the words.
 - **`figwords_ok=True`** on the item, with a comment, where the difference is the point and the
-  slide says so (M7 4.03 Example 1 draws the other cut's lengths and asks which cut uses the
-  numbers you were given).
+  slide says so. Nothing in either course carries it: the one item that did (M7 4.03 Example 1,
+  whose picture is the second cut of an octagon) now says the picture's lengths in its words —
+  "24.14 cm across, 7.07 cm at each end" — which is the better fix wherever it is possible.
 - **What it cannot see:** a label that is the right number on the wrong thing (a diameter printed
-  as a radius), and a worked answer that uses a number the picture does not show. Those are read,
-  not computed: look at every slide that has a picture before it ships.
+  as a radius), a label that sits beside the wrong side, a picture that leaves off a length the
+  answer needs, and a sentence about the picture that is not true. Those are read, not computed.
+
+### The look-through (7 October 2026) — every picture is looked at before a unit ships
+
+`python3 figure_sheets.py u4 --grid 4`, from the course's build folder, draws every item of the
+unit that has a picture (lessons, review, the unit papers) as `NNN.png` and lists the words, steps
+and answer beside each number in `items.txt`; `--grid` adds contact sheets. For each picture:
+
+1. Answer the question from the picture and the words alone. **Can the answer be reached?**
+2. Does every number sit **on the thing it measures** — could it be read as a neighbouring side?
+3. Is every length the words give on the picture, and every number on the picture explained?
+4. Is anything the words say about the picture ("every length is marked") **true**?
+
+The first look-through (M7 Units 4–5, 129 pictures, read by four readers who had not seen the unit)
+found what no gate could, every label being true:
+
+- a board whose answer could not be reached — an L-shape that printed the right side and left the
+  missing corner's width off (M7 4.04 board 6);
+- **a label in a corner belongs to both sides that meet there.** The L-shape on three test forms
+  printed the ledge's length where the ledge meets the step, and it read as the step's (68 cm²
+  became 74). A side's length goes over the MIDDLE of that side, stepped off it by ems (`off=`);
+- **a length floating inside a shape belongs to no side.** A pool's 20 ft and 12 ft sat in the
+  middle of the pool; they sit on the pool's own sides now, and the stem says both rectangles;
+- **"Every length is marked" is a claim, and it was false twice** (a walkway's width, a roof's
+  slanted sides). Say what the picture shows instead: "The dashed line is the height of the triangle";
+- a height with no right-angle mark whose length touched the slanted side beside it;
+- two radii drawn straight opposite each other, which is a diameter nobody meant;
+- the letter d over the left half of a diameter, where it names a radius;
+- a bare length on a leader to a circle's rim — say what it is: "C = 31.4 cm".
 
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 

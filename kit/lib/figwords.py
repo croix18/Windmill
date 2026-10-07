@@ -26,8 +26,13 @@ measures ("A plate 20 cm across sits on a placemat 30 cm wide"), and draw both, 
 the thing it measures (M7 `figs.with_card`).
 
 `figwords_ok=True` on the item, with a comment beside it, where the difference is the point and
-the slide says so (M7 4.03 Example 1 draws the lengths of the OTHER cut and asks "which cut uses
-the numbers you were given?").
+the slide says so. Nothing in either course carries it now: M7 4.03 Example 1, whose picture is the
+SECOND cut of an octagon and carries that cut's lengths, says them in its words instead ("24.14 cm
+across, 7.07 cm at each end") — the better fix wherever it is possible.
+
+WHAT THIS CANNOT SEE: a label beside the wrong side, a picture that leaves off a length the answer
+needs, a sentence about the picture that is not true. Those are read, not computed — the
+look-through, `figure_sheets.py` (SPEC SCHEMA.md, "The look-through").
 
 What is read as "the words": `text`, `prompt`, `stem`, `latex`, `ask`, `items`, `items2`, `math`
 and the stems of `parts`. A number written straight after an equals sign is a result, not a given

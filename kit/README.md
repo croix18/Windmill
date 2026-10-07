@@ -26,7 +26,7 @@ merge. It is published from here and copied into each course repository; neither
 | `checks.py` | Eighteen checks over a built unit, each printing what it looked at. `kitcheck` holds the copy in a course repository to `KIT.sha256`. |
 | `build_lesson.py` · `build_unit.py` · `build_all.py` | The drivers. |
 | `gates.py` | Every build gate over a unit's specs without building anything, and the kit held to its manifest — no LibreOffice, no browser, so each course's `tools/check.sh` runs it before every push and in CI. |
-| `slotaudit.py` · `shuffle_choices.py` · `contact_sheet.py` | Read every coloured expression as the renderer reads it; spread the keyed letters; look at every slide. |
+| `slotaudit.py` · `shuffle_choices.py` · `contact_sheet.py` · `figure_sheets.py` | Read every coloured expression as the renderer reads it; spread the keyed letters; look at every slide; look at every PICTURE beside its words (ruling 44's look-through). |
 | `assets/` | KaTeX and the house face, inlined into every HTML deck. |
 | `KIT.sha256` | The manifest: every file above with its hash. Written by `tools/kit_manifest.py`. |
 | `tests/` | The kit's own tests: every gate shown a spec it must pass and a planted defect it must catch, under a profile shaped like each course's. Run by `tools/check.sh` and CI. |

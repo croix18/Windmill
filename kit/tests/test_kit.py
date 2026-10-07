@@ -627,6 +627,28 @@ ok("ruling 44: it reads an example, a notes slide and a test question the same w
 planted("a board whose words give a length its picture does not show",
         lambda M: M["whiteboard"][0].update(text=["A plate sits on a placemat 30 cm wide.", "**Find the circumference of the plate."],
                                             fig=dict(kind="shapes", fs=22, pt=18, **{"in": 2.0}, shapes=[dict(t="circle", c=(0, 0), r=2), dict(t="text", xy=(0, -0.2), s="20 cm")])), "ruling 44")
+# ---- ruling 44's look-through: every picture of a unit drawn beside its words
+import figure_sheets as _fsh
+from lib import figkit as _fk44, mathimg as _mi44
+with tempfile.TemporaryDirectory() as tmp:
+    os.makedirs(os.path.join(tmp, "u90"))
+    with open(os.path.join(tmp, "u90", "l01.py"), "w", encoding="utf-8") as fh:
+        fh.write('L = dict(code="90.01", whiteboard=[\n'
+                 '    dict(kind="free", text=["A plate 20 cm across sits on a placemat 30 cm wide.", "**Find the circumference of the plate."],\n'
+                 '         steps=["$C = 3.14 \\\\times 20$"], answer="C = 62.8 cm", unneeded="30 cm",\n'
+                 '         fig=dict(kind="shapes", fs=22, pt=18, **{"in": 2.0}, shapes=[dict(t="circle", c=(0, 0), r=2), dict(t="text", xy=(0, -0.3), s="20 cm", va="top")])),\n'
+                 '    dict(kind="free", text=["No picture here."], answer="7")])\n')
+    _keep = (_fk44.FIGS, _fk44.INDEX, _mi44.FIGS, _mi44.INDEX)
+    try:
+        _rc = _fsh.main(["u90", "--build", tmp, "--out", os.path.join(tmp, "out"), "--grid", "2"])
+    finally:
+        _fk44.FIGS, _fk44.INDEX, _mi44.FIGS, _mi44.INDEX = _keep
+    _items = open(os.path.join(tmp, "out", "items.txt"), encoding="utf-8").read()
+    ok("look-through: figure_sheets draws every item that has a picture, once, with its words, steps, answer and extra number beside it — and a contact sheet",
+       _rc == 0 and os.path.exists(os.path.join(tmp, "out", "001.png")) and not os.path.exists(os.path.join(tmp, "out", "002.png"))
+       and os.path.exists(os.path.join(tmp, "out", "sheet_01.png"))
+       and "A plate 20 cm across" in _items and "62.8" in _items and "30 cm" in _items and "No picture here" not in _items
+       and _fsh.main([]) == 2)
 ok("figures: an Example with a figure starts higher only when its lines and its figure need the room",
    lb._example_top(["One line."], None) == 2.3 and lb._example_top(["One line.", "Two."], None) == 1.9
    and lb._example_top(["One line."], dict(_roof((7, 0), va="top", off=(0, -0.3)), reserve=0.7)) == 1.9
