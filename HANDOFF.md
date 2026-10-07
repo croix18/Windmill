@@ -4,7 +4,59 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (6 Oct 2026, 10:30 pm EDT) — read this first
+## Where things stand (7 Oct 2026, 2:15 am EDT) — read this first
+
+Everything is pushed and clean: Windmill (this commit; kit `ce1d1bc31d5c`, 44 files, vendored into
+both courses from `746b821`), M7 `d9aa8d8`, A7 `3eda8d2`. M7 Unit 4 was rebuilt and installed four
+times tonight, the last at 0 findings; M7 Unit 5 and A7 Units 3–4 rehearse at 0 from this kit and
+were not rebuilt (the kit change refuses things; it changes no output). Master sheets: 0 problems.
+
+**Ruling 44 — the words of a question and its picture agree.** Croix, 6 Oct, after teaching M7
+4.05: *"Look at the first circles unit. The question says 30 but the graphic shows 20 for the
+diameter. I told you to make sure there were never errors like that."* Board 3 said "A plate sits
+on a placemat 30 cm wide" over a circle labelled 20 cm — every number true, the answer right, and
+the slide read as a mistake in front of a class. Where to read: `kit/SPEC SCHEMA.md` ("The words
+of a question and its picture agree" and, under it, "The look-through"); both `HOUSE STYLE.md`
+(ruling 44, items 1–9); `m7/NOTES.md` (top: every picture that changed and why); both
+`BUILDING A UNIT.md` (boxed note).
+
+What exists now:
+1. **A gate**: `kit/lib/figwords.py` in `rulingcheck_lesson` and the unit gate — refuses an item
+   whose words give a length the figure does not show while the figure shows a number the words
+   never mention. `figwords_ok=True` is the override; nothing carries it. 8 tests.
+2. **A look-through, as a tool**: `kit/figure_sheets.py` (vendored into each `build/`):
+   `python3 figure_sheets.py u4 --grid 4` draws every item that has a picture beside its words,
+   steps and answer. The gate could not have found what the look-through found, because every
+   label was true: a board that could not be solved from its picture (4.04 board 6), a length in
+   the corner beside the wrong side on all three Unit 4 test forms (68 cm² read as 74), a pool
+   whose lengths floated, two stems saying "Every length is marked" falsely. 1 test.
+3. **Readers who did not write the unit.** Four read-only agents read all 129 pictures of M7
+   Units 4–5; after the fixes three more read the rebuilt Unit 4's 123. The second pass found no
+   error and a dozen things a student could misread (p and q beside half-diagonals; "7.07 cm"
+   beside a 10 cm side; a whole side's length beside one piece of a cut figure; a quarter circle
+   with no right-angle mark). All fixed. **I looked at every one of the 123 myself as well, and at
+   every changed slide and test page in the built PDFs.** A7 Units 3–4 have no pictures.
+
+What changed that a later session must not "restore": listed picture by picture in `m7/NOTES.md`.
+The ones that move numbers: **4.04 board 6** prints the ledge and the step (not the right side);
+**the practice test's L-shape is 9 by 7 with a 4 by 3 corner, 51 cm²** (was a 3 by 2 corner, 57);
+the two pool stems state both rectangles; 4.03 Example 1's words name the picture's lengths.
+
+Decisions I made that he has not ruled on (told in a line):
+- Scope went past the one slide he named: the same fault on 4.06 board 4 and 4.07 board 5, then
+  every picture in both M7 units, then the tests. He said "never errors like that".
+- The practice test's numbers changed (above). Forms A and B kept theirs.
+- Left alone, as not faults: same-size circles on separate boards for different radii; 4.04
+  board 5's triangle areas in the words only; the leader on 4.07 board 5 crossing its card.
+- **Not checked, flagged for him**: 4.02 Notes I says the state reference sheet lists a rhombus
+  under A = bh and has no diagonal formula. That is a claim about a Florida document nobody in
+  this session has opened. If it is wrong it is wrong on a slide.
+
+Still open from before (unchanged): his answer on whether the question banks get numbers of their
+own (ruling 43 left them); the Deckhand handoff note cannot be pushed from here; nobody has seen
+the PowerPoints in Google Slides from this side; M7 Unit 6 TE by 19 Oct; A7 Unit 5 from 2 Nov.
+
+## Where things stood (6 Oct 2026, 10:30 pm EDT) — ruling 43
 
 Everything is pushed and clean: Windmill (this commit; kit `c910a004efaa`, 42 files, vendored into
 both courses from `050fc2b`), M7 `62b7965`, A7 `283b7ea`. All four units (M7 4–5, A7 3–4) are built
