@@ -4,59 +4,73 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (6 Oct 2026, 9:15 pm EDT) — read this first
+## Where things stand (6 Oct 2026, 10:30 pm EDT) — read this first
+
+Everything is pushed and clean: Windmill (this commit; kit `c910a004efaa`, 42 files, vendored into
+both courses from `050fc2b`), M7 `62b7965`, A7 `283b7ea`. All four units (M7 4–5, A7 3–4) are built
+and installed at 0 findings from that kit; both master sheets rebuilt, 0 problems.
 
 **Ruling 43 — a practice problem never repeats what the lesson already showed.** Croix, 6 Oct
-(twice, the second time while the fix was in progress): *"There are instances of the exact problem
+(twice — the second time while the fix was under way): *"There are instances of the exact problem
 showing up in notes and in your turn or whiteboards."* He was right and it was systematic: I wrote
 notes lines and then asked the same line back on a board. About ninety Your Turns, boards and
 independent questions in M7 Units 4–5 and A7 Units 3–4 re-asked a notes line, a worked example or
-the warm-up. The rule, the rules of the gate and the per-lesson list of what changed are in:
-`kit/SPEC SCHEMA.md` ("A practice problem never repeats…"), both `HOUSE STYLE.md` (ruling 43),
-`m7/NOTES.md` (top section), and both `BUILDING A UNIT.md` (boxed note).
+the warm-up. Every one now has a problem of its own. Where to read:
+`kit/SPEC SCHEMA.md` ("A practice problem never repeats…": the gate's rules A–D, P, Q),
+both `HOUSE STYLE.md` (ruling 43), `m7/NOTES.md` (top section: what changed, lesson by lesson),
+both `BUILDING A UNIT.md` (boxed note: write the notes first, then give practice its own numbers).
 
-State, in order — **tick the open boxes as they land**:
-1. [x] Kit: `kit/lib/repeatcheck.py`, called from `lessonbuild.rulingcheck_lesson`; `repeat_ok` is
-   a board field; 21 tests (153 / 154 pass). Pushed as `050fc2b`, kit `c910a004efaa`, 42 files.
-2. [x] Every flagged item rewritten in the specs (M7 `u4/l04,l06–l10`, `u5/l01–l10, review`;
-   A7 `u3/l01–l10`, `u4/l01,l02,l04–l07`). Five helper agents did A7 U3, A7 U4 and M7 U5 from a
-   written rule sheet; I did M7 U4 and A7 3.08; **I read every changed field of every file**
-   (old against new) and re-checked the arithmetic. Three I changed after review: A7 3.T2 board 3
-   (kept the inverse-square lamp: 5x⁻² at 3 m, not 7x⁻³), M7 5.05 board 6 (7 by 3 at k = 5, not
-   13 by 11), M7 5.08 warm-up 4 (9 m, so it is not board 3's 3 m = 300 cm).
-3. [x] Kit vendored into both courses; `tools/dry_run.py … --vendored` on all four units: 0 findings.
-4. [ ] `build_all.py uN --install` for m7 u4, a7 u3, a7 u4, m7 u5 — started 9:08 pm as a chain
-   (`r43/chain.sh` in the session scratchpad; log `r43/chain.log`, ends `ALLDONE`).
-5. [ ] Master sheets (`tools/master_sheet.py`, recalc, `tools/check_master_sheet.py`), push M7
-   and A7, send the decks.
+How it was done, so it can be done again for a new unit:
+1. **The gate**: `kit/lib/repeatcheck.py`, called from `lessonbuild.rulingcheck_lesson`, so
+   `build_lesson`, `tools/dry_run.py` and the kit tests all run it. `repeat_ok=True` (a board
+   field, with a comment) is the only override. 21 tests; 153 / 154 pass.
+2. **A reader as well as a gate**: `digest.py` (session scratchpad, `dup/`) prints each lesson as a
+   student sees it; four read-only agents listed every repeat they could find, before and again
+   after. Their list plus the gate's was the worklist. The gate compares what is written, so it
+   cannot see a problem re-asked in other words — the readers can.
+3. **The rewrites**: five agents (A7 U3 in two halves, A7 U4, M7 U5 in two halves) worked from a
+   written rule sheet (`dup/AGENT_RULES.md`); I did M7 U4 and A7 3.08. **I read every changed
+   field of every file, old against new** (`dup/itemdiff.py`), re-checked the arithmetic, and
+   changed five of theirs: A7 3.T2 board 3 (the lamp stays inverse-square: 5x⁻² at 3 m), M7 5.05
+   board 6 (7 by 3 at k = 5), M7 5.08 warm-up 4 (9 m), and after the second audit the borderline
+   ones (M7 4.01 Your Turn 1, 5.06 board 6; A7 3.01 board 6, 3.T1 board 2, 3.T2 board 2 and
+   independent 5, 4.02 board 9).
+4. Rehearsed (`tools/dry_run.py … --vendored`, 0), built twice (`build_all.py uN --install`, 0),
+   looked at the changed slides in the PDFs, pushed.
 
-**Uncommitted until step 5:** everything in M7 and A7 (specs, vendored kit, rulebooks, notes).
-If you arrive mid-way: `git status` in `/root/m7` and `/root/windy-hill`, read `r43/chain.log`,
-never start a second LibreOffice build beside a running one, and do not stop a running chain.
+Decisions I made that he has not ruled on (he was told in a line; change them if he says so):
+- **Scope.** He named notes ↔ Your Turn / whiteboards. Treated the same way: the independent set;
+  a worked EXAMPLE re-asked; the WARM-UP re-asked (its answers are revealed first); a practice item
+  that re-asks an earlier one. **Not touched: the question banks** (`bank`, `additional`) — his
+  quiz source, full of copies of boards and examples by design. He was asked whether he wants them
+  done too.
+- **Where one notes line fed a designed run of boards, the notes changed** and the boards stayed
+  (M7 4.07, 4.08, 4.09).
+- **`repeat_ok=True`** is on three boards only: M7 4.04 board 3 (board 2's figure by the other
+  method) and M7 4.09 boards 3 and 5 (a value shared with an example by coincidence).
+- Left alone, listed in `m7/NOTES.md`: boards that share a sub-step or a circle on purpose;
+  repeats across lessons (5.10 independent 5 is 5.09 Notes III backwards; 5.08 board 5 and 5.05
+  Notes III are both 1 cm : 4 m); an EXAMPLE that is a notes line (A7 3.01 Example 1, 3.09
+  Example 2, 4.02 Example 2, 4.05 Example 1, 4.06 Example 2) — both are taught, so it is not this
+  ruling, but it is the same habit and worth asking him about.
 
-Croix has, as `.pptx` with the fix: M7 4.06 and A7 3.08 (Wednesday 7 Oct), built one lesson at a
-time before the rest. The four unit zips he was sent on 5 Oct still hold the old repeats.
+Croix has, sent this evening as rebuilt files: the Slides of all four units (one zip a unit), the
+complete packages (teacher's editions, keys, A7's printed independent sets), and separately
+Wednesday's M7 4.06 and A7 3.08 and the next lessons, M7 4.07 and A7 3.09. **The A7 printed
+Independent Sets changed** (3.08 q6, 3.09 q2 and others) — he was told to print from the new ones.
+Thursday 8 Oct is a state test for both courses.
 
-Decisions I made that he has not ruled on (said to him in one line; change if he says so):
-- **Scope.** He named notes ↔ Your Turn / whiteboards. I treated the same way: the independent
-  set; a worked EXAMPLE re-asked; the WARM-UP re-asked (its answers are revealed first); and a
-  board that re-asks an earlier board. **Not touched: the question banks** (`bank`,
-  `additional`) — his quiz source, full of copies of boards and examples by design.
-- **Where one notes line fed a run of boards, the notes changed** and the boards stayed (M7 4.07,
-  4.08, 4.09), because the run was designed as a sequence.
-- **`repeat_ok=True`** exists on three boards: M7 4.04 board 3 (board 2's figure by the other
-  method, on purpose) and M7 4.09 boards 3 and 5 (12.56 and 37.68 are also example values — other
-  circles, other questions). Nothing else is tagged.
-- Left alone and listed in `m7/NOTES.md`: two boards sharing a sub-step or a circle on purpose;
-  repeats across lessons; the bank.
+The lesson for me, again: he said it once and had to say it a second time because the first sweep
+answered with a count and a plan. Send the fixed thing first — Wednesday's two decks went out
+forty minutes in, built one lesson at a time with `build_lesson.py`, which is the move.
 
-What the gate cannot see (so a reader still has to look): the same problem in other words with
-other numbers that give the same working; a sub-step two boards share. Four read-only audit
-agents read a student's-eye digest of every lesson (`dup/digest.py` in the scratchpad) and their
-lists were the worklist together with the gate's — do that again for a new unit, it is cheap.
-
-The lesson for me, again: he said it once on the 6th and had to say it twice because the first
-sweep answered with a count and a plan instead of with decks. Send the fixed thing first.
+Open, unchanged from 5 Oct:
+- **Nobody has seen these PowerPoints in Google Slides from this side.** A screenshot from Croix
+  of anything that wraps or shifts there is the evidence to act on.
+- The Deckhand handoff note (console retired) is not pushed — see ruling 41 below.
+- Deferred by Croix: the Drive script. Then: M7 Unit 6 Teacher's Edition by 19 Oct; A7 Unit 5
+  from 2 Nov — write its notes and examples first, give every practice item numbers of its own,
+  and rehearse with `tools/dry_run.py` before any `build_all.py`.
 
 ## Where things stood (5 Oct 2026, 11:40 pm)
 
