@@ -81,10 +81,10 @@ L = dict(code="90.01", unit=90,   # a lesson no plan lists
           lesson_no=1, title="T", benchmark="MA.7.GR.1.1", benchmark_text="t", target="I can.", yesterday="y", today="t",
          essential="e", building_on="b", working_toward="w", vocab=[("a", "b")], ixl=["Perimeter and area: changes in scale (ZC6)"],
          mtr=[("MTR.3.1", "boards")], hoq=[("Why?", 2)], differentiation=[("ELL", "say it")],
-         warmup=[dict(stem="1 + 1", answer="2", check=("eq", "1+1", "2"))],
+         warmup=[dict(stem="9 + 6", answer="15", check=("eq", "9+6", "15"))],     # not a board's sum: ruling 43
          notes=[], examples=[],
          whiteboard=[board(1), board(2), board(3, unneeded="3 minutes"), board(4), board(5), board(6), mc(7, 3), mc(8, 1), board(9, kind="written")],
-         independent=[dict(stem=f"{k} + 1", answer=str(k + 1), check=("eq", f"{k}+1", str(k + 1))) for k in range(6)],
+         independent=[dict(stem=f"{k} + 20", answer=str(k + 20), check=("eq", f"{k}+20", str(k + 20))) for k in range(6)],
          bank=[], additional=[],
          te=dict(say=["a", "b", "c"], must="m", must_not="n", watch=["w"], close=["c"], variation="v"))
 
@@ -517,6 +517,84 @@ ok("figures: on a slide the labels are Lexend and a pi is the textbook's; on pap
    ("12 m", ["Lexend", "DejaVu Sans"]) in _seen[0] and ("2$\\mathtt{\\pi}$r", ["Lexend", "DejaVu Sans"]) in _seen[0]
    and ("2\u03c0r", ["STIXGeneral"]) in _seen[1], str(_seen))
 ok("figures: a scale problem may say so (units_ok)", figkit.units_disagree(dict(whiteboard=[dict(fig=_fig, answer="6 m", units_ok=True)])) == [])
+# ---- ruling 43: a practice problem never repeats what the lesson already showed
+from lib import repeatcheck as rc
+def _rep(**kw):
+    """Ruling 43's findings for a small lesson: notes=[lines], example=dict, warmup=[...], boards=[...], yt=dict, independent=[...]."""
+    X = dict(code="90.01", warmup=kw.get("warmup", []), whiteboard=kw.get("boards", []), independent=kw.get("independent", []),
+             bank=kw.get("bank", []), additional=[],
+             notes=[dict(numeral="I", head="A heading", items=kw["notes"])] if kw.get("notes") else [], examples=[])
+    if kw.get("example") or kw.get("yt"):
+        e = dict(title="Example 1", prompt=[], worked=[])
+        e.update(kw.get("example") or {})
+        if kw.get("yt"):
+            e["your_turn"] = kw["yt"]
+        X["examples"] = [e]
+    return rc.check_lesson(slotmark.strip_deep(X))
+ok("ruling 43: the test lesson repeats nothing, and through the ruling gate too",
+   not [x for x in lb.rulingcheck_lesson(slotmark.strip_deep(L)) if "ruling 43" in x])
+_r1 = _rep(notes=["$x^{4}\\cdot x^{-6} = x^{4+(-6)} = x^{-2} = \\frac{1}{x^{2}}$"], boards=[dict(latex="x^{4}\\cdot x^{-6}", answer="C — 1/x²")])
+ok("ruling 43: a board that is a notes line is refused, and the finding says which board and which slide",
+   len(_r1) == 1 and "whiteboard 1" in _r1[0] and "Notes I" in _r1[0] and "repeat_ok" in _r1[0], str(_r1)[:300])
+ok("ruling 43: typography is not a difference — 5⁻² in the notes is 5^{-2} on the board, \\dfrac is \\frac, · is \\cdot",
+   len(_rep(notes=["5⁻² = 1/5² = 1/25"], boards=[dict(latex="5^{-2}", answer="B — 1/25")])) == 1
+   and len(_rep(notes=["$\\dfrac{m^{3}}{m^{7}} = m^{-4}$"], boards=[dict(latex="\\frac{m^{3}}{m^{7}}", answer_latex="\\frac{1}{m^{4}}")])) == 1
+   and len(_rep(notes=["$6^{-2}·6^{5} = 6^{3}$"], boards=[dict(text=["Which expression is equivalent?"], latex="6^{-2}\\cdot 6^{5}", answer="D — 6³")])) == 1)
+ok("ruling 43: renaming the letter is not a new problem — (2y⁻³)² in the notes is (2x⁻³)² on the board",
+   len(_rep(notes=["$(2y^{-3})^{2} = 2^{2}\\cdot y^{-6} = \\frac{4}{y^{6}}$"], boards=[dict(latex="(2x^{-3})^{2}", answer="D — 4/x⁶")])) == 1)
+ok("ruling 43: the same law on another expression is another problem",
+   _rep(notes=["$x^{4}\\cdot x^{-6} = x^{-2} = \\frac{1}{x^{2}}$", "$(2y^{-3})^{2} = \\frac{4}{y^{6}}$"],
+        boards=[dict(latex="x^{3}\\cdot x^{-14}", answer="C — 1/x¹¹"), dict(latex="(3x^{-5})^{2}", answer="D — 9/x¹⁰")]) == [])
+ok("ruling 43: a one-operation piece of a larger question is not the question (x² inside x⁻⁵ · xⁿ = x²)",
+   _rep(notes=["x²  ‖  x · x", "$x^{-n} = \\frac{1}{x^{n}}$"], boards=[dict(text=["Find the value of $n$:", "$x^{-5}\\cdot x^{n} = x^{2}$"], answer="n = 7")]) == [])
+_K = ["$K = \\frac{1}{2}mv^{2}$   with   $m = 60$   and   $v = 10$:", "$\\frac{1}{2}(60)(10)^{2} = 3{,}000$   joules"]
+ok("ruling 43: a formula with other values is another problem — given as m = 40, or as a mass and a speed in words",
+   _rep(notes=_K, boards=[dict(text=["Evaluate  $\\frac{1}{2}mv^{2}$  when  $m = 40$  and  $v = 3$."], answer="A — 180"),
+                          dict(text=["A cyclist has a mass of 70 kilograms and rides at 8 meters per second.", "Kinetic energy is  $K = \\frac{1}{2}mv^{2}$.", "**Find her kinetic energy."], answer="2,240 joules")]) == [])
+ok("ruling 43: … and the same formula at the values the notes used is the notes' problem",
+   len(_rep(notes=_K, boards=[dict(text=["Evaluate  $\\frac{1}{2}mv^{2}$  when  $m = 60$  and  $v = 10$."], answer="3,000")])) == 1)
+_circle = dict(kind="shapes", shapes=[dict(t="circle", c=(0, 0), r=1), dict(t="text", xy=(0, -1.1), s="r = 5 cm")])
+_r2 = _rep(notes=["**3.14 × 5² = 3.14 × 25 = 78.5.   But (3.14 × 5)² = 246.49.**"],
+           boards=[dict(text=["Find the area. Use 3.14."], fig=_circle, steps=["$A = 3.14 \\times 5^{2} = 3.14 \\times 25 = 78.5$"], answer="78.5 cm²")])
+ok("ruling 43: a labelled figure whose working the notes already carried out is refused (Notes II worked 3.14 × 5²; the board was r = 5 cm)",
+   len(_r2) == 1 and "working" in _r2[0], str(_r2)[:300])
+_r3 = _rep(notes=["An answer written in terms of π is exact:   C = 14.6π in.", "An answer with a number in place of π is approximate:   C ≈ 45.844 in."],
+           boards=[dict(text=["A circle has a radius of 7.3 in. Aziyia used C = 2π r with 3.14. Jamal kept π in his answer.", "**Finish both."],
+                        answer="45.844 in, 14.6π in, Jamal")])
+ok("ruling 43: an answer already written on a notes slide is refused (C ≈ 45.844 in) — and π's own digits are nobody's answer",
+   len(_r3) == 1 and "45.844" in _r3[0] and _rep(notes=["Use 3.14 unless the question tells you otherwise."], boards=[dict(text=["What do we use for π?"], answer="3.14")]) == [])
+_bulbs = dict(prompt=["A random sample of 600 bulbs was tested. 6 were faulty.", "A shipment holds 4,300 bulbs."],
+              worked=[dict(rows=[("\\frac{6}{600} = \\frac{1}{100} = 1\\%", "faulty, out of tested"), ("0.01 \\times 4{,}300 = 43", "the same fraction of the shipment")], answer="About 43 bulbs")])
+_r4 = _rep(example=_bulbs, boards=[dict(text=["Same test: 6 faulty in 600. The shipment holds 4,300 bulbs.", "**Predict the number of faulty bulbs in the shipment."], answer="About 43")])
+ok("ruling 43: a word problem with an example's numbers and its answer is the example again, whatever the wording",
+   len(_r4) == 1 and "Example 1" in _r4[0], str(_r4)[:300])
+ok("ruling 43: … and with numbers of its own it is a new problem",
+   _rep(example=_bulbs, boards=[dict(text=["A random sample of 280 pens was tested. 14 of them were dry. The order holds 3,400 pens.", "**Predict the number of dry pens."], answer="About 170")]) == [])
+ok("ruling 43: one given and its answer together in one notes line is enough (a radius of 5 gives 25π)",
+   len(_rep(notes=["In terms of π, a radius of 5 gives 25π. Stop there."], boards=[dict(text=["Find the area in terms of π."], fig=_circle, answer="25π cm²")])) == 1)
+ok("ruling 43: the warm-up has been shown too — its answers are revealed before the notes begin",
+   len(_rep(warmup=[dict(stem="$12 \\div 3 \\cdot 2$", answer="8")], boards=[dict(text=["$12 \\div 3 \\cdot 2$"], answer="8")])) == 1)
+ok("ruling 43: a Your Turn and an independent question are practice as much as a board is",
+   len(_rep(example=dict(prompt=["$\\left(\\frac{a^{3}}{4b^{-7}}\\right)^{5}$"]), yt=dict(prompt=["$\\left(\\frac{a^{3}}{4b^{-7}}\\right)^{5}$"], answer_latex="\\frac{a^{15}b^{35}}{1{,}024}"))) == 1
+   and len(_rep(notes=["$\\left(\\frac{2}{5}\\right)^{-2} = \\left(\\frac{5}{2}\\right)^{2} = \\frac{25}{4}$"],
+                independent=[dict(stem="Find the value.  $\\left(\\frac{2}{5}\\right)^{-2}$", answer="$\\frac{25}{4}$")])) == 1)
+_p = _rep(boards=[dict(text=["Which is the value?"], latex="5^{-2}", answer="B — 1/25"), dict(latex="7^{-2}", answer="1/49"),
+                  dict(text=["Ellen says the value of  $5^{-2}$  is  −25.", "Explain why she is wrong."], answer="5⁻² = 1/25")])
+ok("ruling 43: a board that asks what an earlier board asked is refused — and names the earlier board",
+   len(_p) == 1 and "whiteboard 3" in _p[0] and "whiteboard 1" in _p[0], str(_p)[:300])
+_q = [dict(text=["A random sample of 50 of the 900 students: 18 ride the bus.", "**Predict how many of the 900 ride the bus."], answer="About 324")]
+ok("ruling 43: … and so is a word problem with a Your Turn's numbers and answer",
+   len(_rep(yt=dict(prompt=["In a random sample of 50 of a school's 900 students, 18 ride the bus. Predict the number who ride the bus."], answer="About 324"), boards=_q)) == 1)
+ok("ruling 43: where the repeat is the point the board says so, and the tag is a field the builders know",
+   _rep(notes=["$x^{4}\\cdot x^{-6} = \\frac{1}{x^{2}}$"], boards=[dict(latex="x^{4}\\cdot x^{-6}", answer="C — 1/x²", repeat_ok=True)]) == []
+   and "repeat_ok" in lb.WB_FIELDS)
+ok("ruling 43: the question banks are the teacher's quiz source, not class work — they are not read",
+   _rep(notes=["$x^{4}\\cdot x^{-6} = \\frac{1}{x^{2}}$"], bank=[dict(stem="$x^{4}\\cdot x^{-6}$", answer="$\\frac{1}{x^{2}}$")]) == [])
+ok("ruling 43: a teacher's note is not something the class was shown",
+   _rep(notes=["Copy the rule."], boards=[dict(latex="9^{-5}\\cdot 9^{3}", answer="1/9²", note="The notes do not work 9⁻⁵ · 9³.")]) == []
+   and rc.check_lesson(dict(code="90.01", notes=[dict(numeral="I", head="h", note="9⁻⁵ · 9³ = 9⁻² — say it aloud", items=["Copy the rule."])],
+                            whiteboard=[dict(latex="9^{-5}\\cdot 9^{3}", answer="1/9²")])) == [])
+planted("a board that asks the warm-up's sum again", lambda M: M["whiteboard"][0].update(text=["Find 9 + 6."], answer="15", check=("eq", "9+6", "15")), "ruling 43")
 ok("figures: an Example with a figure starts higher only when its lines and its figure need the room",
    lb._example_top(["One line."], None) == 2.3 and lb._example_top(["One line.", "Two."], None) == 1.9
    and lb._example_top(["One line."], dict(_roof((7, 0), va="top", off=(0, -0.3)), reserve=0.7)) == 1.9

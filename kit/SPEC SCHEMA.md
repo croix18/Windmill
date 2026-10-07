@@ -149,6 +149,7 @@ gloss, answer | answer_latex)`. `check` and `yt_check` are re-derived by sympy l
 check, wrong, …)`. `latex` is set large and centered; `text` rows are centered (a row with `$`
 is a mixed row and must fit one line). `hint` prints small and grey under the question on the question slide — **it is a nudge, never the question**: a board whose ask lived in its hint shipped in M7 Unit 5 as a story with no question a student could read from the back of the room. A board with a `**` ask row shows its hint too, when it has one, so leave `hint` off a story board unless the nudge is worth a line.
 A `text` row beginning `**` is the ASK and is set bold; a board with any such row (or with `unneeded`) is laid out as a left-aligned 24 pt block — story in roman, ask in bold — not centred lines; keep each row under about 60 characters plus its math. `fig` (a figure from the unit's `figs.py`) and `fig_a` (the figure the reveal shows instead) sit under the text; `te_answer` is the answer as the teacher's edition prints it when the slide's `answer` is too terse. **The ask names a thing in the story and the answer is that thing** ("What fraction of the sheet is the top layer?", "Which drive holds more?"); an ask that begins "Write", "Rewrite" or "What is the value of" on a board with a story is a computation in costume — write that board bare (HOUSE STYLE, ruling 22 in practice). `gloss` is the working in a phrase and `hint` the scaffold: both are kept in the spec and **neither is on a slide** (ruling 37). `note` is the TE note; `note_a` optionally the reveal's.
+`repeat_ok=True` (with a comment) marks a board that repeats something on purpose — see ruling 43 below.
 `wrong` is the TE's named-wrong-answers line for free/written questions: `"value — error name
 [benchmark cite]; …"`. **`kind="mc"`** adds `choices` (4 strings, unicode superscripts allowed),
 `correct` (index), `answer` ("A — 25m⁶") and **`errors`** — a dict from every wrong letter to
@@ -436,6 +437,51 @@ saying."*
   `reference`; teacher's prose inside them (`note`, `note_q`, `wrong`, `errors`, `why`, `gloss`,
   `hint`, `sub`, `te_answer`) and `te` are not read. `arrow_ok=True` on a block overrules a
   reading the build got wrong.
+
+## A practice problem never repeats what the lesson already showed (ruling 43, 6 October 2026)
+
+*"There are instances of the exact problem showing up in notes and in your turn or whiteboards."* —
+Croix. It was systematic, not an accident: a notes line was written and then the same line was
+asked back on a board ("that contrast is whiteboard 9"). About ninety practice items across M7
+Units 4–5 and A7 Units 3–4 were re-asking a notes line, a worked example or the warm-up — the
+same numbers, sometimes the same words. A student with the notes open copies the answer, and the
+board measures handwriting.
+
+- **What the class has been shown** when practice starts: the warm-up (its answers are revealed),
+  every notes slide (`items`, `items2`, `math`, `table`, `text`, `panel`, figure labels), every
+  example (`prompt`, figure labels, `worked` rows and answers).
+- **What is practice:** each `your_turn`, each `whiteboard` question, each `independent` question.
+  The question banks (`bank`, `additional`) are the teacher's quiz source and are not read.
+- `rulingcheck` (`lib/repeatcheck.py`) **refuses** a practice item when
+  - **A** it poses an expression the lesson showed — typography aside (`5⁻²` is `5^{-2}`) and with
+    the letters renamed in order (`(2y⁻³)²` is `(2x⁻³)²`). A one-operation piece counts only when
+    it is all the item asks about. A formula evaluated at values the lesson never showed
+    (`m = 40`; or, for a formula in two or more letters, a mass and a speed in words) is another
+    problem;
+  - **B** its `steps` carry out a computation in numbers that the lesson already carried out
+    (Notes II worked `3.14 × 5²`; the board was a circle labelled r = 5 cm);
+  - **C** its answer has a number of three or more significant digits that is already on a notes
+    slide, in an example or in the warm-up (Notes III said C ≈ 45.844 in);
+  - **D** it poses no expression (a word problem, a labelled figure) and its given numbers and
+    its answer are together in one line of what was shown — or, with two or more givens, in one
+    block of it (boards that were Example 1's light bulbs, numbers and all);
+  - **P / Q** it poses the same expression as an earlier practice item, or has the same two or
+    more givens and the same answer as one.
+- **The fix is a new problem of the same kind, with numbers of its own** — and every dependent
+  value re-derived: the question (`latex`/`text`/`prompt`/`stem`, `qtext`, figure labels),
+  `steps`, `gloss`, `answer`/`answer_latex`, `te_answer`, `check`/`yt_check`, every distractor in
+  `choices`/`errors` and every value in `wrong` recomputed from its named error, `note`, and the
+  teacher's-edition prose that quoted the old numbers (`mtr`, `hoq`, `closure`, `te`). Where one
+  notes line feeds a whole run of boards (M7 4.07, 4.08, 4.09), give the NOTES a circle of their
+  own instead and leave the run alone.
+- **`repeat_ok=True`** on the item, with a comment beside it saying why, where the repeat is the
+  point (M7 4.04 board 3 finds board 2's area by the other method) or where two different
+  problems merely share a value (a quarter of one circle and the whole of another are both
+  12.56). It is a field the builders know; it prints nothing.
+- **Writing a new lesson:** write the notes and examples first, then give every practice item
+  numbers that appear nowhere above it. `tools/dry_run.py` shows a repeat in seconds.
+- What it does not see: the same problem re-asked in other words with other numbers that give the
+  same working, a sub-step two boards share, and a repeat across lessons.
 
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 
