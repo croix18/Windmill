@@ -595,6 +595,38 @@ ok("ruling 43: a teacher's note is not something the class was shown",
    and rc.check_lesson(dict(code="90.01", notes=[dict(numeral="I", head="h", note="9⁻⁵ · 9³ = 9⁻² — say it aloud", items=["Copy the rule."])],
                             whiteboard=[dict(latex="9^{-5}\\cdot 9^{3}", answer="1/9²")])) == [])
 planted("a board that asks the warm-up's sum again", lambda M: M["whiteboard"][0].update(text=["Find 9 + 6."], answer="15", check=("eq", "9+6", "15")), "ruling 43")
+# ---- ruling 44: the words of a question and its picture agree
+from lib import figwords as fw
+def _plate(text, labels, **kw):
+    fig = dict(kind="shapes", shapes=[dict(t="circle", c=(0, 0), r=2)] + [dict(t="text", xy=(0, -0.2 - i), s=l) for i, l in enumerate(labels)])
+    return fw.check(dict(code="90.05", whiteboard=[dict(kind="free", text=text, fig=fig, answer="C = 62.8 cm", **kw)]), "90.05")
+_f1 = _plate(["A plate sits on a placemat 30 cm wide.", "**Find the circumference of the plate."], ["20 cm"])
+ok("ruling 44: a length in the words that is not on the picture, beside a length on the picture that is not in the words, is refused (the placemat said 30, the plate showed 20)",
+   len(_f1) == 1 and "30" in _f1[0] and "20" in _f1[0] and "whiteboard[1]" in _f1[0], str(_f1)[:300])
+ok("ruling 44: said in the words and drawn on the picture, both lengths stand — the extra number is still allowed",
+   _plate(["A plate 20 cm across sits on a placemat 30 cm wide.", "**Find the circumference of the plate."], ["20 cm", "placemat: 30 cm wide"]) == []
+   and _plate(["A plate 20 cm across sits on a placemat 30 cm wide.", "**Find the circumference of the plate."], ["20 cm"]) == [])
+ok("ruling 44: an ordinary board is not touched — no length in the words, or the words' length on the picture, or a count that is not a length",
+   _plate(["Find the area. Use 3.14."], ["r", "r = 5 cm"]) == []
+   and _plate(["A pizza 14 in across is cut into 8 equal slices.", "**Find the area of 3 slices. Use 3.14."], ["14 in across"]) == []
+   and _plate(["A 12-inch pizza is cut into 6 equal slices."], ["12 in across"]) == [])
+ok("ruling 44: π and thousands do not hide a length (18π in on the picture, a 20 in card in the words)",
+   len(_plate(["The disk is cut from a card 20 in wide.", "**Find the radius of the disk."], ["18π in", "?"])) == 1
+   and _plate(["A disk with a circumference of $18\\pi$ in is cut from a card 20 in wide."], ["18π in", "?", "card: 20 in wide"]) == []
+   and _plate(["A track is 1,200 m around."], ["1,200 m"]) == [])
+ok("ruling 44: a number after an equals sign is a result, not a length the words give (Deshawn's = 160 m in an error analysis)",
+   _plate(["Deshawn's work:   bottom piece: 16 × 6 = 96    top piece: 16 × 4 = 64", "A = 96 + 64 = 160 m", "Find both mistakes."], ["16 m", "6 m", "7 m", "4 m", "9 m", "10 m"]) == [])
+ok("ruling 44: where the difference is the point the item says so, and the tag is a field the builders know",
+   _plate(["A plate sits on a placemat 30 cm wide."], ["20 cm"], figwords_ok=True) == [] and "figwords_ok" in lb.WB_FIELDS)
+ok("ruling 44: it reads an example, a notes slide and a test question the same way, and the answer figure too",
+   len(fw.check(dict(examples=[dict(prompt=["A fence 40 ft long runs round a pond."], fig=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="d = 12 ft")]))]), "90.05")) == 1
+   and len(fw.check(dict(assessment=dict(sections=[dict(items=[dict(stem="A table is 6 ft across.", parts=[dict(label="a", stem="Find its area.")],
+                                                                    fig=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="8 ft")]))])])), "U90")) == 1
+   and len(fw.check(dict(whiteboard=[dict(text=["A rug 6 ft across."], fig=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="6 ft")]),
+                                          fig_a=dict(kind="shapes", shapes=[dict(t="text", xy=(0, 0), s="9 ft")]))]), "90.05")) == 1)
+planted("a board whose words give a length its picture does not show",
+        lambda M: M["whiteboard"][0].update(text=["A plate sits on a placemat 30 cm wide.", "**Find the circumference of the plate."],
+                                            fig=dict(kind="shapes", fs=22, pt=18, **{"in": 2.0}, shapes=[dict(t="circle", c=(0, 0), r=2), dict(t="text", xy=(0, -0.2), s="20 cm")])), "ruling 44")
 ok("figures: an Example with a figure starts higher only when its lines and its figure need the room",
    lb._example_top(["One line."], None) == 2.3 and lb._example_top(["One line.", "Two."], None) == 1.9
    and lb._example_top(["One line."], dict(_roof((7, 0), va="top", off=(0, -0.3)), reserve=0.7)) == 1.9

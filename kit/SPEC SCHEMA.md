@@ -150,6 +150,7 @@ check, wrong, …)`. `latex` is set large and centered; `text` rows are centered
 is a mixed row and must fit one line). `hint` prints small and grey under the question on the question slide — **it is a nudge, never the question**: a board whose ask lived in its hint shipped in M7 Unit 5 as a story with no question a student could read from the back of the room. A board with a `**` ask row shows its hint too, when it has one, so leave `hint` off a story board unless the nudge is worth a line.
 A `text` row beginning `**` is the ASK and is set bold; a board with any such row (or with `unneeded`) is laid out as a left-aligned 24 pt block — story in roman, ask in bold — not centred lines; keep each row under about 60 characters plus its math. `fig` (a figure from the unit's `figs.py`) and `fig_a` (the figure the reveal shows instead) sit under the text; `te_answer` is the answer as the teacher's edition prints it when the slide's `answer` is too terse. **The ask names a thing in the story and the answer is that thing** ("What fraction of the sheet is the top layer?", "Which drive holds more?"); an ask that begins "Write", "Rewrite" or "What is the value of" on a board with a story is a computation in costume — write that board bare (HOUSE STYLE, ruling 22 in practice). `gloss` is the working in a phrase and `hint` the scaffold: both are kept in the spec and **neither is on a slide** (ruling 37). `note` is the TE note; `note_a` optionally the reveal's.
 `repeat_ok=True` (with a comment) marks a board that repeats something on purpose — see ruling 43 below.
+`figwords_ok=True` (with a comment) marks a board whose picture differs from its words on purpose — see ruling 44 below.
 `wrong` is the TE's named-wrong-answers line for free/written questions: `"value — error name
 [benchmark cite]; …"`. **`kind="mc"`** adds `choices` (4 strings, unicode superscripts allowed),
 `correct` (index), `answer` ("A — 25m⁶") and **`errors`** — a dict from every wrong letter to
@@ -482,6 +483,33 @@ board measures handwriting.
   numbers that appear nowhere above it. `tools/dry_run.py` shows a repeat in seconds.
 - What it does not see: the same problem re-asked in other words with other numbers that give the
   same working, a sub-step two boards share, and a repeat across lessons.
+
+## The words of a question and its picture agree (ruling 44, 6 October 2026)
+
+*"The question says 30 but the graphic shows 20 for the diameter. I told you to make sure there
+were never errors like that."* — Croix, of M7 4.05 board 3: "A plate sits on a placemat 30 cm
+wide. Find the circumference of the plate." over a circle labelled 20 cm. Every number was true
+and the answer was right; the slide still read as a mistake, because the only length in the words
+was not on the picture and the only length on the picture was not in the words. Two more boards
+did the same (4.06 board 4, 4.07 board 5) — all three were ruling 22's "number nobody needs".
+
+- **The rule.** In an item with a figure, a length the words give is on the figure, or every
+  number on the figure is in the words. `rulingcheck` and the unit gate (`lib/figwords.py`)
+  refuse an item where both fail at once: the words give a length the figure does not show AND
+  the figure shows a number the words never mention.
+- **The fix is not to drop the extra number.** Say both lengths in the words, each with the thing
+  it measures — "A plate 20 cm across sits on a placemat 30 cm wide" — and draw both, to scale,
+  each on the thing it measures (M7 `figs.with_card(spec, w, h, label)` puts the card or placemat
+  behind a circle).
+- **What counts as the words:** `text`, `prompt`, `stem`, `latex`, `ask`, `items`, `items2`,
+  `math`, and the stems of `parts`. A number straight after an equals sign is a result, not a
+  given. Teacher's prose is not the words.
+- **`figwords_ok=True`** on the item, with a comment, where the difference is the point and the
+  slide says so (M7 4.03 Example 1 draws the other cut's lengths and asks which cut uses the
+  numbers you were given).
+- **What it cannot see:** a label that is the right number on the wrong thing (a diameter printed
+  as a radius), and a worked answer that uses a number the picture does not show. Those are read,
+  not computed: look at every slide that has a picture before it ships.
 
 ## Figures — what the kit refuses (ruling 38, 4 October 2026)
 

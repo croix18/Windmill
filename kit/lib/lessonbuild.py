@@ -1179,7 +1179,7 @@ MTR_TEXT = {
 # Every field a board may carry. A field no builder reads would ship as nothing — it is refused.
 WB_FIELDS = {"kind", "latex", "text", "hint", "gloss", "steps", "answer", "answer_latex", "te_answer", "fig", "fig_a",
              "note", "note_a", "check", "wrong", "choices", "correct", "errors", "qtext", "unneeded", "ack",
-             "form_only", "not_sci", "not_gap", "not_bound", "arrow_ok", "repeat_ok"}
+             "form_only", "not_sci", "not_gap", "not_bound", "arrow_ok", "repeat_ok", "figwords_ok"}
 
 
 def differentiation_rows(L):
@@ -1296,13 +1296,15 @@ def arrowcheck(obj, where, code):
 
 
 def rulingcheck_lesson(L):
-    """Rulings 21, 22, 25, 26, 28, 42 and 43 as facts about the spec, refused at build time like a math error."""
+    """Rulings 21, 22, 25, 26, 28, 42, 43 and 44 as facts about the spec, refused at build time like a math error."""
     out = []
     code = L["code"]
     for g in STUDENT_PAGES:
         out += arrowcheck(L.get(g), g, code)
     from . import repeatcheck
     out += repeatcheck.check_lesson(L)      # ruling 43: a practice problem never repeats what the lesson already showed
+    from . import figwords
+    out += figwords.check(L, code)          # ruling 44: the words of a question and its picture agree
     for i, q in enumerate(L.get("whiteboard", [])):
         for k in sorted(set(q) - WB_FIELDS):
             out.append(f"{code} whiteboard[{i}]: field '{k}' is not read by any builder — "

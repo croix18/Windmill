@@ -106,6 +106,8 @@ def check_unit(U):
     # ruling 42: no arrow on a paper or a reference sheet either
     for part in ("review", "assessment", "reference"):
         findings += arrowcheck(U.get(part), part, f"U{U['unit']}")
+        from . import figwords
+        findings += figwords.check({part: U.get(part)}, f"U{U['unit']}")      # ruling 44: words and picture agree
     return findings, n
 
 
