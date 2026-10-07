@@ -4,6 +4,32 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## IN PROGRESS (6 Oct 2026, evening) — ruling 43: a practice problem never repeats the notes
+
+**Croix, 6 Oct:** *"There are instances of the exact problem showing up in notes and in your turn
+or whiteboards."* He is right, and it is systematic: I wrote notes lines and then asked the same
+line back on a board (A7 3.T2 boards 4, 5, 7 are Notes II–III verbatim; M7 4.08 Notes II works
+3.14 × 5² = 78.5 and board 1 is r = 5; M7 5.03 boards 1, 2, 4 are Examples 1 and 2).
+
+The work, in order — tick these off here as they land:
+1. [x] Wednesday's two decks fixed, built one lesson at a time (`build_lesson.py`), sent as
+   `.pptx`: M7 4.06 board 9 (r = 8.2 in; was Notes III's 14.6π / 45.844) and A7 3.08 boards 7, 9
+   and independent 6. **Specs changed, units NOT yet rebuilt or installed, nothing committed.**
+2. [ ] Every other lesson of M7 4–5 and A7 3–4 (about 45 items). The worklist comes from
+   `repeat.py` in the session scratchpad — it becomes `lessonbuild.repeatcheck_lesson` (step 3).
+   Rule for a fix: change the practice item, not the notes, unless one notes line feeds a whole
+   run of boards (M7 4.09); every dependent value re-derived (answer, steps, check, distractors,
+   `wrong`, `note`, `qtext`, `te_answer`, and the TE prose that quotes the old numbers).
+3. [ ] The gate in the kit (`repeatcheck_lesson`, called beside `rulingcheck_lesson`), kit tests,
+   SPEC SCHEMA and both HOUSE STYLE rulebooks (ruling 43), `repeat_ok=True` as the override.
+4. [ ] `tools/dry_run.py`, then `build_all.py uN --install` for all four units, master sheets,
+   push the three repositories, send the decks.
+
+Scope he named: notes ↔ Your Turn / whiteboards. I am also treating the independent set and a
+later board repeating an earlier one as the same fault. The **question banks** (`bank`,
+`additional`) are NOT in scope — they are his quiz source, not class work — but many bank items
+are copies of boards and examples; that was reported to him, not changed.
+
 ## Where things stand (5 Oct 2026, 11:40 pm) — read this first
 
 Everything is pushed and clean: Windmill (this commit; kit `63b38faabc25`, vendored from
