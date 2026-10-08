@@ -195,25 +195,37 @@ def paper_ledger(U):
     return total, per_bm, per_sec, transfer
 
 
+def transfer_cuts(A):
+    """The transfer items the teacher took off this paper, one sentence each (who, when, why).
+    `transfer_cut` is one such sentence, or a list of them."""
+    c = A.get("transfer_cut") or []
+    c = [c] if isinstance(c, str) else list(c)
+    return [x.strip() for x in c if isinstance(x, str) and x.strip()]
+
+
 def transfer_needed(A):
-    """How many transfer items this assessment must carry. Ruling 18 says exactly two. `transfer_cut`
-    on the assessment — a sentence saying who took one off the paper, when and why — makes it one.
+    """How many transfer items this assessment must carry. Ruling 18 says exactly two; each sentence
+    in `transfer_cut` — who took one off the paper, when and why — makes it one fewer.
 
     Croix, 7 October 2026, having sat the A7 Unit 3 test himself: "I didnt know the last question.
     Axe it." It was a transfer item, and ruling 18's own last line covers it: an item that needs a
-    step the unit did not teach "is a new question, not a transfer item, and it goes back". A paper
-    is not held up waiting for a replacement, and no other question is re-labelled to make up the
-    count — the key says that one was cut and why."""
-    return 1 if (A.get("transfer_cut") or "").strip() else 2
+    step the unit did not teach "is a new question, not a transfer item, and it goes back". The same
+    evening: "remove all the answer with a sentence questions. I don't want to read explanations" —
+    and the other transfer item was one of those. A paper is not held up waiting for replacements,
+    and no other question is re-labelled to make up the count — the key says what was cut and why."""
+    return max(0, 2 - len(transfer_cuts(A)))
 
 
 def transfer_line(A, transfer):
     """The key's sentence about the transfer items it carries."""
+    cuts = transfer_cuts(A)
     if len(transfer) == 2:
         return (f"Transfer items (ruling 18): questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
                 f"review or in any question bank.")
-    return (f"Transfer item (ruling 18): question {transfer[0]}. Its surface appears on neither the review nor any "
-            f"question bank. A second transfer item was cut from this paper: {A['transfer_cut'].strip()}")
+    if len(transfer) == 1:
+        return (f"Transfer item (ruling 18): question {transfer[0]}. Its surface appears on neither the review nor any "
+                f"question bank. A second transfer item was cut from this paper: {cuts[0]}")
+    return "Transfer items (ruling 18): none on this paper. Both were cut: " + "  ".join(f"({i + 1}) {c}" for i, c in enumerate(cuts))
 
 
 def build_paper(U, outdir, key):

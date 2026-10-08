@@ -634,7 +634,10 @@ ok("ruling 18: a paper needs exactly two transfer items — or one, when transfe
    and _ub18.transfer_needed({"transfer_cut": "Croix, 7 Oct 2026: it needed a step the unit did not teach."}) == 1
    and "questions 10 and 21" in _ub18.transfer_line({}, [10, 21])
    and "question 10." in _ub18.transfer_line({"transfer_cut": "Croix, 7 Oct 2026: cut."}, [10])
-   and "Croix, 7 Oct 2026: cut." in _ub18.transfer_line({"transfer_cut": "Croix, 7 Oct 2026: cut."}, [10]))
+   and "Croix, 7 Oct 2026: cut." in _ub18.transfer_line({"transfer_cut": "Croix, 7 Oct 2026: cut."}, [10])
+   and _ub18.transfer_needed({"transfer_cut": ["one cut.", "the other cut."]}) == 0 and _ub18.transfer_needed({"transfer_cut": ["one cut.", ""]}) == 1
+   and "none on this paper" in _ub18.transfer_line({"transfer_cut": ["one cut.", "the other cut."]}, [])
+   and "(2) the other cut." in _ub18.transfer_line({"transfer_cut": ["one cut.", "the other cut."]}, []))
 # ---- ruling 44's look-through: every picture of a unit drawn beside its words
 import figure_sheets as _fsh
 from lib import figkit as _fk44, mathimg as _mi44
