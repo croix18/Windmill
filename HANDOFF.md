@@ -4,7 +4,35 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (7 Oct 2026, 8:15 pm EDT) — read this first
+## Where things stand (7 Oct 2026, 9:30 pm EDT) — read this first
+
+Pushed and clean: Windmill (this commit; kit `6c8dd856e5c1`, vendored from `247421f`), A7 `aaeb63f`,
+M7 `cc34c96`. A7 Unit 3 rebuilt and installed at 0.
+
+**The A7 Unit 3 test is now 36 points, 16 questions, no sentence answers, no transfer items.**
+After the last question went (below), Croix said: *"remove all the answer with a sentence
+questions. I don't want to read explanations."* Four went: the old 9 (Marco), 10 (which is
+greater, 2⁻³ or 3⁻² — the other transfer item), 14 (how are x² and x⁻² related) and 19 (which is
+greater, 8.9 × 10⁻⁴ or 2.1 × 10⁻³). `transfer_cut` is now a list of two sentences and the kit
+accepts a paper with none; the key prints both. Sections: 9, 9, 8, 10.
+**Asked, not answered:** is "no sentence answers" for every test in both courses (M7 Unit 4's
+three forms and A7 Unit 4's test still have explanation parts) or for this paper only? Do not
+strip the others until he says.
+
+**"The toc for the unit was off"** (said mid-task, no more detail). Checked: the All Slides decks'
+Contents slide lists the right slide numbers and its links target the right slides, in the .pptx
+and the PDF, for A7 Units 3–4 and M7 Units 4–5. Found and fixed: `packkit.calendar` dated only
+days of kind `lesson`, so A7 Unit 3's two thread days (kind `thread`) showed "—" under Planned in
+START HERE's "Unit at a glance". They show Mon 5 Oct and Tue 6 Oct now; a test holds it.
+**He has been asked which contents list he meant and what was off** — if it is the Contents slide
+as Google Slides shows it, nobody on this side has seen that.
+
+**The timed page** ("A7 Unit 3 Test", private artifact) is generated from the spec by a scratch
+script; its accepted typed answers are keyed by each question's own stem (numbers move when a
+question is cut), and a saved run is filed under a hash of the paper so a changed paper starts
+a fresh run.
+
+## Where things stood (7 Oct 2026, 8:15 pm EDT) — the last question cut
 
 Pushed and clean: Windmill (this commit; kit `ecff0e2e848e`, vendored into both courses from
 `0fc5d24`), A7 `ada85db`, M7 `2745865`. A7 Unit 3 was rebuilt and installed at 0 findings.
