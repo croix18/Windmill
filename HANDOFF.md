@@ -4,7 +4,39 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (7 Oct 2026, 2:15 am EDT) — read this first
+## Where things stand (7 Oct 2026, 8:15 pm EDT) — read this first
+
+Pushed and clean: Windmill (this commit; kit `ecff0e2e848e`, vendored into both courses from
+`0fc5d24`), A7 `ada85db`, M7 `2745865`. A7 Unit 3 was rebuilt and installed at 0 findings.
+
+**The A7 Unit 3 test lost its last question, at Croix's word.** He asked for the test as a page he
+could sit with a stopwatch (published as a private artifact, "A7 Unit 3 Test"; it is generated
+from `a7/build/u3/unit.py` by a scratch script, so the page and the paper cannot disagree). He sat
+it — 17 min 27 s, 40 of 41 — and said: *"Yeah that was long. I didnt know the last question. Axe
+it."* Question 21 ("Between which two consecutive powers of 10 does 4.7 × 10⁻⁵ lie?") is gone:
+**40 points, 20 questions, section 4 is 11 points.** It was the second transfer item (ruling 18),
+so the kit now accepts ONE where the spec carries `assessment["transfer_cut"] = "who, when, why"`,
+and the key prints that sentence. No other question was re-labelled; none was added. He has been
+told the paper now has one transfer question and offered a replacement — **not answered yet.**
+
+**A check that failed by the calendar.** `room/test.js` compared the reader's age (real clock)
+with a date typed into the test, tolerance two days; it began failing on 7 October with nothing
+changed and blocked the push. It now measures against the real clock. If a check fails on a day
+when nothing changed, look for a date in it first.
+
+**Pacing — he is deciding, nothing in the plan has changed.** He wants A7 to go faster. Simulated
+on the plan's own engine (scratch `pace/sim.py`; a page of the results was sent to him):
+- current rules, teach on the spiral days: 3 days free before 30 April and all 7 reteach days back;
+- one-day tests on any day: content ends 31 March (21 days free); with the April revisit days
+  shrunk and six lesson merges, 11 March (30 days);
+- lesson merges or one-day tests for short units ALONE free nothing: a test must start on a
+  Monday or Thursday, so a saved day turns back into a spiral day.
+He asked about one-day tests last. His own run of the Unit 3 paper took 17:27, which he called
+long — **a one-period version would need the paper cut further; he has not asked for that yet.**
+Open questions to him: switch A7 to one-day tests? cut Unit 3 for Tuesday 13 October? a
+replacement transfer question?
+
+## Where things stood (7 Oct 2026, 2:15 am EDT) — ruling 44
 
 Everything is pushed and clean: Windmill (this commit; kit `ce1d1bc31d5c`, 44 files, vendored into
 both courses from `746b821`), M7 `d9aa8d8`, A7 `3eda8d2`. M7 Unit 4 was rebuilt and installed four
