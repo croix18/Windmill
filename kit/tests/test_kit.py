@@ -627,6 +627,20 @@ ok("ruling 44: it reads an example, a notes slide and a test question the same w
 planted("a board whose words give a length its picture does not show",
         lambda M: M["whiteboard"][0].update(text=["A plate sits on a placemat 30 cm wide.", "**Find the circumference of the plate."],
                                             fig=dict(kind="shapes", fs=22, pt=18, **{"in": 2.0}, shapes=[dict(t="circle", c=(0, 0), r=2), dict(t="text", xy=(0, -0.2), s="20 cm")])), "ruling 44")
+# ---- START HERE: a woven thread day has a date, like any lesson
+from lib import packkit as _pk
+import datetime as _dt
+with tempfile.TemporaryDirectory() as tmp:
+    os.makedirs(os.path.join(tmp, "assets", "windmill"))
+    _days = {"2026-09-30": {"kind": "lesson", "code": "3.06+07", "unit": 3}, "2026-10-05": {"kind": "thread", "code": "T-A1", "unit": 3},
+             "2026-10-06": {"kind": "thread", "code": "T-A2", "unit": 3}, "2026-10-07": {"kind": "lesson", "code": "3.08", "unit": 3},
+             "2026-10-08": {"kind": "off", "code": "off", "unit": 3}, "2026-10-15": {"kind": "exam", "code": "3.X1", "unit": 3}, "2026-10-19": {"kind": "lesson", "code": "4.01", "unit": 4}}
+    with open(os.path.join(tmp, "assets", "windmill", "spine.js"), "w", encoding="utf-8") as fh:
+        fh.write("window.SPINE = " + json.dumps({"generatedAt": "2026-10-07T00:00:00+00:00", "days": {k: {C.COURSE_KEY: v} for k, v in _days.items()}}) + ";")
+    _cal = _pk.calendar(3, tmp)
+    ok("START HERE: a woven thread day (T-A1) is dated like any lesson — both of A7 Unit 3's printed a dash in 'Unit at a glance'",
+       _cal[0] == {"3.06": _dt.date(2026, 9, 30), "T-A1": _dt.date(2026, 10, 5), "T-A2": _dt.date(2026, 10, 6), "3.08": _dt.date(2026, 10, 7)}
+       and _cal[2] == [_dt.date(2026, 10, 15)])
 # ---- ruling 18: two transfer items, or one where the teacher cut one and the paper says so
 from lib import unitbuild as _ub18
 ok("ruling 18: a paper needs exactly two transfer items — or one, when transfer_cut says who cut the other, when and why, and the key then says so",

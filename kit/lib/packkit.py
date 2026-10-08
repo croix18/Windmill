@@ -196,8 +196,8 @@ def calendar(unit, build_dir):
         if not o or o.get("unit") != unit:
             continue
         day = dt.date.fromisoformat(iso)
-        if o["kind"] == "lesson":
-            lessons.setdefault(o["code"].split("+")[0], day)
+        if o["kind"] in ("lesson", "thread"):      # a woven thread day (A7's T-A1) is a teaching day with a date like any other:
+            lessons.setdefault(o["code"].split("+")[0], day)      # left out, START HERE's "Unit at a glance" printed "—" beside both of Unit 3's (Croix, 7 Oct: "the toc for the unit was off")
         elif o["kind"] == "review":
             review = day
         elif o["kind"] == "exam":
