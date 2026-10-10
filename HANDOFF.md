@@ -4,7 +4,19 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (10 Oct 2026, late evening EDT) — read this first
+## Where things stand (10 Oct 2026, night EDT) — read this first
+
+**Practice test v3** (artifact Version 3). Croix asked what could be better, picked 1, 2, 3 and 6 from my list, and said
+"Help me solve" must be *"an option or like a help me solve this type thing"*, not the default. Built: **Help me solve this**
+(line-by-line work checking: first step gets the mistake list; later steps only get true comparisons with the line before
+plus the step to take; equations must stay equivalent), **Try another like this** (same kind, never the same question; two
+in a row clears the miss), a **Practice** menu (whole test / one part in two rounds / my misses), and **pictures** of why
+each rule works (shown with the full solution, since they state the answer). Third adversarial review: all defects fixed and
+pinned. Checks all pass: coach_check 1,500 sets (now also pictures: 45,000, and work checking), sympy 52,500 solutions,
+engine 20,000 sets, step claims 660,000, Playwright 36/36 ×4 plus a feature run. Details: A7 `a7/practice/u3/README.md`.
+**A7 commits `477fe66`, `6c9702c` and the v3 commit are local only — the A7 token still gets 401.**
+
+## Where things stood (10 Oct 2026, late evening EDT)
 
 **Practice test v2 — the coach** (Croix loved the right/almost/wrong system and asked: *"strengthen that some more both in
 terms of the explanation and show mes. I want it to adapt perfectly to whatever they submit and explain exactly where they
