@@ -4,7 +4,22 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (10 Oct 2026, evening EDT) — read this first
+## Where things stand (10 Oct 2026, late evening EDT) — read this first
+
+**Practice test v2 — the coach** (Croix loved the right/almost/wrong system and asked: *"strengthen that some more both in
+terms of the explanation and show mes. I want it to adapt perfectly to whatever they submit and explain exactly where they
+went wrong and how to solve it next time."*). Same artifact, Version 2. New `coach.js`: typing slips explained and not
+counted; ~6 exact mistake models per question family, matched by value AND shape; piece-by-piece comparison (base/exponent,
+number part/each letter, digits/decimal place, number/power of 10); a "Next time:" rule on every wrong answer; Hint = worked
+solution one step at a time; Show me how = all steps with the step where the answer went off marked. A hint before the
+first check costs the first-try point. Second adversarial review found 17 defects (worst: an MC reason said "3³ means 3
+times itself", and value-only matching blamed slips the student never made) — all fixed and pinned in `coach_check.js`.
+Checks: coach_check 1,500 sets (126,000 solution steps, 159,144 mistake models, ~670,000 fuzzed answers, all pass), sympy on
+52,500 worked solutions (all sound), engine harness 20,000 sets, step-claim check 660,000 claims, Playwright 36/36 on 4 sets.
+**A7 commits `477fe66` and `6c9702c` are local only — the A7 token still gets 401.** Croix pasted a token in chat on 10 Oct;
+it was NOT used or stored (standing rule) and he was told to revoke it.
+
+## Where things stood (10 Oct 2026, evening EDT)
 
 **New: a student practice test for A7 Unit 3** (Croix: *"a practice test tool that students can use to
 practice the test style questions. It should have different numbers than the test."*). Private artifact
