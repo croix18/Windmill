@@ -4,7 +4,26 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (7 Oct 2026, 9:30 pm EDT) — read this first
+## Where things stand (10 Oct 2026, evening EDT) — read this first
+
+**New: a student practice test for A7 Unit 3** (Croix: *"a practice test tool that students can use to
+practice the test style questions. It should have different numbers than the test."*). Private artifact
+**"Unit 3 Practice Test"** — https://claude.ai/artifact/FBaRteN9vgYtPLJ2dEHHWg (Version 1). Students can't
+open it until Croix shares it (Share menu; a public link if they have no Claude accounts) — he was told.
+Source, checks and how to republish: A7 repo `a7/practice/u3/README.md` — **committed locally as A7 `477fe66` but NOT pushed: the A7 `.github-token` now gets 401 from GitHub (expired or revoked; Windmill's and M7's still work). Croix needs to make a new A7 token; then `bash tools/push.sh` in /root/windy-hill pushes it.** If this container is gone, the source is also in the session scratchpad `practice/` — rebuild from there. In short: 36 points in the
+test's 9/9/8/10 shape, numbers generated from a set number (`#set-NNNN` in the link), none of the test's
+36 questions can appear, "check as I go" or "like the real test" modes, first-try score + stopwatch,
+steps on request, saved per set in the browser only, no names.
+Soundness: 20,000-set JS harness, an independent sympy re-check of 4,000 sets (it caught a real bug —
+`decStr` halved some small decimals — fixed and brute-forced), a check of every arithmetic claim in the
+step text, a Playwright run typing every key into the page (36/36 on four sets), and an adversarial
+review subagent whose 12 confirmed defects (0^0 accepted; dropping the sign of (−c)^even; a false
+"x = y = answer" chain marked right; "dressed-up" forms like 1/64^1 accepted; 4/m^6n^2 guessed; …) are
+all fixed and pinned as tests.
+**Still open (unchanged):** what "the toc for the unit was off" meant; whether "no sentence answers"
+applies to every test; one-day tests for A7; a replacement transfer question; ruling 43 banks.
+
+## Where things stood (7 Oct 2026, 9:30 pm EDT)
 
 Pushed and clean: Windmill (this commit; kit `6c8dd856e5c1`, vendored from `247421f`), A7 `aaeb63f`,
 M7 `cc34c96`. A7 Unit 3 rebuilt and installed at 0.
