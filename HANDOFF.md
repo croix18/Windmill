@@ -4,7 +4,15 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (11 Oct 2026, later) — read this first
+## Where things stand (11 Oct 2026, evening) — read this first
+
+**Practice test Version 7:** "with help" now counts as a point and is tallied separately ("First try X / N · with help Y"
+at the top, a With help column in results). Hint and Walk me through it are merged into one **Hint** button: the step-by-step
+questions, with the picture shown at the step it explains when the student gets that step wrong, and again at the end. Old
+step-reveal Hint removed; Show me how unchanged. Help still keeps a question on the misses list; the Try-another streak is
+still "on your own". Checks pass (coach_check 500 sets, Playwright 36/36 ×4, feature runs). A7 commits still local (token 401).
+
+## Where things stood (11 Oct 2026, later)
 
 **Practice test: "Walk me through it" added** (artifact Version 5), the guided walkthrough Croix asked for in place of Help me
 solve. Small tap-or-type steps per question, reasons on wrong taps, the work shown as it builds, ends with "type it in the
