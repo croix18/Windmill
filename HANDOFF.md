@@ -4,7 +4,15 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (11 Oct 2026) — read this first
+## Where things stand (11 Oct 2026, later) — read this first
+
+**Practice test: "Walk me through it" added** (artifact Version 5), the guided walkthrough Croix asked for in place of Help me
+solve. Small tap-or-type steps per question, reasons on wrong taps, the work shown as it builds, ends with "type it in the
+answer box". Fourth adversarial review fixed (worst: negDen rejected "a negative number" though odd powers are negative).
+All checks pass: coach_check 1,500 sets (54,087 walkthroughs, 47,577 typed steps re-derived), sympy 52,500 solutions, engine
+20,000 sets, Playwright 36/36 ×4 plus walkthrough run. A7 commits still local only (token 401).
+
+## Where things stood (11 Oct 2026)
 
 **"Help me solve this" is out of the practice test** (artifact Version 4). Croix: *"I don't like the help me solve this. It
 doesn't really make sense."* Button removed; the code and its checks stay in coach.js, unused. Do not bring it back without
