@@ -10,7 +10,7 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 at the top, a With help column in results). Hint and Walk me through it are merged into one **Hint** button: the step-by-step
 questions, with the picture shown at the step it explains when the student gets that step wrong, and again at the end. Old
 step-reveal Hint removed; Show me how unchanged. Help still keeps a question on the misses list; the Try-another streak is
-still "on your own". Checks pass (coach_check 500 sets, Playwright 36/36 ×4, feature runs). A7 commits still local (token 401). Version 8: at Croix's word the hint now ends with just the answer (the key, in green) — no "That's it … type it in the answer box" sentence. Version 9: the typing-tip box under "Start this set over" is gone at his word (it also still named the old Walk me through it button).
+still "on your own". Checks pass (coach_check 500 sets, Playwright 36/36 ×4, feature runs). A7 commits still local (token 401). Version 8: at Croix's word the hint now ends with just the answer (the key, in green) — no "That's it … type it in the answer box" sentence. Version 9: the typing-tip box under "Start this set over" is gone at his word (it also still named the old Walk me through it button). Version 10 (12 Oct): the footer line ("Your answers stay on this device only…") is gone at his word; and his screenshot showed the stopwatch at 561:31, so the clock now pauses whenever the page is hidden (phone locked, app switched) and shows Resume.
 
 ## Where things stood (11 Oct 2026, later)
 
