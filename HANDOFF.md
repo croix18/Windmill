@@ -6,6 +6,14 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (15 Oct 2026) — read this first
 
+**M7 U4 practice, Version 2 (15 Oct, later).** A student answered Q5a with the whole rectangle and the missing corner and was
+marked wrong. Croix: *"either way works."*
+- That pair is now right, and part (b) accepts the subtraction that follows from it.
+- Adding the corner instead of subtracting gets *Almost* in part (a) and is explained in part (b).
+- The answer key shows both ways.
+- Pushed to M7 as b8f6edd. Republished at the same link. A new download copy was sent.
+
+
 **M7 Unit 4 practice test is live.** Croix asked: *"Can you create a site like that for the m7 kids and their unit 4 test?"*
 - **Artifact:** "M7 Unit 4 Practice Test", https://claude.ai/artifact/VLj719rhsnVpDmQWQSB9M1 (Version 1). It is private
   until he shares it: students need Share → public link.
