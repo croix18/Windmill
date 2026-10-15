@@ -4,7 +4,39 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (11 Oct 2026, evening) — read this first
+## Where things stand (15 Oct 2026) — read this first
+
+**M7 Unit 4 practice test is live.** Croix asked: *"Can you create a site like that for the m7 kids and their unit 4 test?"*
+- **Artifact:** "M7 Unit 4 Practice Test", https://claude.ai/artifact/VLj719rhsnVpDmQWQSB9M1 (Version 1). It is private
+  until he shares it: students need Share → public link.
+- **Download:** "M7 Unit 4 Practice Test.html" was sent in chat, for a Google Sites embed or Netlify Drop. Chromebooks
+  block local HTML files.
+- **Source:** M7 repo, `m7/practice/u4/` (README there). Pushed as 64dbca6 and verified.
+- **The page:**
+  - 24 points; the same 17 questions and weights as `m7/build/u4/unit.py`.
+  - Every part avoids Forms A/B and the paper practice form, including the same question asked backwards.
+  - No transfer items (rulings 18 and 33): Q7 is the house and Q12 is the ribbon.
+  - Q4a, Q4b and Q17 are tap-to-answer multiple choice instead of sentences.
+  - Q5a takes two areas, and either way of cutting is right.
+  - Pizza sizes are in cm (35, 42 or 49).
+- **Same features as A7:** coach with mistake models, follow-through, π handling (rounded, calculator π, 22/7 versus 3.14,
+  "in terms of π"), Hint walkthrough with pictures, Show me how, Try another, Practice menu, "with help" scoring, and the
+  clock pausing when the page is hidden. No tip box, no footer.
+- **Key safeguard:** `coach.clean()` must be registered or `generate()` throws. It re-draws any question where a modelled
+  mistake, a printed number, or another part's answer equals the answer. The reviewer found, for example, that at r = 2
+  the circumference equals the area, so the wrong formula would have been marked right.
+- **Checks:**
+  - m7_check: 15,000 sets, all pass; 13/13 planted errors caught.
+  - verify_m7.py (sympy): 0 problems.
+  - Playwright: 120/120 keys.
+  - All 99,999 seeds generate.
+  - Two adversarial reviews: 11 real defects, then 1 more. All fixed and pinned.
+- **A7 Unit 3 practice, Version 11:** two bugs found in this review were also in A7, and both are fixed.
+  - "My misses" chosen from the Practice menu reopened the same numbers.
+  - The Try-another box showed the base question's red underline.
+  - Republished. Committed locally as c077fe6; **not pushed** (A7 token still 401).
+
+## Where things stand (11 Oct 2026, evening)
 
 **Practice test Version 7:** "with help" now counts as a point and is tallied separately ("First try X / N · with help Y"
 at the top, a With help column in results). Hint and Walk me through it are merged into one **Hint** button: the step-by-step
