@@ -4,7 +4,54 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (16 Oct 2026) — read this first
+## Where things stand (16 Oct 2026, evening) — read this first
+
+**The plan moved twice today, and everything that reads it has the new one.**
+- **A7 began Unit 4 on Fri 16 Oct.** Croix, 15 Oct: *"me starting unit 4 in a7 tomorrow"*; 16 Oct: *"Yeah update
+  the repo."* One line in A7's as-run log (`2026-10-16,4.01,`): Unit 4's lessons Fri 16 – Fri 23 Oct, its test
+  Mon–Tue 26–27 Oct, Unit 5 from Wed 28 Oct. A7 `8fc0d8fc` (plan), `972a435e` (the master sheet takes a test sat
+  in one day — Unit 3's, 15 Oct), `362d75fe` (sheet).
+- **M7 takes Units 9 and 10 next.** Croix, 16 Oct: *"Ok so pivot in the plan. We're moving units 9 and 10 up
+  next."* Asked which class and where after: M7, and *"Back to Unit 5."* Ruling 23 amended; `tools/mkscope.py`
+  `ORDER` is 4, 9, 10, 5, 6, 7, 8, 11, 12, 13. Unit 4's test stays Mon–Tue 19–20 Oct; Unit 9 Wed 21 Oct – test
+  2–3 Nov; Unit 10 Wed 4 Nov – test 30 Nov–1 Dec (MA.7.AR.2.2's plan moves with it); Unit 5 Wed 2 Dec – test
+  17–18 Dec. M7 `2c1d27e`, `5338cf5`. **Units 9 and 10 are not built** — M7's NOTES says what each needs.
+- **Here** (Croix: *"Yes update windmill"*): the spine regenerated from those (`3ba6eb5`; the bell kept from the
+  published spine — Deckhand was not beside this checkout); the phone page rebuilt and republished, Version 2 at
+  the same link (its `log` was empty: nothing to bake). Vendored into both courses — A7 `cf77f40c`, M7 `7ebd856`;
+  the kit unchanged (6c8dd856e5c1), only `spine.js` and the version lines moved. The courses had carried the
+  spine of 4 Oct until now.
+- **START HERE:** A7 Unit 4's and M7 Unit 5's now carry the new dates (A7 `2ada52dd`, M7 `2dff0e7`), written by
+  each course's `install_unit.start_here()` from build side-cars (A7's committed ones; M7's from a fresh build at
+  `checks: 0 findings`, whose timing table came out the same) and the new spine. Only the dates changed. It was
+  not a full reinstall on purpose: a fresh build here is not byte-equal to the installed decks (the mathematics
+  images come out a couple of pixels taller — M7 5.04's "π = 3.14" is 76 px high against 74), so nothing else
+  in either package was replaced. M7 Unit 4's dates did not move; the past units' START HERE were left alone.
+- **A correction Croix has been given:** earlier today I told him the classroom tools would follow once Windmill
+  was updated. They do not read the plan — as this file said on 4 Oct, none of Deckhand, Tally, Cadence or
+  Geopardy embeds the spine or the reader yet. What reads the spine: the phone page; in the courses, the build
+  (START HERE's dates, the IXL check) and M7's master sheet (the bell week). M7's README said the tools read it;
+  corrected there and in its NOTES.
+- **The environment: matplotlib 3.11 breaks the kit.** `pip install matplotlib` (the courses' `setup_env.sh`,
+  every CI workflow) now gets 3.11, whose mathtext glyphs carry a sixth field (a glyph index);
+  `kit/lib/mathimg.py` `_paint` unpacks five — A7 Unit 4's build stopped on it in `checks.py` (slotaudit:
+  "too many values to unpack (expected 5)"). With `pip install --break-system-packages "matplotlib==3.10.9"`
+  M7 Unit 5 built at 0 findings. Not fixed: either the kit reads both forms (`font, size, num, *_, ox, oy`) or the
+  setup scripts and CI pin `matplotlib<3.11`.
+- **check.sh here fails, and failed the same way on `410ca5d` before this change** — so these commits went up by
+  hand (the header, then the remote head compared), not through push.sh. Everything else in it passes, the
+  spine's validation included. Not fixed:
+  - `drive/test_windyhill.js`, run against the real course checkouts (check.sh does that when they are beside
+    this repository), stops in section I (line 739): it looks for M7's `All Slides.html` console, which ruling 41
+    removed.
+  - `kit/tests/test_kit.py` stops at line 271 under both profiles — `_yt_fit` finds no layout for the big Your
+    Turn ("a Your Turn's answer slide cannot hold its steps") — with matplotlib 3.9.4, 3.10.0, 3.10.9 and 3.11.2
+    alike, so not the version. Perhaps the taller mathematics images above; not chased further.
+- **A7 pushes again:** the token Croix gave this session reads and writes A7, and its practice commits through
+  `89d1056` went up on 16 Oct. A7's practice kit is still the earlier one (no Português toggle, no Print):
+  vendoring it there is still to do (below).
+
+## Where things stand (16 Oct 2026, earlier: the practice kit)
 
 **Print (16 Oct, Version 5 of M7):** Croix: *"Can I get the ability to print?"* He chose worksheet + key and student
 results, on every page, following the Português toggle. Kit `ui.js` Print button → Worksheet / Worksheet + answer key / My
