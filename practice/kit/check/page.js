@@ -213,6 +213,46 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     }
     console.log('C. second language checked');
   }
+  /* D. print: the worksheet is this set (the same stems, every part has its blank or its choices), the key is the key the
+     page marks with, the results are this student's, only the printout goes to paper, Close gives the page back. */
+  { const seedP = 793, ip = itemsOf(seedP), V = U.view, txt = h => String(h).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    await fresh(p, seedP);
+    const screenStems = await p.$$eval('.sheet .stem .st', es => es.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
+    await p.click('#bPrint'); if (!(await p.isVisible('[data-print="wk"]'))) fail('print: no choice after Print');
+    await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
+    const pr = await p.evaluate(() => ({ stems: Array.from(document.querySelectorAll('#printview .pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+      blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length,
+      keys: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }));
+    if (JSON.stringify(pr.stems) !== JSON.stringify(screenStems)) fail('print: the worksheet questions are not the screen questions');
+    const nText = ip.filter(i => i.kind === 'text').length, nMc = ip.length - nText;
+    if (pr.blanks !== nText || pr.groups !== nMc) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists for ' + nText + ' / ' + nMc + ' parts');
+    if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
+    ip.forEach((it, k) => { const want = it.kind === 'text' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
+      const got = pr.keys[k] ? pr.keys[k][1] : ''; if (got.replace(/\s+/g, '') !== want.replace(/\s+/g, '')) fail('print: key ' + it.id + ' is "' + got + '", the page marks "' + want + '"'); });
+    await p.emulateMedia({ media: 'print' });
+    const vis = await p.evaluate(() => ({ sheet: getComputedStyle(document.querySelector('.sheet')).display, watch: getComputedStyle(document.querySelector('.watch')).display, bar: getComputedStyle(document.querySelector('#printview .pbar')).display, pv: getComputedStyle(document.getElementById('printview')).display }));
+    if (vis.sheet !== 'none' || vis.watch !== 'none' || vis.bar !== 'none' || vis.pv === 'none') fail('print: on paper, more than the printout shows ' + JSON.stringify(vis));
+    const pdf = await p.pdf({ format: 'Letter' }); const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length; if (pages < 2 || pages > 14) fail('print: the worksheet and key take ' + pages + ' pages');
+    await p.emulateMedia({ media: 'screen' });
+    await p.click('#pvClose'); if (await p.evaluate(() => document.body.classList.contains('printing')) || !(await p.isVisible('.sheet'))) fail('print: Close did not give the page back');
+    /* results */
+    await answer(p, ip[0]); await check(p, ip[0].id); if (ip[1].kind === 'text') { await p.fill('#a' + ip[1].id, '987654'); await check(p, ip[1].id); }
+    await p.click('#bPrint'); await p.click('[data-print="res"]'); await p.waitForTimeout(100);
+    const rs = await p.$$eval('#printview .pans2 tbody tr', rr => rr.map(r => Array.from(r.cells).map(c => c.textContent.replace(/\s+/g, ' ').trim())));
+    if (rs.length !== ip.length) fail('print: results list ' + rs.length + ' parts of ' + ip.length);
+    if (!rs[0] || !/^✓ First try$/.test(rs[0][2])) fail('print: a first-try right answer shows "' + (rs[0] && rs[0][2]) + '"');
+    if (ip[1].kind === 'text' && (!rs[1] || rs[1][1] !== '987654' || !/Not yet/.test(rs[1][2]))) fail('print: a wrong answer shows ' + JSON.stringify(rs[1]));
+    if (rs[2] && !/^Blank$/.test(rs[2][2])) fail('print: an unanswered part shows "' + rs[2][2] + '"');
+    await p.click('#pvClose');
+    /* test mode: the results wait for Finish */
+    await p.click('.mode button[data-mode="test"]'); if (await p.isVisible('#cy')) await p.click('#cy');
+    await p.click('#bPrint'); if (!(await p.$eval('[data-print="res"]', b => b.disabled))) fail('print: results printable in test mode before Finish');
+    await p.click('#cn');
+    if (U.second) { await p.click('.bi-toggle'); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(150);
+      const miss = await p.evaluate(() => Object.keys(window.__biMissing || {})); if (miss.length) fail('print: no Portuguese for ' + miss.slice(0, 4).join(' | '));
+      if (!(await p.$$eval('#printview .tr', e => e.length))) fail('print: Portuguese on, but none in the printout');
+      await p.click('#pvClose'); await p.click('.bi-toggle'); }
+    console.log('D. print checked'); }
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();
   console.log('B. flows checked');

@@ -131,7 +131,7 @@ var BLOCK = ['#eyebrow', '#h1', '.itx', '.pinote', '#total', '.setbox summary', 
   '.sechead h2', '.sechead .pts', '.stem .st', '.line .st', '.cv', '.xhead .xt', '.streak', '.fbx p', '.fbx li', '.note2', '.rd',
   '.sthead', '.solhead .kl', '.say', '.offnote', '.key .kl', '.key .kv', '.why > summary', '.vis .cap', '.vis p', '.wpl',
   '.wkhead b', '.wask', '.wgot', '.wwhy', '.wfin', '#score', '#result h2', '#result .big span', '#result .last',
-  '#result .perfect', '#result .nry', '#result .note:not(:has(.nry))', '#result th', '#result td:first-child'].join(',');
+  '.bt', '#result .perfect', '#result .nry', '#result .note:not(:has(.nry))', '#result th', '#result td:first-child'].join(',');
 var BUTTON = 'button:not(.jump):not([data-k]):not(.bi-toggle)';
 
 function mount(U, lang){

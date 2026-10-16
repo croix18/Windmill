@@ -111,3 +111,12 @@ everything on the page, with both languages stacked (the English stays; the tran
   English's pieces. `check/page.js` part C: off adds nothing and on → off restores the English to the letter; through every flow
   no sentence is missing, no duplicate ids, the numbers under each line match; typing still scores N / N with it on.
 - Decimals stay with a point (as on the test, and as the answer box reads them); "48 e 18" is read like "48 and 18".
+
+## Print (16 Oct 2026)
+Croix: *"Can I get the ability to print?"* A **Print** button by the menus offers: **Worksheet** (this set on paper: name and date
+lines, every question with its figure, an answer blank or choice circles, room to work), **Worksheet + answer key** (the key
+on a new page — the same key the page marks with), and **My results** (score, time, each section, and every part: the
+student's answer, how it went, the right answer; in "Like the real test" only after Finish). A preview opens first with its
+own Print button; on paper only the printout shows, dark on white. With Português on, the printout has it too.
+Checked by `check/page.js` part D (same stems as the screen, a blank or choices for every part, the key equals what the page
+marks right, results match, only the printout on paper, Close restores the page, Portuguese covered).

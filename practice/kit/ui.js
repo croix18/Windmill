@@ -605,6 +605,84 @@ setInterval(function(){ if (S && S.running) $('time').textContent = fmt(elapsed(
 window.addEventListener('pagehide', function(){ if (S && S.running){ S.acc = elapsed(); S.startedAt = now(); save(); } });
 document.addEventListener('visibilitychange', function(){ if (document.hidden && S && S.running) pause(); });   /* the clock stops when the page is put away */
 
+/* ------------------------------------------------ print (Croix, 16 Oct 2026: "Can I get the ability to print?")
+   Print opens a choice: the set as a paper worksheet, the worksheet with its answer key, or this student's results. The
+   printout is the same set as the screen (the same items, drawn by the same view functions; the key is the same key the
+   page marks with), shown first as a preview with its own Print button. With Português on, its lines print too. */
+function pq(d, qn){
+  var it = d.it, h = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
+  var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
+  var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + '<span class="pblank"></span>' + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
+  var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : blank(p)) + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart">' + blank(it.part) + '</div>';
+  else h += '<div class="ppart">' + choices(it) + '</div>';
+  return h + '</div>';
+}
+function printHead(title){
+  return '<div class="phead"><div class="pt1"><span class="bt">' + esc(U.title) + '</span></div><div class="pt2"><span class="bt">' + title + '</span></div>' +
+    '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span></div></div>';
+}
+function setLine(){ return 'Set ' + seed + ' · ' + esc(SCOPES[scope]); }
+function worksheetHtml(){
+  var h = [printHead(setLine())], qn = 0;
+  if (U.notes && U.notes.length) h.push('<p class="pnotes">' + U.notes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
+  DS.forEach(function(sec){ h.push('<h2 class="psec"><span class="bt">' + sec.title + '</span></h2>'); sec.items.forEach(function(d){ qn++; h.push(pq(d, qn)); }); });
+  return h.join('');
+}
+function keyListHtml(){
+  var rows = ITEMS.map(function(it){ return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('');
+  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
+}
+function yourAnswer(it){
+  var a = S.ans[it.id];
+  if (it.type === 'text') return a == null || String(a).trim() === '' ? '' : esc(a);
+  if (it.type === 'mc') return a == null ? '' : '<b>' + LET[+a] + '.</b> ' + V.opt(it.x, +a);
+  return (a || []).map(function(k){ return '<b>' + LET[+k] + '.</b> ' + V.opt(it.x, +k); }).join('; ');
+}
+function verdict(it){
+  var R = S.res[it.id];
+  if (!R || !R.v) return answered(it) ? 'Not checked' : 'Blank';
+  if (R.v === 'right') return R.late ? '✓ Right at Finish' : R.first ? (R.helped ? '✓ First try, with help' : '✓ First try') : R.shown ? '✓ After seeing the steps' : '✓ On try ' + R.tries;
+  return R.v === 'form' ? 'Almost' : '✗ Not yet';
+}
+function resultsHtml(){
+  var t = tally(), N = ITEMS.length, test = S.mode === 'test';
+  var h = printHead('Results') + '<p class="pmeta"><span class="bt">' + setLine() + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</span></p>';
+  h += '<p class="pscore"><span class="bt"><b>' + t.first + ' / ' + N + '</b> right on the first try' + (t.helped ? ' (' + t.helped + ' with help)' : '') + '</span><span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
+    (S.done ? '' : '<span class="bt">Not finished yet.</span>') + '</p>';
+  h += '<table class="ptab pres"><thead><tr><th><span class="bt">Part</span></th><th class="r"><span class="bt">' + (test ? 'Right' : 'First try') + '</span></th></tr></thead><tbody>' +
+    DS.map(function(s, k){ return '<tr><td><span class="bt">' + s.title + '</span></td><td class="r">' + t.bySec[k].got + ' / ' + t.bySec[k].of + '</td></tr>'; }).join('') + '</tbody></table>';
+  h += '<table class="ptab pans2"><thead><tr><th>#</th><th><span class="bt">Your answer</span></th><th><span class="bt">Result</span></th><th><span class="bt">Correct answer</span></th></tr></thead><tbody>' +
+    ITEMS.map(function(it){ var R = S.res[it.id], ok = R && R.v === 'right'; return '<tr class="' + (ok ? 'ok' : 'no') + '"><td class="pk">' + esc(it.lab) + '</td><td>' + yourAnswer(it) + '</td><td><span class="bt">' + verdict(it) + '</span></td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('') + '</tbody></table>';
+  return h;
+}
+function printMenu(){
+  var test = S.mode === 'test' && !S.done;
+  ask0('What do you want to print?', [
+    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key'], ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]);
+}
+function ask0(text, opts){                                   /* the print choice, in the same bar as the other questions */
+  var c = $('confirm'); c.hidden = false; document.body.classList.add('asking');
+  c.innerHTML = '<span>' + text + '</span>' + opts.map(function(o){ return '<button type="button" class="go" data-print="' + o[0] + '"' + (o[2] ? ' disabled title="' + esc(o[2]) + '"' : '') + '>' + o[1] + '</button>'; }).join('') + '<button type="button" id="cn">Cancel</button>';
+  $('cn').onclick = function(){ closeAsk(); var b = $('bPrint'); if (b) b.focus(); };
+  var f = c.querySelector('[data-print]:not([disabled])'); if (f) f.focus();
+}
+function showPrint(kind){
+  closeAsk();
+  var pv = $('printview'); if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-label', 'Print preview'); document.body.appendChild(pv); }
+  var body = kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
+  pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button><span class="pvhint bt">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage">' + body + '</div>';
+  pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
+  $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };
+  $('pvClose').onclick = closePrint;
+  $('pvPrint').focus();
+}
+function closePrint(){ var pv = $('printview'); if (pv){ pv.hidden = true; pv.innerHTML = ''; } document.body.classList.remove('printing'); var b = $('bPrint'); if (b) b.focus(); }
+document.addEventListener('click', function(e){ var t = e.target && e.target.closest && e.target.closest('[data-print]'); if (t && !t.disabled) showPrint(t.dataset.print); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('printing')) closePrint(); });
+(function(){ var b = document.createElement('button'); b.type = 'button'; b.id = 'bPrint'; b.className = 'pbtn'; b.textContent = 'Print'; b.addEventListener('click', printMenu); var w = document.querySelector('.ctl'); if (w) w.appendChild(b); })();
+
 /* the page's words, from the unit */
 document.title = U.title;
 $('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;

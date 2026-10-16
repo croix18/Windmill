@@ -123,6 +123,35 @@ var T = {
   'Practice my misses (#)': 'Praticar meus erros (#)',
   'Practice Part #': 'Praticar a parte #',
 
+  /* print */
+  'Print': 'Imprimir',
+  'What do you want to print?': 'O que você quer imprimir?',
+  'Worksheet': 'Folha de exercícios',
+  'Worksheet + answer key': 'Folha + gabarito',
+  'My results': 'Meus resultados',
+  'Cancel': 'Cancelar',
+  'If nothing happens, use your browser’s Print (Ctrl + P).': 'Se nada acontecer, use o Imprimir do navegador (Ctrl + P).',
+  'Name:': 'Nome:',
+  'Date:': 'Data:',
+  'Answer:': 'Resposta:',
+  'Answer key': 'Gabarito',
+  'Results': 'Resultados',
+  '<b># / #</b> right on the first try': '<b># / #</b> certos de primeira',
+  '<b># / #</b> right on the first try (# with help)': '<b># / #</b> certos de primeira (# com ajuda)',
+  '# of # done': '# de # feitos',
+  'time on the clock #:#': 'tempo no cronômetro #:#',
+  'Not finished yet.': 'Ainda não terminou.',
+  'Your answer': 'Sua resposta',
+  'Result': 'Resultado',
+  'Correct answer': 'Resposta certa',
+  'Not checked': 'Não conferida',
+  'Blank': 'Em branco',
+  '✓ Right at Finish': '✓ Certa ao terminar',
+  '✓ First try, with help': '✓ De primeira, com ajuda',
+  '✓ First try': '✓ De primeira',
+  '✓ After seeing the steps': '✓ Depois de ver os passos',
+  '✓ On try #': '✓ Na tentativa #',
+
   /* the answer box */
   'like # and #': 'ex.: # e #'
 };

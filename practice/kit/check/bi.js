@@ -27,8 +27,8 @@ function checkTable(T, fails) {
         if (explicit.some(n => n < 1 || n > need)) fails.push(t + '{n} out of range in "' + k + '"');
       } else if (plain !== need) fails.push('"' + k + '" has ' + need + ' ' + t + ' but its translation has ' + plain);
     }
-    if (/\d/.test(v.replace(/[#§@¤]\{\d+\}/g, '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/g, '').replace(/[²³]/g, ''))) {
-      /* a digit typed into the Portuguese would be a number the English does not have (only "º" after a number is allowed) */
+    if (/\d/.test(v.replace(/[A-Za-z]+\d+/g, w => kk.indexOf(w) >= 0 ? '' : w).replace(/[#§@¤]\{\d+\}/g, '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/g, '').replace(/[²³]/g, ''))) {
+      /* a digit typed into the Portuguese would be a number the English does not have (a name like "M7" copied from the English is fine) */
       fails.push('a digit typed in the translation of "' + k + '": ' + v);
     }
   }
