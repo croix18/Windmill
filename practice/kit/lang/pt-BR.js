@@ -1,0 +1,131 @@
+/* Practice-test kit: the page's own words in Brazilian Portuguese (buttons, scores, menus, messages).
+   Keys are the English with every number as #, every math span or figure as §, every name as @, and every small
+   labelled piece (a ✓/✗ tag, a score piece, a jump button) as ¤ — see kit/bilingual.js. Numbers are never typed here:
+   they are carried over from the English. The unit's own words (questions, feedback, hints, steps) are in the unit's table.
+   Written 16 Oct 2026 for Croix's students from Brazil. Decimals stay with a point, as on the test and as the answer box reads them. */
+(function (root) {
+'use strict';
+var T = {
+  /* the header and the controls */
+  'Check as I go': 'Corrigir na hora',
+  'Like the real test': 'Como na prova de verdade',
+  'Whole test': 'Prova inteira',
+  'My misses, with new numbers': 'Meus erros, com números novos',
+  'My misses, with new numbers (none yet)': 'Meus erros, com números novos (nenhum ainda)',
+  'My misses, with new numbers (#)': 'Meus erros, com números novos (#)',
+  'Set <b id="setno">#</b> · ¤': 'Lista <b id="setno">#</b> · ¤',
+  'Change': 'Trocar',
+  'Set number': 'Número da lista',
+  'Go': 'Ir',
+  'New set': 'Nova lista',
+  'Start this set over': 'Recomeçar esta lista',
+  '# points': '# pontos',
+  '# point': '# ponto',
+  'Same kinds of questions as the unit test, new numbers every set.': 'Os mesmos tipos de questão da prova da unidade, com números novos em cada lista.',
+  'Give exact answers — don’t round.': 'Dê respostas exatas — não arredonde.',
+
+  /* the stopwatch bar */
+  'Pause': 'Pausar',
+  'Resume': 'Continuar',
+  'Finish': 'Terminar',
+  'Finish &amp; mark': 'Terminar e corrigir',
+  '<b>#</b> parts to answer': '<b>#</b> itens para responder',
+  '<b>#</b> part to answer': '<b>#</b> item para responder',
+  '<b>#</b> of # answered': '<b>#</b> de # respondidos',
+  'marked when you finish': 'corrigido quando você terminar',
+  '<b>#</b> right first try': '<b>#</b> certos de primeira',
+  '<b>#</b> right first try (# with help)': '<b>#</b> certos de primeira (# com ajuda)',
+  '<b>#</b> of # done': '<b>#</b> de # feitos',
+
+  /* sections */
+  'Your misses': 'Seus erros',
+  'Your misses — round #': 'Seus erros — rodada #',
+  'No misses saved on this device yet. Finish a set first, then come back to practice the ones you missed.': 'Ainda não há erros salvos neste aparelho. Termine uma lista primeiro e depois volte para praticar os que você errou.',
+
+  /* marking */
+  'Pick an answer first.': 'Escolha uma resposta primeiro.',
+  'Type an answer first.': 'Digite uma resposta primeiro.',
+  '✓ Correct': '✓ Correto',
+  'Almost': 'Quase',
+  '✗ Not yet': '✗ Ainda não',
+  'Not counted yet': 'Ainda não foi contado',
+  '✓ Correct — checked at Finish': '✓ Correto — corrigido ao terminar',
+  '✓ Correct, with help — still a point': '✓ Correto, com ajuda — ainda vale ponto',
+  '✓ Correct on the first try': '✓ Correto de primeira',
+  '✓ Correct after seeing the steps': '✓ Correto depois de ver os passos',
+  '✓ Correct on try #': '✓ Correto na tentativa #',
+  'Next time:': 'Da próxima vez:',
+  'Left blank.': 'Em branco.',
+  'Could not read the answer.': 'Não deu para ler a resposta.',
+  'Can’t read this yet:': 'Ainda não dá para ler:',
+
+  /* the buttons under a question */
+  'Next ↓': 'Próxima ↓',
+  'Show me how': 'Mostre como',
+  'Hint': 'Dica',
+  'Try another like this': 'Outra parecida',
+  'Check': 'Conferir',
+  'Close': 'Fechar',
+  'Show this step': 'Mostrar este passo',
+  '✓✓ # in a row — you’ve got this one': '✓✓ # seguidas — você já domina esta',
+  '✓ one in a row': '✓ uma seguida',
+
+  /* Show me how, and the Hint */
+  'Start': 'Começo',
+  'Answer': 'Resposta',
+  'See why it works': 'Veja por que funciona',
+  '⟵ This is the step where your answer went off.': '⟵ Foi neste passo que a sua resposta saiu do caminho.',
+  'Hint · step # of #': 'Dica · passo # de #',
+  '(shown)': '(mostrado)',
+  'Here is a picture of why:': 'Aqui está uma figura que mostra o porquê:',
+  'Here is a picture that shows it:': 'Aqui está uma figura que mostra isso:',
+  'Not quite.': 'Não exatamente.',
+  'Type just a number, like # or #.': 'Digite só um número, como # ou #.',
+
+  /* asking before a change */
+  'Leave': 'Sair',
+  'Keep working': 'Continuar trabalhando',
+  'Yes, finish': 'Sim, terminar',
+  'Switch': 'Trocar',
+  'Start over': 'Recomeçar',
+  'Leave this set? It stays saved on this device.': 'Sair desta lista? Ela fica salva neste aparelho.',
+  '# of # still blank.': '# de # ainda em branco.',
+  'Stop the clock and mark everything?': 'Parar o cronômetro e corrigir tudo?',
+  'Stop the clock and see your score?': 'Parar o cronômetro e ver a sua nota?',
+  'Switching starts this set over. Your answers will be cleared.': 'Trocar recomeça esta lista. As suas respostas serão apagadas.',
+  'This set stays saved on this device.': 'Esta lista fica salva neste aparelho.',
+  'Leave this set for a new one? This one stays saved on this device.': 'Sair desta lista e ir para uma nova? Esta fica salva neste aparelho.',
+  'Clear your answers to this set and start it again?': 'Apagar as suas respostas desta lista e começar de novo?',
+  'This set was updated since you last opened it, so it starts fresh.': 'Esta lista mudou desde a última vez que você a abriu, então ela começa do zero.',
+  'Switch to “Whole test”?': 'Trocar para “Prova inteira”?',
+  'Switch to “My misses, with new numbers”?': 'Trocar para “Meus erros, com números novos”?',
+
+  /* the results */
+  'Set #': 'Lista #',
+  'right on the first try': 'certos de primeira',
+  'right on the first try (# with help)': 'certos de primeira (# com ajuda)',
+  'right': 'certos',
+  'right (# with help)': 'certos (# com ajuda)',
+  'time on the clock': 'tempo no cronômetro',
+  'Last time: # / # in #:#.': 'Da última vez: # / # em #:#.',
+  'Today: # / # (+#).': 'Hoje: # / # (+#).',
+  'Today: # / # (−#).': 'Hoje: # / # (−#).',
+  'Today: # / #.': 'Hoje: # / #.',
+  'Every one on the first try.': 'Todos certos de primeira.',
+  'Every one right on the first check (# with help).': 'Todos certos na primeira tentativa (# com ajuda).',
+  'Part': 'Parte',
+  'First try': 'De primeira',
+  'With help': 'Com ajuda',
+  'Right': 'Certos',
+  'Not right yet:': 'Ainda não estão certos:',
+  '<b>Show me how</b> has the steps; <b>Try another like this</b> gives you a fresh one.': '<b>Mostre como</b> tem os passos; <b>Outra parecida</b> dá uma nova para você.',
+  'New whole test': 'Nova prova inteira',
+  'Practice my misses (#)': 'Praticar meus erros (#)',
+  'Practice Part #': 'Praticar a parte #',
+
+  /* the answer box */
+  'like # and #': 'ex.: # e #'
+};
+root.KitLang = root.KitLang || {}; root.KitLang['pt-BR'] = T;
+if (typeof module !== 'undefined' && module.exports) module.exports = T;
+})(this);

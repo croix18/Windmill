@@ -91,3 +91,23 @@ keyText(part) → what a student would type (for the checks)
 5. Run `python3 practice/kit/check/run.py practice/uN` until it passes.
 6. Run the Apple review (four reviewers), fix what it finds, and run again.
 7. Publish the artifact and send the download.
+
+
+## A second language under the English (16 Oct 2026)
+Croix: *"a Portuguese version of the question and explanation for my kids from Brazil … toggle it on and off."* He chose
+everything on the page, with both languages stacked (the English stays; the translation sits under each line).
+
+- **Turn it on for a unit:** add `"second": "pt-BR"` to `unit.json`, add the unit's table (`pt.js`) to its scripts, and give
+  `Unit.second = {code, name, table, names}`. The kit adds a **Português** button by the menus; the choice is remembered on the device.
+- **Off is exactly the English page** — nothing is added. **On**, `bilingual.js` watches the page and puts the translation
+  under every block of words (questions, choices, feedback, hints, Show me how, picture captions, buttons, scores, results).
+- **The math cannot change:** every number, math span, figure and name is lifted out of the English before the lookup and put
+  back into the Portuguese template unchanged (`#`, `§`, `@`; `#{2}` reorders). A sentence the table does not know shows
+  nothing (never a guess).
+- **Tables:** `lang/pt-BR.js` has the page's own words; the unit's `pt.js` has its questions and coaching. Keys are the
+  English with `#` for numbers; "That is what you get if you …" is looked up as its verb phrase (`vp:…`).
+- **Checks:** `check/bi.js` (called from the unit's `bi_check.js`): every sentence the unit produces is translated, the same
+  numbers appear, the "a = b" statements are the same and true, no English words left, every table entry uses exactly its
+  English's pieces. `check/page.js` part C: off adds nothing and on → off restores the English to the letter; through every flow
+  no sentence is missing, no duplicate ids, the numbers under each line match; typing still scores N / N with it on.
+- Decimals stay with a point (as on the test, and as the answer box reads them); "48 e 18" is read like "48 and 18".

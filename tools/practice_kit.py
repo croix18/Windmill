@@ -10,7 +10,7 @@ Edit the kit here only; then rewrite the manifest, commit, and vendor it into ea
 import hashlib, os, shutil, subprocess, sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 KIT = os.path.join(ROOT, "practice", "kit")
-FILES = ["core.js", "ui.js", "kit.css", "build.py", "README.md", "check/run.py", "check/lock.js", "check/page.js"]
+FILES = ["core.js", "bilingual.js", "ui.js", "kit.css", "lang/pt-BR.js", "build.py", "README.md", "check/run.py", "check/lock.js", "check/page.js", "check/bi.js"]
 
 def manifest(base):
     lines = ["# The practice-test kit, file by file (sha256). Written by Windmill's tools/practice_kit.py; never by hand."]

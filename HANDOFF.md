@@ -6,6 +6,19 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (16 Oct 2026) — read this first
 
+**M7 Unit 4 practice page has a Português toggle (Version 4).**
+- Croix: *"Can you create a Portuguese version of the question and explaination for my kids from brazil. I want them to be
+  able to toggle it on and off."* He chose: **everything** on the page, **both stacked** (English stays, Brazilian Portuguese under it).
+- **Kit:** `practice/kit/bilingual.js` + `lang/pt-BR.js` (page words) + `check/bi.js`; any unit can turn it on (kit README,
+  "A second language"). M7's table is `m7/practice/u4/pt.js` (713 entries); `bi_check.js` is in its checks.
+- **Rule 0:** numbers, math and names are carried over from the English, never typed. Checked: 20,000+ distinct English
+  pieces (3,000 sets + an odd-answer probe) all translated, same numbers, same "a = b" statements (each recomputed), no English
+  left; browser part C (off = the English page exactly, every flow with it on, typing still N / N).
+- An independent bilingual-teacher review of the whole table: one math-meaning risk ("# vezes mais largo") and gendered
+  wording about students fixed, plus ~40 wording fixes ("Lista" for set, "cronômetro", no "dele" in prompts).
+- Decimals stay with a point (as on the test and the answer box). The answer box now also reads "48 e 18" (m7_check + page).
+- **A7 is still on the previous kit** (no toggle; its repo can't be pushed yet). Vendor the kit there when it is.
+
 **Every practice test is now built on one template: the practice-test kit.**
 - Croix: *"build out a template that I can apply to other tests going forward"*, plus *"run the apple review"*.
 - **The Apple review** (his name for it): an engineer audit, a second engineer checking it, a Jobs lens, then a Wozniak lens.
@@ -30,7 +43,7 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
   - The "1 pt" labels stay.
   - M7 Q5a keeps its test stem while also accepting "whole rectangle + missing corner".
 - **Published:**
-  - M7 Unit 4: Version 3, same link.
+  - M7 Unit 4: Version 4 (Português toggle), same link.
   - A7 Unit 3: Version 12, same link, after all its checks passed.
 - **Repos:**
   - M7 is pushed (e4e0076).

@@ -166,7 +166,7 @@ function mountExtra(base){
   var M0 = S.more[base.id]; if (!M0) return;
   var a = atPos(U.generate(M0.seed), base.pos), id = base.id + 'x' + M0.n, it = a.item, h;
   EX[id] = {id: id, lab: base.lab + ' (another)', type: a.type, x: a.x, item: it, base: base.id, extra: true, pos: base.pos, aShown: false};
-  var head = '<div class="xq q" data-q="' + id + '"><div class="xhead">Try another like this<span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
+  var head = '<div class="xq q" data-q="' + id + '"><div class="xhead"><span class="xt">Try another like this</span><span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
   if (it.type === 'parts') h = head + partHtml(Object.assign({}, a.x, {label: ''}), id, false, EX[id].lab, true) + '</div>';
   else if (it.type === 'solo') h = head + partHtml(a.x, id, true, EX[id].lab) + '</div>';
   else h = head + '<div class="mcp" data-host="' + id + '">' + choicesHtml(it, id, EX[id].lab, it.type === 'multi') + '</div></div>';
@@ -443,7 +443,7 @@ document.addEventListener('input', function(e){
 document.addEventListener('change', function(e){
   var t = e.target;
   if (t.id && t.id.charAt(0) === 'a' && t.closest('#paper') && S.mode === 'test' && !S.done){       /* [W-7] test mode: say only "can't read this yet", nothing about right or wrong */
-    var it0 = byId(t.id.slice(1)); if (it0 && !it0.extra){ var f0 = judge(it0, 0), rd = $('rd' + it0.id); if (rd) rd.textContent = f0.v === 'unread' ? 'Can’t read this yet: ' + plainText(f0.what[0] || '') : ''; }
+    var it0 = byId(t.id.slice(1)); if (it0 && !it0.extra){ var f0 = judge(it0, 0), rd = $('rd' + it0.id); if (rd) rd.innerHTML = f0.v === 'unread' ? '<span class="kl">Can’t read this yet:</span> ' + esc(plainText(f0.what[0] || '')) : ''; }
   }
   if (!t.name || t.name.charAt(0) !== 'q' || !t.closest('#paper')) return;
   var id = t.name.slice(1), it = byId(id); if (!it) return;
@@ -509,7 +509,7 @@ function paintResult(t){
     lastLine +
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every one right on the first check (' + t.helped + ' with help).</p>' : '') +
     '<div class="tw"><table><thead><tr><th>Part</th><th class="r">' + (test ? 'Right' : 'First try') + '</th>' + (test ? '' : '<th class="r">With help</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-    (notYet.length ? '<p class="note">Not right yet: ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
+    (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
       '<p class="note"><b>Show me how</b> has the steps; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
     '<div class="btns">' + btns + '</div>';
   box.hidden = false;
@@ -608,6 +608,7 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
 /* the page's words, from the unit */
 document.title = U.title;
 $('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;
-$('intro').innerHTML = U.intro + (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
+$('intro').innerHTML = '<span class="itx">' + U.intro + '</span>' + (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
 openSet(seed, scope);
+if (K.Bi && U.second) K.Bi.mount(U, (window.KitLang || {})[U.second.code]);   /* the second-language toggle (kit/bilingual.js), when the unit has one; after the first set is drawn */
 })();

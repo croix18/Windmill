@@ -23,7 +23,7 @@ run("node " + os.path.join(KIT, "check", "page.js") + " .", UD)
 # the same hash build.py checks
 import hashlib
 h = hashlib.sha256()
-for f in ["core.js", "ui.js", "kit.css"]: h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())
+for f in ["core.js", "bilingual.js", "ui.js", "kit.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else []): h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())   # the same list as build.py
 for f in cfg["scripts"] + cfg.get("css", []): h.update(open(os.path.join(UD, f), encoding="utf-8").read().encode())
 open(os.path.join(UD, "CHECKED"), "w").write(h.hexdigest()[:16] + "\n")
 run("python3 " + os.path.join(KIT, "build.py") + " .", UD)

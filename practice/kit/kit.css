@@ -250,3 +250,20 @@ details.why summary{min-height:44px;display:flex;align-items:center}
 .walk .wkhead{display:flex;align-items:center;justify-content:space-between;gap:8px;font:14px/1.4 var(--ui);margin-bottom:8px}
 .keys{margin:8px 0 2px}                                             /* the keypad sits above the box: moving down the page it never shifts the box being tapped */
 .prt:not(.solo)>.keys{margin-left:var(--i2)}
+
+/* the second language (kit/bilingual.js): under the English, smaller, in its own colour; buttons get a second line */
+:root{--tr:#6b3fa0}
+@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--tr:#c9a8ff} }
+@media screen{ :root[data-theme="dark"]{--tr:#c9a8ff} }
+.tr{display:block;color:var(--tr);font-size:.9em;line-height:1.35;margin-top:.2em;font-weight:400;font-style:normal;letter-spacing:0}
+.tr .m,.tr i{color:inherit}
+button .trb,.tr.trb{display:block;font:500 .82em/1.2 var(--ui);margin-top:3px;opacity:.95}
+button.go .trb{color:inherit}
+.mode button .trb{font-size:.8em}
+th .tr,td .tr,.pts .tr,#score .tr,.big .tr{font-size:.8em}
+.bi-toggle{display:inline-flex;align-items:center;gap:7px;min-height:44px;font:600 14px/1 var(--ui)}
+.bi-toggle .bi-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--tr);flex:none}
+.bi-toggle[aria-pressed=true]{border-color:var(--tr);color:var(--tr)}
+.bi-toggle[aria-pressed=true] .bi-dot{background:var(--tr)}
+@media print{.tr{color:#444}}
+details.setbox summary:has(.tr){flex-wrap:wrap} details.setbox summary .tr{flex-basis:100%;margin-top:0}

@@ -130,6 +130,89 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await p.emulateMedia({ media: 'screen', colorScheme: 'light' });
   /* 11. a bad link does not open another set */
   await p.goto(url + '#set-123456'); await p.waitForTimeout(150); { const n = await p.$eval('#setno', e => e.textContent); if (n === '12345') fail('#set-123456 opened set 12345'); }
+  /* C. the second language (kit/bilingual.js), when the unit has one: off by default and then the page is exactly the
+     English page; on, every block of English has its translation underneath, through every flow, with the same numbers;
+     the page's math and marking are untouched; the choice is remembered; off again removes every line. */
+  if (U.second) {
+    const biNums = h => (String(h).replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]*>/g, ' ').match(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?/g) || []);
+    const biAudit = async (where) => {
+      const r = await p.evaluate(() => {
+        const out = { missing: Object.keys(window.__biMissing || {}), bad: [], nums: [], ids: [], blank: [] };
+        document.querySelectorAll('.tr').forEach(t => {
+          if (/\b(null|undefined|NaN)\b/.test(t.textContent)) out.bad.push(t.textContent.slice(0, 80));
+          if (!t.textContent.trim()) out.blank.push(t.parentNode.className);
+          const host = t.parentNode, en = host.cloneNode(true); en.querySelectorAll('.tr').forEach(x => x.remove());
+          out.nums.push([en.innerHTML, t.innerHTML]);
+        });
+        const seen = {}; document.querySelectorAll('[id]').forEach(e => { if (seen[e.id]) out.ids.push(e.id); seen[e.id] = 1; });
+        return out; });
+      if (r.missing.length) fail(where + ': no Portuguese for ' + r.missing.length + ': ' + r.missing.slice(0, 6).map(x => '"' + x.replace(/\s+/g, ' ').slice(0, 120) + '"').join(' | '));
+      if (r.bad.length) fail(where + ': "null/undefined/NaN" in the Portuguese: ' + r.bad[0]);
+      if (r.blank.length) fail(where + ': an empty Portuguese line under ' + r.blank[0]);
+      if (r.ids.length) fail(where + ': duplicate ids ' + r.ids.slice(0, 5).join(' '));
+      for (const [en, pt] of r.nums) { const a = new Set(biNums(en)), b = new Set(biNums(pt)); if ([...a].some(x => !b.has(x)) || [...b].some(x => !a.has(x))) { fail(where + ': numbers differ — EN "' + en.replace(/<[^>]*>/g, '').slice(0, 100) + '" PT "' + pt.replace(/<[^>]*>/g, '').slice(0, 100) + '"'); break; } }
+      return r.nums.length;
+    };
+    await fresh(p, 790);
+    if (await p.$$eval('.tr', e => e.length)) fail('second language: lines shown before the toggle is on');
+    const tog = await p.$('.bi-toggle'); if (!tog) fail('second language: no toggle'); else {
+      if ((await tog.boundingBox()).height < 44) fail('second language: toggle under 44px');
+      const en0 = await p.evaluate(() => document.body.innerText);
+      await tog.click(); await p.waitForTimeout(100);
+      if (await tog.getAttribute('aria-pressed') !== 'true') fail('second language: toggle not pressed after a tap');
+      const lang = await p.$eval('.tr', e => e.getAttribute('lang')); if (lang !== U.second.code) fail('second language: lang="' + lang + '"');
+      /* every question line, every choice, every section and button on the sheet has its line */
+      const bare = await p.evaluate((names) => Array.from(document.querySelectorAll('.stem .st, .line .st, .cv, .sechead h2, #paper button')).filter(e => e.offsetParent && /[A-Za-z]{3}/.test(e.textContent.replace(new RegExp('\\b(?:' + names.join('|') + ')\\b', 'g'), '')) && !e.querySelector('.tr')).map(e => e.textContent.slice(0, 60)), U.second.names || []);
+      if (bare.length) fail('second language: no line under ' + bare.length + ': ' + bare.slice(0, 4).join(' | '));
+      await biAudit('the sheet');
+      /* off again: the page is the English page, to the letter */
+      await tog.click(); await p.waitForTimeout(100);
+      if (await p.$$eval('.tr', e => e.length)) fail('second language: lines left after turning it off');
+      if (await p.evaluate(() => document.body.innerText) !== en0) fail('second language: the English page changed after on → off');
+      await tog.click(); await p.waitForTimeout(100);
+      /* remembered */
+      await p.reload(); await p.waitForTimeout(200);
+      if (await p.$eval('.bi-toggle', e => e.getAttribute('aria-pressed')) !== 'true' || !(await p.$$eval('.tr', e => e.length))) fail('second language: not remembered after a reload');
+      /* every flow with it on: wrong answers and their feedback, Hint (wrong choice, two wrong numbers, Show this step), Show me how,
+         pictures, Try another, a right answer, Finish, the results, the confirm, test mode and its "can't read", the misses menu */
+      const its = itemsOf(790), TT = its.filter(i => i.kind === 'text'), MM = its.filter(i => i.kind === 'mc');
+      for (const it of its) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
+      for (const it of TT.slice(0, 6)) {
+        const steps = U.walk(it.x, 'text') || []; if (!steps.length) continue;
+        await p.click('[data-walk="' + it.id + '"]');
+        for (let j = 0; j < steps.length; j++) {
+          if (steps[j].type === 'choice') { const bad = steps[j].opts.findIndex(o => !o.ok), ok = steps[j].opts.findIndex(o => o.ok); if (bad >= 0) await p.click('[data-wopt="' + it.id + '|' + j + '|' + bad + '"]'); await p.click('[data-wopt="' + it.id + '|' + j + '|' + ok + '"]'); }
+          else { for (let t = 0; t < 2; t++) { await p.fill('#wn' + it.id, '987654'); await p.click('[data-wnum="' + it.id + '"]'); } await p.fill('#wn' + it.id, 'abc'); await p.click('[data-wnum="' + it.id + '"]'); await p.click('[data-wgive="' + it.id + '"]'); }
+        }
+      }
+      await biAudit('hints');
+      for (const it of its) await p.evaluate(id => { const b = document.querySelector('[data-all="' + id + '"]'); if (b) b.click(); }, it.id);
+      await biAudit('Show me how');
+      await p.click('[data-another="' + TT[0].id + '"]'); await p.waitForTimeout(80);
+      for (const it of [TT[1], MM[0]].filter(Boolean)) { await answer(p, it); await check(p, it.id); }
+      await p.click('#bFinish'); await biAudit('the confirm'); await p.click('#cy'); await p.waitForTimeout(100);
+      await biAudit('the results');
+      await p.click('details.setbox summary'); await biAudit('the set box');
+      await p.selectOption('#scope', 'p2'); await p.waitForTimeout(100); if (await p.isVisible('#cy')) await p.click('#cy'); await p.waitForTimeout(200);
+      await biAudit('one part, two rounds');
+      await p.click('.mode button[data-mode="test"]'); if (await p.isVisible('#cy')) await p.click('#cy'); await p.waitForTimeout(100);
+      { const t0 = await p.$('#paper input[type=text]'); if (t0) { await t0.fill('((3'); await p.focus('#bFinish'); await p.waitForTimeout(80); } }
+      await biAudit('test mode');
+      /* typing still works with it on: every key on one set scores N / N */
+      await p.click('.mode button[data-mode="practice"]'); if (await p.isVisible('#cy')) await p.click('#cy');
+      await p.goto(url + '#set-791'); await p.waitForTimeout(200);
+      { const i7 = itemsOf(791); for (const it of i7) { await answer(p, it); await check(p, it.id); }
+        const st = await state(p, 791); const n = Object.values(st.res).filter(r => r.first === true).length; if (n !== i7.length) fail('second language on: typed keys scored ' + n + ' / ' + i7.length); }
+      await biAudit('a whole set right');
+      /* pair answers typed the Portuguese way: "48 e 18" */
+      const pr = itemsOf(792).filter(i => i.x.kind === 'pair')[0];
+      if (pr) { await p.goto(url + '#set-792'); await p.waitForTimeout(200); const a = pr.x.pairs[0]; const E = require(path.join(dir, 'engine.js'));
+        await p.fill('#a' + pr.id, E.numStr(a[0]).replace(/,/g, '') + ' e ' + E.numStr(a[1]).replace(/,/g, '')); await check(p, pr.id);
+        const st = await state(p, 792); if (!st.res[pr.id] || st.res[pr.id].v !== 'right') fail('"a e b" not marked right on the page'); }
+      await p.click('.bi-toggle'); await p.waitForTimeout(80); if (await p.$$eval('.tr', e => e.length)) fail('second language: lines left after turning it off (end)');
+    }
+    console.log('C. second language checked');
+  }
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();
   console.log('B. flows checked');

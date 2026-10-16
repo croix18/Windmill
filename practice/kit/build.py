@@ -2,12 +2,13 @@
 
 Reads <unit>/unit.json:
   {"title": "...", "file": "m7-unit-4-practice-test.html", "download": "M7 Unit 4 Practice Test.html",
-   "css": ["fig.css", "unit.css"], "scripts": ["engine.js", "fig.js", "coach.js", "unit.js"]}
+   "css": ["fig.css", "unit.css"], "scripts": ["engine.js", "fig.js", "coach.js", "pt.js", "unit.js"],
+   "second": "pt-BR"}                      ← optional: the second-language toggle, with kit/lang/pt-BR.js
 and writes, in the unit folder:
   <file>      the artifact body (the claude.ai publisher adds the document skeleton)
   preview.html and <download>   the same page as a complete document (doctype, lang, charset): for Google Sites,
               Netlify Drop, or opening locally.
-Order: kit/core.js, the unit's scripts (their last one sets window.Unit), kit/ui.js. Refuses to build when the unit's
+Order: kit/core.js, kit/bilingual.js, kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit), kit/ui.js. Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
 import hashlib, json, os, sys
 KIT = os.path.dirname(os.path.abspath(__file__))
@@ -17,9 +18,10 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
+KITFILES = ["core.js", "bilingual.js", "ui.js", "kit.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 def source_hash():
     h = hashlib.sha256()
-    for f in ["core.js", "ui.js", "kit.css"]: h.update(rk(f).encode())
+    for f in KITFILES: h.update(rk(f).encode())
     for f in cfg["scripts"] + cfg.get("css", []): h.update(ru(f).encode())
     return h.hexdigest()[:16]
 if "--force" not in sys.argv:
@@ -47,7 +49,8 @@ body = f"""<title>{esc(cfg['title'])}</title>
   <div id="paper"></div>
 </main>
 <script>{rk('core.js')}</script>
-""" + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n"
+<script>{rk('bilingual.js')}</script>
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n"
 open(os.path.join(UD, cfg["file"]), "w", encoding="utf-8").write(body)
 title = body.split("\n", 1)[0]
 full = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
