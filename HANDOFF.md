@@ -4,7 +4,48 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (15 Oct 2026) — read this first
+## Where things stand (16 Oct 2026) — read this first
+
+**Every practice test is now built on one template: the practice-test kit.**
+- Croix: *"build out a template that I can apply to other tests going forward"*, plus *"run the apple review"*.
+- **The Apple review** (his name for it): an engineer audit, a second engineer checking it, a Jobs lens, then a Wozniak lens.
+  - A closing check followed the rebuild.
+  - All five reports are in `practice/apple-review-2026-10-15.md`.
+  - The worst findings:
+    - **A7:** a known mistake gave the right answer in most sets (e.g. adding instead of multiplying the exponents in (2²)²).
+    - **Both:** Finish ignored typed but unchecked answers, Cancel couldn't close the confirm, focus was lost, the Hint could
+      dead-end, and M7 Q4a gave away Q4b.
+    - **The closing check:** two tabs on one set looped, a false "set was updated" notice appeared, and an echo-hint rewrite
+      had put "null" in a solution.
+  - Everything confirmed is fixed and has a check.
+- **The kit:**
+  - Master: `practice/kit/` (README = spec + the unit interface). Vendored with `tools/practice_kit.py --vendor` into
+    `m7/practice/kit` and `a7/practice/kit`. Edit it here only.
+  - **Per-slot random streams** plus `sets.lock.json`, so set numbers stay the same; bump `contentVersion` when a set changes.
+  - **The clean rule:** no modelled mistake, printed number or other part's answer may equal an answer.
+  - **Run everything:** `check/run.py` runs the unit's checks, the lock and the browser checks (page.js), writes
+    CHECKED, and builds. build.py refuses to build without CHECKED.
+- **Decisions kept (his earlier ones):**
+  - The Hint still ends with the answer.
+  - The "1 pt" labels stay.
+  - M7 Q5a keeps its test stem while also accepting "whole rectangle + missing corner".
+- **Published:**
+  - M7 Unit 4: Version 3, same link.
+  - A7 Unit 3: Version 12, same link, after all its checks passed.
+- **Repos:**
+  - M7 is pushed (e4e0076).
+  - Windmill is pushed: the kit (0e72daa) and this note.
+  - A7 is committed locally only (89d1056); its token still returns 401.
+- **Next unit:** follow the skill "practice-test-from-unit-test" (proposed to Croix 16 Oct), and the "apple-review" skill.
+- **Tracking students' answers** (asked 15 Oct):
+  - Plan A: an Apps Script web app plus a Sheet, if IT opens Apps Script.
+  - Plan B: a "Turn in my results" button that opens a prefilled Google Form at Finish.
+  - Plan C: screenshots on Classroom.
+  - Nothing built yet.
+- **Google Sites:** update the existing embed in place, so students keep their saved progress (a new embed may get a new
+  origin and lose it).
+
+## Where things stand (15 Oct 2026)
 
 **M7 U4 practice, Version 2 (15 Oct, later).** A student answered Q5a with the whole rectangle and the missing corner and was
 marked wrong. Croix: *"either way works."*
