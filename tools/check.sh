@@ -32,6 +32,9 @@ if [ -d "$A7/.git" ] && [ -d "$M7/.git" ]; then node drive/test_windyhill.js "$A
 echo "== room"
 python3 tools/check_fixtures.py
 node room/test.js
+echo "== practice kit (the practice-test pages both courses vendor)"
+python3 tools/practice_kit.py --check
+
 echo "== kit (the build kit both courses vendor)"
 python3 tools/kit_manifest.py --check
 if python3 -c "import sympy, docx, pptx, matplotlib, PIL" 2>/dev/null; then
