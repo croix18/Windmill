@@ -1060,3 +1060,5 @@ session; repositories are created by Croix. A token pasted into a chat is burned
   `validate.py`, `spine.json` (150 school days, 74 benchmarks, 253 IXL skills, 28 holidays, bell from
   Deckhand 7.38), `room.schema.json`, `room-reader.js` with both code forms, `benchmarks.json` v1,
   ten fixtures, `test.js` (14 checks), check/push scripts, CI.
+
+- 16 Oct (late): Windmill and M7 pushes had raced a parallel session (plan: M7 Units 9–10 move up); rebased cleanly, M7 practice rechecked (ALL CHECKS PASSED), pushed and verified (Windmill 691fb93, M7 fa56253). A7 U3 rechecked on the new kit (ALL CHECKS PASSED). A7 committed locally 0dcf3b9 (ahead 14; token 401). Republished: M7 U4 v6, A7 U3 v14; A7 U4 v1 is https://claude.ai/artifact/YJ2zpoFWzqc9mueqRVmwoX. Open for Croix: Q14b follow-through ✗ vs ✓ (ruling 19).
