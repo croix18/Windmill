@@ -6,6 +6,11 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (16 Oct 2026) — read this first
 
+**Print (16 Oct, Version 5 of M7):** Croix: *"Can I get the ability to print?"* He chose worksheet + key and student
+results, on every page, following the Português toggle. Kit `ui.js` Print button → Worksheet / Worksheet + answer key / My
+results (results only after Finish in test mode); preview first, then only the printout on paper. Page check part D. A7 gets it
+when its checks finish and its page is republished.
+
 **M7 Unit 4 practice page has a Português toggle (Version 4).**
 - Croix: *"Can you create a Portuguese version of the question and explaination for my kids from brazil. I want them to be
   able to toggle it on and off."* He chose: **everything** on the page, **both stacked** (English stays, Brazilian Portuguese under it).
@@ -43,7 +48,7 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
   - The "1 pt" labels stay.
   - M7 Q5a keeps its test stem while also accepting "whole rectangle + missing corner".
 - **Published:**
-  - M7 Unit 4: Version 4 (Português toggle), same link.
+  - M7 Unit 4: Version 5 (Português toggle, Print), same link.
   - A7 Unit 3: Version 12, same link, after all its checks passed.
 - **Repos:**
   - M7 is pushed (e4e0076).
