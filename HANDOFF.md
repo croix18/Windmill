@@ -53,6 +53,15 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (16 Oct 2026, earlier: the practice kit)
 
+**A7 Unit 4 practice page built (16 Oct, Version 1, new artifact).** Croix: *"Can you build the a7 unit 4 practice?"*
+He chose: same-skill stand-ins for the two transfer items (Q6 rate × time, Q18 a·x² at a negative x); on significant-digit
+answers, standard form is "Almost + a nudge"; English only (no Português). `a7/practice/u4/` (README). Checks: u4_check
+3,000 sets (printed question read back and matched to the key, 14/14 planted incl. source edits), sympy verify, lock, page.
+Apple review: no wrong key; fixed false Hint sentences, gameable patterns (longest choice, top Hint button, fixed select-all
+traps), freezes on odd input — `practice/apple-review-a7u4-2026-10-16.md`. **For Croix:** Q14b follow-through stays ✗ with a
+note (as M7), though ruling 19 gives the point on paper. Kit: keypad by kind, text Hint boxes, print notes/blanks — vendored to
+both courses; M7 and A7 U3 rechecked and republished. A7 repo still local-only (token 401).
+
 **Print (16 Oct, Version 5 of M7):** Croix: *"Can I get the ability to print?"* He chose worksheet + key and student
 results, on every page, following the Português toggle. Kit `ui.js` Print button → Worksheet / Worksheet + answer key / My
 results (results only after Finish in test mode); preview first, then only the printout on paper. Page check part D. A7 gets it

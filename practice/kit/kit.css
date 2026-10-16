@@ -305,3 +305,5 @@ body.printing{background:#e9ecf1}
   .ppage{box-shadow:none;padding:0}
   @page{margin:14mm 13mm}
 }
+.keys button[hidden]{display:none}
+.pblank.short{min-width:4em}

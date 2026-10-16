@@ -353,7 +353,7 @@ function walkHtml(it){
         return '<button type="button" class="wopt' + (bad ? ' bad' : '') + '" data-wopt="' + it.id + '|' + k + '|' + j + '"' + (bad ? ' disabled' : '') + '>' + o.label + '</button>'; }).join('') + '</div>';
       if (W.bad[k] != null) h += '<div class="wwhy"><span class="wno">✗</span> ' + s.opts[W.bad[k]].why + '</div>' + (s.pic ? walkPic(it, 'Here is a picture of why:') : '');
     } else {
-      h += '<div class="wnum"><input type="text" inputmode="decimal" id="wn' + it.id + '" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(W.typed[k] || '') + '" aria-label="Your answer to this step"><button type="button" class="go" data-wnum="' + it.id + '">Check</button></div>';
+      h += '<div class="wnum"><input type="text" id="wn' + it.id + '" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(W.typed[k] || '') + '" aria-label="Your answer to this step"><button type="button" class="go" data-wnum="' + it.id + '">Check</button></div>';
       if (W.bad[k] === 'read') h += '<div class="wwhy"><span class="wq">?</span> Type just a number, like 12 or 28.26.</div>';
       else if (W.bad[k] != null) h += '<div class="wwhy"><span class="wno">✗</span> Not quite. ' + s.hint + '</div>' + (s.pic ? walkPic(it, 'Here is a picture that shows it:') : '');
       if ((W.miss[k] || 0) >= 2) h += '<div class="wgive"><button type="button" data-wgive="' + it.id + '">Show this step</button></div>';   /* [R1-3] never a dead end */
@@ -408,7 +408,7 @@ document.addEventListener('toggle', function(e){ var d = e.target; if (d && d.da
 
 /* ------------------------------------------------ typing */
 var keys = document.createElement('div'); keys.className = 'keys'; keys.hidden = true;
-(U.keypad || []).forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; b.textContent = k.label; b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
+(U.keypad || []).forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; b.textContent = k.label; if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
 keys.addEventListener('pointerdown', function(e){ if (e.target.dataset.k) e.preventDefault(); });
 keys.addEventListener('click', function(e){
   var lab = e.target.dataset.k, el = keys.target; if (!lab || !el || el.readOnly) return;
@@ -425,6 +425,10 @@ document.addEventListener('focusin', function(e){
   var t = e.target;
   if (!(t.matches && t.matches('#paper input[type=text]') && !t.readOnly && !(t.id && t.id.indexOf('wn') === 0) && (U.keypad || []).length)) return;
   if (keys.target === t && !keys.hidden) return;
+  /* only the keys this kind of answer uses (a unit's keypad entry may name its kinds); none → no keypad */
+  var kind = t.dataset.kind || '', shown = 0;
+  Array.prototype.forEach.call(keys.children, function(b){ var ks = b.dataset.kinds; b.hidden = !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
+  if (!shown){ hideKeys(); keys.target = null; return; }
   var y0 = t.getBoundingClientRect().top;
   var row = t.closest('.ans') || t.parentNode; keys.target = t; row.parentNode.insertBefore(keys, row); keys.hidden = false;
   var dy = t.getBoundingClientRect().top - y0; if (dy) window.scrollBy(0, dy);
@@ -612,7 +616,7 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
 function pq(d, qn){
   var it = d.it, h = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
-  var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + '<span class="pblank"></span>' + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
+  var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : blank(p)) + '</div>'; });
   else if (it.type === 'solo') h += '<div class="ppart">' + blank(it.part) + '</div>';
@@ -626,7 +630,8 @@ function printHead(title){
 function setLine(){ return 'Set ' + seed + ' · ' + esc(SCOPES[scope]); }
 function worksheetHtml(){
   var h = [printHead(setLine())], qn = 0;
-  if (U.notes && U.notes.length) h.push('<p class="pnotes">' + U.notes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
+  var pnotes = U.notesPrint || U.notes;                       /* paper is not a keyboard: a unit may give notes for print */
+  if (pnotes && pnotes.length) h.push('<p class="pnotes">' + pnotes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
   DS.forEach(function(sec){ h.push('<h2 class="psec"><span class="bt">' + sec.title + '</span></h2>'); sec.items.forEach(function(d){ qn++; h.push(pq(d, qn)); }); });
   return h.join('');
 }

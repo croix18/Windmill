@@ -120,3 +120,10 @@ student's answer, how it went, the right answer; in "Like the real test" only af
 own Print button; on paper only the printout shows, dark on white. With Português on, the printout has it too.
 Checked by `check/page.js` part D (same stems as the screen, a blank or choices for every part, the key equals what the page
 marks right, results match, only the printout on paper, Close restores the page, Portuguese covered).
+
+## Small kit additions from the A7 Unit 4 review (16 Oct 2026)
+- **Keypad by kind:** a keypad entry may carry `kinds: ['sci', 'num', …]`; a box shows only the keys for its part's kind, and
+  no keypad at all when none apply (a "how many significant digits" box gets none).
+- **Hint number boxes** are plain text boxes: a phone's decimal pad has no minus and no slash, and many Hint steps need them.
+- **Print:** a unit may give `notesPrint` (paper is not a keyboard) and `view.blank(part)` (e.g. "___ × 10^__" for
+  scientific-notation answers).
