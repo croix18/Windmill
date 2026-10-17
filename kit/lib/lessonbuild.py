@@ -537,8 +537,9 @@ def build_unit_deck(lessons, rows, U, outdir):
             _fill_deck(D, L)
         pitch = min(0.46, (FOOT_Y - 0.12 - 1.95) / max(1, len(rows)))     # eleven rows still end above the footer
         y = 1.95
+        tsz = D.title_size([t for _, t in rows], 20 if pitch < 0.455 else 22)   # one size for every row
         for (label, title), i in zip(rows, starts):
-            D.link_row(contents, y, (label, title), f"slide {i + 1}", D.slide_ref(i), pitch=pitch)
+            D.link_row(contents, y, (label, title), f"slide {i + 1}", D.slide_ref(i), pitch=pitch, title_size=tsz)
             y += pitch
         path = os.path.join(outdir, names.unit(unit, "All Slides", ext))
         D.save(path, sidecar=False, **({"console": True} if ext == "html" else {}))

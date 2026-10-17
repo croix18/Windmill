@@ -291,7 +291,16 @@ class Deck:
         self._foot()
         return self.s
 
-    def link_row(self, slide, y, left, right, target, pitch=0.46):
+    @staticmethod
+    def title_size(titles, size=22, width=7.5):
+        """The one type size at which every title in `titles` sits on a contents row's single line
+        — the rows share it, so a long title does not sit beside a large one."""
+        sz = size
+        while sz > 14 and any(_textw(t, sz) > width for t in titles):
+            sz -= 1
+        return sz
+
+    def link_row(self, slide, y, left, right, target, pitch=0.46, title_size=None):
         """One contents row that jumps to `target` when clicked: label and title on the left,
         the slide's position in the file on the right. `pitch` is the row spacing: a unit with
         more than ten rows closes it up (and steps the type down) so the last row clears the footer."""
@@ -300,7 +309,11 @@ class Deck:
         tight = pitch < 0.455
         h, sz = (pitch - 0.03, 20) if tight else (0.44, 22)
         a = self._text(LM + 0.4, y, 1.45, h, left[0], sz, bold=True, anchor="middle")
-        b = self._text(LM + 1.95, y, 7.6, h, left[1], sz, anchor="middle")
+        # a long title steps its type down until it sits on one line: at 22 pt a title of fifty
+        # characters wrapped under the row below it (M7 Unit 9's contents, 17 Oct — three of
+        # eight titles overlapped their neighbours)
+        tsz = min(sz, title_size or self.title_size([left[1]], sz))
+        b = self._text(LM + 1.95, y, 7.6, h, left[1], tsz, anchor="middle")
         c = self._text(LM + 9.6, y, 1.6, h, right, 17 if not tight else 16, italic=True, color=GRAY, align="right", anchor="middle")
         for shape in (a, b, c):
             shape.click_action.target_slide = target
