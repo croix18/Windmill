@@ -142,7 +142,7 @@ function mount(U, lang){
   var btn = document.createElement('button');
   btn.type = 'button'; btn.className = 'bi-toggle'; btn.setAttribute('lang', sec.code);
   btn.innerHTML = '<span class="bi-dot" aria-hidden="true"></span>' + sec.name;
-  var where = document.querySelector('.ctl'); if (where) where.appendChild(btn);
+  var where = document.querySelector('.ctl'); if (where){ var tl = where.querySelector('.tools'); if (!tl){ tl = document.createElement('div'); tl.className = 'tools'; where.appendChild(tl); } tl.appendChild(btn); }
   var missing = root.__biMissing = root.__biMissing || {};
   function add(el, inner){
     if (el.querySelector(':scope > .tr')) return;

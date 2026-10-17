@@ -93,7 +93,7 @@ function inputHtml(p, id, lab){
   var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p);
   return '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
     '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
-    (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
+    (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
 }
 function tailHtml(id){
   return '<div class="fb" id="fb' + id + '" aria-live="polite"></div><div class="more" id="mo' + id + '"></div>' +
@@ -104,7 +104,7 @@ function choicesHtml(x, id, lab, multi){
   x.opts.forEach(function(o, k){
     q.push('<label class="ch" id="ch' + id + LET[k] + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q' + id + '" value="' + k + '"><span class="box' + (multi ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></label>');
   });
-  q.push('</div><div class="ckrow"><button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button></div>' + tailHtml(id));
+  q.push('</div><div class="ckrow"><button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></div>' + tailHtml(id));
   return q.join('');
 }
 function partHtml(p, id, solo, lab, lone){
@@ -283,7 +283,7 @@ function paintItem(it){
   var R = S.res[it.id], fb = $('fb' + it.id), mo = $('mo' + it.id), st = $('st' + it.id), wl = $('wl' + it.id);
   var testHidden = S.mode === 'test' && !S.done && !it.extra;
   ['is-right','is-wrong','is-form'].forEach(function(c){ host.classList.remove(c); });
-  if (testHidden){ if (!FLASH[it.id]) fb.innerHTML = ''; mo.innerHTML = ''; st.hidden = true; wl.hidden = true; paintChoices(it, null); return; }
+  if (testHidden){ if (!FLASH[it.id]) fb.innerHTML = ''; mo.innerHTML = ''; var hs0 = $('hs' + it.id); if (hs0) hs0.innerHTML = ''; st.hidden = true; wl.hidden = true; paintChoices(it, null); return; }
   var sol = solOf(it), n = sol ? sol.length : 1;
   R = R || {tries: 0, v: null, steps: 0};
   if (R.v) host.classList.add(R.v === 'right' ? 'is-right' : R.v === 'form' ? 'is-form' : 'is-wrong');
@@ -300,7 +300,9 @@ function paintItem(it){
   var missed = (R.v && R.v !== 'right') || R.shown || (R.v === 'right' && R.first === false);
   if (!it.extra && missed && !S.more[it.id]) b.push('<button type="button" class="' + (R.v === 'right' || all ? 'go' : '') + '" data-another="' + it.id + '">Try another like this</button>');
   if (it.extra && R.v === 'right') b.push('<button type="button" class="go" data-another="' + it.base + '">Try another like this</button>');
-  mo.innerHTML = b.join('');
+  var hs = $('hs' + it.id), hintOnly = b.length === 1 && /data-walk=/.test(b[0]) && !R.v && !(R.tries > 0);   /* [D-8] before any try the Hint sits beside Check, not on a row of its own */
+  if (hs) hs.innerHTML = hintOnly ? b[0] : '';
+  mo.innerHTML = hintOnly ? '' : b.join('');
   st.hidden = !(R.steps > 0); if (R.steps > 0) st.innerHTML = stepsHtml(it, R);
   wl.hidden = !walkOn; if (walkOn) wl.innerHTML = walkHtml(it);
   paintChoices(it, R.v ? R : null);
@@ -686,7 +688,7 @@ function showPrint(kind){
 function closePrint(){ var pv = $('printview'); if (pv){ pv.hidden = true; pv.innerHTML = ''; } document.body.classList.remove('printing'); var b = $('bPrint'); if (b) b.focus(); }
 document.addEventListener('click', function(e){ var t = e.target && e.target.closest && e.target.closest('[data-print]'); if (t && !t.disabled) showPrint(t.dataset.print); });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('printing')) closePrint(); });
-(function(){ var b = document.createElement('button'); b.type = 'button'; b.id = 'bPrint'; b.className = 'pbtn'; b.textContent = 'Print'; b.addEventListener('click', printMenu); var w = document.querySelector('.ctl'); if (w) w.appendChild(b); })();
+(function(){ var b = document.createElement('button'); b.type = 'button'; b.id = 'bPrint'; b.className = 'pbtn'; b.textContent = 'Print'; b.addEventListener('click', printMenu); var w = document.querySelector('.ctl'); if (w){ var tl = w.querySelector('.tools'); if (!tl){ tl = document.createElement('div'); tl.className = 'tools'; w.appendChild(tl); } tl.appendChild(b); } })();
 
 /* the page's words, from the unit */
 document.title = U.title;

@@ -307,3 +307,22 @@ body.printing{background:#e9ecf1}
 }
 .keys button[hidden]{display:none}
 .pblank.short{min-width:4em}
+
+/* ---- design audit, 17 Oct 2026 (Croix: "make sure they are looking clean and really good and kid friendly") ---- */
+.ctl{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}   /* [D-4] fixed rows: mode / scope + tools; nothing rearranges after a Check */
+.ctl .mode{grid-column:1/-1;justify-self:start}
+.ctl select{min-width:0;max-width:24rem;width:100%}
+.ctl .tools{display:flex;gap:10px;align-items:center}                /* Print and the language toggle move together */
+@media (max-width:480px){ .ctl:has(.bi-toggle) .tools{grid-column:1/-1} }
+.keys{gap:5px} .keys button{width:auto;min-width:42px;padding:7px 9px}   /* [D-2,3] "× 10^" fits; six keys fit a phone row */
+.mode button[aria-pressed=true] .trb{color:inherit;opacity:.85}      /* [D-5] the translation reads on the pressed button */
+details.why summary{flex-wrap:wrap} details.why summary .tr{flex-basis:100%;margin-top:0}   /* [D-6] */
+.ch:has(.fr){align-items:center} .ch:has(.fr) .box{align-self:center;margin-top:0}         /* [D-7] the circle centres on a fraction */
+.hslot:empty{display:none} .hslot button{padding:8px 14px;font-size:13.5px;min-height:44px}  /* [D-8] the first Hint beside Check */
+.result .jump{min-width:3.4em;text-align:center}                     /* [D-10] even chips */
+@media (max-width:480px){ .result .nry{display:block;margin-bottom:6px} .watch .score .tr{display:none} .more button{flex:1 1 auto} }   /* [D-10,11, nit] */
+th .tr,td .tr,.pts .tr,#score .tr,.big .tr{font-size:max(.8em,12px)}  /* [D-11] no translation under 12px */
+.steps .kv{flex:1 1 8rem}                                            /* ANSWER tag and value on one line */
+.ans .unit{min-width:2.4em}                                          /* a steadier Check column */
+.pbar{padding-inline:clamp(14px,5vw,40px)}                           /* the Print bar lines up with the sheet */
+@media print{ .hslot{display:none!important} }
