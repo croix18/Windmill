@@ -637,16 +637,20 @@ class Deck:
         n = len(opts)
         if any("$" in o.replace("\\$", "") for o in opts):
             cols = [(LM + 1.0, 5.0), (LM + 6.3, 5.0)]
-            hmax = [0.0, 0.0]
+            # one row per pair of options; a select-all with five options has three rows (the
+            # two-row list shipped IndexError on M7 9.08 board 6, 17 Oct). A row's pitch is read
+            # from the taller option in it, and the rows above it are complete before it starts.
+            rows = (n + 1) // 2
+            hmax = [0.0] * rows
             for i, o in enumerate(opts):
                 cx, _ = cols[i % 2]
                 r = i // 2
                 col = RED if correct == i else INK
-                yy = y + (hmax[0] + 0.22 if r else 0.0)
+                yy = y + sum(hmax[:r]) + 0.22 * r
                 self._text(cx, yy + 0.06, 0.65, 0.5, f"{chr(65 + i)}.", size, bold=True, color=col)
                 _, hh = self._mixed(o, cx + 0.62, yy, "slidemid", size, col, correct == i)
                 hmax[r] = max(hmax[r], hh)
-            self.cursor = y + hmax[0] + 0.22 + hmax[1] + 0.2
+            self.cursor = y + sum(hmax) + 0.22 * (rows - 1) + 0.2
             return
 
         def lines_in(o, width, i, sz=size):
