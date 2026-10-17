@@ -54,3 +54,5 @@ for k, path in out.items():
     pdf = path.rsplit(".", 1)[0] + ".pdf"
     assert os.path.exists(pdf), pdf
     print("built", os.path.basename(path), "+ pdf")
+# the merged PDFs: every teacher's edition, every lesson plan, the papers, the keys (Croix, 17 Oct)
+unitbuild.merge_pdfs(outdir, lessons, m.U)

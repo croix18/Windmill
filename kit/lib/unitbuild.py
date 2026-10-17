@@ -16,6 +16,7 @@ from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capc
                           balancecheck_lesson, COURSE, PREFIX, _fmt_q, _ev)
 from . import slotmark
 from . import figkit
+from .profile import C
 
 # Ruling 33 (24 September): a unit test ships as Form A and Form B, plus the practice test — three
 # parallel forms, no number lining up. A spec may give `assessment.forms = {"A": sections,
@@ -240,7 +241,7 @@ def build_paper(U, outdir, key):
     assert len(transfer) == need, f"ruling 18: {len(transfer)} transfer items, need exactly {need} (questions {transfer})"
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}  ·  Assessment"
     sub = f"{total} points" + ("  ·  two periods; students continue the same paper" if key else "")
-    doc = Doc(eyebrow, U["title"], sub, key=key)
+    doc = Doc(eyebrow, U["title"], sub, key=key, font=getattr(C, "PAPER_FONT", None))
     doc.instruction("Show your work. Circle your final answer.")
     doc.para(CONTINUES, size=10, bold=True, before=0, after=3)
     doc.para(FOLLOW_THROUGH_STUDENT, size=9.5, italic=True, color=GRAY, before=0, after=8)
@@ -402,7 +403,7 @@ def build_form(U, outdir, key, form="test", student=False):
     what = "Assessment" if is_test else "Practice Test"
     eyebrow = f"{COURSE}  \u00b7  Unit {U['unit']}  \u00b7  {what}"
     sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + ("  \u00b7  two class periods" if is_test else "")
-    doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student,
+    doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student, font=getattr(C, "PAPER_FONT", None),
               banner="WORKED ANSWERS" if student else "ANSWER KEY")
     if is_test:
         doc.instruction(TWO_DAY_LINE)
@@ -475,3 +476,46 @@ def build_unit(U, outdir):
         out[f"{form}_wa"] = build_form(U, outdir, key=True, form=form, student=True)   # ruling 32
     print(f"forms: {', '.join(unit_forms(A))} — parallel, transfer positions agree, no answer shared")
     return out
+
+
+def merge_pdfs(outdir, lessons, U):
+    """Croix, 17 October ("a similar all-files-in-one thing for the rest of the stuff"): the unit's
+    documents merged into one PDF per kind, in teaching order — every teacher's edition, every
+    lesson plan, the assessment papers (each form's paper, then its key, then its worked answers),
+    and the keys alone (lesson keys in order, then the papers' keys). Each starts from the built
+    per-document PDFs, so nothing is laid out twice. Returns {kind: path}."""
+    from pypdf import PdfWriter, PdfReader
+    unit = U["unit"]
+    def pdf(name):
+        q = os.path.join(outdir, name)
+        return q if os.path.exists(q) else None
+    forms = unit_forms(U["assessment"])
+    form_kind = lambda f: "Practice Test" if f == "practice" else (f"Test Form {f}" if f != "test" else "Test")
+    sets = {
+        "All Teacher Editions": [pdf(names.lesson(L, "Teacher Edition", "pdf")) for L in lessons],
+        "All Lesson Plans": [pdf(names.lesson(L, "Lesson Plan", "pdf")) for L in lessons],
+        "All Assessments": [pdf(names.unit(unit, form_kind(f), "pdf", key=k, worked=w))
+                            for f in forms for k, w in ((False, False), (True, False), (False, True))],
+        "All Keys": [pdf(names.lesson(L, kind, "pdf", key=True)) for L in lessons
+                     for kind in ("Independent Set", "Question Bank", "Additional Question Bank")]
+                    + [pdf(names.unit(unit, form_kind(f), "pdf", key=True)) for f in forms],
+    }
+    out = {}
+    for kind, files in sets.items():
+        files = [f for f in files if f]
+        if not files:
+            continue
+        w = PdfWriter()
+        for f in files:
+            r = PdfReader(f)
+            start = len(w.pages)
+            for pg in r.pages:
+                w.add_page(pg)
+            w.add_outline_item(os.path.basename(f)[:-4].split(names.SEP, 1)[-1], start)   # a bookmark per document
+        path = os.path.join(outdir, names.unit(unit, kind, "pdf"))
+        with open(path, "wb") as fh:
+            w.write(fh)
+        out[kind] = path
+        print("built", os.path.basename(path), f"({len(files)} documents, {len(w.pages)} pages)")
+    return out
+

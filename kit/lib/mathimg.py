@@ -30,7 +30,7 @@ INDEX = os.path.join(FIGS, "index.json")
 DPI = 300
 # One digit size per surface. Documents: 13 pt (body is 11 pt; larger on purpose, §8).
 # Slides: whiteboard display 40 pt, inline 26 pt.
-SIZES = {"doc": 13, "docbig": 16, "slide": 26, "slidebig": 40, "slidemid": 32,
+SIZES = {"doc": 13, "docbig": 16, "lexdoc": 13, "slide": 26, "slidebig": 40, "slidemid": 32,
          # a line of WORKING on an answer slide: its words are set at this same size (deckkit.step_sizes)
          "slidestep": 24.5, "slidestepmid": 29}
 
@@ -374,8 +374,8 @@ def m(latex, surface="doc", color="1A1A1A", slots=False):
     if not named:
         latex = slotmark.strip(latex)
         slots = slots and AUTO_SLOTS
-    if surface.startswith("slide"):
-        latex, pt, face = slide_form(latex, pt)          # ruling 40: a slide's mathematics is in Lexend
+    if surface.startswith("slide") or surface.startswith("lex"):
+        latex, pt, face = slide_form(latex, pt)          # ruling 40: a slide's mathematics is in Lexend; ruling 46: a paper set in Lexend too ("lexdoc")
     # the slot renderer's version is part of the fingerprint: a render from an older drawing rule
     # can never be served again (v1 drew fraction bars one thickness low — removed 28 Sep)
     stamp = NAMED_VERSION if named else (SLOTS_VERSION if slots else color)

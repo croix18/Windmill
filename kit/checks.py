@@ -35,7 +35,7 @@ from lib import slotmark, names
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
-NATIVE_DOC_FONTS = {"Times New Roman", "Georgia", "FreeSerif", "Arial"}
+NATIVE_DOC_FONTS = {"Times New Roman", "Georgia", "FreeSerif", "Arial", "Lexend"}   # Lexend: a Google Font Docs has, the papers' face (ruling 46)
 # the slide font (ruling 40); Arial for a sign Lexend lacks and Times New Roman (bold) for pi — the
 # faces Google Slides has, where the PowerPoint is run (ruling 41); DejaVu Sans for a sign Arial lacks too
 DECK_FONTS = {"Lexend", "Arial", "Times New Roman", "DejaVu Sans"}
@@ -318,7 +318,9 @@ def check_pdftwin(files):
             lessons[t[1]] = (os.path.basename(f), [t[k] for k in sorted(t)])
     for u in unit_decks:
         t = pptx_texts(u)
-        seq = [t[k] for k in sorted(t)]
+        # a lesson's title slide in the unit deck carries one thing its own deck does not: the
+        # "\u2190 Contents" link back to the contents slide (17 Oct) — read past it
+        seq = [re.sub(r"\s*\u2190\s+Contents\s*$", "", t[k]) for k in sorted(t)]
         i, used = 2, set()
         while i < len(seq):
             if seq[i] not in lessons:

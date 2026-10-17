@@ -88,13 +88,17 @@ def _grid(t, widths):
 
 class Doc:
     def __init__(self, eyebrow, title, sub, key=False, name_block=True, margins=1440,
-                 banner="ANSWER KEY"):
+                 banner="ANSWER KEY", font=None):
         self.key = key
         self.banner = banner          # ruling 32: a student's copy says WORKED ANSWERS
+        # ruling 46 (Croix, 17 Oct: "the tests and assessments need to be made in the lexend font"):
+        # a document may name its face; the assessment papers pass Lexend, and their mathematics
+        # is then set in Lexend too (mathimg's "lexdoc" surface). Everything else keeps the body font.
+        self.font = font or BODY_FONT
         self.d = Document()
         st = self.d.styles["Normal"]
-        st.font.name = BODY_FONT; st.font.size = Pt(11); st.font.color.rgb = _rgb(INK)
-        st.element.rPr.rFonts.set(qn("w:eastAsia"), BODY_FONT)
+        st.font.name = self.font; st.font.size = Pt(11); st.font.color.rgb = _rgb(INK)
+        st.element.rPr.rFonts.set(qn("w:eastAsia"), self.font)
         st.paragraph_format.space_after = Pt(0)
         sec = self.d.sections[0]
         sec.page_width = Twips(12240); sec.page_height = Twips(15840)
@@ -159,6 +163,8 @@ class Doc:
                 self._run(p, part, size, bold, italic, color)
 
     def img(self, p, latex, surface="doc", color=INK):
+        if surface == "doc" and self.font == "Lexend":
+            surface = "lexdoc"            # the paper's mathematics in the paper's face (ruling 46)
         path, w, h = mathimg.m(latex, surface, color)
         r = p.add_run()
         r.add_picture(path, width=Inches(w), height=Inches(h))
@@ -215,7 +221,7 @@ class Doc:
                 txt = content.get("text", "") if isinstance(content, dict) else (content or "")
                 txt = slotmark.strip(str(txt)).replace("\\$", "")          # \$ is money, not a math delimiter
                 for part in re.findall(r"\$[^$]+\$", txt):
-                    _, mw, _ = mathimg.m(part[1:-1], "doc", INK)
+                    _, mw, _ = mathimg.m(part[1:-1], "lexdoc" if self.font == "Lexend" else "doc", INK)
                     avail = widths[ci] / 1440 - 200 / 1440
                     if mw > avail:
                         raise RuntimeError(f"math in a table cell is wider than its column "
@@ -291,7 +297,8 @@ class Doc:
         if name_block:
             for i, lab in enumerate(("Name", "Date", "Period")):
                 if i: p = c1.add_paragraph(); p.paragraph_format.space_after = Pt(0)
-                self._run(p, lab + ("_" * (26 - len(lab)) if not self.key else ""), 10)
+                width = 22 if self.font == "Lexend" else 26      # Lexend's underscore is wider: 26 wrapped the Name line (17 Oct)
+                self._run(p, lab + ("_" * (width - len(lab)) if not self.key else ""), 10)
         self.spacer(1)
         self.rule(14, 2, 0); self.rule(4, 0, 4)
 

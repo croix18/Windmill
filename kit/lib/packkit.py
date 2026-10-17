@@ -6,6 +6,7 @@ the same in both courses. So a unit's package is
     <COURSE> Unit N - <Unit Title>/
         00 - START HERE.md                          written by the course's own install_unit.py
         All Slides/                                 the whole unit in one deck (and, where a course builds HTML, its console)
+        All in One/                                 merged PDFs: every teacher's edition, every lesson plan, the papers, the keys
         Lessons/<N.NN>/                             everything for that day; docx/pptx and pdf together
         Lessons/<N.NN>/Keys/                        that lesson's answer keys — never beside a student page
         Review Day/                                 a review day built as a lesson (deck, TE, plan)
@@ -58,6 +59,7 @@ def place(name, specs):
     head = p[0]
     form = re.fullmatch(r"Test Form ([A-Z])", head)
     return ("All Slides" if head == "All Slides" else
+            "All in One" if head in names.ALL_IN_ONE else
             names.REVIEW_DAY if head == names.REVIEW_DAY else
             "Review" if head == "Review" else
             os.path.join("Assessment", "Practice Test") if head == "Practice Test" else
