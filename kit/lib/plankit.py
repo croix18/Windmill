@@ -82,6 +82,8 @@ def _plan_sections(L, deck_path, outdir):
             t, s_ = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Copy the target."
         elif b["kind"] == "warmup":
             t, s_ = "Two minutes silent, then reveal. One sentence of reteach per question at most.", "Four retrieval questions, alone, no notes."
+        elif b["kind"] == "vocab":
+            t, s_ = "Read each new word and its meaning once; the notes use them next.", "Copy the words."
         elif b["kind"] == "notes":
             t, s_ = "Teach from the front. Expand once per law; say the OFF line out loud.", "Copy the notes; answer the checks aloud."
         elif b["kind"] == "example":
@@ -289,6 +291,7 @@ def _moves(b):
         "title": ("Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Settle, copy the target."),
         "warmup": ("Two minutes silent, then reveal; one sentence of reteach per question at most.",
                    "Four retrieval questions from memory, on their own, no notes."),
+        "vocab": ("Read each new word and its meaning once; the notes use them next.", "Copy the words."),
         "notes": ("Teach from the front; the off-slide sentence is said, not shown.",
                   "Copy the notes; answer the questioning prompts on a count."),
         "example": ("Work the example aloud, naming the step before doing it.",

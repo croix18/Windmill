@@ -606,6 +606,16 @@ def _fill_deck(D, L):
     D.section("Warm-Up", "Answers.", 1, "Reveal. Ask for the band each question came from only if time allows.", "warmup")
     D.no_band(); D.cursor = TOP
     D.warmup_answers([(f"{i + 1}.   " + q["stem"], q["answer"]) for i, q in enumerate(wu)])
+    # ---- vocabulary: one slide of the lesson's new terms, after the warm-up and before the notes
+    # (Croix, 17 October 2026: "the notes use words like coefficient and constant but don't ever
+    # define them. Can I get one vocabulary slide at the beginning of each lesson where the lesson
+    # introduces new terms."). A lesson's `vocab` is the terms it introduces; `vocab_slide=False`
+    # keeps the slide out of a lesson whose vocab is only carried over.
+    if L.get("vocab") and L.get("vocab_slide", True):
+        D.section("Vocabulary", "The new words, before they are used.", 1,
+                  L.get("vocab_note", "Read each word and its meaning once; the notes use them next. Students copy the words, not the definitions."), "vocab")
+        D.no_band(); D.cursor = TOP
+        D.items(list(L["vocab"]), size=22 if len(L["vocab"]) <= 3 else 20, letters=False)
     # ---- notes
     for ni, note in enumerate(L["notes"]):
         D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
