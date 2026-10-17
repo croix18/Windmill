@@ -503,6 +503,9 @@ def merge_pdfs(outdir, lessons, U):
                      for kind in ("Independent Set", "Question Bank", "Additional Question Bank")]
                     + [pdf(names.unit(unit, kind, "pdf", key=True)) for kind in review + [form_kind(f) for f in forms]],
     }
+    # and everything in one: lesson by lesson (teacher's edition, then plan), then the papers and keys
+    sets["All Documents"] = [f for L in lessons for f in (pdf(names.lesson(L, "Teacher Edition", "pdf")), pdf(names.lesson(L, "Lesson Plan", "pdf")))] \
+                            + sets["All Assessments"] + [f for f in sets["All Keys"] if f and f not in sets["All Assessments"]]
     out = {}
     for kind, files in sets.items():
         files = [f for f in files if f]

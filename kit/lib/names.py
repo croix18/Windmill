@@ -32,9 +32,9 @@ SEP = " - "
 # ---- what a file can be: the only words that may follow the stem
 LESSON_KINDS = ("Slides", "Teacher Edition", "Lesson Plan", "Question Bank", "Additional Question Bank",
                 "Independent Set", "Handout")
-UNIT_KINDS = ("All Slides", "All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys",
+UNIT_KINDS = ("All Slides", "All Documents", "All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys",
               "Reference Sheet", "Review", "Test", "Test Form A", "Test Form B", "Practice Test", "Question Bank")
-ALL_IN_ONE = ("All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys")   # merged PDFs (Croix, 17 Oct)
+ALL_IN_ONE = ("All Documents", "All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys")   # merged PDFs (Croix, 17 Oct)
 REVIEW_DAY = "Review Day"                 # "<unit stem> - Review Day - Slides"
 KEY, WORKED = "Key", "Worked Answers"
 

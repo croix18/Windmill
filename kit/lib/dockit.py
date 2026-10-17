@@ -86,6 +86,39 @@ def _grid(t, widths):
     tw = OxmlElement("w:tblW"); tw.set(qn("w:w"), str(sum(widths))); tw.set(qn("w:type"), "dxa"); tblPr.append(tw)
 
 
+_VULGAR = {(1, 2): "\u00bd", (1, 4): "\u00bc", (3, 4): "\u00be",
+           (1, 8): "\u215b", (3, 8): "\u215c", (5, 8): "\u215d", (7, 8): "\u215e"}
+_SUP = str.maketrans("0123456789", "\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079")
+_SUB = str.maketrans("0123456789", "\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089")
+
+
+def linear_text(latex):
+    """A linear expression as plain text in the document's own face, or None when the LaTeX
+    needs typesetting (an exponent, a radical, anything else the words cannot carry). Handled:
+    digits, letters, + − × ÷ = ≠ ( ) . , spaces, \\frac{a}{b} with digit numerator and
+    denominator — NOT handled: a fraction keeps the whole expression typeset and stacked, as FAST
+    sets it (the vulgar-glyph path below is kept for a course that wants it), \\left \\right, \\times,
+    \\div, \\cdot, \\ne, \\le, \\ge, \\pi, and LaTeX spacing. Every hyphen becomes a true minus."""
+    t = latex
+    t = re.sub(r"\\(left|right)\b", "", t)
+    t = re.sub(r"\\(quad|qquad|;|,|:|!)", " ", t)
+    def frac(m):
+        a, b = int(m.group(1)), int(m.group(2))
+        return _VULGAR.get((a, b)) or (m.group(1).translate(_SUP) + "\u2044" + m.group(2).translate(_SUB))
+    if re.search(r"\\(?:t|d)?frac", t):
+        return None          # a fraction stays stacked, as FAST sets it: the whole expression is typeset
+    t = re.sub(r"\\(?:t|d)?frac\{(\d+)\}\{(\d+)\}", frac, t)
+    for cmd, ch in (("times", "\u00d7"), ("div", "\u00f7"), ("cdot", "\u00b7"), ("ne", "\u2260"),
+                    ("le", "\u2264"), ("ge", "\u2265"), ("pi", "\u03c0")):
+        t = re.sub(r"\\" + cmd + r"\b", ch, t)
+    if "\\" in t or "^" in t or "_" in t or "{" in t or "}" in t:
+        return None
+    if not re.fullmatch(r"[0-9A-Za-z+=().,?:\s\u2212\u00d7\u00f7\u00b7\u2260\u2264\u2265\u03c0\u00bd\u00bc\u00be\u215b-\u215e\u2070-\u2079\u00b9\u00b2\u00b3\u2080-\u2089\u2044-]*", t):
+        return None
+    t = t.replace("-", "\u2212")
+    return re.sub(r"\s+", " ", t).strip()
+
+
 class Doc:
     def __init__(self, eyebrow, title, sub, key=False, name_block=True, margins=1440,
                  banner="ANSWER KEY", font=None):
@@ -152,7 +185,16 @@ class Doc:
             if not part:
                 continue
             if part.startswith("$") and part.endswith("$"):
-                self.img(p, part[1:-1].replace("\ue000", "\\$"), color=color)
+                latex = part[1:-1].replace("\ue000", "\\$")
+                words = linear_text(latex) if self.font == "Lexend" else None
+                if words is not None:
+                    # ruling 46: in a Lexend paper a linear expression is set as text in the
+                    # paper's own face, on the text baseline — an inline picture sits with its
+                    # lowest ink on the baseline, so one with a parenthesis or a fraction rode
+                    # high ("some of the numbers look like they're floating", Croix, 17 Oct)
+                    self._run(p, words, size, bold, italic, color)
+                else:
+                    self.img(p, latex, color=color)
                 continue
             part = part.replace("\ue000", "$")
             if part.startswith("**"):
