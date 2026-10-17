@@ -489,16 +489,19 @@ def merge_pdfs(outdir, lessons, U):
     def pdf(name):
         q = os.path.join(outdir, name)
         return q if os.path.exists(q) else None
-    forms = unit_forms(U["assessment"])
+    A = U["assessment"]
+    forms = list(unit_forms(A)) if has_forms(A) else ["test"] + (["practice"] if A.get("practice") else [])
     form_kind = lambda f: "Practice Test" if f == "practice" else (f"Test Form {f}" if f != "test" else "Test")
+    review = ["Review"] if U.get("review") else []          # a review that is a paper (A7) sits with the assessments
     sets = {
         "All Teacher Editions": [pdf(names.lesson(L, "Teacher Edition", "pdf")) for L in lessons],
         "All Lesson Plans": [pdf(names.lesson(L, "Lesson Plan", "pdf")) for L in lessons],
-        "All Assessments": [pdf(names.unit(unit, form_kind(f), "pdf", key=k, worked=w))
-                            for f in forms for k, w in ((False, False), (True, False), (False, True))],
+        "All Assessments": [pdf(names.unit(unit, kind, "pdf", key=k, worked=w))
+                            for kind in review + [form_kind(f) for f in forms]
+                            for k, w in ((False, False), (True, False), (False, True))],
         "All Keys": [pdf(names.lesson(L, kind, "pdf", key=True)) for L in lessons
                      for kind in ("Independent Set", "Question Bank", "Additional Question Bank")]
-                    + [pdf(names.unit(unit, form_kind(f), "pdf", key=True)) for f in forms],
+                    + [pdf(names.unit(unit, kind, "pdf", key=True)) for kind in review + [form_kind(f) for f in forms]],
     }
     out = {}
     for kind, files in sets.items():
