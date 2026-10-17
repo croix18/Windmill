@@ -3,8 +3,8 @@
 :root{
   --ground:#e9ecf1; --paper:#ffffff; --ink:#15171c; --mut:#5a6270; --rule:#c9ced8; --field:#f4f6fa;
   --pen:#1a3f95; --ok:#1b7a45; --no:#b3261e; --warn:#8a5200; --bar:#ffffff; --shadow:0 1px 2px rgba(20,30,60,.08),0 8px 28px rgba(20,30,60,.08);
-  --serif:"Tinos","Times New Roman",Times,"Liberation Serif",serif;
-  --ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:"Lexend","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;   /* ruling 46: Lexend everywhere (Croix, 17 Oct: "Can you make it in the lexend font?") — the name --serif stays so no rule moves */
+  --ui:"Lexend",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 @media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --ground:#0f1116; --paper:#1a1d24; --ink:#e7e9ee; --mut:#9aa2b1; --rule:#353a46; --field:#232733;
@@ -326,3 +326,11 @@ th .tr,td .tr,.pts .tr,#score .tr,.big .tr{font-size:max(.8em,12px)}  /* [D-11] 
 .ans .unit{min-width:2.4em}                                          /* a steadier Check column */
 .pbar{padding-inline:clamp(14px,5vw,40px)}                           /* the Print bar lines up with the sheet */
 @media print{ .hslot{display:none!important} }
+
+/* ---- Lexend (ruling 46), 17 Oct 2026: it has no italic, so nothing is set in italic; Lexend runs wide, so a notch smaller ---- */
+body{font-size:16px;line-height:1.45}
+.pts,.pt,.total,.ans .pre,.pmeta,em,i,.m i{font-style:normal}   /* variables upright too: Lexend has no italic and a faux slant is the one thing it should not do */
+.pts,.pt{font-weight:500}
+h1{font-size:22px;letter-spacing:-.01em} h2{font-size:17.5px}
+input[type=text],textarea,.wnum input{font-size:16px}
+.eyebrow{letter-spacing:.08em}

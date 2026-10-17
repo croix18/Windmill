@@ -30,7 +30,7 @@ if "--force" not in sys.argv:
 
 esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
 body = f"""<title>{esc(cfg['title'])}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
 <style>{rk('kit.css')}{''.join(ru(c) for c in cfg.get('css', []))}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
