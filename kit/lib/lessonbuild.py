@@ -1049,6 +1049,13 @@ def _te_lines(L, deck_path, outdir):
         head = s["title"] + (f" \u2014 {s['sub']}" if s.get("sub") else "")
         te._run(p, head + ("  " if head.endswith((".", "?", "!")) else ".  "), 10.5, bold=True)   # no ".." after a subtitle that ends in a period
         te.rich(p, line, size=10.5)
+        if s["kind"] == "warmup" and "Answers" not in (s.get("sub") or ""):
+            # rule 5's marker: four retrieves lines, each naming the question's band and the lesson
+            # it retrieves from (§16: "the teacher's edition lists, per question, the lesson it
+            # retrieves from" — the spec carried them and no page printed them until 17 Oct)
+            for k, w in enumerate(L["warmup"]):
+                if w.get("source") or w.get("band"):
+                    te.rich(p, f"   {k + 1} retrieves {w.get('source', '')} ({w.get('band', '')}).", size=9.5, italic=True, color=GRAY)
         i += 1
 
     # ---------------- misconceptions, tied to the board that surfaces each
@@ -1128,9 +1135,20 @@ def _te_table(L, deck_path, outdir):
             line = (s_["note"] or "").replace("OFF:", "").strip()
             line = " ".join(x.strip() for x in line.split("\n") if x.strip())
             te.slide_line(head, line, f"{s_['min']} min" if s_["min"] else "")
+            if s_["kind"] == "warmup":
+                # rule 5's marker, in the table-style edition too: one retrieves line per question
+                for k, w in enumerate(L["warmup"]):
+                    if w.get("source") or w.get("band"):
+                        q = te.para("", before=0, after=1, indent=300)
+                        te.rich(q, f"{k + 1} retrieves {w.get('source', '')} ({w.get('band', '')}).", size=9, italic=True, color=GRAY)
 
     # ---- the boards: answer, named wrong answers, what to say on a split
     te.h1("The Boards")
+    if L["te"].get("variation"):
+        # rule 2's marker: the Variation note on the teacher's edition itself, not only in the
+        # question bank (§16: "every worksheet's teacher's edition carries a two-line Variation
+        # note" — the bank had it and the TE did not until 17 Oct)
+        te.body(f"**Variation.** {L['te']['variation']}")
     data = [["#", "Question", "Answer", "A wrong board says"]]
     for i, q in enumerate(L["whiteboard"]):
         qt = board_text(q, " ")
@@ -1141,7 +1159,7 @@ def _te_table(L, deck_path, outdir):
             et = (et + "; " if et else "") + f"[{q['unneeded']} is not needed — ruling 22]"
         data.append([str(i + 1), qt, {"text": ans, "bold": True, "italic": True, "color": RED}, et])
     te.table([340, 2860, 2140, 4020], data, header=True, size=9)
-    te.body(f"**On a split:** {REVOTE}")
+    te.body(f"**On a split:** {REVOTE[len('Split — '):] if REVOTE.startswith('Split — ') else REVOTE}")   # the label once, not "On a split: Split —"
 
     # ---- the six in-class questions, answers only (they are on the slide, not a handout)
     if not L.get("no_set"):
