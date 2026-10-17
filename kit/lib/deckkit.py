@@ -265,6 +265,16 @@ class Deck:
     def slide_ref(self, i):
         return self.p.slides[i]
 
+    def back_link(self, slide, target, label="\u2190 Contents"):
+        """A small grey link in a slide's top-right corner that jumps to `target` (the unit deck's
+        contents slide), so a lesson's title slide can get back to the list it was reached from
+        (Croix, 17 Oct: the contents should link to the sections)."""
+        prev = self.s
+        self.s = slide
+        t = self._text(LM + CW - 2.2, 0.22, 2.2, 0.32, label, 12, color=GRAY, align="right")
+        t.click_action.target_slide = target
+        self.s = prev
+
     def start_lesson(self, lesson_label, title, footer, code=None, plan=None):
         """Switch the running title and footer to the next lesson and restart its slide numbers,
         so a lesson inside the unit deck is numbered exactly as its own deck and its Teacher

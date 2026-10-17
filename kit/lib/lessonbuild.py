@@ -541,6 +541,8 @@ def build_unit_deck(lessons, rows, U, outdir):
         for (label, title), i in zip(rows, starts):
             D.link_row(contents, y, (label, title), f"slide {i + 1}", D.slide_ref(i), pitch=pitch, title_size=tsz)
             y += pitch
+            if hasattr(D, "back_link"):
+                D.back_link(D.slide_ref(i), contents)       # each lesson's title slide jumps back to the contents
         path = os.path.join(outdir, names.unit(unit, "All Slides", ext))
         D.save(path, sidecar=False, **({"console": True} if ext == "html" else {}))
         paths.append(path)
