@@ -337,7 +337,14 @@ class Deck:
                 xx = x + (0.77 if letters else 0.12)
                 if letters:
                     self._text(x + 0.12, y + 0.07, 0.6, 0.42, f"{chr(65 + start + i)}.", size, color=INK)
-                tw, h = self._mixed(text, xx, y + 0.05, "slidemid", size, INK, bold, slots=slots)
+                if isinstance(row, tuple):
+                    # a vocab row whose definition carries mathematics: the term in blue bold, then
+                    # the definition as a mixed row beside it (17 Oct 2026: the Vocabulary slide)
+                    tw = self.measure(term, "slidemid", size + 2) + 0.1
+                    self._text(xx, y + 0.07, tw + 0.2, 0.5, term, size + 2, bold=True, color=VOCAB)
+                    tw2, h = self._mixed("—   " + rest, xx + tw + 0.15, y + 0.05, "slidemid", size, INK, False, slots=slots)
+                else:
+                    tw, h = self._mixed(text, xx, y + 0.05, "slidemid", size, INK, bold, slots=slots)
                 y += h + 0.18 + gap
                 continue
             lines = max(1, int(len(slotmark.strip(text)) * (size / 23) / 82) + 1)

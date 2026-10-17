@@ -588,6 +588,50 @@ def _bare_math(row):
     return r.startswith("$") and r.endswith("$") and r.count("$") == 2
 
 
+def _vocab_body(D, vocab, size):
+    """The term in blue, its definition under it. A definition with mathematics is a run of mixed
+    rows, each cut at a clause boundary so that it fits the slide (a mixed row does not wrap)."""
+    for term, rest in vocab:
+        D.text(term, size + 2, bold=True, color=VOCAB)
+        D.cursor -= 0.12
+        if "$" not in rest.replace("\\$", ""):
+            D.text(rest, size, x=LM + 0.4, w=CW - 0.4)
+        else:
+            pieces = re.split(r"(?<=[,;.])\s+|\s+(?=\u2014)", rest)   # clauses: after , ; . and before —
+            line = ""
+            def fits(t):               # on a scratch deck of its own: this may run inside a _trial
+                return _trial(lambda S: S._mixed(t, LM + 0.4, 1.0, "slidemid", size, INK, False), scratch=_SCRATCH2)
+            words = []
+            for piece in pieces:
+                if fits(piece):
+                    words.append(piece)
+                else:                      # a long clause: cut at spaces outside the mathematics
+                    words += re.findall(r"\$[^$]*\$|\S+", piece)
+            for piece in words:
+                cand = (line + " " + piece).strip()
+                if line and not fits(cand):
+                    D.math_row(line, surface="slidemid", gap=0.08, size=size, align="left", x=LM + 0.4)
+                    line = piece
+                else:
+                    line = cand
+            if line:
+                D.math_row(line, surface="slidemid", gap=0.08, size=size, align="left", x=LM + 0.4)
+        D.cursor += 0.14
+
+
+def _vocab_slide(D, vocab):
+    """The Vocabulary slide, at the largest size that fits: 22 pt, then down to 16 (three long
+    definitions with mathematics — A7 4.04 — need the step)."""
+    for size in (22, 20, 18, 16):
+        def go(S, size=size):
+            S.cursor = TOP
+            _vocab_body(S, vocab, size)
+        if _trial(go):
+            _vocab_body(D, vocab, size)
+            return
+    raise RuntimeError("the Vocabulary slide cannot hold the lesson's terms at 16 pt \u2014 shorter definitions, or fewer terms")
+
+
 def _fill_deck(D, L):
     """Every slide of one lesson, appended to D. Colour (the slots, HOUSE STYLE §2a) goes on the
     surfaces where the teacher shows — Notes, worked examples, and every reveal — and is withheld
@@ -615,7 +659,7 @@ def _fill_deck(D, L):
         D.section("Vocabulary", "The new words, before they are used.", 1,
                   L.get("vocab_note", "Read each word and its meaning once; the notes use them next. Students copy the words, not the definitions."), "vocab")
         D.no_band(); D.cursor = TOP
-        D.items(list(L["vocab"]), size=22 if len(L["vocab"]) <= 3 else 20, letters=False)
+        _vocab_slide(D, L["vocab"])
     # ---- notes
     for ni, note in enumerate(L["notes"]):
         D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
@@ -780,11 +824,16 @@ def _room_for_answer(D, q):
 _SCRATCH = []
 
 
-def _trial(draw):
-    """Does this layout fit a slide? Drawn on a scratch PowerPoint that is never saved."""
-    if not _SCRATCH:
-        _SCRATCH.append(Deck(C.COURSE, 0, "trial", "trial", "trial"))
-    S = _SCRATCH[0]
+_SCRATCH2 = []
+
+
+def _trial(draw, scratch=None):
+    """Does this layout fit a slide? Drawn on a scratch PowerPoint that is never saved. A trial
+    run inside another trial's drawing takes its own scratch deck (`scratch`)."""
+    scratch = _SCRATCH if scratch is None else scratch
+    if not scratch:
+        scratch.append(Deck(C.COURSE, 0, "trial", "trial", "trial"))
+    S = scratch[0]
     S.section("trial", "", 0, "", "content")
     try:
         draw(S)
@@ -1071,6 +1120,8 @@ def _te_table(L, deck_path, outdir):
             continue
         for s_ in b["subs"]:
             if (s_.get("sub") or "").strip() in ("Answer.", "Answers."):
+                continue
+            if s_["kind"] == "vocab":       # its words are the edition's Vocabulary section; the line is the warm-up's
                 continue
             head = f"{s_['n']}. {s_['title']}" + (f" — {s_['sub']}" if s_["sub"] else "")
             line = (s_["note"] or "").replace("OFF:", "").strip()

@@ -82,6 +82,8 @@ def _plan_sections(L, deck_path, outdir):
             t, s_ = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Copy the target."
         elif b["kind"] == "warmup":
             t, s_ = "Two minutes silent, then reveal. One sentence of reteach per question at most.", "Four retrieval questions, alone, no notes."
+            if any(x["kind"] == "vocab" for x in b["subs"]):
+                t += " Then the new words, read once."; s_ += " Then copy the new words."
         elif b["kind"] == "vocab":
             t, s_ = "Read each new word and its meaning once; the notes use them next.", "Copy the words."
         elif b["kind"] == "notes":

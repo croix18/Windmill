@@ -91,6 +91,12 @@ def plan_from_sidecar(path):
         seg = s["title"] if s["kind"] != "wb" else "Whiteboards"
         if s["kind"] == "title":
             seg = "Settle in; post the learning target"
+        if s["kind"] == "vocab" and blocks:
+            # the Vocabulary slide (17 Oct 2026) rides with the warm-up in the timing table: one
+            # row, its minute added — the table's row count is what the teacher's edition's first
+            # page was laid out for, and the edition prints the vocabulary in its own section
+            blocks[-1]["last"] = s["n"]; blocks[-1]["min"] += s["min"]; blocks[-1]["subs"].append(s)
+            continue
         if blocks and blocks[-1]["seg"] == seg:
             blocks[-1]["last"] = s["n"]; blocks[-1]["min"] += s["min"]; blocks[-1]["subs"].append(s)
         else:
