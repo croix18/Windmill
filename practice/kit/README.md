@@ -144,8 +144,9 @@ no italics anywhere — Lexend has none; variables upright). The math is drawn b
 a shadow root, converts the kit's math HTML inside it (fractions `.fr/.nu/.de`, radicals `.rad/.rc/.ri`, `<sup>`, `<i>`
 variables, the symbols × · ÷ − ≈ π …) to a TeX string with `toTex()`, and renders it there. **The HTML is not changed** —
 checks, keys, the Português engine and screen readers read the same markup as before; only the picture changes. KaTeX
-(0.16.11) loads from cdnjs; without it (no network, an old browser, a string KaTeX refuses) the span shows the kit's own
-HTML through a `<slot>` — the 17 Oct look. page.js part E (served KaTeX from `check/vendor/`, no network) requires: every
+(0.16.11) is **inlined by the build** from `vendor/katex/` with eight woff2 faces as data URIs (~+450 KB; claude.ai artifacts and
+filtered school networks block CDNs); without it (an old browser, a string KaTeX refuses) the span shows the kit's own
+HTML through a `<slot>` — the 17 Oct look. page.js part E (no network needed) requires: every
 math span on the page drawn by KaTeX, none fallen back; and over 60 sets every stem, line, option, key and worked line
 renders with `throwOnError` and its TeX keeps the HTML's digits and letters in order (`Kit.Tex.skeleton`). Rule of thumb
 for unit authors: write math as the kit's HTML inside `M()`; TeX comes for free. Text in a math span becomes `\text{…}`;

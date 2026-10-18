@@ -10,6 +10,7 @@ and writes, in the unit folder:
               Netlify Drop, or opening locally.
 Order: kit/core.js, kit/bilingual.js, kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit), kit/ui.js. Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
+import re
 import hashlib, json, os, sys
 KIT = os.path.dirname(os.path.abspath(__file__))
 if len(sys.argv) < 2: sys.exit(__doc__)
@@ -18,7 +19,21 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+def katex_css():
+    """KaTeX's stylesheet with the shipped fonts inlined (woff2 only); faces not shipped fall back to KaTeX_Main."""
+    import base64
+    css = open(os.path.join(KIT, "vendor", "katex", "katex.min.css"), encoding="utf-8").read()
+    fdir = os.path.join(KIT, "vendor", "katex", "fonts")
+    def face(m):
+        block = m.group(0); name = re.search(r"url\(fonts/(KaTeX_[A-Za-z0-9-]+)\.woff2\)", block)
+        if not name: return block
+        fp = os.path.join(fdir, name.group(1) + ".woff2")
+        if not os.path.exists(fp): return ""
+        b64 = base64.b64encode(open(fp, "rb").read()).decode()
+        return re.sub(r"src:[^;}]*", 'src:url(data:font/woff2;base64,' + b64 + ') format("woff2")', block)
+    return re.sub(r"@font-face\{[^}]*\}", face, css)
+
 def source_hash():
     h = hashlib.sha256()
     for f in KITFILES: h.update(rk(f).encode())
@@ -50,7 +65,7 @@ body = f"""<title>{esc(cfg['title'])}</title>
 </main>
 <script>{rk('core.js')}</script>
 <script>{rk('bilingual.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 open(os.path.join(UD, cfg["file"]), "w", encoding="utf-8").write(body)
 title = body.split("\n", 1)[0]
 full = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'

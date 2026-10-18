@@ -10,7 +10,7 @@ Edit the kit here only; then rewrite the manifest, commit, and vendor it into ea
 import hashlib, os, shutil, subprocess, sys
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 KIT = os.path.join(ROOT, "practice", "kit")
-FILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "check/vendor/katex.min.js", "check/vendor/katex.min.css", "lang/pt-BR.js", "build.py", "README.md", "check/run.py", "check/lock.js", "check/page.js", "check/bi.js"]
+FILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "vendor/katex/fonts/KaTeX_Main-Regular.woff2", "vendor/katex/fonts/KaTeX_Main-Bold.woff2", "vendor/katex/fonts/KaTeX_Math-Italic.woff2", "vendor/katex/fonts/KaTeX_Size1-Regular.woff2", "vendor/katex/fonts/KaTeX_Size2-Regular.woff2", "vendor/katex/fonts/KaTeX_Size3-Regular.woff2", "vendor/katex/fonts/KaTeX_Size4-Regular.woff2", "vendor/katex/fonts/KaTeX_AMS-Regular.woff2", "lang/pt-BR.js", "build.py", "README.md", "check/run.py", "check/lock.js", "check/page.js", "check/bi.js"]
 
 def manifest(base):
     lines = ["# The practice-test kit, file by file (sha256). Written by Windmill's tools/practice_kit.py; never by hand."]

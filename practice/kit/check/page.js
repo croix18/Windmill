@@ -34,8 +34,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await new Promise(res => server.listen(0, '127.0.0.1', res)); url = 'http://127.0.0.1:' + server.address().port + '/preview.html';
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }), p = await ctx.newPage();
-  /* KaTeX is served from the kit's own copy (check/vendor), so the TeX layer runs without the network; fonts 404 → fallback glyphs */
-  const VEND = path.join(__dirname, 'vendor');
+  /* KaTeX is inlined by the build; the CDN route stays only so a page built without it still checks offline */
+  const VEND = path.join(__dirname, '..', 'vendor', 'katex');
   await ctx.route('https://cdnjs.cloudflare.com/**', route => { const u = route.request().url(); const f = /katex\.min\.js$/.test(u) ? 'katex.min.js' : /katex\.min\.css$/.test(u) ? 'katex.min.css' : null;
     if (f) route.fulfill({ status: 200, contentType: f.endsWith('.js') ? 'application/javascript' : 'text/css', headers: { 'access-control-allow-origin': '*' }, body: fs.readFileSync(path.join(VEND, f)) }); else route.fulfill({ status: 404, body: '' }); });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/fonts|ERR_TUNNEL|net::/.test(m.text())) errs.push(m.text()); });
@@ -295,6 +295,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
      stem, line, option and key converts to TeX that renders with throwOnError and keeps the HTML's digits and letters in order */
   { await fresh(p, 4821); await p.waitForFunction(() => window.Kit && Kit.Tex && Kit.Tex.isReady(), null, { timeout: 8000 }).catch(() => fail('tex: KaTeX did not start'));
     await p.waitForTimeout(300);
+    if (!(await p.evaluate(() => !!document.getElementById('katex-css') && !!window.katex))) fail('tex: KaTeX is not inlined in the build');
     const t = await p.evaluate(() => { const all = Array.from(document.querySelectorAll('.m')); return { n: all.length, noShadow: all.filter(e => !e.shadowRoot).length,
       fallback: all.filter(e => e.hasAttribute('data-tex-fallback')).map(e => e.innerHTML).slice(0, 3), katex: all.filter(e => e.shadowRoot && e.shadowRoot.querySelector('.katex')).length,
       bad: all.filter(e => Kit.Tex.skeleton(Kit.Tex.toTex(e)) !== Kit.Tex.skeletonOf(e)).map(e => [e.innerHTML, Kit.Tex.toTex(e)]).slice(0, 3) }; });

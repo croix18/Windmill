@@ -83,11 +83,18 @@
     ready = true; run();
     new MutationObserver(schedule).observe(document.body, {childList: true, subtree: true});
   }
-  var LOCAL = '.katex{font-size:1.08em;line-height:1.2;text-indent:0}.katex .text{font-family:"Lexend",system-ui,sans-serif}.katex .mord.text{font-family:"Lexend",system-ui,sans-serif}' +
+  var LOCAL = '.katex{font-size:1.08em;line-height:1.2;text-indent:0;white-space:nowrap}.katex .text{font-family:"Lexend",system-ui,sans-serif}.katex .mord.text{font-family:"Lexend",system-ui,sans-serif}' +
     '@media print{.katex{color:#000}}';
   function boot(){
     if (!document.body) return setTimeout(boot, 10);
-    if (!window.fetch || !window.MutationObserver || !Element.prototype.attachShadow) return;   /* an old browser keeps the kit's HTML */
+    if (!window.MutationObserver || !Element.prototype.attachShadow) return;   /* an old browser keeps the kit's HTML */
+    var inl = document.getElementById('katex-css');
+    if (window.katex && inl){                               /* the build inlines KaTeX and its fonts: no network at all */
+      var css0 = inl.textContent + LOCAL;
+      try { sheet = new CSSStyleSheet(); sheet.replaceSync(css0); } catch(e){ sheet = null; cssText = css0; }
+      return start();
+    }
+    if (!window.fetch) return;
     fetch(CDN + 'katex.min.css').then(function(r){ return r.ok ? r.text() : Promise.reject(r.status); }).then(function(css){
       css = css.replace(/url\((['"]?)fonts\//g, 'url($1' + CDN + 'fonts/') + LOCAL;
       try { sheet = new CSSStyleSheet(); sheet.replaceSync(css); } catch(e){ sheet = null; cssText = css; }
