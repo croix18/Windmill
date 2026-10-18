@@ -473,12 +473,23 @@ class Deck:
         import re
         pieces = []
         total = 0.0; maxh = 0.45
-        for part in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")):
-            if not part:
-                continue
+        parts = [p for p in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")) if p]
+        # An expression INSIDE a sentence is set at the sentence's size: rendered on the slidemid
+        # surface and scaled to the text (mathimg's "slide" at 26 was tuned for 24-pt words, so the
+        # expression's point size is 26/24 of the text's). A row that is all mathematics keeps the
+        # surface it was given — a display expression is meant to be larger than the words round
+        # it. (18 Oct, A7 Unit 5's typeset word problems: "k = 1.5" on the Vocabulary slide came
+        # out twice the size of its definition; Croix: "Look at the sizing. It's off.")
+        inline = any(re.search(r"[A-Za-z]{2,}", slotmark.strip(p)) for p in parts if not p.startswith("$"))
+        scale = 1.0
+        if inline:
+            surface = "slidemid"
+            scale = (size * 26 / 24) / mathimg.SIZES["slidemid"]
+        for part in parts:
             if part.startswith("$"):
                 path, w, h = mathimg.m(part[1:-1].replace("\ue000", "\\$"), surface, color, slots)
-                pieces.append(("img", path, w, h)); total += w; maxh = max(maxh, h)
+                w, h = w * scale, h * scale
+                pieces.append(("img", path, w, h, scale)); total += w; maxh = max(maxh, h)
             else:
                 w = _textw(slotmark.strip(part).replace("\ue000", "$"), size, bold)
                 pieces.append(("txt", part.replace("\ue000", "\\$"), w, 0.5)); total += w   # _text prints \$ as $
@@ -491,9 +502,10 @@ class Deck:
         # its ink hanging below by mathimg's measured depth — not centred on the line, where a row of
         # digits floats a quarter-line above the words (18 Oct, A7 Unit 5)
         baseline = y + maxh / 2 + 0.375 * size / 72
-        for kind, val, w, h in pieces:
+        for piece in pieces:
+            kind, val, w, h = piece[:4]
             if kind == "img":
-                d = mathimg.DEPTH.get(val, 0.0)
+                d = mathimg.DEPTH.get(val, 0.0) * (piece[4] if len(piece) > 4 else 1.0)
                 top = baseline - (h - d)
                 top = min(max(top, y), y + maxh - h)          # never above the row or below its bottom
                 self.s.shapes.add_picture(val, Inches(x), Inches(top), Inches(w), Inches(h))
@@ -506,12 +518,16 @@ class Deck:
         """Width in inches a mixed line would take, without drawing it."""
         import re
         total = 0.0
-        for part in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")):
-            if not part:
-                continue
+        parts = [p for p in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")) if p]
+        inline = any(re.search(r"[A-Za-z]{2,}", slotmark.strip(p)) for p in parts if not p.startswith("$"))
+        scale = 1.0
+        if inline:                      # as _mixed sets it: inline mathematics at the words' size
+            surface = "slidemid"
+            scale = (size * 26 / 24) / mathimg.SIZES["slidemid"]
+        for part in parts:
             if part.startswith("$"):
                 _, w, h = mathimg.m(part[1:-1].replace("\ue000", "\\$"), surface, INK)
-                total += w
+                total += w * scale
             else:
                 total += _textw(slotmark.strip(part).replace("\ue000", "$"), size, bold)
         return total
