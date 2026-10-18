@@ -1071,6 +1071,11 @@ def _te_lines(L, deck_path, outdir):
                     te.rich(p, f"   {k + 1} retrieves {w.get('source', '')} ({w.get('band', '')}).", size=9.5, italic=True, color=GRAY)
         i += 1
 
+    if L["te"].get("variation"):
+        # rule 2's marker in the lines style too (the table style had it from 17 Oct; the lines
+        # style — A7 — did not until the Unit 5 Barton review, 18 Oct)
+        te.body(f"**Variation.** {L['te']['variation']}")
+
     # ---------------- misconceptions, tied to the board that surfaces each
     te.h1("Misconceptions to Watch")
     for i, q in enumerate(L["whiteboard"]):
