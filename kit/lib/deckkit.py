@@ -483,8 +483,12 @@ class Deck:
         inline = any(re.search(r"[A-Za-z]{2,}", slotmark.strip(p)) for p in parts if not p.startswith("$"))
         scale = 1.0
         if inline:
+            # never larger than the surface the caller asked for: a line of working whose surface
+            # is slidestep keeps that size, and only an oversize render (slidemid under 16-pt
+            # definitions) is brought down to the words
+            target = min(size * 26 / 24, mathimg.SIZES[surface])
             surface = "slidemid"
-            scale = (size * 26 / 24) / mathimg.SIZES["slidemid"]
+            scale = target / mathimg.SIZES["slidemid"]
         for part in parts:
             if part.startswith("$"):
                 path, w, h = mathimg.m(part[1:-1].replace("\ue000", "\\$"), surface, color, slots)
@@ -522,8 +526,9 @@ class Deck:
         inline = any(re.search(r"[A-Za-z]{2,}", slotmark.strip(p)) for p in parts if not p.startswith("$"))
         scale = 1.0
         if inline:                      # as _mixed sets it: inline mathematics at the words' size
+            target = min(size * 26 / 24, mathimg.SIZES[surface])
             surface = "slidemid"
-            scale = (size * 26 / 24) / mathimg.SIZES["slidemid"]
+            scale = target / mathimg.SIZES["slidemid"]
         for part in parts:
             if part.startswith("$"):
                 _, w, h = mathimg.m(part[1:-1].replace("\ue000", "\\$"), surface, INK)
