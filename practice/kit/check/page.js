@@ -34,6 +34,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await new Promise(res => server.listen(0, '127.0.0.1', res)); url = 'http://127.0.0.1:' + server.address().port + '/preview.html';
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }), p = await ctx.newPage();
+  /* KaTeX is served from the kit's own copy (check/vendor), so the TeX layer runs without the network; fonts 404 → fallback glyphs */
+  const VEND = path.join(__dirname, 'vendor');
+  await ctx.route('https://cdnjs.cloudflare.com/**', route => { const u = route.request().url(); const f = /katex\.min\.js$/.test(u) ? 'katex.min.js' : /katex\.min\.css$/.test(u) ? 'katex.min.css' : null;
+    if (f) route.fulfill({ status: 200, contentType: f.endsWith('.js') ? 'application/javascript' : 'text/css', headers: { 'access-control-allow-origin': '*' }, body: fs.readFileSync(path.join(VEND, f)) }); else route.fulfill({ status: 404, body: '' }); });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/fonts|ERR_TUNNEL|net::/.test(m.text())) errs.push(m.text()); });
 
   /* A. every key */
@@ -229,6 +233,40 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
     ip.forEach((it, k) => { const want = it.kind === 'text' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
       const got = pr.keys[k] ? pr.keys[k][1] : ''; if (got.replace(/\s+/g, '') !== want.replace(/\s+/g, '')) fail('print: key ' + it.id + ' is "' + got + '", the page marks "' + want + '"'); });
+    /* make-up tests: three forms, each a different set; every form's key is that form's own answers (recomputed from the
+       form's set in this browser); the page's own set, items and answers are untouched afterwards */
+    await p.click('#pvClose'); await p.click('#bPrint'); await p.click('[data-print="mk"]');
+    if (!(await p.isVisible('[data-print="mk3"]'))) fail('print: no form count after Make-up tests');
+    const before = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent }));
+    await p.click('[data-print="mk3"]'); await p.waitForTimeout(150);
+    const mk = await p.evaluate(() => {
+      const forms = Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform)')), keys = Array.from(document.querySelectorAll('#printview .pform.pkeyform'));
+      return { nf: forms.length, nk: keys.length,
+        heads: forms.map(f => f.querySelector('.pt2').textContent.trim()), titles: forms.map(f => f.querySelector('.pt1').textContent.trim()), khead: keys.map(k => k.querySelector('.psec').textContent.trim() + ' ' + k.querySelector('.pmeta').textContent.trim()),
+        stems: forms.map(f => Array.from(f.querySelectorAll('.pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
+        keyrows: keys.map(k => Array.from(k.querySelectorAll('tr')).map(r => r.cells[1].textContent.replace(/\s+/g, ' ').trim())),
+        names: forms.map(f => f.querySelectorAll('.pname').length) };
+    });
+    if (mk.nf !== 3 || mk.nk !== 3) fail('make-up: ' + mk.nf + ' forms / ' + mk.nk + ' keys for 3');
+    if (mk.names.some(n => n !== 1)) fail('make-up: a form without a name line');
+    const seeds = mk.heads.map(h => (/Set (\d+)/.exec(h) || [])[1]);
+    if (new Set(seeds).size !== 3 || seeds.some(x => !x)) fail('make-up: the forms are not three different sets: ' + mk.heads.join(' | '));
+    mk.heads.forEach((h, k) => { if (!h.startsWith('Make-up · Form ' + 'ABC'[k] + ' · Set ')) fail('make-up: head "' + h + '" for form ' + 'ABC'[k]);
+      const t1 = mk.titles[k]; if (/Practice Test/i.test(t1) || !/Test/.test(t1)) fail('make-up: the form is titled "' + t1 + '"'); if (!mk.khead[k].startsWith('Answer key — Form ' + 'ABC'[k]) || !mk.khead[k].includes('Set ' + seeds[k])) fail('make-up: key head "' + mk.khead[k] + '" for form ' + 'ABC'[k] + ' set ' + seeds[k]); });
+    if (JSON.stringify(mk.stems[0]) === JSON.stringify(mk.stems[1])) fail('make-up: forms A and B have the same questions');
+    for (let k = 0; k < 3; k++){                         /* every key row recomputed from that form's set */
+      const want = await p.evaluate(s => { const g = Unit.generate(s), out = []; g.sections.forEach(sec => sec.items.forEach(it => {
+        if (it.type === 'parts') it.parts.forEach(pp => out.push(pp.kind === 'mc' ? [pp.correct].map(c => 'ABCDEFGH'[c] + '. ' + Unit.view.opt(pp, c)).join(' ') : Unit.view.key(pp)));
+        else if (it.type === 'solo') out.push(Unit.view.key(it.part));
+        else out.push((it.type === 'multi' ? it.correct : [it.correct]).map(c => 'ABCDEFGH'[c] + '. ' + Unit.view.opt(it, c)).join(' ')); })); return out.map(h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent.replace(/\s+/g, ''); }); }, +seeds[k]);
+      const got = mk.keyrows[k].map(x => x.replace(/\s+/g, ''));
+      if (got.length !== want.length) fail('make-up: form ' + 'ABC'[k] + ' key has ' + got.length + ' rows for ' + want.length);
+      got.forEach((g, i) => { if (g !== want[i]) fail('make-up: form ' + 'ABC'[k] + ' key row ' + (i + 1) + ' is "' + g + '", the set gives "' + want[i] + '"'); });
+    }
+    await p.click('#pvClose');
+    const after = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent}));
+    if (after.h !== before.h || after.n !== before.n || after.first !== before.first) fail('make-up: the page changed after printing make-ups');
+    await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     await p.emulateMedia({ media: 'print' });
     const vis = await p.evaluate(() => ({ sheet: getComputedStyle(document.querySelector('.sheet')).display, watch: getComputedStyle(document.querySelector('.watch')).display, bar: getComputedStyle(document.querySelector('#printview .pbar')).display, pv: getComputedStyle(document.getElementById('printview')).display }));
     if (vis.sheet !== 'none' || vis.watch !== 'none' || vis.bar !== 'none' || vis.pv === 'none') fail('print: on paper, more than the printout shows ' + JSON.stringify(vis));
@@ -253,6 +291,27 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       if (!(await p.$$eval('#printview .tr', e => e.length))) fail('print: Portuguese on, but none in the printout');
       await p.click('#pvClose'); await p.click('.bi-toggle'); }
     console.log('D. print checked'); }
+  /* E. the math in TeX (kit/tex.js): every math span on the page is drawn by KaTeX (none fell back), and on 60 sets every
+     stem, line, option and key converts to TeX that renders with throwOnError and keeps the HTML's digits and letters in order */
+  { await fresh(p, 4821); await p.waitForFunction(() => window.Kit && Kit.Tex && Kit.Tex.isReady(), null, { timeout: 8000 }).catch(() => fail('tex: KaTeX did not start'));
+    await p.waitForTimeout(300);
+    const t = await p.evaluate(() => { const all = Array.from(document.querySelectorAll('.m')); return { n: all.length, noShadow: all.filter(e => !e.shadowRoot).length,
+      fallback: all.filter(e => e.hasAttribute('data-tex-fallback')).map(e => e.innerHTML).slice(0, 3), katex: all.filter(e => e.shadowRoot && e.shadowRoot.querySelector('.katex')).length,
+      bad: all.filter(e => Kit.Tex.skeleton(Kit.Tex.toTex(e)) !== Kit.Tex.skeletonOf(e)).map(e => [e.innerHTML, Kit.Tex.toTex(e)]).slice(0, 3) }; });
+    if (t.n === 0) console.log('E. (no math spans on this set\'s page — the 60-set pass below is the check)'); if (t.noShadow) fail('tex: ' + t.noShadow + ' math spans not drawn'); if (t.fallback.length) fail('tex: fell back on ' + JSON.stringify(t.fallback));
+    if (t.katex !== t.n) fail('tex: ' + t.katex + ' of ' + t.n + ' spans drawn by KaTeX'); if (t.bad.length) fail('tex: digits/letters changed: ' + JSON.stringify(t.bad));
+    const w = await p.evaluate(() => { const out = { n: 0, errs: [], bad: [] }, d = document.createElement('div');
+      const one = h => { if (!h || !/class="m"/.test(h)) return; d.innerHTML = h; d.querySelectorAll('.m').forEach(e => { out.n++; const s = Kit.Tex.toTex(e);
+        try { katex.renderToString(s, { throwOnError: true, strict: 'ignore', output: 'html' }); } catch (x) { if (out.errs.length < 3) out.errs.push([e.innerHTML, s, String(x.message || x)]); }
+        if (Kit.Tex.skeleton(s) !== Kit.Tex.skeletonOf(e) && out.bad.length < 3) out.bad.push([e.innerHTML, s]); }); };
+      for (let sd = 1; sd <= 60; sd++) { const g = Unit.generate(sd); g.sections.forEach(sec => sec.items.forEach(it => { one(Unit.view.stem(it));
+        const parts = it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [];
+        parts.forEach(pp => { one(Unit.view.line(pp)); if (pp.kind === 'mc') pp.opts.forEach((o, k) => one(Unit.view.opt(pp, k))); else one(Unit.view.key(pp)); });
+        if (it.type === 'mc' || it.type === 'multi') it.opts.forEach((o, k) => one(Unit.view.opt(it, k)));
+        try { (Unit.solution(it.type === 'parts' ? it.parts[0] : it.type === 'solo' ? it.part : it, it.type === 'parts' || it.type === 'solo' ? 'text' : it.type) || []).forEach(st => { if (st && st.ex) one(Unit.view.ex ? Unit.view.ex(null, st.ex) : ''); }); } catch (x) {} })); }
+      return out; });
+    if (w.errs.length) fail('tex: KaTeX errors on ' + JSON.stringify(w.errs)); if (w.bad.length) fail('tex: digits/letters changed on ' + JSON.stringify(w.bad));
+    console.log('E. tex checked: ' + t.n + ' spans on the page, ' + w.n + ' over 60 sets'); }
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();
   console.log('B. flows checked');

@@ -334,3 +334,13 @@ body{font-size:16px;line-height:1.45}
 h1{font-size:22px;letter-spacing:-.01em} h2{font-size:17.5px}
 input[type=text],textarea,.wnum input{font-size:16px}
 .eyebrow{letter-spacing:.08em}
+
+/* ---- paper, 18 Oct 2026 (Croix: "Overall it looks a bit crowded") — more air between questions, parts and choices ---- */
+.ppage{line-height:1.5}
+.pq{margin:0 0 26px} .ppart{margin-top:12px} .ppart .line{margin-bottom:6px}
+.pchoices{margin:8px 0 6px var(--i2)} .pch{margin:7px 0;gap:10px}
+.pans{margin-top:10px} .psec{margin-top:26px}
+.phead{margin-bottom:18px} .pnotes{margin-bottom:16px}
+.ppage .rad{margin-inline:.1em .08em}
+/* make-up tests */
+.pform .ptest{font-size:22px} .pkeyform .psec{margin-top:0}

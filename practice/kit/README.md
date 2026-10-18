@@ -127,3 +127,26 @@ marks right, results match, only the printout on paper, Close restores the page,
 - **Hint number boxes** are plain text boxes: a phone's decimal pad has no minus and no slash, and many Hint steps need them.
 - **Print:** a unit may give `notesPrint` (paper is not a keyboard) and `view.blank(part)` (e.g. "___ × 10^__" for
   scientific-notation answers).
+
+## Make-up tests (18 Oct 2026)
+Croix: *"I want the print function to be able to just print tests or make ups directly from here… I'll need it to print the
+answer key too."* Print → **Make-up tests** → how many forms (1–5). Each form is a different set of the whole unit (the
+current set is Form A), headed "<unit> Test" / "Make-up · Form A · Set 4821" with a name and date line; every form's answer
+key follows on its own page, "Answer key — Form A · Set 4821", so the keys stay with the teacher. The forms are drawn with
+`withSet()` (the page's own data drawn from another set, then put back) and the usual worksheet and key builders, so a form
+is exactly what a student would see on screen for that set number — a student can also be sent to `#set-4821` to practise
+the same form. page.js part D checks three forms: three different sets, one name line each, every key row recomputed from
+that form's set, and the page unchanged afterwards.
+
+## Lexend and the math in TeX (17–18 Oct 2026)
+Croix: *"Can you make it in the lexend font?"* then *"Make the math in latex."* The page is set in Lexend (ruling 46;
+no italics anywhere — Lexend has none; variables upright). The math is drawn by KaTeX: `tex.js` gives every `<span class="m">`
+a shadow root, converts the kit's math HTML inside it (fractions `.fr/.nu/.de`, radicals `.rad/.rc/.ri`, `<sup>`, `<i>`
+variables, the symbols × · ÷ − ≈ π …) to a TeX string with `toTex()`, and renders it there. **The HTML is not changed** —
+checks, keys, the Português engine and screen readers read the same markup as before; only the picture changes. KaTeX
+(0.16.11) loads from cdnjs; without it (no network, an old browser, a string KaTeX refuses) the span shows the kit's own
+HTML through a `<slot>` — the 17 Oct look. page.js part E (served KaTeX from `check/vendor/`, no network) requires: every
+math span on the page drawn by KaTeX, none fallen back; and over 60 sets every stem, line, option, key and worked line
+renders with `throwOnError` and its TeX keeps the HTML's digits and letters in order (`Kit.Tex.skeleton`). Rule of thumb
+for unit authors: write math as the kit's HTML inside `M()`; TeX comes for free. Text in a math span becomes `\text{…}`;
+`<i>` is a variable; parentheses grow around a fraction or root.

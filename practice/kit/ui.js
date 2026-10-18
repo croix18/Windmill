@@ -667,7 +667,40 @@ function resultsHtml(){
 function printMenu(){
   var test = S.mode === 'test' && !S.done;
   ask0('What do you want to print?', [
-    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key'], ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]);
+    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key'], ['mk', 'Make-up tests'], ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]);
+}
+/* Make-up tests (Croix, 18 Oct 2026: "print tests or make ups directly from here… I'll need it to print the answer key too"):
+   one to five forms, each a different set of the WHOLE unit, headed as a test with a name line and its form letter; every
+   form's answer key follows on its own page, labelled with the form letter and set number so the teacher keeps the keys. */
+function makeupMenu(){ ask0('How many different forms? (each is a new set; the keys print at the end)', [['mk1', '1'], ['mk2', '2'], ['mk3', '3'], ['mk4', '4'], ['mk5', '5']]); }
+function withSet(s, fn){                                   /* run fn with the page's data drawn from set s, then put everything back */
+  var o = {seed: seed, scope: scope, G: G, DS: DS, ITEMS: ITEMS, EX: EX, H: HASHV}, out;
+  seed = s; scope = 'all';
+  try { DS = build(); ITEMS = []; EX = {}; collect(); out = fn(); }
+  finally { seed = o.seed; scope = o.scope; G = o.G; DS = o.DS; ITEMS = o.ITEMS; EX = o.EX; HASHV = o.H; }
+  return out;
+}
+function collect(){                                        /* the items of DS, as render() lists them, without touching the page */
+  var qn = 0;
+  DS.forEach(function(sec, di){ sec.items.forEach(function(d){
+    var it = d.it; qn++;
+    if (it.type === 'parts'){
+      var shown = it.parts.filter(function(p, pi){ return !d.keep || d.keep[pi]; }).length, lone = shown === 1 && it.parts.length > 1;
+      it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; var id = qn + p.label;
+        ITEMS.push({id: id, lab: lone ? String(qn) : id, sec: di, type: textType(p), x: p, item: it, pos: posKey(d.si, d.ii, pi), aShown: true}); });
+    } else if (it.type === 'solo'){ var id1 = String(qn); ITEMS.push({id: id1, lab: id1, sec: di, type: 'text', x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
+    else { var id2 = String(qn); ITEMS.push({id: id2, lab: id2, sec: di, type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
+  }); });
+}
+function makeupHtml(n){
+  var seeds = [seed], guard = 0;
+  while (seeds.length < n && guard++ < 50){ var r = randomSeed(); if (seeds.indexOf(r) < 0) seeds.push(r); }
+  var forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: worksheetHtml(), key: keyListHtml(), form: LET[k], seed: s}; }); });
+  var h = forms.map(function(f, k){ return (k ? '<div class="pbreak"></div>' : '') + '<div class="pform" data-form="' + f.form + '">' +
+    f.ws.replace(/<div class="pt1"><span class="bt">([^<]*)<\/span>/, function(m, t){ return '<div class="pt1 ptest"><span class="bt">' + t.replace(/\s*Practice Test\b/i, ' Test') + '</span>'; })
+        .replace(/<div class="pt2"><span class="bt">[^<]*<\/span>/, '<div class="pt2"><span class="bt">Make-up · Form ' + f.form + ' · Set ' + f.seed + '</span>') + '</div>'; }).join('');
+  h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform">' + f.key.replace('Answer key</span>', 'Answer key — Form ' + f.form + '</span>') + '</div>'; }).join('');
+  return h;
 }
 function ask0(text, opts){                                   /* the print choice, in the same bar as the other questions */
   var c = $('confirm'); c.hidden = false; document.body.classList.add('asking');
@@ -678,7 +711,9 @@ function ask0(text, opts){                                   /* the print choice
 function showPrint(kind){
   closeAsk();
   var pv = $('printview'); if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-label', 'Print preview'); document.body.appendChild(pv); }
-  var body = kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
+  if (kind === 'mk'){ makeupMenu(); return; }
+  var mk = /^mk(\d)$/.exec(kind);
+  var body = mk ? makeupHtml(+mk[1]) : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
   pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button><span class="pvhint bt">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage">' + body + '</div>';
   pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
   $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };

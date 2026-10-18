@@ -18,7 +18,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "bilingual.js", "ui.js", "kit.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 def source_hash():
     h = hashlib.sha256()
     for f in KITFILES: h.update(rk(f).encode())
@@ -50,7 +50,7 @@ body = f"""<title>{esc(cfg['title'])}</title>
 </main>
 <script>{rk('core.js')}</script>
 <script>{rk('bilingual.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 open(os.path.join(UD, cfg["file"]), "w", encoding="utf-8").write(body)
 title = body.split("\n", 1)[0]
 full = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
