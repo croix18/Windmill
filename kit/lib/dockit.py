@@ -102,6 +102,22 @@ def linear_text(latex):
     t = latex
     t = re.sub(r"\\(left|right)\b", "", t)
     t = re.sub(r"\\(quad|qquad|;|,|:|!)", " ", t)
+    t = t.replace("\\ ", " ")
+    # a quantity — "48\,\text{cm}^{2}", "1\,\text{in} : 4\,\text{ft}", "3\frac{3}{4}\,\text{cups}" (A7 Unit 5,
+    # 18 Oct: the mathematics of the word problems typeset) — is words: the unit's name, a
+    # superscript 2 or 3 from Lexend's own glyphs, and a fraction with a Lexend glyph (½ ¼ ¾ and
+    # the eighths) as that glyph. An expression with no unit keeps its fraction stacked, as FAST
+    # sets it; a quantity whose fraction has no glyph (⅓) stays typeset too.
+    quantity = bool(re.search(r"\\text\{", t))
+    if quantity:
+        t = re.sub(r"\\text\{([^}]*)\}", r"\1", t)
+        t = re.sub(r"\^\{([23])\}", lambda m: m.group(1).translate(_SUP), t)
+        t = re.sub(r"\^([23])(?![0-9])", lambda m: m.group(1).translate(_SUP), t)
+        def vfrac(m):
+            g = _VULGAR.get((int(m.group(1)), int(m.group(2))))
+            return g if g else m.group(0)
+        t = re.sub(r"\\(?:t|d)?frac\{(\d+)\}\{(\d+)\}", vfrac, t)
+        t = t.replace("\\$", "$")
     def frac(m):
         a, b = int(m.group(1)), int(m.group(2))
         return _VULGAR.get((a, b)) or (m.group(1).translate(_SUP) + "\u2044" + m.group(2).translate(_SUB))
@@ -113,7 +129,7 @@ def linear_text(latex):
         t = re.sub(r"\\" + cmd + r"\b", ch, t)
     if "\\" in t or "^" in t or "_" in t or "{" in t or "}" in t:
         return None
-    if not re.fullmatch(r"[0-9A-Za-z+=().,?:\s\u2212\u00d7\u00f7\u00b7\u2260\u2264\u2265\u03c0\u00bd\u00bc\u00be\u215b-\u215e\u2070-\u2079\u00b9\u00b2\u00b3\u2080-\u2089\u2044-]*", t):
+    if not re.fullmatch(r"[0-9A-Za-z+=().,?:/$\s\u2212\u00d7\u00f7\u00b7\u2260\u2264\u2265\u03c0\u00bd\u00bc\u00be\u215b-\u215e\u2070-\u2079\u00b9\u00b2\u00b3\u2080-\u2089\u2044-]*", t):
         return None
     t = t.replace("-", "\u2212")
     return re.sub(r"\s+", " ", t).strip()

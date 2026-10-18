@@ -486,9 +486,17 @@ class Deck:
             x = x + ((width if width else CW) - total) / 2
         if x + total > LM + CW + 0.05:
             raise RuntimeError(f"line runs off the slide ({x + total:.2f} in): {text[:60]}")
+        # the text sits in a 0.5 in box anchored at its middle, so its baseline is a little under the
+        # line's middle (Lexend: about 0.375 em below it); an expression is set with ITS baseline there,
+        # its ink hanging below by mathimg's measured depth — not centred on the line, where a row of
+        # digits floats a quarter-line above the words (18 Oct, A7 Unit 5)
+        baseline = y + maxh / 2 + 0.375 * size / 72
         for kind, val, w, h in pieces:
             if kind == "img":
-                self.s.shapes.add_picture(val, Inches(x), Inches(y + (maxh - h) / 2), Inches(w), Inches(h))
+                d = mathimg.DEPTH.get(val, 0.0)
+                top = baseline - (h - d)
+                top = min(max(top, y), y + maxh - h)          # never above the row or below its bottom
+                self.s.shapes.add_picture(val, Inches(x), Inches(top), Inches(w), Inches(h))
             else:
                 self._text(x, y + (maxh - 0.5) / 2, w + 0.15, 0.5, val, size, bold=bold, color=color, anchor="middle", wrap=False, slots=slots)
             x += w

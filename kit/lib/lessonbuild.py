@@ -554,6 +554,24 @@ def _math_row(row):
     return "$" in row.replace("\\$", "")
 
 
+def _inline(row):
+    """A sentence that carries $…$ inside it — "1 lb = 0.454 kg. A crate weighs 90 lb." — as against
+    a row that IS an expression. A sentence is set at the text size with its mathematics inline
+    (A7 Unit 5, 18 Oct: the Your Turn's "1 lb = 0.454 kg" came out half again the size of the
+    words beside it); a bare expression keeps the display size."""
+    words = re.sub(r"\$[^$]*\$", "", row.replace("\\$", "")).strip(" .,;:?!")
+    return bool(re.search(r"[A-Za-z]{2,}", words))
+
+
+def _prompt_row(D, row, surface, gap=0.35, slots=False, size=24):
+    if not _math_row(row):
+        D.text(row, size, align="center", slots=slots)
+    elif _inline(row):
+        D.math_row(row, surface="slide", gap=0.3, size=size, slots=slots)
+    else:
+        D.math_row(row, surface=surface, gap=gap, slots=slots)
+
+
 TOP = 1.6      # where a slide's body starts when it starts straight under the rules (the PowerPoint's inches)
 
 
@@ -707,7 +725,7 @@ def _fill_deck(D, L):
             fig = dict(fig, reserve=max(fig.get("reserve", 0.7), 0.16 + 0.2 + ask_h + 0.14))    # and the ask stands clear of the footer rule
         D.cursor = _example_top(ex["prompt"], fig)
         for row in ex["prompt"]:
-            D.math_row(row, surface="slidemid", gap=0.35) if _math_row(row) else D.text(row, 24, align="center")
+            _prompt_row(D, row, "slidemid")
         if fig:
             D.figure(fig)
         if ex.get("ask"):
@@ -805,7 +823,7 @@ def _yt_body(D, yt, yt_ask, reveal, top, surf):
     when the answer is shown."""
     D.cursor = top
     for row in yt["prompt"]:
-        D.math_row(row, surface=surf, gap=0.35, slots=reveal) if _math_row(row) else D.text(row, 24, align="center", slots=reveal)
+        _prompt_row(D, row, surf, slots=reveal)
     if yt_ask:
         D.cursor += 0.2
         D.text(yt_ask, 24, bold=True, align="center")
@@ -906,8 +924,10 @@ def _wb_body(D, q, reveal, surface="slidebig"):
         D.cursor += 0.05
     else:
         for row in rows:
-            if _math_row(row):
+            if _math_row(row) and not _inline(row):
                 D.math_row(row, surface="slidemid", gap=0.3, size=26, slots=reveal)
+            elif _math_row(row):
+                D.math_row(row, surface="slide", gap=0.3, size=24, slots=reveal)
             else:
                 D.text(row, 26 if len(row) < 60 else 23, align="center", slots=reveal)
     # fig_a: the reveal may show a different picture — M7 4.10 colours the rim for a circumference

@@ -386,13 +386,33 @@ def m(latex, surface="doc", color="1A1A1A", slots=False):
     path = os.path.join(FIGS, key + ".png")
     if key in idx and os.path.exists(path):
         e = idx[key]
+        if "d" not in e:
+            e = dict(e, d=_depth(latex, pt, face)); _save({key: e})
+        DEPTH[path] = e["d"]
         return path, e["w"], e["h"]
     if named:
         w, h = _render_named(latex, pt, path, face)
     else:
         w, h = _render_slots(latex, pt, path, face) if slots else _render(latex, pt, path, "#" + color, face)
-    _save({key: {"latex": latex, "pt": pt, "color": stamp, "w": w / DPI, "h": h / DPI}})
+    d = _depth(latex, pt, face)
+    _save({key: {"latex": latex, "pt": pt, "color": stamp, "w": w / DPI, "h": h / DPI, "d": d}})
+    DEPTH[path] = d
     return path, w / DPI, h / DPI
+
+
+DEPTH = {}      # rendered path -> how far (inches) its ink hangs below the baseline, for inline rows
+
+
+def _depth(latex, pt, face):
+    """How far the expression hangs below its baseline, in inches — mathtext's own box depth (a
+    descender, a fraction's denominator). deckkit._mixed sits an inline expression on the text's
+    baseline with it, instead of centring the picture on the line (18 Oct: "1 lb = 0.454 kg" sat
+    a quarter-line above the sentence it was part of)."""
+    try:
+        r = _PARSER.parse(f"${slotmark.strip(latex)}$", dpi=DPI, prop=_prop(pt, face))
+        return max(0.0, float(r.depth) / DPI)
+    except Exception:
+        return 0.0
 
 
 def check_index():

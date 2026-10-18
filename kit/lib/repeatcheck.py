@@ -51,7 +51,9 @@ _SWAPS = (("\\left", ""), ("\\right", ""), ("\\,", ""), ("\\;", ""), ("\\!", "")
           ("−", "-"), ("–", "-"), ("$", ""), (" ", ""), ("\u00a0", ""), ("\\displaystyle", ""),
           ("½", "\\frac{1}{2}"), ("¼", "\\frac{1}{4}"), ("¾", "\\frac{3}{4}"), ("\\pi", "π"), ("√", "\\sqrt"),
           ("**", ""), ("\\ell", "l"))
-_CUT = re.compile(r"=|\\approx|≈|\\neq?(?![a-zA-Z])|≠|\\qquad|\\quad|\\text\{[^}]*\}|,\s|;\s|:\s|\s{3,}"
+# a typeset unit — \text{cm}, and \text{cm}^{2}, \text{ft}^{3} — is a cut, exponent and all (A7 Unit 5,
+# 18 Oct: "48\ \text{cm}^{2}" left "^{2}" as an expression somebody wrote down); so is the thin space \ 
+_CUT = re.compile(r"=|\\approx|≈|\\neq?(?![a-zA-Z])|≠|\\qquad|\\quad|\\text\{[^}]*\}(?:\^\{[23]\})?|\\ |,\s|;\s|:\s|\s{3,}"
                   r"|\\to(?![a-z])|\\Rightarrow|\\rightarrow|→|<|>|\\l[et]q?(?![a-z])|\\g[et]q?(?![a-z])|≤|≥")
 _PLAIN = re.compile(r"[\d(π][\d.,()\s×÷·+\-−/²³⁰¹⁴-⁹⁻½¼¾π]*[×÷·+\-−²³⁰¹⁴-⁹⁻][\d.,()\s×÷·+\-−/²³⁰¹⁴-⁹⁻½¼¾π]*[\d)²³⁰¹⁴-⁹π]")
 _UNIT = re.compile(r"(?:cm|mm|km|in|ft|yd|mi|m|units?)\^\{[23]\}")
