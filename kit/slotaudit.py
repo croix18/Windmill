@@ -31,7 +31,10 @@ def marks_in_specs(unit):
 
 
 def pieces(row):
-    return [p[1:-1] for p in re.split(r"(\$[^$]+\$)", row) if p.startswith("$")]
+    """The $…$ expressions in a row. \\$ is money, not a delimiter (deckkit._mixed reads it the
+    same way): "Rates: \\$1 = 1.32 CAD … \\$200" holds no mathematics (A7 5.06 board 7)."""
+    row = row.replace("\\$", "\ue000")
+    return [p[1:-1].replace("\ue000", "\\$") for p in re.split(r"(\$[^$]+\$)", row) if p.startswith("$")]
 
 
 def collect(unit):
