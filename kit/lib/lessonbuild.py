@@ -693,9 +693,7 @@ def _fill_deck(D, L):
         else:
             _vocab_slide(D, vocab)
     # ---- notes
-    for ni, note in enumerate(L["notes"]):
-        D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
-        D.no_band(); D.cursor = TOP - 0.08
+    def _notes_body(D, note, airy):
         D.head(note["head"], note.get("numeral"))
         if note.get("items"):
             D.items(note["items"], size=note.get("size", 23), panel=note.get("panel", False), letters=note.get("letters", True), slots=True)
@@ -704,13 +702,32 @@ def _fill_deck(D, L):
         if note.get("fig"):
             D.figure(note["fig"])
         if note.get("math"):
+            # the worked line gets air when the slide has it: a little above the first row, more
+            # between rows, and a clear step down to the sentence under it (Croix, 18 Oct: "It's
+            # still just a little bit cramped"); a full slide (M7 9.01: items, a line and a
+            # sentence) keeps the close spacing, which is tried second
+            if airy and not note.get("fig"):
+                D.cursor += 0.22
             for mrow in note["math"]:
-                D.math_row(mrow, surface="slidemid", gap=0.3, slots=True)
+                D.math_row(mrow, surface="slidemid", gap=0.42 if airy else 0.3, slots=True)
+            if airy:
+                D.cursor += 0.1
         if note.get("text"):
             for t in note["text"]:
                 D.text(t, 22, slots=True)
         if note.get("items2"):
             D.items(note["items2"], size=note.get("size", 23), letters=note.get("letters", True), start=len(note.get("items", [])), slots=True)
+
+    for ni, note in enumerate(L["notes"]):
+        D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
+        D.no_band(); D.cursor = TOP - 0.08
+        def _airy(S):
+            S.cursor = TOP - 0.08
+            _notes_body(S, note, True)
+            if S.cursor > FOOT_Y - 0.25:            # fits, but with nothing to spare above the footer rule
+                raise RuntimeError("no air")
+        airy = _trial(_airy)
+        _notes_body(D, note, airy)
     # ---- examples: question slide, worked slide(s), your turn q + reveal
     # An Example's `sub` is its label in the Teacher's Edition; it is not on the slide. The whole
     # problem — the story, the givens, the question — is in `prompt` (Croix, 4 October 2026: "If a
