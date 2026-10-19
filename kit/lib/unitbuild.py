@@ -331,18 +331,20 @@ def check_forms(A):
     practice test."""
     f = []
     forms = unit_forms(A)
-    prac = forms["practice"]
     tests = {k: v for k, v in forms.items() if k != "practice"}
+    # a course whose practice test is the web page (A7 from Unit 4) ships test forms only: they are then
+    # measured against each other, position for position
+    prac = forms.get("practice") or next(iter(tests.values()))
     for k, secs in tests.items():
         if _shape(secs) != _shape(prac):
-            f.append(f"form {k} is not parallel to the practice test: {_shape(secs)} vs {_shape(prac)}")
+            f.append(f"form {k} is not parallel to {'the practice test' if 'practice' in forms else 'the other forms'}: {_shape(secs)} vs {_shape(prac)}")
         tp = _transfer_positions(secs)
         if len(tp) != transfer_needed(A):
             f.append(f"ruling 18: form {k} carries exactly {transfer_needed(A)} transfer item(s), found {len(tp)}")
     tps = {k: tuple(_transfer_positions(v)) for k, v in tests.items()}
     if len(set(tps.values())) > 1:
         f.append(f"ruling 33: the transfer items sit at different positions across forms: {tps}")
-    npr = len(_transfer_positions(prac))
+    npr = len(_transfer_positions(forms["practice"])) if "practice" in forms else 0
     if npr:
         f.append(f"ruling 18: a transfer item may never appear on the practice test, found {npr}")
     return f
