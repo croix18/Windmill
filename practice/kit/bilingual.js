@@ -146,6 +146,7 @@ function mount(U, lang){
   var missing = root.__biMissing = root.__biMissing || {};
   function add(el, inner){
     if (el.querySelector(':scope > .tr')) return;
+    if (el.closest && el.closest('[translate="no"]')) return;          /* the teacher's own bar and paper stay in English */
     var src = el.innerHTML; if (!/[A-Za-z]/.test(el.textContent)) return;
     var t = B.tr(src);
     if (t == null){ missing[src] = (missing[src] || 0) + 1; return; }
@@ -167,6 +168,7 @@ function mount(U, lang){
   }
   function selectOptions(){
     Array.prototype.forEach.call(document.querySelectorAll('select option'), function(o){
+      if (o.closest('[translate="no"]')) return;
       var en = o.getAttribute('data-en') || o.textContent;
       if (!on){ if (o.hasAttribute('data-en')){ o.textContent = en; o.removeAttribute('data-en'); } return; }
       if (o.hasAttribute('data-en')) return;

@@ -210,7 +210,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       await biAudit('a whole set right');
       /* pair answers typed the Portuguese way: "48 e 18" */
       const pr = itemsOf(792).filter(i => i.x.kind === 'pair')[0];
-      if (pr) { await p.goto(url + '#set-792'); await p.waitForTimeout(200); const a = pr.x.pairs[0]; const E = require(path.join(dir, 'engine.js'));
+      if (pr) { await p.goto(url + '#set-792'); await p.waitForTimeout(200); const a = pr.x.pairs[0]; const E = require(fs.existsSync(path.join(dir, 'engine.js')) ? path.join(dir, 'engine.js') : path.join(dir, '..', 'engine.js'));
         await p.fill('#a' + pr.id, E.numStr(a[0]).replace(/,/g, '') + ' e ' + E.numStr(a[1]).replace(/,/g, '')); await check(p, pr.id);
         const st = await state(p, 792); if (!st.res[pr.id] || st.res[pr.id].v !== 'right') fail('"a e b" not marked right on the page'); }
       await p.click('.bi-toggle'); await p.waitForTimeout(80); if (await p.$$eval('.tr', e => e.length)) fail('second language: lines left after turning it off (end)');

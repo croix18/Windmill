@@ -151,3 +151,14 @@ math span on the page drawn by KaTeX, none fallen back; and over 60 sets every s
 renders with `throwOnError` and its TeX keeps the HTML's digits and letters in order (`Kit.Tex.skeleton`). Rule of thumb
 for unit authors: write math as the kit's HTML inside `M()`; TeX comes for free. Text in a math span becomes `\text{…}`;
 `<i>` is a variable; parentheses grow around a fraction or root.
+
+## The teacher copy (19 Oct 2026)
+Croix: *"I want to be able to print the test as well, not just make up tests"* — a **separate teacher page** per unit (the key
+must never sit in the student page's source). A `teacher/` folder beside the unit holds `unit.json` (the student scripts by
+`../` path, then `test.js` and `../../kit/teacher.js`), a two-line `gen_test.py` calling kit `teacher_gen.py` (the unit's
+assessment from the course's `build/<unit>/unit.py` → `test.js`: every form, stems/answers in TeX, figures as SVG from the
+paper's shape specs; `--check` re-runs every `check` tuple under sympy and refuses a stale test.js), and a `unit.js` shim for
+Node. `kit/teacher.js` adds the bar (Form A/B, Test, Test + key, Key only) and prints the paper with the kit's print classes:
+two-period line, "Show your work…" (+ the π line), follow-through note, work space per part, the key with notes, transfer
+flags and the score tracker. `check/teacher_check.js` is Rule 0 for the printout. The bar and the paper are `translate="no"`.
+Never for Google Sites; each teacher page is its own private artifact.

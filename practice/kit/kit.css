@@ -344,3 +344,23 @@ input[type=text],textarea,.wnum input{font-size:16px}
 .ppage .rad{margin-inline:.1em .08em}
 /* make-up tests */
 .pform .ptest{font-size:22px} .pkeyform .psec{margin-top:0}
+
+/* ---- the teacher copy (19 Oct 2026): the bar and the real test on paper (kit/teacher.js) ---- */
+.teacherbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:0 0 14px;padding:12px 14px;border:1.5px solid #b45309;border-radius:10px;background:color-mix(in srgb,#b45309 8%,transparent);font-family:var(--ui);font-size:14px;line-height:1.4}
+.teacherbar .tbtxt{flex:1 1 20rem}
+.teacherbar .tbbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.teacherbar .tblab{font-weight:600;margin-right:2px}
+.teacherbar .tbform{font-weight:600} .teacherbar select{font:600 14px var(--ui);min-height:40px;padding:6px 8px;border-radius:8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
+.teacherbar button{min-height:40px;padding:8px 14px}
+.tpage .ppts{float:right;font-weight:500;font-size:13px}
+.tpage .pwork{margin:4px 0 0}
+.tpage .pans{margin-top:4px}
+.tpage .pft{font:italic 12.5px/1.4 var(--ui);color:#444;margin:-4px 0 10px}
+.tpage .kwhy{font-size:13px;color:#333;margin-top:3px}
+.tpage .kerr{font-size:12.5px;color:#444;margin-top:4px}
+.tpage .kflag{font-size:12px;font-weight:700;letter-spacing:.04em;color:#7a2e0e;margin-top:4px}
+.tpage .kft{font-size:12.5px;color:#333}
+.tpage .katex{font-size:1.05em} .tpage .ptab .katex{font-size:1.12em}
+.tpage .tfig{display:block;margin:8px 0 4px var(--i1);max-width:100%;height:auto}
+.tpage .ptrack td,.tpage .ptrack th{padding:5px 8px}
+@media print{ .teacherbar{display:none!important} }
