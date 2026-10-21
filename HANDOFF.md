@@ -6,6 +6,26 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (21 Oct 2026) — read this first
 
+**A7 Unit 3 has a teacher copy; the pages lost their little texts** (kit `efabb15`, `68ac465`, `3ebfdfb`; A7 `570b863`, M7
+`cfe0327`). Croix, 21 Oct evening, sending the Unit 3 page as it was before make-ups left it: *"This has the retake. Cant you
+make it off of that? Also, eliminate the little texts that you do in the menu like (Same kinds of questions as the unit test,
+new numbers every set.)"*, then *"And this line 'Same kinds of questions as the unit test, new numbers every set.'"*
+- **"The retake" is Print → Make-up tests.** His file's questions were `a7/practice/u3/` verbatim (engine, coach, pictures,
+  walkthroughs, unit; only the kit around them was older), so `a7/practice/u3/teacher/` is built from `u3/` like the Unit 4
+  copies: the real Unit 3 test (one form, 36 points, as given 15 Oct) with its key, and the make-ups. A new private artifact,
+  *A7 Unit 3 — Teacher copy* (https://claude.ai/artifact/P2dK5TFAbDsEBmShodx6JT). `teacher_gen.py` now declares a check's variables positive, as the build gate does
+  (`68ac465`): Unit 3's variable bases are the first algebra on a teacher copy, and its checks raised NameError before.
+- **Gone from every page:** the line under the title ("Same kinds of questions…": `ui.js` shows only a unit's `notes` and
+  hides the line when there are none; the units no longer carry `intro`), "(none yet)" after My misses in the practice menu
+  (the count stays when there are misses), and the make-up prompt's parenthetical ("How many different forms?"). page.js
+  checks all three.
+- **Kept, and Croix told:** the answer notes under the title — A7 U4 "Type 7.2 × 10⁶ as 7.2 x 10^6, or tap × 10^." and
+  "Fractions are fine: −13/6."; M7 U4 "Use 3.14 for π unless the question says otherwise." and "Give exact answers — don't
+  round." M7's are the only place the page says how π and rounding are marked. Take them out only if he asks. The
+  confirmations ("This set stays saved on this device.") and the print preview's Ctrl + P line stay too.
+- Rebuilt, every check passing, and republished at their links: A7 U3 (Version 21), A7 U4 (Version 10), M7 U4 (Version 13) student pages —
+  Google Sites files re-sent — and the A7 U4 (Version 5) and M7 U4 (Version 2) teacher copies.
+
 **Make-up tests print from the teacher copy only** (kit `e45c76c`, A7 `e57fbde`, M7 `e5ec109`; Croix, 21 Oct evening: *"I don't
 want the students to be able to print the make up tests."*)
 - A student page's Print menu is Worksheet, Worksheet + answer key and My results. `ui.js` offers Make-up tests only where
@@ -15,9 +35,11 @@ want the students to be able to print the make up tests."*)
 - Rebuilt on it, every check passing: the A7 U3, A7 U4 and M7 U4 student pages, republished at their links (A7 U3 Version
   20, A7 U4 Version 9, M7 U4 Version 12), new Google Sites files sent; both U4 teacher copies, rebuilt in the repositories
   but not republished — nothing a teacher sees changed, and the published copies already print make-ups.
-- **A7 U3 has no teacher copy**, so its make-ups cannot be printed anywhere now (its exam was 15 Oct). Offered to Croix;
-  build one like `a7/practice/u4/teacher/` if he asks.
-- Students can still print Worksheet + answer key (a practice set and its key). Croix was told, in case he wants it gone too.
+- **A7 U3 had no teacher copy**, so for an hour its make-ups could not be printed anywhere; Croix asked for one and it
+  was built the same evening (above).
+- Students can still print Worksheet + answer key (a practice set and its key); not raised with Croix. What he was told
+  instead: each make-up prints its set number on the student's paper, and a student who knows it can open that set on the
+  practice page with every answer — offered to print the number on the key only. No answer yet; nothing changed.
 - M7's kit had an unused `check/vendor/` (KaTeX, left from 18 Oct): removed. `tools/practice_kit.py --vendor` copies the
   kit's files but never deletes ones the kit has dropped — look for leftovers when vendoring.
 
@@ -1128,3 +1150,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 
 - 21 Oct: Croix: "Remove the questions pertaining to significant digits…" → A7 Unit 4 test (Forms A and B, Form B recovered from the teacher copy), review, reference sheet, practice page (contentVersion 3, checks rebuilt) and teacher copy without significant digits; "Do not round." in Part 2 after an independent check; kit 1bcc8d4 (section notes keep with their first question) and 5e53173 (review_note); A7 U5, M7 U4 and U9 papers rebuilt. A7 dbecea95, M7 55333ef. Practice page Version 8, teacher copy Version 4, same links.
 - 21 Oct (evening): Croix: "I don't want the students to be able to print the make up tests." → kit e45c76c: Make-up tests only on teacher copies (TEACHER_TEST), a forged request prints nothing, page.js part D checks both pages; A7 U3, A7 U4 and M7 U4 student pages rebuilt and republished at their links, Google Sites files re-sent; U4 teacher copies rebuilt, not republished. A7 U3 has no teacher copy (offered). A7 e57fbde, M7 e5ec109.
+- 21 Oct (later evening): Croix sent the old Unit 3 page — "This has the retake. Cant you make it off of that? Also, eliminate the little texts that you do in the menu…", then "And this line 'Same kinds of questions…'" → A7 Unit 3 teacher copy (new private artifact; real test + key + make-ups); kit efabb15, 68ac465, 3ebfdfb: no line under the title, no '(none yet)', no make-up aside, teacher_gen symbols; A7 U3, U4, M7 U4 student pages and both U4 teacher copies rebuilt and republished; answer notes kept (told). A7 570b863, M7 cfe0327.
