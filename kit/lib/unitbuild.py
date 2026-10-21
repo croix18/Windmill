@@ -146,7 +146,9 @@ def build_review(U, outdir, key):
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}"
     doc = Doc(eyebrow, f"Unit {U['unit']} Review", U["title"], key=key)
     doc.instruction("Show your work. Circle your final answer.")
-    doc.para(UNSCORED_NOTE, size=9.5, italic=True, color=GRAY, before=0, after=8)
+    # a unit whose review leaves out one of its targets says so in its own words, `review_note` (A7 Unit 4, 21 October
+    # 2026: significant digits are taught in 4.04 and not assessed, so its review no longer covers every target)
+    doc.para(U.get("review_note") or UNSCORED_NOTE, size=9.5, italic=True, color=GRAY, before=0, after=8)
     for part in U["review"]:
         n_q = len([i for i in part["items"] if not i.get("heading")])
         right = f"{part['lessons']}   ·   {n_q} questions"

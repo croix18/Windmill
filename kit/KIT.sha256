@@ -1,5 +1,5 @@
 # The build kit, file by file (sha256). Written by Windmill's tools/kit_manifest.py; never by hand.
-6ed7bec79ff8b11927970be062b6a2ef52893d4aa2820407266cb198214be299  SPEC SCHEMA.md
+53770b16751ce7ef00a368853245be870be8e453d4427913f2fdec1fb090c010  SPEC SCHEMA.md
 af63d2bc81155a04f2d183d41abe1246a93e46a222de6b597511c9ab80c156a9  build_all.py
 029609cf2b19c9779313a6d0aed680b9731a77f72ad7a42eae92fc11284d27f1  build_lesson.py
 134c58f19378440ac0cb622a0891061a26398d6ff3e54d5c5addd7d97993e9b0  build_unit.py
@@ -42,4 +42,4 @@ d0eaea8e9751a1f3c86664100cea8ec59b218e88b13b1f503ece7fe3b0c33f1d  lib/names.py
 38934b2666e6cdbceabcef0d7025c29e82f24289b33a9fb466c2268ac2edfb48  lib/repeatcheck.py
 c955c375f6fef7816ffb1fb8e1deca67598f612321d6822b752beb47edc69cbb  lib/slotmark.py
 71e9db3d216768327cba3c288e45e51c25088413da76195a508e1bcbb7e67fb6  lib/tekit.py
-1d5c529e0ccb874a94300230d5b4d44405290d8f0c5e47a8a8ca0d450ddaad90  lib/unitbuild.py
+5a7cf46bc7c0be72670778091a7b3bd6afcc6c88ad7adaf1575a2782983617c7  lib/unitbuild.py

@@ -278,7 +278,9 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
 - `review` parts: `dict(letter, title, lessons, benchmark, items=[…])` — items as in banks. One
   item per review carries the **SSDD block**: a stem with four lettered parts on the same
   surface asking four different things, with `key_stem="**SSDD.**   …"` so the label prints on
-  the key only. The review is unscored: no points anywhere.
+  the key only. The review is unscored: no points anywhere. Its HOW TO USE THIS note says the review covers every
+  learning target; a unit whose review leaves one out gives its own note as `review_note` (A7 Unit 4: significant
+  digits, taught and not assessed).
 - `assessment.sections`: `[dict(title, benchmark, items=[…])]` — **one paper, numbered straight
   through, with no Day 1 / Day 2 division anywhere** (ruling 27). The paper's front line says it
   runs over two periods and that students continue from where they stopped; the student line for
