@@ -6,6 +6,21 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (21 Oct 2026) — read this first
 
+**Make-up tests print from the teacher copy only** (kit `e45c76c`, A7 `e57fbde`, M7 `e5ec109`; Croix, 21 Oct evening: *"I don't
+want the students to be able to print the make up tests."*)
+- A student page's Print menu is Worksheet, Worksheet + answer key and My results. `ui.js` offers Make-up tests only where
+  `window.TEACHER_TEST` is set — by a teacher copy's `test.js`, before `ui.js` runs (not `window.TEACHER`, which `teacher.js`
+  sets only once KaTeX has loaded) — and `showPrint` refuses any `mk…` request on a student page, so a forged button prints
+  nothing. `check/page.js` part D checks both kinds of page.
+- Rebuilt on it, every check passing: the A7 U3, A7 U4 and M7 U4 student pages, republished at their links (A7 U3 Version
+  20, A7 U4 Version 9, M7 U4 Version 12), new Google Sites files sent; both U4 teacher copies, rebuilt in the repositories
+  but not republished — nothing a teacher sees changed, and the published copies already print make-ups.
+- **A7 U3 has no teacher copy**, so its make-ups cannot be printed anywhere now (its exam was 15 Oct). Offered to Croix;
+  build one like `a7/practice/u4/teacher/` if he asks.
+- Students can still print Worksheet + answer key (a practice set and its key). Croix was told, in case he wants it gone too.
+- M7's kit had an unused `check/vendor/` (KaTeX, left from 18 Oct): removed. `tools/practice_kit.py --vendor` copies the
+  kit's files but never deletes ones the kit has dropped — look for leftovers when vendoring.
+
 **A7 Unit 4 has no significant digits** (A7 `dbecea95`; Croix: *"Remove the questions pertaining to significant digits. Add, subtract,
 multiply and dividing scientific notation is fine but anything asking how many significant digits should be removed."*)
 - **The test** (A7 `a7/build/u4/unit.py`): Forms A and B, **29 points** (12 / 4 / 13), questions 1–15, transfer items 6 and
@@ -1112,3 +1127,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 19 Oct: Croix: "Can I get an a/b for the tests?" → A7 Unit 4 test now ships as Form A (the original) and Form B (new, written today) in a7/build/u4/unit.py: parallel position for position, no keyed value shared (check_distinct), transfer items at 6 and 18, 108 items re-derived, gates 0 findings. kit/lib/unitbuild.check_forms tolerates a unit with test forms and no paper practice form (A7 practises on the web page). Build kit vendored into a7/build (was 6c8dd85, now this commit); gates u3+u4 pass; build_unit.py u4 built both forms (matplotlib fine here); install_unit u4 refreshed the package (Assessment/Form A, Form B). Practice page: Form B numbers added to TEST/TESTQ, contentVersion 2 (67 of 300 locked sets redrew). Teacher page prints Form A/B. NOTE: the A7 papers are still in Times — A7 course.py has no PAPER_FONT (ruling 46) — left for whoever owns A7 papers.
 
 - 21 Oct: Croix: "Remove the questions pertaining to significant digits…" → A7 Unit 4 test (Forms A and B, Form B recovered from the teacher copy), review, reference sheet, practice page (contentVersion 3, checks rebuilt) and teacher copy without significant digits; "Do not round." in Part 2 after an independent check; kit 1bcc8d4 (section notes keep with their first question) and 5e53173 (review_note); A7 U5, M7 U4 and U9 papers rebuilt. A7 dbecea95, M7 55333ef. Practice page Version 8, teacher copy Version 4, same links.
+- 21 Oct (evening): Croix: "I don't want the students to be able to print the make up tests." → kit e45c76c: Make-up tests only on teacher copies (TEACHER_TEST), a forged request prints nothing, page.js part D checks both pages; A7 U3, A7 U4 and M7 U4 student pages rebuilt and republished at their links, Google Sites files re-sent; U4 teacher copies rebuilt, not republished. A7 U3 has no teacher copy (offered). A7 e57fbde, M7 e5ec109.
