@@ -11,7 +11,6 @@ var T = {
   'Like the real test': 'Como na prova de verdade',
   'Whole test': 'Prova inteira',
   'My misses, with new numbers': 'Meus erros, com números novos',
-  'My misses, with new numbers (none yet)': 'Meus erros, com números novos (nenhum ainda)',
   'My misses, with new numbers (#)': 'Meus erros, com números novos (#)',
   'Set <b id="setno">#</b> · ¤': 'Lista <b id="setno">#</b> · ¤',
   'Change': 'Trocar',

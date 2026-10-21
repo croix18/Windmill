@@ -151,7 +151,7 @@ function render(){
 function paintScopes(){
   var sc = $('scope'), nm = Object.keys(misses()).length;
   sc.innerHTML = Object.keys(SCOPES).map(function(k){
-    var lab = SCOPES[k] + (k === 'miss' ? (nm ? ' (' + nm + ')' : ' (none yet)') : '');
+    var lab = SCOPES[k] + (k === 'miss' && nm ? ' (' + nm + ')' : '');      /* how many when there are; no "(none yet)" aside (21 Oct 2026) */
     return '<option value="' + k + '"' + (k === scope ? ' selected' : '') + (k === 'miss' && !nm && scope !== 'miss' ? ' disabled' : '') + '>' + esc(lab) + '</option>'; }).join('');
 }
 

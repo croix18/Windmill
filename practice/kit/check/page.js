@@ -48,7 +48,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       notes: e ? e.querySelectorAll('.pinote').length : 0, other: e ? Array.from(e.childNodes).filter(n => !(n.nodeType === 1 && n.classList.contains('pinote'))).length : 0 }; });
     const want = (U.notes || []).length;
     if (ln.notes !== want || ln.other) fail('the line under the title is not just the unit’s ' + want + ' notes: ' + JSON.stringify(ln));
-    if (ln.hidden === !!want) fail('the line under the title is ' + (ln.hidden ? 'hidden with notes to show' : 'showing with nothing in it')); }
+    if (ln.hidden === !!want) fail('the line under the title is ' + (ln.hidden ? 'hidden with notes to show' : 'showing with nothing in it'));
+    const miss = await p.$eval('#scope option[value="miss"]', o => o.textContent);   /* and no aside in the menu: no "(none yet)" */
+    if (miss !== 'My misses, with new numbers') fail('with no misses yet the practice menu says "' + miss + '"'); }
 
   /* A. every key */
   for (const seed of [11, 4821, 99999]) {
