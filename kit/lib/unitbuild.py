@@ -415,7 +415,10 @@ def build_form(U, outdir, key, form="test", student=False):
         right = f"{per_sec[si][1]} points" + (f"   {sec['benchmark']}" if key and not student else "")
         doc.section(f"Part {si + 1}.  {sec['title']}", right)
         if any(it.get("parts") for it in sec["items"]):
-            doc.para(FOLLOW_THROUGH, size=9.5, italic=True, color=GRAY, before=0, after=6)
+            # keep=True: the note rides with the section's first question. Without it a page could end
+            # on a section's title and this note, its questions all on the next page (A7 U4, M7 U4 and
+            # U9, A7 U5 — found 21 Oct 2026, when A7 U4's section 2 got shorter)
+            doc.para(FOLLOW_THROUGH, size=9.5, italic=True, color=GRAY, before=0, after=6, keep=True)
         for it in sec["items"]:
             if it.get("heading"):
                 doc.heading(it["heading"]); continue
