@@ -4,6 +4,39 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (21 Oct 2026) — read this first
+
+**A7 Unit 4 has no significant digits** (A7 `dbecea95`; Croix: *"Remove the questions pertaining to significant digits. Add, subtract,
+multiply and dividing scientific notation is fine but anything asking how many significant digits should be removed."*)
+- **The test** (A7 `a7/build/u4/unit.py`): Forms A and B, **29 points** (12 / 4 / 13), questions 1–15, transfer items 6 and
+  15. Part 2 is *Real-World Problems in Scientific Notation*: the plate's area and the vehicle's speed (Q7), the sum of two
+  lengths and the difference of two masses (Q8), every answer exact in scientific notation, and Part 2 says **"Do not
+  round."** — the class learned on 20 Oct (4.04) to round measured answers, and an independent check showed 2 of Part 2's 4
+  points turned on it. Gone: the counting question, Jonah and Priya (explain the rule), the significant-digit choice. Form
+  B's Devon is 3.4 × 10⁴ + 5.2 × 10⁶ — it was 10³, a gap of 3, which MA.8.NSO.1.5's clarification does not allow; Form B's
+  speed is 7.2 × 10² km in 8 hours (90 km/h; 80 was the take-home review's train). The review's Part C (with "Do not round.")
+  and the reference sheet follow (its significant-digits section and three vocabulary entries are gone; section 1 now
+  reads "Lessons 1–4"); the review gives its own HOW TO USE THIS note (`review_note`, kit `5e53173`), since it no longer
+  covers 4.04's significant-digit target. Lesson 4.04 itself is unchanged: taught, not assessed.
+- **Form B had been lost.** The session that wrote it (19 Oct) could not push A7 (token 401) and ended; its A7 work existed
+  only as the published practice page and teacher copy. Form B was read back out of the teacher copy's `test.js` (Form A in
+  it matched the repository's exactly), and the practice page's sources out of the published page. The practice unit's
+  checks were lost too: rebuilt as `u4_check.js` (3,000 sets), `verify.py` (every question re-read from the student's HTML,
+  worked in exact fractions; Forms A and B read from the spec's TeX against the exclusion list) and `plant_check.py`
+  (14 planted errors, all caught). The practice page is contentVersion 3: Part 2 as on the test, Parts 1 and 3 keep their
+  questions (Part 3's slot names stay `q12`–`q18`); √(64 + 36) — Form B's question backwards — was getting through and no
+  longer does; a rounded answer is told it is rounded ("Do not round: write every digit of the exact value"). Practice page
+  and teacher copy republished at their links.
+- **Kit (`1bcc8d4`): a test section's follow-through note keeps with its first question.** Papers had pages ending on a
+  section title and that note with the questions overleaf (A7 U4, A7 U5, M7 U4, M7 U9). Vendored into both courses; those
+  units' papers rebuilt at 0 findings and installed (M7 `55333ef`). A7 U3 and M7 U5 have no such page and were left as installed (their
+  lesson decks predate the current kit, so a papers-only rebuild there trips `pdftwin` on the unit deck).
+- **A7's install_unit.py now writes START HERE for test forms** (Form A and Form B — paper, key, Worked Answers).
+- **A7's practice kit is the current one** (Lexend, TeX, Print, teacher copies); A7 U3's page rechecked on it.
+- **Noticed, not fixed — `practice/kit/core.js` `hintDiv`:** "Start with 6 × 10 = 60; 72 − 60 = 12 is left" names 12, which
+  is also 72 ÷ 6. A coincidence of the numbers (a = 10b²/(b − 1): 40 ÷ 2, 45 ÷ 3, 72 ÷ 6), but the hint then shows the answer.
+  A7 U4's `u4_check.js` allows exactly this phrase; fix it in the kit when the kit is next opened.
+
 ## Where things stand (16 Oct 2026, evening) — read this first
 
 **The plan moved twice today, and everything that reads it has the new one.**
@@ -1077,3 +1110,5 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 19 Oct: teacher copies generalised into the kit (teacher.js, teacher_gen.py with a shapes→SVG drawer for figkit specs, check/teacher_check.js; bilingual skips translate="no"; page.js finds ../engine.js from a teacher folder). M7 U4 teacher page built (Forms A and B, 16 figures). All suites re-run on the final kit: A7 U4, M7, A7 U3, both teacher pages — passed. Both teacher pages published as private artifacts.
 
 - 19 Oct: Croix: "Can I get an a/b for the tests?" → A7 Unit 4 test now ships as Form A (the original) and Form B (new, written today) in a7/build/u4/unit.py: parallel position for position, no keyed value shared (check_distinct), transfer items at 6 and 18, 108 items re-derived, gates 0 findings. kit/lib/unitbuild.check_forms tolerates a unit with test forms and no paper practice form (A7 practises on the web page). Build kit vendored into a7/build (was 6c8dd85, now this commit); gates u3+u4 pass; build_unit.py u4 built both forms (matplotlib fine here); install_unit u4 refreshed the package (Assessment/Form A, Form B). Practice page: Form B numbers added to TEST/TESTQ, contentVersion 2 (67 of 300 locked sets redrew). Teacher page prints Form A/B. NOTE: the A7 papers are still in Times — A7 course.py has no PAPER_FONT (ruling 46) — left for whoever owns A7 papers.
+
+- 21 Oct: Croix: "Remove the questions pertaining to significant digits…" → A7 Unit 4 test (Forms A and B, Form B recovered from the teacher copy), review, reference sheet, practice page (contentVersion 3, checks rebuilt) and teacher copy without significant digits; "Do not round." in Part 2 after an independent check; kit 1bcc8d4 (section notes keep with their first question) and 5e53173 (review_note); A7 U5, M7 U4 and U9 papers rebuilt. A7 dbecea95, M7 55333ef. Practice page Version 8, teacher copy Version 4, same links.
