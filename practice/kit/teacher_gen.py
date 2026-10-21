@@ -131,7 +131,10 @@ def _sig(s):
 def _ev(expr):
     import sympy as sp
     env = {"F": lambda a, b=1: sp.Rational(a, b), "sqrt": sp.sqrt, "floor": sp.floor, "sig": _sig, "Integer": sp.Integer, "Rational": sp.Rational,
-           "pi": sp.pi, "Abs": sp.Abs, "abs": sp.Abs, "N": sp.N, "nsimplify": sp.nsimplify, "Float": sp.Float}
+           "pi": sp.pi, "Abs": sp.Abs, "abs": sp.Abs, "N": sp.N, "nsimplify": sp.nsimplify, "Float": sp.Float,
+           # the variables of an algebra check (A7 Unit 3's variable bases), declared positive exactly as the build kit's
+           # gate declares them (kit/lib/lessonbuild.py _ev), so a check passes here exactly when it passes there
+           **{s: sp.Symbol(s, positive=True) for s in "abcdkmnpqrstwxyz"}}
     return sp.sympify(eval(expr, {"__builtins__": {}}, env))
 
 def run_check(chk, where, out):

@@ -170,4 +170,7 @@ paper's shape specs; `--check` re-runs every `check` tuple under sympy and refus
 Node. `kit/teacher.js` adds the bar (Form A/B, Test, Test + key, Key only) and prints the paper with the kit's print classes:
 two-period line, "Show your work…" (+ the π line), follow-through note, work space per part, the key with notes, transfer
 flags and the score tracker. `check/teacher_check.js` is Rule 0 for the printout. The bar and the paper are `translate="no"`.
-Never for Google Sites; each teacher page is its own private artifact.
+Never for Google Sites; each teacher page is its own private artifact. A unit with one `sections` (no Form A/B) prints as
+"the test". A check's variables (a, b, m, n, x, y, …) are sympy symbols declared positive, exactly as the build kit's gate
+declares them, so a check passes in `teacher_gen.py` exactly when it passes in the build (21 Oct 2026, for A7 Unit 3's
+variable bases — the first teacher copy of a test with algebra in it).
