@@ -138,6 +138,11 @@ is exactly what a student would see on screen for that set number — a student 
 the same form. page.js part D checks three forms: three different sets, one name line each, every key row recomputed from
 that form's set, and the page unchanged afterwards.
 
+**Teacher copy only (21 Oct 2026).** Croix: *"I don't want the students to be able to print the make up tests."* The option
+shows only on a teacher build (the page with `TEACHER_TEST` in it); a student page's Print menu is Worksheet, Worksheet +
+answer key and My results, and a make-up request there prints nothing. page.js part D checks both: no make-up tests on a
+student page (in the menu or forged), the three-form check on the teacher copy.
+
 ## Lexend and the math in TeX (17–18 Oct 2026)
 Croix: *"Can you make it in the lexend font?"* then *"Make the math in latex."* The page is set in Lexend (ruling 46;
 no italics anywhere — Lexend has none; variables upright). The math is drawn by KaTeX: `tex.js` gives every `<span class="m">`

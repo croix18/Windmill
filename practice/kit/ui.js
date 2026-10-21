@@ -664,10 +664,14 @@ function resultsHtml(){
     ITEMS.map(function(it){ var R = S.res[it.id], ok = R && R.v === 'right'; return '<tr class="' + (ok ? 'ok' : 'no') + '"><td class="pk">' + esc(it.lab) + '</td><td>' + yourAnswer(it) + '</td><td><span class="bt">' + verdict(it) + '</span></td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('') + '</tbody></table>';
   return h;
 }
+/* Make-up tests print from the teacher copy only (Croix, 21 Oct 2026: "I don't want the students to be able to print the
+   make up tests"). A teacher build is the one with the real test in it (test.js sets TEACHER_TEST before this script). */
+function teacherPage(){ return !!window.TEACHER_TEST; }
 function printMenu(){
   var test = S.mode === 'test' && !S.done;
   ask0('What do you want to print?', [
-    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key'], ['mk', 'Make-up tests'], ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]);
+    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key']].concat(teacherPage() ? [['mk', 'Make-up tests']] : []).concat([
+    ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]));
 }
 /* Make-up tests (Croix, 18 Oct 2026: "print tests or make ups directly from here… I'll need it to print the answer key too"):
    one to five forms, each a different set of the WHOLE unit, headed as a test with a name line and its form letter; every
@@ -709,6 +713,7 @@ function ask0(text, opts){                                   /* the print choice
   var f = c.querySelector('[data-print]:not([disabled])'); if (f) f.focus();
 }
 function showPrint(kind){
+  if (/^mk/.test(kind) && !teacherPage()) return;            /* no make-up tests on a student page, whatever asks */
   closeAsk();
   var pv = $('printview'); if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-label', 'Print preview'); document.body.appendChild(pv); }
   if (kind === 'mk'){ makeupMenu(); return; }

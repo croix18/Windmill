@@ -233,9 +233,24 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
     ip.forEach((it, k) => { const want = it.kind === 'text' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
       const got = pr.keys[k] ? pr.keys[k][1] : ''; if (got.replace(/\s+/g, '') !== want.replace(/\s+/g, '')) fail('print: key ' + it.id + ' is "' + got + '", the page marks "' + want + '"'); });
-    /* make-up tests: three forms, each a different set; every form's key is that form's own answers (recomputed from the
-       form's set in this browser); the page's own set, items and answers are untouched afterwards */
-    await p.click('#pvClose'); await p.click('#bPrint'); await p.click('[data-print="mk"]');
+    /* make-up tests: on a student page there are none (Croix, 21 Oct 2026: "I don't want the students to be able to print
+       the make up tests") — not in the menu, and a forged request prints nothing; on the teacher copy, three forms, each a
+       different set; every form's key is that form's own answers (recomputed from the form's set in this browser); the
+       page's own set, items and answers are untouched afterwards */
+    await p.click('#pvClose');
+    const isTeacher = await p.evaluate(() => !!window.TEACHER_TEST);
+    if (!isTeacher) {
+      await p.click('#bPrint');
+      const opts = await p.$$eval('[data-print]', es => es.map(e => e.dataset.print));
+      if (opts.some(o => /^mk/.test(o))) fail('print: a student page offers make-up tests: ' + opts.join(', '));
+      if (['ws', 'wk', 'res'].some(o => opts.indexOf(o) < 0)) fail('print: the student menu is ' + opts.join(', '));
+      await p.click('#cn');
+      const forged = await p.evaluate(() => { const b = document.createElement('button'); b.dataset.print = 'mk3'; document.body.appendChild(b); b.click(); b.remove();
+        const pv = document.getElementById('printview'); return { pv: !!pv && !pv.hidden && pv.innerHTML.length > 0, printing: document.body.classList.contains('printing') }; });
+      if (forged.pv || forged.printing) fail('print: a forged make-up request printed on a student page');
+    }
+    if (isTeacher) {
+    await p.click('#bPrint'); await p.click('[data-print="mk"]');
     if (!(await p.isVisible('[data-print="mk3"]'))) fail('print: no form count after Make-up tests');
     const before = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent }));
     await p.click('[data-print="mk3"]'); await p.waitForTimeout(150);
@@ -266,6 +281,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose');
     const after = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent}));
     if (after.h !== before.h || after.n !== before.n || after.first !== before.first) fail('make-up: the page changed after printing make-ups');
+    }
     await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     await p.emulateMedia({ media: 'print' });
     const vis = await p.evaluate(() => ({ sheet: getComputedStyle(document.querySelector('.sheet')).display, watch: getComputedStyle(document.querySelector('.watch')).display, bar: getComputedStyle(document.querySelector('#printview .pbar')).display, pv: getComputedStyle(document.getElementById('printview')).display }));
