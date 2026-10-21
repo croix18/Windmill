@@ -676,7 +676,7 @@ function printMenu(){
 /* Make-up tests (Croix, 18 Oct 2026: "print tests or make ups directly from here… I'll need it to print the answer key too"):
    one to five forms, each a different set of the WHOLE unit, headed as a test with a name line and its form letter; every
    form's answer key follows on its own page, labelled with the form letter and set number so the teacher keeps the keys. */
-function makeupMenu(){ ask0('How many different forms? (each is a new set; the keys print at the end)', [['mk1', '1'], ['mk2', '2'], ['mk3', '3'], ['mk4', '4'], ['mk5', '5']]); }
+function makeupMenu(){ ask0('How many different forms?', [['mk1', '1'], ['mk2', '2'], ['mk3', '3'], ['mk4', '4'], ['mk5', '5']]); }
 function withSet(s, fn){                                   /* run fn with the page's data drawn from set s, then put everything back */
   var o = {seed: seed, scope: scope, G: G, DS: DS, ITEMS: ITEMS, EX: EX, H: HASHV}, out;
   seed = s; scope = 'all';
@@ -733,7 +733,10 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && docu
 /* the page's words, from the unit */
 document.title = U.title;
 $('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;
-$('intro').innerHTML = '<span class="itx">' + U.intro + '</span>' + (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
+/* No line about the page under the title (Croix, 21 Oct 2026: "eliminate the little texts that you do in the menu like (Same kinds
+   of questions as the unit test, new numbers every set.)"): only a unit's notes — how to write an answer — and none at all hides it. */
+var notesHtml = (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
+$('intro').innerHTML = notesHtml; $('intro').hidden = !notesHtml;
 openSet(seed, scope);
 if (K.Bi && U.second) K.Bi.mount(U, (window.KitLang || {})[U.second.code]);   /* the second-language toggle (kit/bilingual.js), when the unit has one; after the first set is drawn */
 })();

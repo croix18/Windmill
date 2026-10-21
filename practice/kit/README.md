@@ -66,7 +66,7 @@ in the code; the four reports are in the Windmill HANDOFF.
 ## The unit interface (`window.Unit`, `module.exports` under Node)
 ```
 id, contentVersion, legacy: [old storage prefixes, migrated once],
-title, eyebrow, h1, intro, notes: [html],
+title, eyebrow, h1, notes: [html],
 keypad: [{label, say, ins(kind) → text}],
 generate(seed) → {sections: [{title, items}]}
    item: {type: 'parts' | 'solo' | 'mc' | 'multi', stem, fig?, parts | part | opts+correct}
@@ -127,6 +127,10 @@ marks right, results match, only the printout on paper, Close restores the page,
 - **Hint number boxes** are plain text boxes: a phone's decimal pad has no minus and no slash, and many Hint steps need them.
 - **Print:** a unit may give `notesPrint` (paper is not a keyboard) and `view.blank(part)` (e.g. "___ × 10^__" for
   scientific-notation answers).
+- **No line about the page (21 Oct 2026).** Croix: *"eliminate the little texts that you do in the menu like (Same kinds of
+  questions as the unit test, new numbers every set.)"* Under the title there is only the unit's `notes` — how to write an
+  answer ("Use 3.14 for π…") — and nothing at all when it has none; the old `intro` is not read. The make-up prompt is just
+  "How many different forms?".
 
 ## Make-up tests (18 Oct 2026)
 Croix: *"I want the print function to be able to just print tests or make ups directly from here… I'll need it to print the

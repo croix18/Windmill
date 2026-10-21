@@ -40,6 +40,16 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (f) route.fulfill({ status: 200, contentType: f.endsWith('.js') ? 'application/javascript' : 'text/css', headers: { 'access-control-allow-origin': '*' }, body: fs.readFileSync(path.join(VEND, f)) }); else route.fulfill({ status: 404, body: '' }); });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/fonts|ERR_TUNNEL|net::/.test(m.text())) errs.push(m.text()); });
 
+  /* the line under the title is the unit's notes and nothing else — hidden when there are none (Croix, 21 Oct 2026: "eliminate
+     the little texts that you do in the menu like (Same kinds of questions as the unit test, new numbers every set.)") */
+  { if (U.intro) fail('unit.js still has an intro: the page no longer shows one (kit README, the unit interface)');
+    await fresh(p, 11);
+    const ln = await p.evaluate(() => { const e = document.getElementById('intro'); return { hidden: !e || e.hidden || getComputedStyle(e).display === 'none',
+      notes: e ? e.querySelectorAll('.pinote').length : 0, other: e ? Array.from(e.childNodes).filter(n => !(n.nodeType === 1 && n.classList.contains('pinote'))).length : 0 }; });
+    const want = (U.notes || []).length;
+    if (ln.notes !== want || ln.other) fail('the line under the title is not just the unit’s ' + want + ' notes: ' + JSON.stringify(ln));
+    if (ln.hidden === !!want) fail('the line under the title is ' + (ln.hidden ? 'hidden with notes to show' : 'showing with nothing in it')); }
+
   /* A. every key */
   for (const seed of [11, 4821, 99999]) {
     await fresh(p, seed);
