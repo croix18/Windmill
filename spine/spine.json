@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-16T16:25:04-04:00",
+ "generatedAt": "2026-10-22T16:11:22-04:00",
  "sources": {
-  "a7": "362d75fe",
-  "m7": "5338cf5",
+  "a7": "570b8633",
+  "m7": "cfe0327",
   "deckhand": "411f496"
  },
  "year": {
@@ -5624,20 +5624,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "9.02",
-    "title": "Adding Linear Expressions With Rational Coefficients",
+    "kind": "extra",
+    "code": null,
+    "title": "A day off the plan (the log does not say which day, or why)",
     "unit": 9,
-    "benchmarks": [
-     "MA.7.AR.1.1"
-    ],
-    "ixl": [
-     {
-      "name": "Add linear expressions",
-      "code": "RPY",
-      "due": "2026-10-23"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-10-23": {
@@ -5695,21 +5687,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.03+04",
-    "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
+    "code": "9.02",
+    "title": "Adding Linear Expressions With Rational Coefficients",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.1"
     ],
     "ixl": [
      {
-      "name": "Subtract linear expressions",
-      "code": "KCX",
-      "due": "2026-10-26"
-     },
-     {
-      "name": "Add and subtract linear expressions",
-      "code": "6BT",
+      "name": "Add linear expressions",
+      "code": "RPY",
       "due": "2026-10-26"
      }
     ]
@@ -5762,13 +5749,24 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.05",
-    "title": "Equivalent Numerical Expressions",
+    "code": "9.03+04",
+    "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
     "unit": 9,
     "benchmarks": [
-     "MA.7.AR.1.2"
+     "MA.7.AR.1.1"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Subtract linear expressions",
+      "code": "KCX",
+      "due": "2026-10-27"
+     },
+     {
+      "name": "Add and subtract linear expressions",
+      "code": "6BT",
+      "due": "2026-10-27"
+     }
+    ]
    }
   },
   "2026-10-27": {
@@ -5818,19 +5816,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.06",
-    "title": "Rewriting Equivalent Numerical Expressions",
+    "code": "9.05",
+    "title": "Equivalent Numerical Expressions",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
-    "ixl": [
-     {
-      "name": "Identify properties of addition and multiplication",
-      "code": "JC2",
-      "due": "2026-10-28"
-     }
-    ]
+    "ixl": []
    }
   },
   "2026-10-28": {
@@ -5888,16 +5880,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.07",
-    "title": "Equivalent Linear Expressions",
+    "code": "9.06",
+    "title": "Rewriting Equivalent Numerical Expressions",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
     "ixl": [
      {
-      "name": "Evaluate linear expressions",
-      "code": "UG6",
+      "name": "Identify properties of addition and multiplication",
+      "code": "JC2",
       "due": "2026-10-29"
      }
     ]
@@ -5963,36 +5955,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.08",
-    "title": "Equivalent Expressions Using Properties of Operations",
+    "code": "9.07",
+    "title": "Equivalent Linear Expressions",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
     "ixl": [
      {
-      "name": "Write equivalent expressions using properties",
-      "code": "6XR",
-      "due": "2026-10-30"
-     },
-     {
-      "name": "Identify equivalent linear expressions I",
-      "code": "DRB",
-      "due": "2026-10-30"
-     },
-     {
-      "name": "Identify equivalent linear expressions II",
-      "code": "KAR",
-      "due": "2026-10-30"
-     },
-     {
-      "name": "Identify equivalent linear expressions using algebra tiles",
-      "code": "38V",
-      "due": "2026-10-30"
-     },
-     {
-      "name": "Multiply using the distributive property",
-      "code": "NUY",
+      "name": "Evaluate linear expressions",
+      "code": "UG6",
       "due": "2026-10-30"
      }
     ]
@@ -6057,12 +6029,40 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "9.08",
+    "title": "Equivalent Expressions Using Properties of Operations",
+    "unit": 9,
+    "benchmarks": [
+     "MA.7.AR.1.2"
+    ],
+    "ixl": [
+     {
+      "name": "Write equivalent expressions using properties",
+      "code": "6XR",
+      "due": "2026-11-02"
+     },
+     {
+      "name": "Identify equivalent linear expressions I",
+      "code": "DRB",
+      "due": "2026-11-02"
+     },
+     {
+      "name": "Identify equivalent linear expressions II",
+      "code": "KAR",
+      "due": "2026-11-02"
+     },
+     {
+      "name": "Identify equivalent linear expressions using algebra tiles",
+      "code": "38V",
+      "due": "2026-11-02"
+     },
+     {
+      "name": "Multiply using the distributive property",
+      "code": "NUY",
+      "due": "2026-11-02"
+     }
+    ]
    }
   },
   "2026-11-02": {
@@ -16943,6 +16943,14 @@
      "title": "State test — no class",
      "unit": null,
      "meets": false
+    },
+    "2026-10-22": {
+     "kind": "extra",
+     "code": null,
+     "title": "A day off the plan (the log does not say which day, or why)",
+     "unit": null,
+     "meets": true,
+     "unrecorded": true
     },
     "2027-01-14": {
      "kind": "off",
