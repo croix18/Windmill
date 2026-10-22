@@ -24,6 +24,14 @@ We just got through the first lesson of unit 9 today. We are also taking the a7 
   when Croix asked "Can I get the updated schedule for m7"): test dates, every school day from 19 Oct, IXL due dates; written
   from mkscope's laid plan and checked row for row against it. Updated with the lost day. It is a copy: when the plan moves,
   update the doc too (or tell Croix it is stale).
+- **The schedules are on mrshaffer.org** (`croix18/mrshaffer-site` `7c86038`; Croix, 22 Oct: *"Can you actually push the
+  schedules to the website?"*): `/schedule/m7/` and `/schedule/a7/` — every school day by week (lesson, test days, days without
+  class, each lesson's IXL skills and due date), the next test at the top, every unit test in a fold-out list. Built by the
+  site's `tools/schedule.py` from `spine/spine.json` (units' names from each course's `build/course.py`) and committed as
+  static pages in `public/schedule/`; a Schedule icon on the home page, a Schedule row on each course's practice page. No
+  benchmark codes, no teacher notes; the visitor's clock decides which weeks are over, today and the next test. **When the
+  plan moves, rebuild and push them** — step 5 of "The plan follows the class". The school's filter blocks mrshaffer.org
+  (22 Oct), so for now students reach it from home.
 - **Windmill's check.sh fails in the Drive test** (`drive/test_windyhill.js:739`, `con[0]` undefined): section I still expects
   M7's HTML console `M7 Unit 4 Area - All Slides.html`, which ruling 41 removed (M7 `25bab82`, 5 Oct). Not from today's
   change; every check after it passes when run by hand. Pushed with git directly. Fix section I when the Drive script is next
@@ -649,6 +657,9 @@ quarter's end or content runs past 30 April. (Ruling 35 in M7's rulebook, §13b(
   4. in each course: `python3 tools/vendor_windmill.py`, A7 also `python3 tools/master_sheet.py`
      and its recalculation and check; rebuild the units being taught (`build_all.py uN --install` —
      the consoles carry the spine); push; send him the consoles.
+  5. the students' schedules (since 22 Oct): in `croix18/mrshaffer-site`, `python3 tools/schedule.py --windmill
+     ../Windmill --m7 ../windy-hill-m7 --a7 ../croix18-windy-hill-a7`, commit `public/schedule/`, push — Cloudflare
+     deploys mrshaffer.org/schedule/ in about a minute.
 - **On the panel the console does it without a session** (`consolekit`, `flow.js`): it records what
   each period actually did — a lesson once its boards are reached during that period, a day marked
   "review / catch-up" or "testing / no class" on Today, a lesson marked taught by hand — in the
@@ -1177,3 +1188,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 21 Oct (evening): Croix: "I don't want the students to be able to print the make up tests." → kit e45c76c: Make-up tests only on teacher copies (TEACHER_TEST), a forged request prints nothing, page.js part D checks both pages; A7 U3, A7 U4 and M7 U4 student pages rebuilt and republished at their links, Google Sites files re-sent; U4 teacher copies rebuilt, not republished. A7 U3 has no teacher copy (offered). A7 e57fbde, M7 e5ec109.
 - 21 Oct (later evening): Croix sent the old Unit 3 page — "This has the retake. Cant you make it off of that? Also, eliminate the little texts that you do in the menu…", then "And this line 'Same kinds of questions…'" → A7 Unit 3 teacher copy (new private artifact; real test + key + make-ups); kit efabb15, 68ac465, 3ebfdfb: no line under the title, no '(none yet)', no make-up aside, teacher_gen symbols; A7 U3, U4, M7 U4 student pages and both U4 teacher copies rebuilt and republished; answer notes kept (told). A7 570b863, M7 cfe0327.
 - 22 Oct: Croix: "Can I get the updated schedule for m7" → the M7 Schedule 2026–27 doc (Claude Docs) from mkscope's plan. Then: "Alignment check. We just got through the first lesson of unit 9 today. We are also taking the a7 unit 4 assessment on Monday." → M7 as-run 2026-10-23,9.02; the Unit 9 spiral day takes the loss, no test moves; spine, phone page (Version 3), M7 master sheet, Unit 9 START HERE and the doc updated; A7 unchanged. Windmill dd390a6, M7 1e85e39, A7 0b4ca5c. check.sh's Drive test fails (pre-existing, ruling 41).
+- 22 Oct (later): Croix: "Can you actually push the schedules to the website?" → mrshaffer-site 7c86038: mrshaffer.org/schedule/ (M7, A7) built from the spine by the site's tools/schedule.py; a Schedule icon on the home page and a Schedule row on each practice page; the site's background no longer tiles on long pages. "The plan follows the class" gains step 5 (rebuild and push the schedules).
