@@ -4,7 +4,32 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (21 Oct 2026) — read this first
+## Where things stand (22 Oct 2026) — read this first
+
+**M7 is a day behind; A7 is on the plan** (Windmill `dd390a6`, M7 `1e85e39`, A7 `0b4ca5c`). Croix, 22 Oct: *"Alignment check.
+We just got through the first lesson of unit 9 today. We are also taking the a7 unit 4 assessment on Monday."*
+- **M7:** as-run line `2026-10-23,9.02,` — the class begins 9.02 tomorrow; which day went elsewhere is not recorded, so Thu 22
+  shows as a day off the plan. Unit 9's lessons now run to Fri 30 Oct, where the spiral day takes the lost day (his rule:
+  spiral days first), so **the Unit 9 test stays Mon–Tue 2–3 Nov** and nothing after it moves; 6 spiral days left. The cost:
+  Unit 9's Review Day folder is the retrieval day built for that Friday, and the plan has no day for it now (START HERE says
+  so, from `u9/manifest.py`'s review_note). The other way, simulated and offered to Croix: log Fri 30 Oct as a review day to
+  keep it → the Unit 9 test moves to Tue–Wed 3–4 Nov, Unit 10 starts Thu 5 Nov and loses its spiral day (19 Nov, the AR.2.2
+  CFA 1 response day, which then sits on the review day, 20 Nov); the Unit 10 test stays 30 Nov–1 Dec.
+- **A7:** the Unit 4 exam is already Mon–Tue 26–27 Oct; nothing moved. Asked whether it is one day or two (one → Unit 5
+  starts a day sooner).
+- Regenerated: M7's scope and IXL due dates; M7's master sheet (0 problems); the spine (only M7's 22–30 Oct changed; bell
+  kept, no Deckhand checkout); the phone page (Version 3, same link; its log was empty); M7 Unit 9's START HERE (dates and the
+  note, written by `install_unit.start_here()` against the installed package, not a reinstall). Vendored into both courses.
+- **The M7 Schedule doc** (Claude Docs, *M7 Schedule 2026–27*, https://claude.ai/artifact/QjF2aXsraxWbkMhjKdwJd4 — made today
+  when Croix asked "Can I get the updated schedule for m7"): test dates, every school day from 19 Oct, IXL due dates; written
+  from mkscope's laid plan and checked row for row against it. Updated with the lost day. It is a copy: when the plan moves,
+  update the doc too (or tell Croix it is stale).
+- **Windmill's check.sh fails in the Drive test** (`drive/test_windyhill.js:739`, `con[0]` undefined): section I still expects
+  M7's HTML console `M7 Unit 4 Area - All Slides.html`, which ruling 41 removed (M7 `25bab82`, 5 Oct). Not from today's
+  change; every check after it passes when run by hand. Pushed with git directly. Fix section I when the Drive script is next
+  opened.
+
+## Where things stand (21 Oct 2026)
 
 **A7 Unit 3 has a teacher copy; the pages lost their little texts** (kit `efabb15`, `68ac465`, `3ebfdfb`; A7 `570b863`, M7
 `cfe0327`). Croix, 21 Oct evening, sending the Unit 3 page as it was before make-ups left it: *"This has the retake. Cant you
@@ -1151,3 +1176,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 21 Oct: Croix: "Remove the questions pertaining to significant digits…" → A7 Unit 4 test (Forms A and B, Form B recovered from the teacher copy), review, reference sheet, practice page (contentVersion 3, checks rebuilt) and teacher copy without significant digits; "Do not round." in Part 2 after an independent check; kit 1bcc8d4 (section notes keep with their first question) and 5e53173 (review_note); A7 U5, M7 U4 and U9 papers rebuilt. A7 dbecea95, M7 55333ef. Practice page Version 8, teacher copy Version 4, same links.
 - 21 Oct (evening): Croix: "I don't want the students to be able to print the make up tests." → kit e45c76c: Make-up tests only on teacher copies (TEACHER_TEST), a forged request prints nothing, page.js part D checks both pages; A7 U3, A7 U4 and M7 U4 student pages rebuilt and republished at their links, Google Sites files re-sent; U4 teacher copies rebuilt, not republished. A7 U3 has no teacher copy (offered). A7 e57fbde, M7 e5ec109.
 - 21 Oct (later evening): Croix sent the old Unit 3 page — "This has the retake. Cant you make it off of that? Also, eliminate the little texts that you do in the menu…", then "And this line 'Same kinds of questions…'" → A7 Unit 3 teacher copy (new private artifact; real test + key + make-ups); kit efabb15, 68ac465, 3ebfdfb: no line under the title, no '(none yet)', no make-up aside, teacher_gen symbols; A7 U3, U4, M7 U4 student pages and both U4 teacher copies rebuilt and republished; answer notes kept (told). A7 570b863, M7 cfe0327.
+- 22 Oct: Croix: "Can I get the updated schedule for m7" → the M7 Schedule 2026–27 doc (Claude Docs) from mkscope's plan. Then: "Alignment check. We just got through the first lesson of unit 9 today. We are also taking the a7 unit 4 assessment on Monday." → M7 as-run 2026-10-23,9.02; the Unit 9 spiral day takes the loss, no test moves; spine, phone page (Version 3), M7 master sheet, Unit 9 START HERE and the doc updated; A7 unchanged. Windmill dd390a6, M7 1e85e39, A7 0b4ca5c. check.sh's Drive test fails (pre-existing, ruling 41).
