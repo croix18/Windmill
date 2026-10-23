@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-22T20:00:31-04:00",
+ "generatedAt": "2026-10-22T20:12:00-04:00",
  "sources": {
-  "a7": "0b4ca5cb",
-  "m7": "1e85e39",
+  "a7": "20e879f1",
+  "m7": "0fc43a8",
   "deckhand": "411f496"
  },
  "year": {
@@ -1957,8 +1957,7 @@
     "MA.7.AR.2.2"
    ],
    "lessons": [
-    "on:10.09",
-    "on:10.10"
+    "on:10.09+10"
    ]
   },
   "D5S": {
@@ -6914,35 +6913,35 @@
    ],
    "events": [],
    "acc": {
-    "kind": "thread",
-    "code": "T-B1",
-    "title": "Thread B: angle pairs — supplementary, complementary, vertical, adjacent (16.1)",
+    "kind": "lesson",
+    "code": "6.07+08",
+    "title": "Similar triangles; indirect measurement",
     "unit": 6,
     "benchmarks": [
-     "MA.8.GR.1.4"
+     "MA.8.GR.2.4"
     ],
     "ixl": [
      {
-      "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
-      "code": "HGV",
+      "name": "Side lengths of similar triangles",
+      "code": "QSK",
       "due": "2026-11-18"
      },
      {
-      "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
-      "code": "R2B",
+      "name": "Similar triangles and indirect measurement",
+      "code": "88W",
       "due": "2026-11-18"
      },
      {
-      "name": "Write and solve equations using angle relationships",
-      "code": "DBV",
+      "name": "Identify similar triangles",
+      "code": "6PD",
       "due": "2026-11-18"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "10.09",
-    "title": "Writing Two-Step Equations From Real-World Contexts",
+    "code": "10.09+10",
+    "title": "Writing and Solving Two-Step Equations From Real-World Contexts",
     "unit": 10,
     "benchmarks": [
      "MA.7.AR.2.2"
@@ -6951,7 +6950,7 @@
      {
       "name": "Solve two-step equations: word problems",
       "code": "D2Y",
-      "due": "2026-11-19"
+      "due": "2026-11-18"
      }
     ]
    }
@@ -6992,48 +6991,24 @@
      "end": "3:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CFA 1 response (AR.2.2 plan) — on the review day: the plan has no spiral day left before it"
+   ],
    "acc": {
-    "kind": "thread",
-    "code": "T-B2",
-    "title": "Thread B: interior and exterior angles of a triangle (16.2)",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 6,
-    "benchmarks": [
-     "MA.8.GR.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Find missing angles in triangles",
-      "code": "JFJ",
-      "due": "2026-11-19"
-     },
-     {
-      "name": "Exterior Angle Theorem",
-      "code": "FMP",
-      "due": "2026-11-19"
-     },
-     {
-      "name": "Triangle Angle-Sum Theorem",
-      "code": "6Q6",
-      "due": "2026-11-19"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "10.10",
-    "title": "Writing and Solving Equations in Real-World Context",
+    "kind": "review",
+    "code": "10.R",
+    "title": "Unit 10 review day",
     "unit": 10,
-    "benchmarks": [
-     "MA.7.AR.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Solve two-step equations: word problems",
-      "code": "D2Y",
-      "due": "2026-11-19"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-11-19": {
@@ -7073,39 +7048,21 @@
     }
    ],
    "events": [
-    "CFA 1 response day (AR.2.2 plan)"
+    "CSA (AR.2.2 plan)"
    ],
    "acc": {
-    "kind": "lesson",
-    "code": "6.07+08",
-    "title": "Similar triangles; indirect measurement",
+    "kind": "exam",
+    "code": "6.X1",
+    "title": "Unit 6 exam, day 1",
     "unit": 6,
-    "benchmarks": [
-     "MA.8.GR.2.4"
-    ],
-    "ixl": [
-     {
-      "name": "Side lengths of similar triangles",
-      "code": "QSK",
-      "due": "2026-11-20"
-     },
-     {
-      "name": "Similar triangles and indirect measurement",
-      "code": "88W",
-      "due": "2026-11-20"
-     },
-     {
-      "name": "Identify similar triangles",
-      "code": "6PD",
-      "due": "2026-11-20"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "exam",
+    "code": "10.X1",
+    "title": "Unit 10 assessment, day 1",
+    "unit": 10,
     "benchmarks": [],
     "ixl": []
    }
@@ -7146,19 +7103,21 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "CSA (AR.2.2 plan)"
+   ],
    "acc": {
-    "kind": "spiral",
-    "code": "spiral",
-    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
+    "kind": "exam",
+    "code": "6.X2",
+    "title": "Unit 6 exam, day 2",
     "unit": 6,
     "benchmarks": [],
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "10.R",
-    "title": "Unit 10 review day",
+    "kind": "exam",
+    "code": "10.X2",
+    "title": "Unit 10 assessment, day 2",
     "unit": 10,
     "benchmarks": [],
     "ixl": []
@@ -7395,24 +7354,63 @@
      "end": "4:00"
     }
    ],
-   "events": [
-    "CSA (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "6.X1",
-    "title": "Unit 6 exam, day 1",
+    "kind": "thread",
+    "code": "T-B1",
+    "title": "Thread B: angle pairs — supplementary, complementary, vertical, adjacent (16.1)",
     "unit": 6,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.GR.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
+      "code": "HGV",
+      "due": "2026-12-01"
+     },
+     {
+      "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
+      "code": "R2B",
+      "due": "2026-12-01"
+     },
+     {
+      "name": "Write and solve equations using angle relationships",
+      "code": "DBV",
+      "due": "2026-12-01"
+     }
+    ]
    },
    "on": {
-    "kind": "exam",
-    "code": "10.X1",
-    "title": "Unit 10 assessment, day 1",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "8.01",
+    "title": "Product Laws of Exponents",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.NSO.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Evaluate powers",
+      "code": "SZQ",
+      "due": "2026-12-01"
+     },
+     {
+      "name": "Multiplication with exponents",
+      "code": "5SK",
+      "due": "2026-12-01"
+     },
+     {
+      "name": "Power rule",
+      "code": "8DA",
+      "due": "2026-12-01"
+     },
+     {
+      "name": "Understanding exponents",
+      "code": "BFA",
+      "due": "2026-12-01"
+     }
+    ]
    }
   },
   "2026-12-01": {
@@ -7451,24 +7449,58 @@
      "end": "4:00"
     }
    ],
-   "events": [
-    "CSA (AR.2.2 plan)"
-   ],
+   "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "6.X2",
-    "title": "Unit 6 exam, day 2",
+    "kind": "thread",
+    "code": "T-B2",
+    "title": "Thread B: interior and exterior angles of a triangle (16.2)",
     "unit": 6,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.GR.1.5"
+    ],
+    "ixl": [
+     {
+      "name": "Find missing angles in triangles",
+      "code": "JFJ",
+      "due": "2026-12-02"
+     },
+     {
+      "name": "Exterior Angle Theorem",
+      "code": "FMP",
+      "due": "2026-12-02"
+     },
+     {
+      "name": "Triangle Angle-Sum Theorem",
+      "code": "6Q6",
+      "due": "2026-12-02"
+     }
+    ]
    },
    "on": {
-    "kind": "exam",
-    "code": "10.X2",
-    "title": "Unit 10 assessment, day 2",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "8.02",
+    "title": "Quotient Laws of Exponents",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.NSO.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Powers with negative bases",
+      "code": "WFW",
+      "due": "2026-12-02"
+     },
+     {
+      "name": "Division with exponents",
+      "code": "XNC",
+      "due": "2026-12-02"
+     },
+     {
+      "name": "Identify equivalent expressions involving whole-number exponents",
+      "code": "KBE",
+      "due": "2026-12-02"
+     }
+    ]
    }
   },
   "2026-12-02": {
@@ -7526,31 +7558,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.01",
-    "title": "Product Laws of Exponents",
+    "code": "8.03",
+    "title": "Exponential Expressions",
     "unit": 8,
     "benchmarks": [
      "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate powers",
-      "code": "SZQ",
-      "due": "2026-12-03"
-     },
-     {
-      "name": "Multiplication with exponents",
-      "code": "5SK",
-      "due": "2026-12-03"
-     },
-     {
-      "name": "Power rule",
-      "code": "8DA",
-      "due": "2026-12-03"
-     },
-     {
-      "name": "Understanding exponents",
-      "code": "BFA",
+      "name": "Evaluate expressions using properties of exponents",
+      "code": "ZE9",
       "due": "2026-12-03"
      }
     ]
@@ -7621,26 +7638,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.02",
-    "title": "Quotient Laws of Exponents",
+    "code": "8.04",
+    "title": "Evaluating Numeric Expressions – Part 1",
     "unit": 8,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Powers with negative bases",
-      "code": "WFW",
-      "due": "2026-12-04"
-     },
-     {
-      "name": "Division with exponents",
-      "code": "XNC",
-      "due": "2026-12-04"
-     },
-     {
-      "name": "Identify equivalent expressions involving whole-number exponents",
-      "code": "KBE",
+      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
+      "code": "2XW",
       "due": "2026-12-04"
      }
     ]
@@ -7707,16 +7714,31 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.03",
-    "title": "Exponential Expressions",
+    "code": "8.05+06",
+    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
     "unit": 8,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate expressions using properties of exponents",
-      "code": "ZE9",
+      "name": "Evaluate numerical expressions involving rational numbers",
+      "code": "KG2",
+      "due": "2026-12-07"
+     },
+     {
+      "name": "Evaluate numerical expressions involving decimals",
+      "code": "FNM",
+      "due": "2026-12-07"
+     },
+     {
+      "name": "Evaluate numerical expressions involving fractions",
+      "code": "XXQ",
+      "due": "2026-12-07"
+     },
+     {
+      "name": "Evaluate numerical expressions involving exponents",
+      "code": "D7P",
       "due": "2026-12-07"
      }
     ]
@@ -7786,20 +7808,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "8.04",
-    "title": "Evaluating Numeric Expressions – Part 1",
-    "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
-      "code": "2XW",
-      "due": "2026-12-09"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-08": {
@@ -7910,35 +7924,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "8.05+06",
-    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
+    "kind": "review",
+    "code": "8.R",
+    "title": "Unit 8 review day",
     "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate numerical expressions involving rational numbers",
-      "code": "KG2",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving decimals",
-      "code": "FNM",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving fractions",
-      "code": "XXQ",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving exponents",
-      "code": "D7P",
-      "due": "2026-12-10"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-10": {
@@ -12448,25 +12439,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "thread",
-    "code": "T-C1",
-    "title": "Thread C: sample spaces of repeated experiments (17.1)",
+    "kind": "exam",
+    "code": "13.X1",
+    "title": "Unit 13 exam, day 1",
     "unit": 13,
-    "benchmarks": [
-     "MA.8.DP.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Compound events: find the number of outcomes",
-      "code": "P5R",
-      "due": "2027-03-19"
-     },
-     {
-      "name": "Samples spaces for repeated events",
-      "code": "AGW",
-      "due": "2027-03-19"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -12515,30 +12493,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "thread",
-    "code": "T-C2",
-    "title": "Thread C: theoretical probability of repeated experiments (17.2–17.3)",
+    "kind": "exam",
+    "code": "13.X2",
+    "title": "Unit 13 exam, day 2",
     "unit": 13,
-    "benchmarks": [
-     "MA.8.DP.2.2"
-    ],
-    "ixl": [
-     {
-      "name": "Probability of repeated experiments",
-      "code": "BDZ",
-      "due": "2027-03-29"
-     },
-     {
-      "name": "Probability of simple events",
-      "code": "5ZY",
-      "due": "2027-03-29"
-     },
-     {
-      "name": "Experimental probability",
-      "code": "FRL",
-      "due": "2027-03-29"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -12782,12 +12742,25 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "13.X1",
-    "title": "Unit 13 exam, day 1",
+    "kind": "thread",
+    "code": "T-C1",
+    "title": "Thread C: sample spaces of repeated experiments (17.1)",
     "unit": 13,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.DP.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Compound events: find the number of outcomes",
+      "code": "P5R",
+      "due": "2027-03-30"
+     },
+     {
+      "name": "Samples spaces for repeated events",
+      "code": "AGW",
+      "due": "2027-03-30"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -12844,12 +12817,30 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "13.X2",
-    "title": "Unit 13 exam, day 2",
+    "kind": "thread",
+    "code": "T-C2",
+    "title": "Thread C: theoretical probability of repeated experiments (17.2–17.3)",
     "unit": 13,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.DP.2.2"
+    ],
+    "ixl": [
+     {
+      "name": "Probability of repeated experiments",
+      "code": "BDZ",
+      "due": "2027-03-31"
+     },
+     {
+      "name": "Probability of simple events",
+      "code": "5ZY",
+      "due": "2027-03-31"
+     },
+     {
+      "name": "Experimental probability",
+      "code": "FRL",
+      "due": "2027-03-31"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -16114,25 +16105,11 @@
      "base": "2026-11-16"
     },
     {
-     "kind": "thread",
-     "code": "T-B1",
-     "title": "Thread B: angle pairs — supplementary, complementary, vertical, adjacent (16.1)",
-     "unit": 6,
-     "base": "2026-11-17"
-    },
-    {
-     "kind": "thread",
-     "code": "T-B2",
-     "title": "Thread B: interior and exterior angles of a triangle (16.2)",
-     "unit": 6,
-     "base": "2026-11-18"
-    },
-    {
      "kind": "lesson",
      "code": "6.07+08",
      "title": "Similar triangles; indirect measurement",
      "unit": 6,
-     "base": "2026-11-19"
+     "base": "2026-11-17"
     },
     {
      "kind": "exam",
@@ -16140,12 +16117,26 @@
      "title": "Unit 6 exam, day 1",
      "unit": 6,
      "examIn": 0,
-     "base": "2026-11-30"
+     "base": "2026-11-19"
     },
     {
      "kind": "exam",
      "code": "6.X2",
      "title": "Unit 6 exam, day 2",
+     "unit": 6,
+     "base": "2026-11-20"
+    },
+    {
+     "kind": "thread",
+     "code": "T-B1",
+     "title": "Thread B: angle pairs — supplementary, complementary, vertical, adjacent (16.1)",
+     "unit": 6,
+     "base": "2026-11-30"
+    },
+    {
+     "kind": "thread",
+     "code": "T-B2",
+     "title": "Thread B: interior and exterior angles of a triangle (16.2)",
      "unit": 6,
      "base": "2026-12-01"
     },
@@ -16544,31 +16535,31 @@
      "base": "2027-03-17"
     },
     {
-     "kind": "thread",
-     "code": "T-C1",
-     "title": "Thread C: sample spaces of repeated experiments (17.1)",
-     "unit": 13,
-     "base": "2027-03-18"
-    },
-    {
-     "kind": "thread",
-     "code": "T-C2",
-     "title": "Thread C: theoretical probability of repeated experiments (17.2–17.3)",
-     "unit": 13,
-     "base": "2027-03-19"
-    },
-    {
      "kind": "exam",
      "code": "13.X1",
      "title": "Unit 13 exam, day 1",
      "unit": 13,
      "examIn": 0,
-     "base": "2027-03-29"
+     "base": "2027-03-18"
     },
     {
      "kind": "exam",
      "code": "13.X2",
      "title": "Unit 13 exam, day 2",
+     "unit": 13,
+     "base": "2027-03-19"
+    },
+    {
+     "kind": "thread",
+     "code": "T-C1",
+     "title": "Thread C: sample spaces of repeated experiments (17.1)",
+     "unit": 13,
+     "base": "2027-03-29"
+    },
+    {
+     "kind": "thread",
+     "code": "T-C2",
+     "title": "Thread C: theoretical probability of repeated experiments (17.2–17.3)",
      "unit": 13,
      "base": "2027-03-30"
     },
@@ -17014,7 +17005,7 @@
      "code": "4.01",
      "title": "Deriving Area Formulas for Trapezoids, Parallelograms, and Rhombi",
      "unit": 4,
-     "need": 3,
+     "need": 13,
      "base": "2026-09-28"
     },
     {
@@ -17108,7 +17099,7 @@
      "code": "9.01",
      "title": "Adding and Subtracting Linear Expressions With Integer Coefficients",
      "unit": 9,
-     "need": 3,
+     "need": 9,
      "base": "2026-10-19"
     },
     {
@@ -17173,7 +17164,7 @@
      "code": "10.01",
      "title": "Exploring Inequalities – Part 1",
      "unit": 10,
-     "need": 3,
+     "need": 12,
      "base": "2026-11-02"
     },
     {
@@ -17227,17 +17218,10 @@
     },
     {
      "kind": "lesson",
-     "code": "10.09",
-     "title": "Writing Two-Step Equations From Real-World Contexts",
+     "code": "10.09+10",
+     "title": "Writing and Solving Two-Step Equations From Real-World Contexts",
      "unit": 10,
      "base": "2026-11-13"
-    },
-    {
-     "kind": "lesson",
-     "code": "10.10",
-     "title": "Writing and Solving Equations in Real-World Context",
-     "unit": 10,
-     "base": "2026-11-16"
     },
     {
      "kind": "review",
@@ -17245,7 +17229,7 @@
      "title": "Unit 10 review day",
      "unit": 10,
      "examIn": 1,
-     "base": "2026-11-18"
+     "base": "2026-11-16"
     },
     {
      "kind": "exam",
@@ -17253,21 +17237,21 @@
      "title": "Unit 10 assessment, day 1",
      "unit": 10,
      "examIn": 0,
-     "base": "2026-11-19"
+     "base": "2026-11-17"
     },
     {
      "kind": "exam",
      "code": "10.X2",
      "title": "Unit 10 assessment, day 2",
      "unit": 10,
-     "base": "2026-11-20"
+     "base": "2026-11-18"
     },
     {
      "kind": "lesson",
      "code": "8.01",
      "title": "Product Laws of Exponents",
      "unit": 8,
-     "need": 3,
+     "need": 8,
      "base": "2026-11-30"
     },
     {
@@ -17299,90 +17283,98 @@
      "base": "2026-12-04"
     },
     {
+     "kind": "review",
+     "code": "8.R",
+     "title": "Unit 8 review day",
+     "unit": 8,
+     "examIn": 1,
+     "base": "2026-12-07"
+    },
+    {
      "kind": "exam",
      "code": "8.X1",
      "title": "Unit 8 assessment, day 1",
      "unit": 8,
      "examIn": 0,
-     "base": "2026-12-07"
+     "base": "2026-12-08"
     },
     {
      "kind": "exam",
      "code": "8.X2",
      "title": "Unit 8 assessment, day 2",
      "unit": 8,
-     "base": "2026-12-08"
+     "base": "2026-12-09"
     },
     {
      "kind": "lesson",
      "code": "5.01",
      "title": "Random Samples vs. Population",
      "unit": 5,
-     "need": 3,
-     "base": "2026-12-09"
+     "need": 12,
+     "base": "2027-01-06"
     },
     {
      "kind": "lesson",
      "code": "5.02",
      "title": "Determining Probability",
      "unit": 5,
-     "base": "2026-12-10"
+     "base": "2027-01-07"
     },
     {
      "kind": "lesson",
      "code": "5.03",
      "title": "Making Population Predictions – Part 1",
      "unit": 5,
-     "base": "2026-12-11"
+     "base": "2027-01-08"
     },
     {
      "kind": "lesson",
      "code": "5.04",
      "title": "Making Population Predictions – Part 2",
      "unit": 5,
-     "base": "2026-12-14"
+     "base": "2027-01-11"
     },
     {
      "kind": "lesson",
      "code": "5.05",
      "title": "Scale Factors – Perimeter",
      "unit": 5,
-     "base": "2026-12-15"
+     "base": "2027-01-12"
     },
     {
      "kind": "lesson",
      "code": "5.06",
      "title": "Scale Factors – Area",
      "unit": 5,
-     "base": "2026-12-16"
+     "base": "2027-01-13"
     },
     {
      "kind": "lesson",
      "code": "5.07",
      "title": "Scale Drawings",
      "unit": 5,
-     "base": "2026-12-17"
+     "base": "2027-01-14"
     },
     {
      "kind": "lesson",
      "code": "5.08",
      "title": "Solving Problems Involving Dimensions and Perimeters of Geometric Figures",
      "unit": 5,
-     "base": "2026-12-18"
+     "base": "2027-01-15"
     },
     {
      "kind": "lesson",
      "code": "5.09",
      "title": "Solving Problems Involving Dimensions and Areas of Geometric Figures",
      "unit": 5,
-     "base": "2027-01-06"
+     "base": "2027-01-19"
     },
     {
      "kind": "lesson",
      "code": "5.10",
      "title": "Solving Problems Involving Real-World Scale Drawings",
      "unit": 5,
-     "base": "2027-01-07"
+     "base": "2027-01-20"
     },
     {
      "kind": "exam",
@@ -17390,92 +17382,92 @@
      "title": "Unit 5 assessment, day 1",
      "unit": 5,
      "examIn": 0,
-     "base": "2027-01-11"
+     "base": "2027-01-21"
     },
     {
      "kind": "exam",
      "code": "5.X2",
      "title": "Unit 5 assessment, day 2",
      "unit": 5,
-     "base": "2027-01-12"
+     "base": "2027-01-22"
     },
     {
      "kind": "lesson",
      "code": "6.01",
      "title": "Paying Your Way in Mathlandia",
      "unit": 6,
-     "need": 3,
-     "base": "2027-01-13"
+     "need": 13,
+     "base": "2027-01-25"
     },
     {
      "kind": "lesson",
      "code": "6.02",
      "title": "Currency Conversions",
      "unit": 6,
-     "base": "2027-01-14"
+     "base": "2027-01-26"
     },
     {
      "kind": "lesson",
      "code": "6.03",
      "title": "Converting Units of Length",
      "unit": 6,
-     "base": "2027-01-15"
+     "base": "2027-01-27"
     },
     {
      "kind": "lesson",
      "code": "6.04",
      "title": "Converting Mass and Area",
      "unit": 6,
-     "base": "2027-01-19"
+     "base": "2027-01-28"
     },
     {
      "kind": "lesson",
      "code": "6.05",
      "title": "Converting Units of Volume",
      "unit": 6,
-     "base": "2027-01-20"
+     "base": "2027-01-29"
     },
     {
      "kind": "lesson",
      "code": "6.06",
      "title": "Creating Proportions",
      "unit": 6,
-     "base": "2027-01-21"
+     "base": "2027-02-01"
     },
     {
      "kind": "lesson",
      "code": "6.07",
      "title": "Using Proportions to Solve Problems",
      "unit": 6,
-     "base": "2027-01-22"
+     "base": "2027-02-02"
     },
     {
      "kind": "lesson",
      "code": "6.08",
      "title": "Solving Real-World Problems Involving Proportions",
      "unit": 6,
-     "base": "2027-01-25"
+     "base": "2027-02-03"
     },
     {
      "kind": "lesson",
      "code": "6.09",
      "title": "Exploring Multi-Step Proportions Problems",
      "unit": 6,
-     "base": "2027-01-26"
+     "base": "2027-02-04"
     },
     {
      "kind": "lesson",
      "code": "6.10",
      "title": "Solving Multi-Step Proportion Problems",
      "unit": 6,
-     "base": "2027-01-27"
+     "base": "2027-02-05"
     },
     {
      "kind": "lesson",
      "code": "6.11",
      "title": "Reasoning Through Problems Involving Proportional Relationships",
      "unit": 6,
-     "base": "2027-01-28"
+     "base": "2027-02-08"
     },
     {
      "kind": "exam",
@@ -17483,85 +17475,85 @@
      "title": "Unit 6 assessment, day 1",
      "unit": 6,
      "examIn": 0,
-     "base": "2027-02-01"
+     "base": "2027-02-09"
     },
     {
      "kind": "exam",
      "code": "6.X2",
      "title": "Unit 6 assessment, day 2",
      "unit": 6,
-     "base": "2027-02-02"
+     "base": "2027-02-10"
     },
     {
      "kind": "lesson",
      "code": "7.01",
      "title": "Circle Graphs",
      "unit": 7,
-     "need": 3,
-     "base": "2027-02-03"
+     "need": 13,
+     "base": "2027-02-11"
     },
     {
      "kind": "lesson",
      "code": "7.02",
      "title": "Sectors of a Circle",
      "unit": 7,
-     "base": "2027-02-04"
+     "base": "2027-02-12"
     },
     {
      "kind": "lesson",
      "code": "7.03",
      "title": "Constructing Circle Graphs",
      "unit": 7,
-     "base": "2027-02-05"
+     "base": "2027-02-16"
     },
     {
      "kind": "lesson",
      "code": "7.04",
      "title": "Interpreting Circle Graphs",
      "unit": 7,
-     "base": "2027-02-08"
+     "base": "2027-02-17"
     },
     {
      "kind": "lesson",
      "code": "7.05",
      "title": "Discounts and Markups",
      "unit": 7,
-     "base": "2027-02-09"
+     "base": "2027-02-18"
     },
     {
      "kind": "lesson",
      "code": "7.06",
      "title": "Determining Tax, Tip, or Fees Given a Percentage",
      "unit": 7,
-     "base": "2027-02-10"
+     "base": "2027-02-19"
     },
     {
      "kind": "lesson",
      "code": "7.07",
      "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
      "unit": 7,
-     "base": "2027-02-11"
+     "base": "2027-02-22"
     },
     {
      "kind": "lesson",
      "code": "7.08",
      "title": "Simple Interest",
      "unit": 7,
-     "base": "2027-02-12"
+     "base": "2027-02-23"
     },
     {
      "kind": "lesson",
      "code": "7.09",
      "title": "Percent Increase and Decrease",
      "unit": 7,
-     "base": "2027-02-16"
+     "base": "2027-02-24"
     },
     {
      "kind": "lesson",
      "code": "7.10",
      "title": "Calculating Percent Error",
      "unit": 7,
-     "base": "2027-02-17"
+     "base": "2027-02-25"
     },
     {
      "kind": "review",
@@ -17569,7 +17561,7 @@
      "title": "Unit 7 review day",
      "unit": 7,
      "examIn": 1,
-     "base": "2027-02-19"
+     "base": "2027-02-26"
     },
     {
      "kind": "exam",
@@ -17577,64 +17569,64 @@
      "title": "Unit 7 assessment, day 1",
      "unit": 7,
      "examIn": 0,
-     "base": "2027-02-22"
+     "base": "2027-03-01"
     },
     {
      "kind": "exam",
      "code": "7.X2",
      "title": "Unit 7 assessment, day 2",
      "unit": 7,
-     "base": "2027-02-23"
+     "base": "2027-03-02"
     },
     {
      "kind": "lesson",
      "code": "11.01",
      "title": "Graphing Proportional Relationships",
      "unit": 11,
-     "need": 3,
-     "base": "2027-02-24"
+     "need": 10,
+     "base": "2027-03-03"
     },
     {
      "kind": "lesson",
      "code": "11.02+03",
      "title": "Constant of Proportionality – Parts 1 and 2",
      "unit": 11,
-     "base": "2027-02-25"
+     "base": "2027-03-04"
     },
     {
      "kind": "lesson",
      "code": "11.04",
      "title": "Features of Proportional Relationships",
      "unit": 11,
-     "base": "2027-02-26"
+     "base": "2027-03-08"
     },
     {
      "kind": "lesson",
      "code": "11.05",
      "title": "Is It Proportional?",
      "unit": 11,
-     "base": "2027-03-01"
+     "base": "2027-03-09"
     },
     {
      "kind": "lesson",
      "code": "11.06",
      "title": "Representing Proportional Relationships With Equations",
      "unit": 11,
-     "base": "2027-03-02"
+     "base": "2027-03-10"
     },
     {
      "kind": "lesson",
      "code": "11.07",
      "title": "Translating Between Representations of Proportional Relationships",
      "unit": 11,
-     "base": "2027-03-03"
+     "base": "2027-03-11"
     },
     {
      "kind": "lesson",
      "code": "11.08",
      "title": "Putting It All Together",
      "unit": 11,
-     "base": "2027-03-04"
+     "base": "2027-03-12"
     },
     {
      "kind": "review",
@@ -17642,7 +17634,7 @@
      "title": "Unit 11 review day",
      "unit": 11,
      "examIn": 1,
-     "base": "2027-03-08"
+     "base": "2027-03-15"
     },
     {
      "kind": "exam",
@@ -17650,57 +17642,57 @@
      "title": "Unit 11 assessment, day 1",
      "unit": 11,
      "examIn": 0,
-     "base": "2027-03-09"
+     "base": "2027-03-16"
     },
     {
      "kind": "exam",
      "code": "11.X2",
      "title": "Unit 11 assessment, day 2",
      "unit": 11,
-     "base": "2027-03-10"
+     "base": "2027-03-17"
     },
     {
      "kind": "lesson",
      "code": "12.01",
      "title": "Finding Surface Area of Right Circular Cylinders Using Nets",
      "unit": 12,
-     "need": 6,
-     "base": "2027-03-11"
+     "need": 9,
+     "base": "2027-03-29"
     },
     {
      "kind": "lesson",
      "code": "12.02",
      "title": "Finding Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-12"
+     "base": "2027-03-30"
     },
     {
      "kind": "lesson",
      "code": "12.03",
      "title": "Solving Problems Involving Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-15"
+     "base": "2027-03-31"
     },
     {
      "kind": "lesson",
      "code": "12.04",
      "title": "Volume of Right Circular Cylinders – Part 1",
      "unit": 12,
-     "base": "2027-03-16"
+     "base": "2027-04-01"
     },
     {
      "kind": "lesson",
      "code": "12.05",
      "title": "Volume of Right Circular Cylinders – Part 2",
      "unit": 12,
-     "base": "2027-03-17"
+     "base": "2027-04-02"
     },
     {
      "kind": "lesson",
      "code": "12.06",
      "title": "Problem-Solving With Volume of Cylinders",
      "unit": 12,
-     "base": "2027-03-18"
+     "base": "2027-04-05"
     },
     {
      "kind": "review",
@@ -17708,7 +17700,7 @@
      "title": "Unit 12 review day",
      "unit": 12,
      "examIn": 1,
-     "base": "2027-03-19"
+     "base": "2027-04-07"
     },
     {
      "kind": "exam",
@@ -17716,78 +17708,78 @@
      "title": "Unit 12 assessment, day 1",
      "unit": 12,
      "examIn": 0,
-     "base": "2027-03-29"
+     "base": "2027-04-08"
     },
     {
      "kind": "exam",
      "code": "12.X2",
      "title": "Unit 12 assessment, day 2",
      "unit": 12,
-     "base": "2027-03-30"
+     "base": "2027-04-09"
     },
     {
      "kind": "lesson",
      "code": "13.01",
      "title": "Effects of Outliers",
      "unit": 13,
-     "need": 3,
-     "base": "2027-03-31"
+     "need": 12,
+     "base": "2027-04-12"
     },
     {
      "kind": "lesson",
      "code": "13.02",
      "title": "Justifying Measures of Center and Spread",
      "unit": 13,
-     "base": "2027-04-01"
+     "base": "2027-04-13"
     },
     {
      "kind": "lesson",
      "code": "13.03",
      "title": "Determining Appropriate Measures of Center and Variation",
      "unit": 13,
-     "base": "2027-04-02"
+     "base": "2027-04-14"
     },
     {
      "kind": "lesson",
      "code": "13.04",
      "title": "Comparing Graphical Representations",
      "unit": 13,
-     "base": "2027-04-05"
+     "base": "2027-04-15"
     },
     {
      "kind": "lesson",
      "code": "13.05",
      "title": "Comparing Data Sets",
      "unit": 13,
-     "base": "2027-04-06"
+     "base": "2027-04-19"
     },
     {
      "kind": "lesson",
      "code": "13.06",
      "title": "Comparing Data Sets and Graphs",
      "unit": 13,
-     "base": "2027-04-07"
+     "base": "2027-04-20"
     },
     {
      "kind": "lesson",
      "code": "13.07",
      "title": "Representing Real-World Contexts With Graphs",
      "unit": 13,
-     "base": "2027-04-08"
+     "base": "2027-04-21"
     },
     {
      "kind": "lesson",
      "code": "13.08",
      "title": "Creating Displays for Numerical Data",
      "unit": 13,
-     "base": "2027-04-09"
+     "base": "2027-04-22"
     },
     {
      "kind": "lesson",
      "code": "13.09",
      "title": "Creating Displays for Categorical Data",
      "unit": 13,
-     "base": "2027-04-12"
+     "base": "2027-04-23"
     },
     {
      "kind": "review",
@@ -17795,7 +17787,7 @@
      "title": "Unit 13 review day",
      "unit": 13,
      "examIn": 1,
-     "base": "2027-04-15"
+     "base": "2027-04-26"
     },
     {
      "kind": "exam",
@@ -17803,14 +17795,14 @@
      "title": "Unit 13 assessment, day 1",
      "unit": 13,
      "examIn": 0,
-     "base": "2027-04-19"
+     "base": "2027-04-27"
     },
     {
      "kind": "exam",
      "code": "13.X2",
      "title": "Unit 13 assessment, day 2",
      "unit": 13,
-     "base": "2027-04-20"
+     "base": "2027-04-28"
     }
    ]
   }
