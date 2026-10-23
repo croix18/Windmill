@@ -51,4 +51,4 @@ if (thin.length) {
     '. Widen their numbers (the same question, more versions), or allow one in unit.json "variety" with the reason it cannot be wider.');
   process.exit(1);
 }
-console.log(`variety: every part has at least ${FLOOR} versions`);
+console.log(`variety: every part has at least ${FLOOR} versions` + (allowed.length ? `, but the ${allowed.length} allowed above` : ''));
