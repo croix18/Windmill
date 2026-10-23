@@ -46,6 +46,16 @@ really don't want to teach all of unit 5 then have the test after break. They wi
   test 1–2 Mar, Unit 11's 16–17 Mar; nothing in A7 moves. PM3: "May something" — the window stays until the date is set.
   The schedule pages call a one-day test's day "Unit 4 Test".
 
+- **Ruling 49 (22 Oct, 9:36 pm): the unit test is a random set of the practice test.** *"I don't want the tests to be anything
+  specific. Going forward. I want to build the practice tests. And the test will just pick a random set."* Units built from
+  now on (M7 Unit 10 is next, due 28 Oct) are built as the practice test only — no Form A/B, no transfer items, no worked
+  answers; the test is printed from the teacher copy as a random set with its key. **To do before the next build:** (1) a
+  practice-kit check that counts each question part's distinct versions over set numbers 1–99999 and fails under a floor
+  (hundreds) — counted 22 Oct: A7 U3's thinnest part has 4 versions, M7 U4's 7 (median 36), A7 U4's 18 (median 4,536),
+  though whole sets are all distinct; (2) the teacher bar: "Print a test" (random set, how many forms, keys) as its main
+  button — today that is Print → Make-up tests; (3) the course builds and master sheets for a unit with no Assessment
+  papers; (4) mrshaffer-site's teacher folder takes only pages that set TEACHER_TEST — a teacher copy with no fixed test
+  needs another mark.
 - **The teacher copies are on mrshaffer.org, unlisted** (mrshaffer-site `7982ee0`; Croix, 22 Oct, 9:20 pm: *"Can you publish
   the teachers copies instead to the website. Students won't know about it. I can worry about test security later. For now
   it's just for me."*). M7 Unit 4 and A7 Units 3–4, at an address nothing links to (it is in mrshaffer-site's README, which is
@@ -1248,3 +1258,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (evening): Croix: "Pm 2 is December 8..." → rulings 47 and 48: PM2 off 8 Dec; 14 Jan a school day; M7 Unit 8 before Unit 5, catch-up week 14–18 Dec, Units 5 and 6 without review days, 10.09+10.10 one day so Unit 10 is tested before Thanksgiving, Unit 8's review day back; A7 Unit 7 around PM2, Thread B after the Unit 6 exam and Thread C after the Unit 13 exam, semester review + catch-up days 14–18 Dec; both tools refuse a unit split by a long break. Spine, scopes, sheets, phone page (V5), website schedules, M7 Schedule doc. Windmill 1bb8f4b/57091a0, M7 0fc43a8/f74917e, A7 20e879f/34b2550, site 647b21a.
 - 22 Oct (later): Croix: "A7s unit 4 test is Monday only. Mar 1 is definitely not a state test. May something will be our pm3" → A7 as-run 2026-10-27,5.01 (Unit 4 exam one day); 1 Mar out of both logs; START HERE A7 3–5; spine, sheets, phone page (V6), website, M7 doc. Windmill af132a9, M7 946f319, A7 aeb16a7, site ad7c5ef.
 - 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
+- 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
