@@ -46,6 +46,13 @@ really don't want to teach all of unit 5 then have the test after break. They wi
   test 1–2 Mar, Unit 11's 16–17 Mar; nothing in A7 moves. PM3: "May something" — the window stays until the date is set.
   The schedule pages call a one-day test's day "Unit 4 Test".
 
+- **Known issue, not fixed (22 Oct, 9 pm):** every *All in One* PDF bookmarks each document by its kind — six bookmarks all
+  reading "Teacher Edition" — because `kit/lib/unitbuild.py` (the `add_outline_item` line, ~527) keeps the part of the file
+  name AFTER the first " - ". For per-lesson documents the bookmark should be the lesson ("4.01 Adding and Subtracting in
+  Scientific Notation"); for the assessments the kind part ("Test Form A - Key") is right. Croix asked for "a7 unit 4
+  teacher addition" and was sent the All Teacher Editions PDF with its bookmarks renamed by hand (pypdf) — the packages
+  still have the old ones. Fix the kit, then the All in One folders of A7 Units 3–5 and M7 Units 4, 5, 9 at their next build.
+
 ## Where things stand (22 Oct 2026) — read this first
 
 **M7 is a day behind; A7 is on the plan** (Windmill `dd390a6`, M7 `1e85e39`, A7 `0b4ca5c`). Croix, 22 Oct: *"Alignment check.
