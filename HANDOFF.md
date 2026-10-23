@@ -4,7 +4,26 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (22 Oct 2026, late) — read this first
+## Where things stand (23 Oct 2026, morning) — read this first
+
+**A question solved with the Hint gets a small gray bulb, not words** (Windmill `c9cf1ae`; A7 `5d5e582`; M7 `5f13b7e`;
+mrshaffer-site `40f16dc`, `7173355`). Croix, from his phone at 7:17 am, with a screenshot of "✓ Correct, with help — still a point":
+*"Can you get rid of the still a point comment. And also the with help comment. Have a more dignified or subtle way to mark
+the with help questions. Like I'm not trying to discourage the students from using the help button when they need it."*
+- A right answer on the first check always says "✓ Correct on the first try" (it is a point, Hint or not, as before). With
+  the Hint, a small gray bulb sits beside it: the Hint button now carries the same bulb, so the mark explains itself.
+  `aria-label`/`title` "Hint used". No words about help anywhere a student reads.
+- The bar: "9 right first try 💡2 · 12 of 36 done" (the bulb and the count in place of "(2 with help)"); the end panel the
+  same; its table's column header is the bulb; the printed results mark "✓ First try" with the bulb. Perfect with Hints:
+  "Every one right on the first check." (no count in words). Portuguese: the "with help" lines are gone from the table; the
+  bulb is a `tag` piece, copied and never translated.
+- **Unchanged, and told to Croix as a question:** a question solved with the Hint still goes on "Practice my misses" (so it
+  comes back with new numbers), and the "Try another" streak still counts only answers without the Hint. Both are the
+  11 Oct design, not his words; if he wants them changed, `record()` in ui.js (the misses list) and the streak line.
+- Rebuilt on the kit, every check passing: A7 U3, A7 U4, M7 U4 and their teacher copies; republished on mrshaffer.org and at
+  the artifact links (A7 U4 Version 12, A7 U3 Version 23, M7 U4 Version 15; teacher copies A7 U4 Version 7, A7 U3 Version 3, M7 U4 Version 4); Google Sites files sent.
+
+## Where things stand (22 Oct 2026, late)
 
 **The variation factor: every practice question comes in many versions** (Windmill `8d91d6c`, `ce249a3`; A7 `6d502a2`,
 `8922f29`; M7 `7db536d`; mrshaffer-site `d0a0cb3`, `d4b6f67`, `aa6a4e4`). Croix, after ruling 49: *"Is there a way I can add in
