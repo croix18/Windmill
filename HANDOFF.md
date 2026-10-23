@@ -4,7 +4,45 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (22 Oct 2026, evening) — read this first
+## Where things stand (22 Oct 2026, late) — read this first
+
+**The variation factor: every practice question comes in many versions** (Windmill `8d91d6c`, `ce249a3`; A7 `6d502a2`,
+`8922f29`; M7 `7db536d`; mrshaffer-site `d0a0cb3`, `d4b6f67`, `aa6a4e4`). Croix, after ruling 49: *"Is there a way I can add in
+that variation factor? I really love the current method. It's what helped me most in college math. Get the exact copy of the
+test and slam the problems til it becomes easy."* A student who failed A7 Unit 3 took the practice test about ten times with
+the Hint and got 35 of 36 on the retake. Now that the unit test is a random set of the practice page, a part with few
+versions is a test question the student may already have seen, answer and all.
+- **The kit's variety check** (`practice/kit/check/variety.js`; `check/run.py` runs it after the lock, not for teacher
+  copies). Over set numbers 1–20000 (`--all`: 99,999; `--list` prints every part) it counts each question part's versions.
+  A version is what the student works with: the numbers and symbols of the question as the page shows it (stem, figure,
+  part line, the choices in any order), with the words left out — a new name, object or letter, or the same choices
+  shuffled, is not a new version. A part under the floor (unit.json `"variety"`, default 100) fails the build unless it is
+  allowed there with its reason. Its blind spot: a figure's number that a part does not use still counts for that part.
+- **A7 Unit 4** (contentVersion 4; on the site before Monday's test): 3.1b, 3.1d, 3.2a (also √(x² − y), the test's other
+  shape), 3.2b (∛ of either sign, plus or minus; the coach reads the signs), 3.2c and 3.7 widened. Allowed: 3.6, √(a² + b²)
+  = √a² + √b² (a whole-number root needs a Pythagorean triple; to 25, six are not on the test: 12 versions).
+- **A7 Unit 3** (contentVersion 5): 23 parts widened. The select-all is drawn (a target 1/bⁿ, never the test's 1/64; three
+  true forms, two slips) instead of five hand-made sets. (−c)⁻ᵉ comes with even exponents too, so the sign is the question;
+  its coach, Hint and picture read the parity. The coach reads monomial exponents to 120 (from 60). Allowed: 2.2a, 2.2b,
+  2.2c and 2.3 — values of powers, one per base and exponent, from the 57 powers a student works out by hand (44–55
+  versions) — and 3.2a (v⁻ⁿ, whose only number is the exponent: 8). Its README lists every range.
+- **M7 Unit 4** (contentVersion 3; widened by a helper session and rechecked here): 20 parts. The shapes take longer bases
+  and more right triangles. The circles keep mostly the test's sizes, plus halves and now and then a two-digit length
+  (calculators are allowed on every test, ruling 2) — a radius can reach 110 cm, a hexagon's side 99 cm. 22/7 stays on
+  multiples of 7, whole or half (31.5 = 63/2, §7); pizzas are 35–70 cm, some cut into 16. Allowed: 3.3 (a table or rug of a
+  real size whose diameter is a multiple of 7: 38) and 4.3a (the whole pizza depends only on its six sizes: 20). Where the
+  count flatters: 4.4a, the window's semicircle, counts 125 versions of its figure but has six widths, so six answers; 2.3a's
+  triangle has 81 sizes. Fixed on the way: the circle-area Hint said "r² means r × r (not r × 2)" twice, and "(not 2 × 2)" for
+  r = 2.
+- **Republished:** the student pages and teacher copies on mrshaffer.org (practice and the unlisted teacher folder), the
+  artifacts at their links (A7 U4 Version 11, A7 U3 Version 22, M7 U4 Version 14; teacher copies A7 U4 Version 6, A7 U3 Version 2,
+  M7 U4 Version 3), and the Google Sites files sent in chat.
+- **Ruling 49's to-do list:** (1) the variety check — done. Still to do: (2) "Print a test" as the teacher bar's main button,
+  (3) course builds and master sheets for a unit with no Assessment papers, (4) the site's teacher folder for a teacher copy
+  with no fixed test. Every new unit: widen inside its benchmarks' limits until the check passes; allow a part only when its
+  natural space is small, with the reason in unit.json (both rulebooks, ruling 49, say so).
+
+## Where things stand (22 Oct 2026, evening)
 
 **PM2, a catch-up week before Q2 ends, and "never test after a long break"** (Windmill `1bb8f4b`, `57091a0`; M7 `0fc43a8`,
 `f74917e`; A7 `20e879f`, `34b2550`; mrshaffer-site `647b21a`). Croix: *"Pm 2 is December 8. Can you add that to the schedule
