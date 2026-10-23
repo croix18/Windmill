@@ -1,7 +1,8 @@
 /* Practice-test kit: the page. One script for every unit; the unit supplies window.Unit (see kit/README.md).
    Design decisions (Croix, Oct 2026) the kit keeps: one Hint (the step-by-step walkthrough, its picture at the step it
    explains), Show me how after a try, Try another like this, the Practice menu (whole test / one part / my misses),
-   "with help" counts as a point and is tallied, the clock pauses when the page is hidden, no tip box, no footer.
+   right on the first check is a point, Hint or not, and a question solved with the Hint gets a small gray bulb (the Hint
+   button's own icon) instead of words; the clock pauses when the page is hidden, no tip box, no footer.
    Apple review (15 Oct 2026) changes are marked [R1-n], [R2-Nn], [J-n] (Jobs lens), [W-n] (Wozniak lens). */
 (function(){
 'use strict';
@@ -10,6 +11,11 @@ var SCHEMA = 2, PRE = U.id + '.';                       /* [W-6] one prefix per 
 var $ = function(id){ return document.getElementById(id); };
 var LET = 'ABCDEFGH';
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+/* a question solved with the Hint is marked with the Hint's bulb, small and gray, and no words; a count goes beside it where
+   questions are counted (Croix, 23 Oct 2026: "a more dignified or subtle way to mark the with help questions. Like I'm not
+   trying to discourage the students from using the help button when they need it."). Its "tag" class keeps it one piece in
+   the second language: it is copied, never translated. */
+function bulb(n){ var t = n == null ? 'Hint used' : 'Hint used: ' + n; return '<span class="tag hu" role="img" aria-label="' + t + '" title="' + t + '">' + (n == null ? '' : n) + '</span>'; }
 function load(k){ try { return JSON.parse(localStorage.getItem(PRE + k) || 'null'); } catch(e){ return null; } }
 function store(k, v){ try { localStorage.setItem(PRE + k, JSON.stringify(v)); } catch(e){} }
 function drop(k){ try { localStorage.removeItem(PRE + k); } catch(e){} }
@@ -240,9 +246,9 @@ function flash(it, f){
 function cardHtml(it, R, f){
   var v = R.v;
   if (v === 'right'){
-    var line = R.late ? '✓ Correct — checked at Finish' : R.first ? (R.hinted ? '✓ Correct, with help — still a point' : '✓ Correct on the first try') : R.shown ? '✓ Correct after seeing the steps' : '✓ Correct on try ' + R.tries;   /* [J-5] */
+    var line = R.late ? '✓ Correct — checked at Finish' : R.first ? '✓ Correct on the first try' : R.shown ? '✓ Correct after seeing the steps' : '✓ Correct on try ' + R.tries;   /* [J-5] */
     var note = f && f.v === 'right' && f.what && f.what.length ? '<p class="note2">' + f.what.join(' ') + '</p>' : '';
-    return '<div class="fbx"><p><span class="tag ok">' + line + '</span></p>' + note + '</div>';
+    return '<div class="fbx"><p><span class="tag ok">' + line + '</span>' + (R.first && R.hinted && !R.late ? ' ' + bulb() : '') + '</p>' + note + '</div>';
   }
   f = R.unreadMsg ? {what: [R.unreadMsg], rule: ''} : (f || {what: []});
   var w = (f.what || []).map(function(x){ return S.walkOpen[it.id] ? String(x).replace(/,? or tap Hint to go one step at a time\./, '.').replace(/ Tap Hint[^.]*\./, '') : x; }), tag = TAG[v] || '';
@@ -481,7 +487,7 @@ function paintScore(light){
   var t = tally(), sc = $('score'), N = ITEMS.length, nb = function(s){ return '<span class="nw">' + s + '</span>'; };
   if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered') + ' · ' + nb('marked when you finish');
   else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = nb('<b>' + N + '</b> part' + (N === 1 ? '' : 's') + ' to answer');
-  else sc.innerHTML = nb('<b>' + t.first + '</b> right first try' + (t.helped ? ' (' + t.helped + ' with help)' : '')) + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done');   /* [J-2] */
+  else sc.innerHTML = nb('<b>' + t.first + '</b> right first try') + (t.helped ? bulb(t.helped) : '') + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done');   /* [J-2] */
   if (light) return;
   paintResult(t); paintScopes(); paintSections();
 }
@@ -511,10 +517,10 @@ function paintResult(t){
   var hk = scope + '.' + S.mode, H = hist()[hk] || [], prev = H.filter(function(x){ return !(x.seed === seed && x.at === S.finishedAt); })[0];
   var lastLine = prev ? '<p class="last">Last time: ' + prev.first + ' / ' + prev.of + ' in ' + fmt(prev.time) + '. Today: ' + t.first + ' / ' + N + (prev.of === N ? ' (' + (t.first - prev.first >= 0 ? '+' : '−') + Math.abs(t.first - prev.first) + ')' : '') + '.</p>' : '';   /* [J-10] */
   box.innerHTML = '<h2>Set ' + seed + ' · ' + esc(SCOPES[scope]) + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</h2>' +
-    '<div class="big"><div><b>' + t.first + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'right on the first try') + (t.helped ? ' (' + t.helped + ' with help)' : '') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
+    '<div class="big"><div><b>' + t.first + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'right on the first try') + (t.helped ? ' ' + bulb(t.helped) : '') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
     lastLine +
-    (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every one right on the first check (' + t.helped + ' with help).</p>' : '') +
-    '<div class="tw"><table><thead><tr><th>Part</th><th class="r">' + (test ? 'Right' : 'First try') + '</th>' + (test ? '' : '<th class="r">With help</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every one right on the first check.</p>' : '') +
+    '<div class="tw"><table><thead><tr><th>Part</th><th class="r">' + (test ? 'Right' : 'First try') + '</th>' + (test ? '' : '<th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
       '<p class="note"><b>Show me how</b> has the steps; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
     '<div class="btns">' + btns + '</div>';
@@ -650,13 +656,13 @@ function yourAnswer(it){
 function verdict(it){
   var R = S.res[it.id];
   if (!R || !R.v) return answered(it) ? 'Not checked' : 'Blank';
-  if (R.v === 'right') return R.late ? '✓ Right at Finish' : R.first ? (R.helped ? '✓ First try, with help' : '✓ First try') : R.shown ? '✓ After seeing the steps' : '✓ On try ' + R.tries;
+  if (R.v === 'right') return R.late ? '✓ Right at Finish' : R.first ? '✓ First try' + (R.helped ? ' ' + bulb() : '') : R.shown ? '✓ After seeing the steps' : '✓ On try ' + R.tries;
   return R.v === 'form' ? 'Almost' : '✗ Not yet';
 }
 function resultsHtml(){
   var t = tally(), N = ITEMS.length, test = S.mode === 'test';
   var h = printHead('Results') + '<p class="pmeta"><span class="bt">' + setLine() + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</span></p>';
-  h += '<p class="pscore"><span class="bt"><b>' + t.first + ' / ' + N + '</b> right on the first try' + (t.helped ? ' (' + t.helped + ' with help)' : '') + '</span><span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
+  h += '<p class="pscore"><span class="bt"><b>' + t.first + ' / ' + N + '</b> right on the first try' + (t.helped ? ' ' + bulb(t.helped) : '') + '</span><span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
     (S.done ? '' : '<span class="bt">Not finished yet.</span>') + '</p>';
   h += '<table class="ptab pres"><thead><tr><th><span class="bt">Part</span></th><th class="r"><span class="bt">' + (test ? 'Right' : 'First try') + '</span></th></tr></thead><tbody>' +
     DS.map(function(s, k){ return '<tr><td><span class="bt">' + s.title + '</span></td><td class="r">' + t.bySec[k].got + ' / ' + t.bySec[k].of + '</td></tr>'; }).join('') + '</tbody></table>';

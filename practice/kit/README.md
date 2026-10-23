@@ -30,8 +30,12 @@ in the code; the four reports are in the Windmill HANDOFF.
   - **Try another like this:** the same kind of question with new numbers, never a repeat. Two right in a row on your
     own clears it from misses.
   - **Next ↓** after a right answer. Focus never jumps by itself.
-- **Scoring:** right on the first check is a point, help or not. "With help" is counted separately: "9 right first try
-  (2 with help) · 12 of 36 done". Each section counts up ("4 / 9", then "9 / 9 ✓").
+- **Scoring:** right on the first check is a point, Hint or not. A question solved with the Hint says the same "✓ Correct on
+  the first try" and gets a small gray bulb beside it — the Hint button's own icon, no words. The bar counts them beside the
+  score: "9 right first try 💡2 · 12 of 36 done"; the results table has a bulb column. Croix, 23 Oct 2026: *"Can you get rid of
+  the still a point comment. And also the with help comment. Have a more dignified or subtle way to mark the with help
+  questions. Like I'm not trying to discourage the students from using the help button when they need it."* (Before: "✓
+  Correct, with help — still a point" and "(2 with help)".) Each section counts up ("4 / 9", then "9 / 9 ✓").
 - **Practice menu:** whole test, one part (two rounds with new numbers), or my misses (new numbers; one round if there
   are more than 8).
 - **The end:**
