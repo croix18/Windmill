@@ -121,6 +121,45 @@ R = copy.deepcopy(L); R.update(code=_real[0], ixl=[_real[1]])
 ok("the plan's own skills for a lesson pass, in either course's spelling", not [x for x in gates(R) if "ruling 28" in x], str([x for x in gates(R) if "ruling 28" in x][:2]))
 R2 = copy.deepcopy(R); R2["ixl"] = ["Perimeter and area: changes in scale (ZC6)"]
 ok("planted: a lesson whose slide is not the plan's skills", len([x for x in gates(R2) if "ruling 28" in x]) == 2)
+# rules 5 and 6 on a plan of our own: a day taught from two decks (ruling 50: M7's 9.06+07) and a
+# lesson the as-run log moved past (A7's 4.07+08, 23 Oct 2026)
+import json, tempfile
+from lib import ixlplan
+_T = tempfile.mkdtemp(prefix="kitixl"); _K = C.COURSE_KEY
+_sk = lambda c, n: (c, {"name": n, "courses": [_K], "benchmarks": [], "lessons": []})
+_two = [{"name": "Skill one", "code": "S1A"}, {"name": "Skill two", "code": "S2B"}]
+json.dump({"days": {"2026-11-02": {_K: {"code": "90.06+07", "ixl": _two}}, "2026-11-03": {_K: {"code": "91.02+03", "ixl": _two}}},
+           "skills": dict([_sk("S1A", "Skill one"), _sk("S2B", "Skill two"), _sk("S3C", "Skill three")]),
+           "flow": {_K: {"items": [{"code": "92.05+06", "gone": "covered before 2026-11-09"}]}}},
+          open(os.path.join(_T, "spine.json"), "w"))
+for _u, _f, _body in (("u90", "l06.py", 'code="90.06", ixl=["Skill one (S1A)"]'), ("u90", "l07.py", 'code="90.07", ixl=["Skill two (S2B)"]'),
+                      ("u91", "l02.py", 'code="91.02", ixl=["Skill one (S1A)", "Skill two (S2B)"]')):
+    os.makedirs(os.path.join(_T, _u), exist_ok=True)
+    open(os.path.join(_T, _u, _f), "w").write(f"L = dict(\n    {_body})\n")
+_env = {k: os.environ.get(k) for k in ("KIT_SPINE", "KIT_UNITS")}
+os.environ.update(KIT_SPINE=os.path.join(_T, "spine.json"), KIT_UNITS=_T)
+try:
+    D6, D7 = dict(code="90.06", unit=90, ixl=["Skill one (S1A)"]), dict(code="90.07", unit=90, ixl=["Skill two (S2B)"])
+    ok("rule 5: two decks that split their day's skills pass", ixlplan.check(D6) == [] and ixlplan.check(D7) == [], str(ixlplan.check(D6) + ixlplan.check(D7)))
+    ok("rule 5 planted: a deck assigns a skill its day does not list",
+       any("does not list for 90.06+07" in x for x in ixlplan.check(dict(D7, ixl=["Skill two (S2B)", "Skill three (S3C)"]))))
+    ok("rule 5 planted: a skill of the day on neither deck", any("none of its decks" in x and "S1A" in x for x in ixlplan.check(dict(D6, ixl=[]))))
+    ok("rule 5: a miss is said once, by the day's first deck", not [x for x in ixlplan.check(D7) if "none of its decks" in x])
+    ok("rule 3 still holds a merged day taught from one deck",
+       ixlplan.check(dict(code="91.02", unit=91, ixl=["Skill one (S1A)", "Skill two (S2B)"])) == []
+       and any("for this lesson and the slide does not" in x for x in ixlplan.check(dict(code="91.02", unit=91, ixl=["Skill one (S1A)"]))))
+    G = dict(code="92.05", unit=92, ixl=["Skill dropped with it (S9Z)"])
+    ok("rule 6: a lesson the log moved past may name a code the plan dropped with it", ixlplan.check(G) == [], str(ixlplan.check(G)))
+    ok("rule 6 planted: the same code on a lesson the plan still teaches",
+       any("not in this course's IXL plan" in x for x in ixlplan.check(dict(G, code="90.05", unit=90))))
+    ok("rule 6 planted: a skill the plan knows, under another code",
+       any("the plan's code for 'Skill one' is S1A" in x for x in ixlplan.check(dict(G, ixl=["Skill one (S1X)"]))))
+finally:
+    for _k, _v in _env.items():
+        if _v is None:
+            os.environ.pop(_k, None)
+        else:
+            os.environ[_k] = _v
 planted("no MTR named", lambda M: M.pop("mtr"), "ruling 25")
 planted("two things to say, not three", lambda M: M["te"].update(say=["a", "b"]), "ruling 26")
 planted("every single-answer item keyed alike", lambda M: (M["whiteboard"][7].update(correct=3, answer="D — 83 cm", note_a="Reveal D.", errors={k: "x [N]" for k in "ABC"}),
@@ -267,8 +306,13 @@ ok("steps: an answer slide that fits keeps its usual place and size", lb._yt_fit
 _tall = "$\\left(\\frac{2}{3}\\right)^{5} \\cdot \\left(\\frac{2}{3}\\right)^{-2} = \\left(\\frac{2}{3}\\right)^{3}$"
 _big = dict(prompt=["$\\left[\\left(\\frac{2}{3}\\right)^{5}\\cdot\\left(\\frac{2}{3}\\right)^{-2}\\right]^{3}$"], answer_latex="\\left(\\frac{2}{3}\\right)^{9}", steps=[_tall] * 3)
 _tower = dict(prompt=["$\\frac{\\left(\\frac{2}{3}\\right)^{5}}{\\left(\\frac{2}{3}\\right)^{2}}$"], answer_latex="\\left(\\frac{2}{3}\\right)^{3}", steps=[_tall, "$2^{3} = 8$"])
+def _fits(yt, ask, want):
+    try:
+        return lb._yt_fit(yt, ask) == want
+    except RuntimeError:                 # a refusal fails this test, not every test after it
+        return False
 ok("steps: one that does not is set higher, or with its problem a size smaller",
-   lb._yt_fit(_big, "Write it with one base.") == (1.62, "slidebig") and lb._yt_fit(_tower, "Write it with one base.") == (1.62, "slidemid"))
+   _fits(_big, "Write it with one base.", (1.62, "slidebig")) and _fits(_tower, "Write it with one base.", (1.62, "slidemid")))
 def _too_much():
     try:
         lb._yt_fit(dict(_big, steps=[_tall] * 5), "Write it with one base."); return False

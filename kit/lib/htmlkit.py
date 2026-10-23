@@ -103,6 +103,14 @@ def _sups(t):
 
 
 class HtmlDeck:
+    @staticmethod
+    def title_size(titles, size=22, width=7.5):
+        """The contents rows' one type size: the Slides deck's rule (deckkit.Deck.title_size, 17 Oct),
+        which build_unit_deck asks of either deck — without it the HTML deck (ruling 41: built only
+        when a course asks) stopped at its contents slide."""
+        from .deckkit import Deck
+        return Deck.title_size(titles, size, width)
+
     def __init__(self, course, unit, lesson_label, title, footer):
         self.course, self.unit, self.lesson_label, self.title, self.footer = course, unit, lesson_label, title, footer
         self.page_title = title   # the file's title: the unit's, even after start_lesson() moves self.title along
@@ -339,8 +347,9 @@ class HtmlDeck:
         self._add(f'<div class="cover"><p class="eyebrow">{esc(f"{self.course}  ·  UNIT {self.unit}".upper())}</p><h2>{esc(title)}</h2><div class="rule"></div>'
                   + "".join(f'<p class="target">{esc(ln)}</p>' for ln in lines) + "</div>")
 
-    def link_row(self, slide, y, left, right, target, pitch=0.46):
-        # target is a 0-based slide index in the html deck (build_unit_deck passes the pptx slide; see save())
+    def link_row(self, slide, y, left, right, target, pitch=0.46, title_size=None):
+        # target is a 0-based slide index in the html deck (build_unit_deck passes the pptx slide; see save());
+        # pitch and title_size are the Slides deck's spacing and type; the page's CSS sets its own
         slide.setdefault("links", []).append((left[0], left[1], right, target))
 
     # ---------- finish ----------
