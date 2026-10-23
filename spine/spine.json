@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-22T20:44:07-04:00",
+ "generatedAt": "2026-10-23T19:19:28-04:00",
  "sources": {
-  "a7": "34b25504",
-  "m7": "f74917e",
+  "a7": "5d5e582b",
+  "m7": "5f13b7e",
   "deckhand": "411f496"
  },
  "year": {
@@ -2060,18 +2060,6 @@
     "on:4.02"
    ]
   },
-  "DPG": {
-   "name": "Evaluate variable expressions: word problems",
-   "courses": [
-    "acc"
-   ],
-   "benchmarks": [
-    "MA.8.NSO.1.7"
-   ],
-   "lessons": [
-    "acc:4.07+08"
-   ]
-  },
   "DRB": {
    "name": "Identify equivalent linear expressions I",
    "courses": [
@@ -2467,7 +2455,7 @@
     "MA.7.AR.1.2"
    ],
    "lessons": [
-    "on:9.06"
+    "on:9.06+07"
    ]
   },
   "JDA": {
@@ -3461,7 +3449,7 @@
     "MA.7.AR.1.2"
    ],
    "lessons": [
-    "on:9.07"
+    "on:9.06+07"
    ]
   },
   "UV9": {
@@ -5669,36 +5657,20 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "4.07+08",
-    "title": "Real-world order-of-operations problems",
+    "kind": "extra",
+    "code": "extra",
+    "title": "Study guide (period 1); relationship-building day (period 3)",
     "unit": 4,
-    "benchmarks": [
-     "MA.8.NSO.1.7"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate variable expressions: word problems",
-      "code": "DPG",
-      "due": "2026-10-26"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "9.02",
-    "title": "Adding Linear Expressions With Rational Coefficients",
+    "kind": "off",
+    "code": null,
+    "title": "Relationship-building day — no math",
     "unit": 9,
-    "benchmarks": [
-     "MA.7.AR.1.1"
-    ],
-    "ixl": [
-     {
-      "name": "Add linear expressions",
-      "code": "RPY",
-      "due": "2026-10-26"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-10-26": {
@@ -5748,21 +5720,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.03+04",
-    "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
+    "code": "9.02",
+    "title": "Adding Linear Expressions With Rational Coefficients",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.1"
     ],
     "ixl": [
      {
-      "name": "Subtract linear expressions",
-      "code": "KCX",
-      "due": "2026-10-27"
-     },
-     {
-      "name": "Add and subtract linear expressions",
-      "code": "6BT",
+      "name": "Add linear expressions",
+      "code": "RPY",
       "due": "2026-10-27"
      }
     ]
@@ -5823,13 +5790,24 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.05",
-    "title": "Equivalent Numerical Expressions",
+    "code": "9.03+04",
+    "title": "Subtracting Linear Expressions; Adding and Subtracting Expressions With Rational Coefficients",
     "unit": 9,
     "benchmarks": [
-     "MA.7.AR.1.2"
+     "MA.7.AR.1.1"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Subtract linear expressions",
+      "code": "KCX",
+      "due": "2026-10-28"
+     },
+     {
+      "name": "Add and subtract linear expressions",
+      "code": "6BT",
+      "due": "2026-10-28"
+     }
+    ]
    }
   },
   "2026-10-28": {
@@ -5892,19 +5870,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.06",
-    "title": "Rewriting Equivalent Numerical Expressions",
+    "code": "9.05",
+    "title": "Equivalent Numerical Expressions",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
-    "ixl": [
-     {
-      "name": "Identify properties of addition and multiplication",
-      "code": "JC2",
-      "due": "2026-10-29"
-     }
-    ]
+    "ixl": []
    }
   },
   "2026-10-29": {
@@ -5967,13 +5939,18 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "9.07",
-    "title": "Equivalent Linear Expressions",
+    "code": "9.06+07",
+    "title": "Rewriting Equivalent Numerical Expressions; Equivalent Linear Expressions",
     "unit": 9,
     "benchmarks": [
      "MA.7.AR.1.2"
     ],
     "ixl": [
+     {
+      "name": "Identify properties of addition and multiplication",
+      "code": "JC2",
+      "due": "2026-10-30"
+     },
      {
       "name": "Evaluate linear expressions",
       "code": "UG6",
@@ -15822,6 +15799,13 @@
      "unit": null,
      "meets": false
     },
+    "2026-10-23": {
+     "kind": "extra",
+     "code": "extra",
+     "title": "Study guide (period 1); relationship-building day (period 3)",
+     "unit": null,
+     "meets": true
+    },
     "2026-12-08": {
      "kind": "off",
      "code": "off",
@@ -15980,6 +15964,7 @@
      "code": "4.07+08",
      "title": "Real-world order-of-operations problems",
      "unit": 4,
+     "gone": "covered before 2026-10-26 (doubled up or skipped; the log does not say which day)",
      "base": "2026-10-21"
     },
     {
@@ -16944,6 +16929,13 @@
      "meets": true,
      "unrecorded": true
     },
+    "2026-10-23": {
+     "kind": "off",
+     "code": null,
+     "title": "Relationship-building day — no math",
+     "unit": null,
+     "meets": false
+    },
     "2026-12-08": {
      "kind": "off",
      "code": null,
@@ -17087,7 +17079,7 @@
      "code": "9.01",
      "title": "Adding and Subtracting Linear Expressions With Integer Coefficients",
      "unit": 9,
-     "need": 9,
+     "need": 8,
      "base": "2026-10-19"
     },
     {
@@ -17113,24 +17105,17 @@
     },
     {
      "kind": "lesson",
-     "code": "9.06",
-     "title": "Rewriting Equivalent Numerical Expressions",
+     "code": "9.06+07",
+     "title": "Rewriting Equivalent Numerical Expressions; Equivalent Linear Expressions",
      "unit": 9,
      "base": "2026-10-23"
-    },
-    {
-     "kind": "lesson",
-     "code": "9.07",
-     "title": "Equivalent Linear Expressions",
-     "unit": 9,
-     "base": "2026-10-26"
     },
     {
      "kind": "lesson",
      "code": "9.08",
      "title": "Equivalent Expressions Using Properties of Operations",
      "unit": 9,
-     "base": "2026-10-27"
+     "base": "2026-10-26"
     },
     {
      "kind": "exam",
@@ -17138,14 +17123,14 @@
      "title": "Unit 9 assessment, day 1",
      "unit": 9,
      "examIn": 0,
-     "base": "2026-10-29"
+     "base": "2026-10-27"
     },
     {
      "kind": "exam",
      "code": "9.X2",
      "title": "Unit 9 assessment, day 2",
      "unit": 9,
-     "base": "2026-10-30"
+     "base": "2026-10-28"
     },
     {
      "kind": "lesson",
@@ -17153,63 +17138,63 @@
      "title": "Exploring Inequalities – Part 1",
      "unit": 10,
      "need": 12,
-     "base": "2026-11-02"
+     "base": "2026-10-29"
     },
     {
      "kind": "lesson",
      "code": "10.02",
      "title": "Solving One-Step Inequalities Using Addition and Subtraction",
      "unit": 10,
-     "base": "2026-11-03"
+     "base": "2026-10-30"
     },
     {
      "kind": "lesson",
      "code": "10.03",
      "title": "Exploring Inequalities – Part 2",
      "unit": 10,
-     "base": "2026-11-04"
+     "base": "2026-11-02"
     },
     {
      "kind": "lesson",
      "code": "10.04",
      "title": "Solving One-Step Inequalities Using Multiplication and Division",
      "unit": 10,
-     "base": "2026-11-05"
+     "base": "2026-11-03"
     },
     {
      "kind": "lesson",
      "code": "10.05",
      "title": "Solving Two-Step Equations Using Properties of Equality",
      "unit": 10,
-     "base": "2026-11-06"
+     "base": "2026-11-04"
     },
     {
      "kind": "lesson",
      "code": "10.06",
      "title": "Solving Two-Step Equations",
      "unit": 10,
-     "base": "2026-11-09"
+     "base": "2026-11-05"
     },
     {
      "kind": "lesson",
      "code": "10.07",
      "title": "Solving Equations Involving the Distributive Property",
      "unit": 10,
-     "base": "2026-11-10"
+     "base": "2026-11-06"
     },
     {
      "kind": "lesson",
      "code": "10.08",
      "title": "Solving Real-World Problems With Two-Step Equations",
      "unit": 10,
-     "base": "2026-11-12"
+     "base": "2026-11-09"
     },
     {
      "kind": "lesson",
      "code": "10.09+10",
      "title": "Writing and Solving Two-Step Equations From Real-World Contexts",
      "unit": 10,
-     "base": "2026-11-13"
+     "base": "2026-11-10"
     },
     {
      "kind": "review",
@@ -17217,7 +17202,7 @@
      "title": "Unit 10 review day",
      "unit": 10,
      "examIn": 1,
-     "base": "2026-11-16"
+     "base": "2026-11-13"
     },
     {
      "kind": "exam",
@@ -17225,14 +17210,14 @@
      "title": "Unit 10 assessment, day 1",
      "unit": 10,
      "examIn": 0,
-     "base": "2026-11-17"
+     "base": "2026-11-16"
     },
     {
      "kind": "exam",
      "code": "10.X2",
      "title": "Unit 10 assessment, day 2",
      "unit": 10,
-     "base": "2026-11-18"
+     "base": "2026-11-17"
     },
     {
      "kind": "lesson",
