@@ -183,10 +183,12 @@ def zips(pkg, zdir, unit):
 
 
 # ---- what START HERE derives ---------------------------------------------------------------------
-def calendar(unit, build_dir):
+def calendar(unit, build_dir, merged=False):
     """The unit's dates, read from the plan the console reads (Windmill's spine, vendored into
     assets/windmill/): ({lesson code: date}, review day, [assessment days], the plan's date).
-    A merged day ('4.02+03') is filed under the code of the spec that teaches it ('4.02')."""
+    A merged day ('4.02+03') is filed under the code of the spec that teaches it ('4.02'); with
+    merged=True also under each later lesson it holds ('4.03') — a unit built before two of its
+    lessons were merged has a spec for each (M7 9.06+07, ruling 50, 23 Oct 2026)."""
     path = os.path.join(build_dir, "assets", "windmill", "spine.js")
     if not os.path.exists(path):
         return {}, None, [], None
@@ -200,6 +202,9 @@ def calendar(unit, build_dir):
         day = dt.date.fromisoformat(iso)
         if o["kind"] in ("lesson", "thread"):      # a woven thread day (A7's T-A1) is a teaching day with a date like any other:
             lessons.setdefault(o["code"].split("+")[0], day)      # left out, START HERE's "Unit at a glance" printed "—" beside both of Unit 3's (Croix, 7 Oct: "the toc for the unit was off")
+            if merged and "+" in o["code"]:
+                for n in o["code"].split("+")[1:]:
+                    lessons.setdefault(o["code"].split(".")[0] + "." + n, day)
         elif o["kind"] == "review":
             review = day
         elif o["kind"] == "exam":

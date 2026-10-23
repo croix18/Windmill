@@ -641,6 +641,9 @@ with tempfile.TemporaryDirectory() as tmp:
     ok("START HERE: a woven thread day (T-A1) is dated like any lesson — both of A7 Unit 3's printed a dash in 'Unit at a glance'",
        _cal[0] == {"3.06": _dt.date(2026, 9, 30), "T-A1": _dt.date(2026, 10, 5), "T-A2": _dt.date(2026, 10, 6), "3.08": _dt.date(2026, 10, 7)}
        and _cal[2] == [_dt.date(2026, 10, 15)])
+    _calm = _pk.calendar(3, tmp, merged=True)
+    ok("START HERE: with merged=True a merged day dates each lesson it holds (M7 9.06+07, ruling 50: a unit built before the merge)",
+       _calm[0] == dict(_cal[0], **{"3.07": _dt.date(2026, 9, 30)}))
 # ---- ruling 18: two transfer items, or one where the teacher cut one and the paper says so
 from lib import unitbuild as _ub18
 ok("ruling 18: a paper needs exactly two transfer items — or one, when transfer_cut says who cut the other, when and why, and the key then says so",
