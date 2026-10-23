@@ -51,6 +51,7 @@ in the code; the four reports are in the Windmill HANDOFF.
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
 | `check/run.py` | `python3 kit/check/run.py <unit>`: the unit's own checks, then the lock, then the browser checks. If all pass it writes `CHECKED` and builds. |
 | `check/lock.js` | set stability (see above) |
+| `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
@@ -88,7 +89,9 @@ keyText(part) → what a student would type (for the checks)
 2. Copy the closest unit folder. Write each question kind as a generator plus its family: models, rule, solution and walk.
 3. Fill in `unit.json` and `unit.js`. Set `contentVersion: 1`.
 4. Write the unit's checks to the same standard, plus the sympy oracle.
-5. Run `python3 practice/kit/check/run.py practice/uN` until it passes.
+5. Run `python3 practice/kit/check/run.py practice/uN` until it passes. **Since ruling 49 (22 Oct 2026) the unit test is a
+   random set of this page**, so every question part needs many versions: the variety check fails a part with fewer than
+   100 over 20,000 set numbers. Widen its numbers inside the benchmark's limits — the same question, more versions.
 6. Run the Apple review (four reviewers), fix what it finds, and run again.
 7. Publish the artifact and send the download.
 

@@ -2,7 +2,8 @@
 
 1. the unit's own checks (unit.json "checks": exact answers, keys typed back, mistake models, the clean rule, solution and
    walkthrough chains, claims in sentences, pictures and figures, test-form avoidance, planted errors, the sympy oracle);
-2. the stability lock (check/lock.js): set numbers keep their questions unless contentVersion is bumped;
+2. the stability lock (check/lock.js): set numbers keep their questions unless contentVersion is bumped; and the variety
+   floor (check/variety.js, ruling 49): every question part comes in enough versions for a random set to be a test;
 3. a look-only build, then the page in a real browser (check/page.js);
 4. CHECKED is written with the hash of the sources, and the real build runs (build.py refuses without it)."""
 import json, os, subprocess, sys
@@ -18,6 +19,8 @@ def run(cmd, cwd):
     if r.returncode: sys.exit("CHECK FAILED: " + cmd)
 for c in cfg.get("checks", []): run(c, UD)
 run("node " + os.path.join(KIT, "check", "lock.js") + " .", UD)
+if not any(x.endswith("teacher.js") for x in cfg["scripts"]):    # a teacher copy is its unit's questions: counted there
+    run("node " + os.path.join(KIT, "check", "variety.js") + " .", UD)
 run("python3 " + os.path.join(KIT, "build.py") + " . --force", UD)
 run("node " + os.path.join(KIT, "check", "page.js") + " .", UD)
 # the same hash build.py checks
