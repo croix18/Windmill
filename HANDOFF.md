@@ -46,6 +46,12 @@ really don't want to teach all of unit 5 then have the test after break. They wi
   test 1–2 Mar, Unit 11's 16–17 Mar; nothing in A7 moves. PM3: "May something" — the window stays until the date is set.
   The schedule pages call a one-day test's day "Unit 4 Test".
 
+- **The teacher copies are on mrshaffer.org, unlisted** (mrshaffer-site `7982ee0`; Croix, 22 Oct, 9:20 pm: *"Can you publish
+  the teachers copies instead to the website. Students won't know about it. I can worry about test security later. For now
+  it's just for me."*). M7 Unit 4 and A7 Units 3–4, at an address nothing links to (it is in mrshaffer-site's README, which is
+  a private repository — keep it out of every other file). Not locked: anyone with the link can open it, and he chose that.
+  **When a teacher copy is rebuilt, copy its `<Course> Unit N Teacher Copy.html` into mrshaffer-site `teacher/<course>/` and
+  push**; a new unit's teacher copy goes there too. The private artifacts (A7 Units 3–4, M7 Unit 4 teacher copies) still exist.
 - **Known issue, not fixed (22 Oct, 9 pm):** every *All in One* PDF bookmarks each document by its kind — six bookmarks all
   reading "Teacher Edition" — because `kit/lib/unitbuild.py` (the `add_outline_item` line, ~527) keeps the part of the file
   name AFTER the first " - ". For per-lesson documents the bookmark should be the lesson ("4.01 Adding and Subtracting in
@@ -1241,3 +1247,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (later): Croix: "Can you actually push the schedules to the website?" → mrshaffer-site 7c86038: mrshaffer.org/schedule/ (M7, A7) built from the spine by the site's tools/schedule.py; a Schedule icon on the home page and a Schedule row on each practice page; the site's background no longer tiles on long pages. "The plan follows the class" gains step 5 (rebuild and push the schedules).
 - 22 Oct (evening): Croix: "Pm 2 is December 8..." → rulings 47 and 48: PM2 off 8 Dec; 14 Jan a school day; M7 Unit 8 before Unit 5, catch-up week 14–18 Dec, Units 5 and 6 without review days, 10.09+10.10 one day so Unit 10 is tested before Thanksgiving, Unit 8's review day back; A7 Unit 7 around PM2, Thread B after the Unit 6 exam and Thread C after the Unit 13 exam, semester review + catch-up days 14–18 Dec; both tools refuse a unit split by a long break. Spine, scopes, sheets, phone page (V5), website schedules, M7 Schedule doc. Windmill 1bb8f4b/57091a0, M7 0fc43a8/f74917e, A7 20e879f/34b2550, site 647b21a.
 - 22 Oct (later): Croix: "A7s unit 4 test is Monday only. Mar 1 is definitely not a state test. May something will be our pm3" → A7 as-run 2026-10-27,5.01 (Unit 4 exam one day); 1 Mar out of both logs; START HERE A7 3–5; spine, sheets, phone page (V6), website, M7 doc. Windmill af132a9, M7 946f319, A7 aeb16a7, site ad7c5ef.
+- 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
