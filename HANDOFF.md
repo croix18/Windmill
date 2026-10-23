@@ -38,7 +38,13 @@ really don't want to teach all of unit 5 then have the test after break. They wi
   (mrshaffer.org/schedule — catch-up days read "Catch-up — make-up tests and missing work, no new lessons", one row per
   run), and **the M7 Schedule doc** (rev 27: intro, test dates, rule line, Nov–Apr and the IXL table; export 18390 bytes =
   what was generated).
-- **Still open:** whether A7's Unit 4 test (Mon 26 Oct) is one day or two; whether 1 March really is a state test.
+- **Later that evening** (Windmill `af132a9`; M7 `946f319`; A7 `aeb16a7`; site `ad7c5ef`; phone page Version 6; M7 Schedule doc
+  rev 28): *"A7s unit 4 test is Monday only. Mar 1 is definitely not a state test. May something will be our pm3."* A7: as-run
+  `2026-10-27,5.01` (Unit 3's one-day exam was done the same way) — Unit 4's exam is Mon 26 Oct only, Unit 5 runs 27 Oct –
+  3 Nov, spiral 4 Nov, exam 5–6 Nov; START HERE for A7 Units 3–5 rewritten from the plan ("one period" for a one-day exam;
+  Unit 4's paper was built for two periods, 29 points — offer to trim it if he wants). 1 March out of both logs: M7's Unit 7
+  test 1–2 Mar, Unit 11's 16–17 Mar; nothing in A7 moves. PM3: "May something" — the window stays until the date is set.
+  The schedule pages call a one-day test's day "Unit 4 Test".
 
 ## Where things stand (22 Oct 2026) — read this first
 
@@ -1227,3 +1233,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct: Croix: "Can I get the updated schedule for m7" → the M7 Schedule 2026–27 doc (Claude Docs) from mkscope's plan. Then: "Alignment check. We just got through the first lesson of unit 9 today. We are also taking the a7 unit 4 assessment on Monday." → M7 as-run 2026-10-23,9.02; the Unit 9 spiral day takes the loss, no test moves; spine, phone page (Version 3), M7 master sheet, Unit 9 START HERE and the doc updated; A7 unchanged. Windmill dd390a6, M7 1e85e39, A7 0b4ca5c. check.sh's Drive test fails (pre-existing, ruling 41).
 - 22 Oct (later): Croix: "Can you actually push the schedules to the website?" → mrshaffer-site 7c86038: mrshaffer.org/schedule/ (M7, A7) built from the spine by the site's tools/schedule.py; a Schedule icon on the home page and a Schedule row on each practice page; the site's background no longer tiles on long pages. "The plan follows the class" gains step 5 (rebuild and push the schedules).
 - 22 Oct (evening): Croix: "Pm 2 is December 8..." → rulings 47 and 48: PM2 off 8 Dec; 14 Jan a school day; M7 Unit 8 before Unit 5, catch-up week 14–18 Dec, Units 5 and 6 without review days, 10.09+10.10 one day so Unit 10 is tested before Thanksgiving, Unit 8's review day back; A7 Unit 7 around PM2, Thread B after the Unit 6 exam and Thread C after the Unit 13 exam, semester review + catch-up days 14–18 Dec; both tools refuse a unit split by a long break. Spine, scopes, sheets, phone page (V5), website schedules, M7 Schedule doc. Windmill 1bb8f4b/57091a0, M7 0fc43a8/f74917e, A7 20e879f/34b2550, site 647b21a.
+- 22 Oct (later): Croix: "A7s unit 4 test is Monday only. Mar 1 is definitely not a state test. May something will be our pm3" → A7 as-run 2026-10-27,5.01 (Unit 4 exam one day); 1 Mar out of both logs; START HERE A7 3–5; spine, sheets, phone page (V6), website, M7 doc. Windmill af132a9, M7 946f319, A7 aeb16a7, site ad7c5ef.
