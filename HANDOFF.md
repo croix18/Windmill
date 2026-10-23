@@ -7,7 +7,7 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 ## Where things stand (23 Oct 2026, morning) — read this first
 
 **A question solved with the Hint gets a small gray bulb, not words** (Windmill `c9cf1ae`; A7 `5d5e582`; M7 `5f13b7e`;
-mrshaffer-site `40f16dc`, `7173355`). Croix, from his phone at 7:17 am, with a screenshot of "✓ Correct, with help — still a point":
+mrshaffer-site `40f16dc`, `7173355`, `2cfae15` — the deploy of `7173355` failed on Cloudflare's side, the empty `2cfae15` rebuilt it). Croix, from his phone at 7:17 am, with a screenshot of "✓ Correct, with help — still a point":
 *"Can you get rid of the still a point comment. And also the with help comment. Have a more dignified or subtle way to mark
 the with help questions. Like I'm not trying to discourage the students from using the help button when they need it."*
 - A right answer on the first check always says "✓ Correct on the first try" (it is a point, Hint or not, as before). With
