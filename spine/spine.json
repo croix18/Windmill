@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-22T16:11:22-04:00",
+ "generatedAt": "2026-10-22T20:00:31-04:00",
  "sources": {
-  "a7": "570b8633",
-  "m7": "cfe0327",
+  "a7": "0b4ca5cb",
+  "m7": "1e85e39",
   "deckhand": "411f496"
  },
  "year": {
@@ -7509,73 +7509,6 @@
    ],
    "events": [],
    "acc": {
-    "kind": "flex",
-    "code": "flex",
-    "title": "Flex day — reteach from exam evidence, or absorb a lost day",
-    "unit": 6,
-    "benchmarks": [],
-    "ixl": []
-   },
-   "on": {
-    "kind": "lesson",
-    "code": "5.01",
-    "title": "Random Samples vs. Population",
-    "unit": 5,
-    "benchmarks": [
-     "MA.7.DP.1.3"
-    ],
-    "ixl": [
-     {
-      "name": "Populations and samples",
-      "code": "YHZ",
-      "due": "2026-12-03"
-     },
-     {
-      "name": "Identify representative and random samples",
-      "code": "B9Z",
-      "due": "2026-12-03"
-     }
-    ]
-   }
-  },
-  "2026-12-03": {
-   "week": "Black Week",
-   "wednesday": false,
-   "quarter": 2,
-   "periods": [
-    {
-     "period": 6,
-     "start": "9:20",
-     "end": "10:13"
-    },
-    {
-     "period": 5,
-     "start": "10:16",
-     "end": "11:09"
-    },
-    {
-     "period": 3,
-     "start": "11:46",
-     "end": "12:39"
-    },
-    {
-     "period": 4,
-     "start": "1:15",
-     "end": "2:08"
-    },
-    {
-     "period": 2,
-     "start": "2:11",
-     "end": "3:04"
-    },
-    {
-     "period": 1,
-     "start": "3:07",
-     "end": "4:00"
-    }
-   ],
-   "events": [],
-   "acc": {
     "kind": "lesson",
     "code": "7.01",
     "title": "Graphing proportional relationships",
@@ -7587,22 +7520,43 @@
      {
       "name": "Graph a proportional relationship: word problems",
       "code": "FJW",
-      "due": "2026-12-04"
+      "due": "2026-12-03"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "5.02",
-    "title": "Determining Probability",
-    "unit": 5,
+    "code": "8.01",
+    "title": "Product Laws of Exponents",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.3"
+     "MA.7.NSO.1.1"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Evaluate powers",
+      "code": "SZQ",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Multiplication with exponents",
+      "code": "5SK",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Power rule",
+      "code": "8DA",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Understanding exponents",
+      "code": "BFA",
+      "due": "2026-12-03"
+     }
+    ]
    }
   },
-  "2026-12-04": {
+  "2026-12-03": {
    "week": "Black Week",
    "wednesday": false,
    "quarter": 2,
@@ -7651,54 +7605,59 @@
      {
       "name": "Interpret graphs of proportional relationships",
       "code": "RMH",
-      "due": "2026-12-07"
+      "due": "2026-12-04"
      },
      {
       "name": "Find the constant of proportionality from a table",
       "code": "LKZ",
-      "due": "2026-12-07"
+      "due": "2026-12-04"
      },
      {
       "name": "Find the constant of proportionality from a graph",
       "code": "ZUT",
-      "due": "2026-12-07"
+      "due": "2026-12-04"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "5.03",
-    "title": "Making Population Predictions – Part 1",
-    "unit": 5,
+    "code": "8.02",
+    "title": "Quotient Laws of Exponents",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.3"
+     "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Make an estimate from sample data",
-      "code": "FMC",
-      "due": "2026-12-08"
+      "name": "Powers with negative bases",
+      "code": "WFW",
+      "due": "2026-12-04"
      },
      {
-      "name": "Use collected data to make predictions",
-      "code": "EXS",
-      "due": "2026-12-08"
+      "name": "Division with exponents",
+      "code": "XNC",
+      "due": "2026-12-04"
+     },
+     {
+      "name": "Identify equivalent expressions involving whole-number exponents",
+      "code": "KBE",
+      "due": "2026-12-04"
      }
     ]
    }
   },
-  "2026-12-07": {
-   "week": "Teal Week",
+  "2026-12-04": {
+   "week": "Black Week",
    "wednesday": false,
    "quarter": 2,
    "periods": [
     {
-     "period": 1,
+     "period": 6,
      "start": "9:20",
      "end": "10:13"
     },
     {
-     "period": 2,
+     "period": 5,
      "start": "10:16",
      "end": "11:09"
     },
@@ -7713,12 +7672,12 @@
      "end": "2:08"
     },
     {
-     "period": 5,
+     "period": 2,
      "start": "2:11",
      "end": "3:04"
     },
     {
-     "period": 6,
+     "period": 1,
      "start": "3:07",
      "end": "4:00"
     }
@@ -7737,38 +7696,33 @@
      {
       "name": "Identify proportional relationships by graphing",
       "code": "AAN",
-      "due": "2026-12-08"
+      "due": "2026-12-07"
      },
      {
       "name": "Identify proportional relationships in tables and graphs",
       "code": "VZK",
-      "due": "2026-12-08"
+      "due": "2026-12-07"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "5.04",
-    "title": "Making Population Predictions – Part 2",
-    "unit": 5,
+    "code": "8.03",
+    "title": "Exponential Expressions",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.3"
+     "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Make an estimate from sample data",
-      "code": "FMC",
-      "due": "2026-12-08"
-     },
-     {
-      "name": "Use collected data to make predictions",
-      "code": "EXS",
-      "due": "2026-12-08"
+      "name": "Evaluate expressions using properties of exponents",
+      "code": "ZE9",
+      "due": "2026-12-07"
      }
     ]
    }
   },
-  "2026-12-08": {
+  "2026-12-07": {
    "week": "Teal Week",
    "wednesday": false,
    "quarter": 2,
@@ -7833,19 +7787,73 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "5.05",
-    "title": "Scale Factors – Perimeter",
-    "unit": 5,
+    "code": "8.04",
+    "title": "Evaluating Numeric Expressions – Part 1",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.GR.1.5"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Perimeter and area: changes in scale",
-      "code": "ZC6",
-      "due": "2026-12-10"
+      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
+      "code": "2XW",
+      "due": "2026-12-09"
      }
     ]
+   }
+  },
+  "2026-12-08": {
+   "week": "Teal Week",
+   "wednesday": false,
+   "quarter": 2,
+   "periods": [
+    {
+     "period": 1,
+     "start": "9:20",
+     "end": "10:13"
+    },
+    {
+     "period": 2,
+     "start": "10:16",
+     "end": "11:09"
+    },
+    {
+     "period": 3,
+     "start": "11:46",
+     "end": "12:39"
+    },
+    {
+     "period": 4,
+     "start": "1:15",
+     "end": "2:08"
+    },
+    {
+     "period": 5,
+     "start": "2:11",
+     "end": "3:04"
+    },
+    {
+     "period": 6,
+     "start": "3:07",
+     "end": "4:00"
+    }
+   ],
+   "events": [],
+   "acc": {
+    "kind": "off",
+    "code": "off",
+    "title": "FAST PM2 — no class",
+    "unit": 7,
+    "benchmarks": [],
+    "ixl": []
+   },
+   "on": {
+    "kind": "off",
+    "code": null,
+    "title": "FAST PM2 — no class",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-09": {
@@ -7903,16 +7911,31 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "5.06",
-    "title": "Scale Factors – Area",
-    "unit": 5,
+    "code": "8.05+06",
+    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.GR.1.5"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Perimeter and area: changes in scale",
-      "code": "ZC6",
+      "name": "Evaluate numerical expressions involving rational numbers",
+      "code": "KG2",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Evaluate numerical expressions involving decimals",
+      "code": "FNM",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Evaluate numerical expressions involving fractions",
+      "code": "XXQ",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Evaluate numerical expressions involving exponents",
+      "code": "D7P",
       "due": "2026-12-10"
      }
     ]
@@ -7964,20 +7987,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "5.07",
-    "title": "Scale Drawings",
-    "unit": 5,
-    "benchmarks": [
-     "MA.7.GR.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Scale drawings: find the scaled length",
-      "code": "9VH",
-      "due": "2026-12-11"
-     }
-    ]
+    "kind": "exam",
+    "code": "8.X1",
+    "title": "Unit 8 assessment, day 1",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-11": {
@@ -8026,20 +8041,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "5.08",
-    "title": "Solving Problems Involving Dimensions and Perimeters of Geometric Figures",
-    "unit": 5,
-    "benchmarks": [
-     "MA.7.GR.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Scale drawings: find the scale factor or missing side",
-      "code": "XHM",
-      "due": "2026-12-15"
-     }
-    ]
+    "kind": "exam",
+    "code": "8.X2",
+    "title": "Unit 8 assessment, day 2",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-14": {
@@ -8082,7 +8089,7 @@
    "acc": {
     "kind": "pm3",
     "code": "PM2-R1",
-    "title": "PM2 review 1: number system, exponents, scientific notation (whiteboards)",
+    "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
     "unit": null,
     "benchmarks": [
      "MA.8.NSO.1.1",
@@ -8096,20 +8103,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "5.09",
-    "title": "Solving Problems Involving Dimensions and Areas of Geometric Figures",
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
-    "benchmarks": [
-     "MA.7.GR.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Scale drawings: find the scale factor or missing side",
-      "code": "XHM",
-      "due": "2026-12-15"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-15": {
@@ -8152,7 +8151,7 @@
    "acc": {
     "kind": "pm3",
     "code": "PM2-R2",
-    "title": "PM2 review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
+    "title": "Semester review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
     "unit": null,
     "benchmarks": [
      "MA.8.AR.2.1",
@@ -8168,25 +8167,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "5.10",
-    "title": "Solving Problems Involving Real-World Scale Drawings",
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
-    "benchmarks": [
-     "MA.7.GR.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Scale drawings: word problems",
-      "code": "84H",
-      "due": "2026-12-16"
-     },
-     {
-      "name": "Scale drawings: scale factor word problems",
-      "code": "KCM",
-      "due": "2026-12-16"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-16": {
@@ -8229,7 +8215,7 @@
    "acc": {
     "kind": "pm3",
     "code": "PM2-R3",
-    "title": "PM2 review 3: proportional → linear preview; mixed FAST-shaped round",
+    "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
     "unit": null,
     "benchmarks": [
      "MA.8.AR.3.1",
@@ -8242,9 +8228,9 @@
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "5.R",
-    "title": "Unit 5 review day",
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -8288,30 +8274,17 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "8.01+02",
-    "title": "Circle relationships; circumference",
+    "kind": "extra",
+    "code": "extra",
+    "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
     "unit": 8,
-    "benchmarks": [
-     "MA.7.GR.1.3"
-    ],
-    "ixl": [
-     {
-      "name": "Center, radius, and diameter of a circle",
-      "code": "7RY",
-      "due": "2026-12-18"
-     },
-     {
-      "name": "Circumference of circles",
-      "code": "9FM",
-      "due": "2026-12-18"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "5.X1",
-    "title": "Unit 5 assessment, day 1",
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -8357,25 +8330,17 @@
     "Q2 / semester ends"
    ],
    "acc": {
-    "kind": "lesson",
-    "code": "8.03",
-    "title": "Radius and diameter from circumference",
+    "kind": "extra",
+    "code": "extra",
+    "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
     "unit": 8,
-    "benchmarks": [
-     "MA.7.GR.1.3"
-    ],
-    "ixl": [
-     {
-      "name": "Find the radius or diameter of a circle given the circumference",
-      "code": "2CM",
-      "due": "2027-01-06"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "5.X2",
-    "title": "Unit 5 assessment, day 2",
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -8888,29 +8853,45 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "8.04+05",
-    "title": "Area of a circle",
+    "code": "8.01+02",
+    "title": "Circle relationships; circumference",
     "unit": 8,
     "benchmarks": [
-     "MA.7.GR.1.4"
+     "MA.7.GR.1.3"
     ],
     "ixl": [
      {
-      "name": "Area of circles",
-      "code": "YA8",
+      "name": "Center, radius, and diameter of a circle",
+      "code": "7RY",
+      "due": "2027-01-07"
+     },
+     {
+      "name": "Circumference of circles",
+      "code": "9FM",
       "due": "2027-01-07"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "6.01",
-    "title": "Paying Your Way in Mathlandia",
-    "unit": 6,
+    "code": "5.01",
+    "title": "Random Samples vs. Population",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.DP.1.3"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Populations and samples",
+      "code": "YHZ",
+      "due": "2027-01-07"
+     },
+     {
+      "name": "Identify representative and random samples",
+      "code": "B9Z",
+      "due": "2027-01-07"
+     }
+    ]
    }
   },
   "2027-01-07": {
@@ -8952,27 +8933,27 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "8.06",
-    "title": "Circumference and area problems; sectors",
+    "code": "8.03",
+    "title": "Radius and diameter from circumference",
     "unit": 8,
     "benchmarks": [
-     "MA.7.GR.1.4"
+     "MA.7.GR.1.3"
     ],
     "ixl": [
      {
-      "name": "Circles: word problems",
-      "code": "P56",
+      "name": "Find the radius or diameter of a circle given the circumference",
+      "code": "2CM",
       "due": "2027-01-08"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "6.02",
-    "title": "Currency Conversions",
-    "unit": 6,
+    "code": "5.02",
+    "title": "Determining Probability",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.DP.1.3"
     ],
     "ixl": []
    }
@@ -9016,44 +8997,38 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "8.08+09",
-    "title": "Sectors and circle graphs",
+    "code": "8.04+05",
+    "title": "Area of a circle",
     "unit": 8,
     "benchmarks": [
-     "MA.7.GR.1.4",
-     "MA.7.DP.1.4"
+     "MA.7.GR.1.4"
     ],
     "ixl": [
      {
-      "name": "Use fractions to find the measure of an angle",
-      "code": "V76",
-      "due": "2027-01-11"
-     },
-     {
-      "name": "Circle graphs and central angles",
-      "code": "KXS",
-      "due": "2027-01-11"
-     },
-     {
-      "name": "Interpret circle graphs",
-      "code": "WNJ",
+      "name": "Area of circles",
+      "code": "YA8",
       "due": "2027-01-11"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "6.03",
-    "title": "Converting Units of Length",
-    "unit": 6,
+    "code": "5.03",
+    "title": "Making Population Predictions – Part 1",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.DP.1.3"
     ],
     "ixl": [
      {
-      "name": "Convert between customary and metric systems",
-      "code": "E8Z",
-      "due": "2027-01-11"
+      "name": "Make an estimate from sample data",
+      "code": "FMC",
+      "due": "2027-01-12"
+     },
+     {
+      "name": "Use collected data to make predictions",
+      "code": "EXS",
+      "due": "2027-01-12"
      }
     ]
    }
@@ -9097,6 +9072,162 @@
    "events": [],
    "acc": {
     "kind": "lesson",
+    "code": "8.06",
+    "title": "Circumference and area problems; sectors",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.GR.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Circles: word problems",
+      "code": "P56",
+      "due": "2027-01-12"
+     }
+    ]
+   },
+   "on": {
+    "kind": "lesson",
+    "code": "5.04",
+    "title": "Making Population Predictions – Part 2",
+    "unit": 5,
+    "benchmarks": [
+     "MA.7.DP.1.3"
+    ],
+    "ixl": [
+     {
+      "name": "Make an estimate from sample data",
+      "code": "FMC",
+      "due": "2027-01-12"
+     },
+     {
+      "name": "Use collected data to make predictions",
+      "code": "EXS",
+      "due": "2027-01-12"
+     }
+    ]
+   }
+  },
+  "2027-01-12": {
+   "week": "Black Week",
+   "wednesday": false,
+   "quarter": 3,
+   "periods": [
+    {
+     "period": 6,
+     "start": "9:20",
+     "end": "10:13"
+    },
+    {
+     "period": 5,
+     "start": "10:16",
+     "end": "11:09"
+    },
+    {
+     "period": 3,
+     "start": "11:46",
+     "end": "12:39"
+    },
+    {
+     "period": 4,
+     "start": "1:15",
+     "end": "2:08"
+    },
+    {
+     "period": 2,
+     "start": "2:11",
+     "end": "3:04"
+    },
+    {
+     "period": 1,
+     "start": "3:07",
+     "end": "4:00"
+    }
+   ],
+   "events": [],
+   "acc": {
+    "kind": "lesson",
+    "code": "8.08+09",
+    "title": "Sectors and circle graphs",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.GR.1.4",
+     "MA.7.DP.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Use fractions to find the measure of an angle",
+      "code": "V76",
+      "due": "2027-01-13"
+     },
+     {
+      "name": "Circle graphs and central angles",
+      "code": "KXS",
+      "due": "2027-01-13"
+     },
+     {
+      "name": "Interpret circle graphs",
+      "code": "WNJ",
+      "due": "2027-01-13"
+     }
+    ]
+   },
+   "on": {
+    "kind": "lesson",
+    "code": "5.05",
+    "title": "Scale Factors – Perimeter",
+    "unit": 5,
+    "benchmarks": [
+     "MA.7.GR.1.5"
+    ],
+    "ixl": [
+     {
+      "name": "Perimeter and area: changes in scale",
+      "code": "ZC6",
+      "due": "2027-01-14"
+     }
+    ]
+   }
+  },
+  "2027-01-13": {
+   "week": "Black Week",
+   "wednesday": true,
+   "quarter": 3,
+   "periods": [
+    {
+     "period": 6,
+     "start": "9:20",
+     "end": "10:03"
+    },
+    {
+     "period": 5,
+     "start": "10:06",
+     "end": "10:49"
+    },
+    {
+     "period": 3,
+     "start": "11:26",
+     "end": "12:09"
+    },
+    {
+     "period": 4,
+     "start": "12:45",
+     "end": "1:28"
+    },
+    {
+     "period": 2,
+     "start": "1:31",
+     "end": "2:14"
+    },
+    {
+     "period": 1,
+     "start": "2:17",
+     "end": "3:00"
+    }
+   ],
+   "events": [],
+   "acc": {
+    "kind": "lesson",
     "code": "9.01+02",
     "title": "Surface area of cylinders from nets",
     "unit": 9,
@@ -9108,43 +9239,38 @@
      {
       "name": "Nets of three-dimensional figures",
       "code": "3R2",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      },
      {
       "name": "Surface area of cylinders",
       "code": "CYQ",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      },
      {
       "name": "Lateral area of cylinders",
       "code": "C8K",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "6.04",
-    "title": "Converting Mass and Area",
-    "unit": 6,
+    "code": "5.06",
+    "title": "Scale Factors – Area",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Compare and convert customary units",
-      "code": "4B8",
-      "due": "2027-01-13"
-     },
-     {
-      "name": "Compare and convert metric units",
-      "code": "HW2",
-      "due": "2027-01-13"
+      "name": "Perimeter and area: changes in scale",
+      "code": "ZC6",
+      "due": "2027-01-14"
      }
     ]
    }
   },
-  "2027-01-12": {
+  "2027-01-14": {
    "week": "Black Week",
    "wednesday": false,
    "quarter": 3,
@@ -9193,140 +9319,25 @@
      {
       "name": "Volume of cylinders",
       "code": "FHC",
-      "due": "2027-01-13"
+      "due": "2027-01-15"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "6.05",
-    "title": "Converting Units of Volume",
-    "unit": 6,
+    "code": "5.07",
+    "title": "Scale Drawings",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Compare and convert customary units",
-      "code": "4B8",
-      "due": "2027-01-13"
-     },
-     {
-      "name": "Compare and convert metric units",
-      "code": "HW2",
-      "due": "2027-01-13"
+      "name": "Scale drawings: find the scaled length",
+      "code": "9VH",
+      "due": "2027-01-15"
      }
     ]
-   }
-  },
-  "2027-01-13": {
-   "week": "Black Week",
-   "wednesday": true,
-   "quarter": 3,
-   "periods": [
-    {
-     "period": 6,
-     "start": "9:20",
-     "end": "10:03"
-    },
-    {
-     "period": 5,
-     "start": "10:06",
-     "end": "10:49"
-    },
-    {
-     "period": 3,
-     "start": "11:26",
-     "end": "12:09"
-    },
-    {
-     "period": 4,
-     "start": "12:45",
-     "end": "1:28"
-    },
-    {
-     "period": 2,
-     "start": "1:31",
-     "end": "2:14"
-    },
-    {
-     "period": 1,
-     "start": "2:17",
-     "end": "3:00"
-    }
-   ],
-   "events": [],
-   "acc": {
-    "kind": "spiral",
-    "code": "spiral",
-    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
-    "unit": 9,
-    "benchmarks": [],
-    "ixl": []
-   },
-   "on": {
-    "kind": "lesson",
-    "code": "6.06",
-    "title": "Creating Proportions",
-    "unit": 6,
-    "benchmarks": [
-     "MA.7.AR.3.2"
-    ],
-    "ixl": []
-   }
-  },
-  "2027-01-14": {
-   "week": "Black Week",
-   "wednesday": false,
-   "quarter": 3,
-   "periods": [
-    {
-     "period": 6,
-     "start": "9:20",
-     "end": "10:13"
-    },
-    {
-     "period": 5,
-     "start": "10:16",
-     "end": "11:09"
-    },
-    {
-     "period": 3,
-     "start": "11:46",
-     "end": "12:39"
-    },
-    {
-     "period": 4,
-     "start": "1:15",
-     "end": "2:08"
-    },
-    {
-     "period": 2,
-     "start": "2:11",
-     "end": "3:04"
-    },
-    {
-     "period": 1,
-     "start": "3:07",
-     "end": "4:00"
-    }
-   ],
-   "events": [],
-   "acc": {
-    "kind": "off",
-    "code": "off",
-    "title": "State test — no class",
-    "unit": 9,
-    "benchmarks": [],
-    "ixl": []
-   },
-   "on": {
-    "kind": "off",
-    "code": null,
-    "title": "State test — no class",
-    "unit": 6,
-    "benchmarks": [],
-    "ixl": []
    }
   },
   "2027-01-15": {
@@ -9376,22 +9387,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "6.07",
-    "title": "Using Proportions to Solve Problems",
-    "unit": 6,
+    "code": "5.08",
+    "title": "Solving Problems Involving Dimensions and Perimeters of Geometric Figures",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.2"
+     "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Solve proportions",
-      "code": "TDA",
-      "due": "2027-01-19"
-     },
-     {
-      "name": "Solve proportions: word problems",
-      "code": "WB7",
-      "due": "2027-01-19"
+      "name": "Scale drawings: find the scale factor or missing side",
+      "code": "XHM",
+      "due": "2027-01-20"
      }
     ]
    }
@@ -9482,26 +9488,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "6.08",
-    "title": "Solving Real-World Problems Involving Proportions",
-    "unit": 6,
+    "code": "5.09",
+    "title": "Solving Problems Involving Dimensions and Areas of Geometric Figures",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.2"
+     "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Estimate population size using proportions",
-      "code": "3C9",
-      "due": "2027-01-20"
-     },
-     {
-      "name": "Do the ratios form a proportion?",
-      "code": "MJQ",
-      "due": "2027-01-20"
-     },
-     {
-      "name": "Do the ratios form a proportion: word problems",
-      "code": "SHV",
+      "name": "Scale drawings: find the scale factor or missing side",
+      "code": "XHM",
       "due": "2027-01-20"
      }
     ]
@@ -9554,22 +9550,22 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "6.09",
-    "title": "Exploring Multi-Step Proportions Problems",
-    "unit": 6,
+    "code": "5.10",
+    "title": "Solving Problems Involving Real-World Scale Drawings",
+    "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.2"
+     "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Compare rates: word problems",
-      "code": "VVS",
-      "due": "2027-01-22"
+      "name": "Scale drawings: word problems",
+      "code": "84H",
+      "due": "2027-01-21"
      },
      {
-      "name": "Multi-step problems with customary or metric unit conversions",
-      "code": "UCT",
-      "due": "2027-01-22"
+      "name": "Scale drawings: scale factor word problems",
+      "code": "KCM",
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9620,25 +9616,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "6.10",
-    "title": "Solving Multi-Step Proportion Problems",
-    "unit": 6,
-    "benchmarks": [
-     "MA.7.AR.3.2"
-    ],
-    "ixl": [
-     {
-      "name": "Compare rates: word problems",
-      "code": "VVS",
-      "due": "2027-01-22"
-     },
-     {
-      "name": "Multi-step problems with customary or metric unit conversions",
-      "code": "UCT",
-      "due": "2027-01-22"
-     }
-    ]
+    "kind": "exam",
+    "code": "5.X1",
+    "title": "Unit 5 assessment, day 1",
+    "unit": 5,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-01-22": {
@@ -9687,13 +9670,11 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "6.11",
-    "title": "Reasoning Through Problems Involving Proportional Relationships",
-    "unit": 6,
-    "benchmarks": [
-     "MA.7.AR.3.2"
-    ],
+    "kind": "exam",
+    "code": "5.X2",
+    "title": "Unit 5 assessment, day 2",
+    "unit": 5,
+    "benchmarks": [],
     "ixl": []
    }
   },
@@ -9771,11 +9752,13 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "6.R",
-    "title": "Unit 6 review day",
+    "kind": "lesson",
+    "code": "6.01",
+    "title": "Paying Your Way in Mathlandia",
     "unit": 6,
-    "benchmarks": [],
+    "benchmarks": [
+     "MA.7.AR.3.3"
+    ],
     "ixl": []
    }
   },
@@ -9843,11 +9826,13 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "6.X1",
-    "title": "Unit 6 assessment, day 1",
+    "kind": "lesson",
+    "code": "6.02",
+    "title": "Currency Conversions",
     "unit": 6,
-    "benchmarks": [],
+    "benchmarks": [
+     "MA.7.AR.3.3"
+    ],
     "ixl": []
    }
   },
@@ -9911,12 +9896,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "6.X2",
-    "title": "Unit 6 assessment, day 2",
+    "kind": "lesson",
+    "code": "6.03",
+    "title": "Converting Units of Length",
     "unit": 6,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.AR.3.3"
+    ],
+    "ixl": [
+     {
+      "name": "Convert between customary and metric systems",
+      "code": "E8Z",
+      "due": "2027-01-28"
+     }
+    ]
    }
   },
   "2027-01-28": {
@@ -9994,17 +9987,22 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.01",
-    "title": "Circle Graphs",
-    "unit": 7,
+    "code": "6.04",
+    "title": "Converting Mass and Area",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.DP.1.4"
+     "MA.7.AR.3.3"
     ],
     "ixl": [
      {
-      "name": "Use fractions to find the measure of an angle",
-      "code": "V76",
-      "due": "2027-01-29"
+      "name": "Compare and convert customary units",
+      "code": "4B8",
+      "due": "2027-02-01"
+     },
+     {
+      "name": "Compare and convert metric units",
+      "code": "HW2",
+      "due": "2027-02-01"
      }
     ]
    }
@@ -10079,13 +10077,24 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.02",
-    "title": "Sectors of a Circle",
-    "unit": 7,
+    "code": "6.05",
+    "title": "Converting Units of Volume",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.DP.1.4"
+     "MA.7.AR.3.3"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Compare and convert customary units",
+      "code": "4B8",
+      "due": "2027-02-01"
+     },
+     {
+      "name": "Compare and convert metric units",
+      "code": "HW2",
+      "due": "2027-02-01"
+     }
+    ]
    }
   },
   "2027-02-01": {
@@ -10148,19 +10157,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.03",
-    "title": "Constructing Circle Graphs",
-    "unit": 7,
+    "code": "6.06",
+    "title": "Creating Proportions",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.DP.1.4"
+     "MA.7.AR.3.2"
     ],
-    "ixl": [
-     {
-      "name": "Circle graphs and central angles",
-      "code": "KXS",
-      "due": "2027-02-02"
-     }
-    ]
+    "ixl": []
    }
   },
   "2027-02-02": {
@@ -10233,16 +10236,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.04",
-    "title": "Interpreting Circle Graphs",
-    "unit": 7,
+    "code": "6.07",
+    "title": "Using Proportions to Solve Problems",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.DP.1.4"
+     "MA.7.AR.3.2"
     ],
     "ixl": [
      {
-      "name": "Interpret circle graphs",
-      "code": "WNJ",
+      "name": "Solve proportions",
+      "code": "TDA",
+      "due": "2027-02-03"
+     },
+     {
+      "name": "Solve proportions: word problems",
+      "code": "WB7",
       "due": "2027-02-03"
      }
     ]
@@ -10304,26 +10312,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.05",
-    "title": "Discounts and Markups",
-    "unit": 7,
+    "code": "6.08",
+    "title": "Solving Real-World Problems Involving Proportions",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.AR.3.1"
+     "MA.7.AR.3.2"
     ],
     "ixl": [
      {
-      "name": "Markups and sales",
-      "code": "N2V",
+      "name": "Estimate population size using proportions",
+      "code": "3C9",
       "due": "2027-02-04"
      },
      {
-      "name": "Sale prices: find the original price",
-      "code": "BDA",
+      "name": "Do the ratios form a proportion?",
+      "code": "MJQ",
       "due": "2027-02-04"
      },
      {
-      "name": "Which is the better coupon?",
-      "code": "QT6",
+      "name": "Do the ratios form a proportion: word problems",
+      "code": "SHV",
       "due": "2027-02-04"
      }
     ]
@@ -10376,22 +10384,22 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.06",
-    "title": "Determining Tax, Tip, or Fees Given a Percentage",
-    "unit": 7,
+    "code": "6.09",
+    "title": "Exploring Multi-Step Proportions Problems",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.AR.3.1"
+     "MA.7.AR.3.2"
     ],
     "ixl": [
      {
-      "name": "Tax, tip, and more: word problems",
-      "code": "24Z",
-      "due": "2027-02-05"
+      "name": "Compare rates: word problems",
+      "code": "VVS",
+      "due": "2027-02-08"
      },
      {
-      "name": "Find the percent: tax, discount, and more",
-      "code": "PBM",
-      "due": "2027-02-05"
+      "name": "Multi-step problems with customary or metric unit conversions",
+      "code": "UCT",
+      "due": "2027-02-08"
      }
     ]
    }
@@ -10443,26 +10451,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.07",
-    "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
-    "unit": 7,
+    "code": "6.10",
+    "title": "Solving Multi-Step Proportion Problems",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.AR.3.1"
+     "MA.7.AR.3.2"
     ],
     "ixl": [
      {
-      "name": "Multi-step problems with percents",
-      "code": "ZHX",
+      "name": "Compare rates: word problems",
+      "code": "VVS",
       "due": "2027-02-08"
      },
      {
-      "name": "Solve percent equations: word problems",
-      "code": "JS6",
-      "due": "2027-02-08"
-     },
-     {
-      "name": "Estimate tips",
-      "code": "Y5R",
+      "name": "Multi-step problems with customary or metric unit conversions",
+      "code": "UCT",
       "due": "2027-02-08"
      }
     ]
@@ -10533,19 +10536,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "7.08",
-    "title": "Simple Interest",
-    "unit": 7,
+    "code": "6.11",
+    "title": "Reasoning Through Problems Involving Proportional Relationships",
+    "unit": 6,
     "benchmarks": [
-     "MA.7.AR.3.1"
+     "MA.7.AR.3.2"
     ],
-    "ixl": [
-     {
-      "name": "Simple interest",
-      "code": "E7Y",
-      "due": "2027-02-09"
-     }
-    ]
+    "ixl": []
    }
   },
   "2027-02-09": {
@@ -10602,25 +10599,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "7.09",
-    "title": "Percent Increase and Decrease",
-    "unit": 7,
-    "benchmarks": [
-     "MA.7.AR.3.1"
-    ],
-    "ixl": [
-     {
-      "name": "Percent of change",
-      "code": "BL7",
-      "due": "2027-02-10"
-     },
-     {
-      "name": "Percent of change: find the original amount word problems",
-      "code": "RCM",
-      "due": "2027-02-10"
-     }
-    ]
+    "kind": "exam",
+    "code": "6.X1",
+    "title": "Unit 6 assessment, day 1",
+    "unit": 6,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-10": {
@@ -10682,20 +10666,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "7.10",
-    "title": "Calculating Percent Error",
-    "unit": 7,
-    "benchmarks": [
-     "MA.7.AR.3.1"
-    ],
-    "ixl": [
-     {
-      "name": "Percent error: word problems",
-      "code": "6UY",
-      "due": "2027-02-11"
-     }
-    ]
+    "kind": "exam",
+    "code": "6.X2",
+    "title": "Unit 6 assessment, day 2",
+    "unit": 6,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-02-11": {
@@ -10762,12 +10738,20 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "7.01",
+    "title": "Circle Graphs",
+    "unit": 7,
+    "benchmarks": [
+     "MA.7.DP.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Use fractions to find the measure of an angle",
+      "code": "V76",
+      "due": "2027-02-12"
+     }
+    ]
    }
   },
   "2027-02-12": {
@@ -10835,11 +10819,13 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "7.R",
-    "title": "Unit 7 review day",
+    "kind": "lesson",
+    "code": "7.02",
+    "title": "Sectors of a Circle",
     "unit": 7,
-    "benchmarks": [],
+    "benchmarks": [
+     "MA.7.DP.1.4"
+    ],
     "ixl": []
    }
   },
@@ -10941,12 +10927,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "7.X1",
-    "title": "Unit 7 assessment, day 1",
+    "kind": "lesson",
+    "code": "7.03",
+    "title": "Constructing Circle Graphs",
     "unit": 7,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.DP.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Circle graphs and central angles",
+      "code": "KXS",
+      "due": "2027-02-17"
+     }
+    ]
    }
   },
   "2027-02-17": {
@@ -11003,12 +10997,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "7.X2",
-    "title": "Unit 7 assessment, day 2",
+    "kind": "lesson",
+    "code": "7.04",
+    "title": "Interpreting Circle Graphs",
     "unit": 7,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.DP.1.4"
+    ],
+    "ixl": [
+     {
+      "name": "Interpret circle graphs",
+      "code": "WNJ",
+      "due": "2027-02-18"
+     }
+    ]
    }
   },
   "2027-02-18": {
@@ -11058,31 +11060,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.01",
-    "title": "Product Laws of Exponents",
-    "unit": 8,
+    "code": "7.05",
+    "title": "Discounts and Markups",
+    "unit": 7,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate powers",
-      "code": "SZQ",
+      "name": "Markups and sales",
+      "code": "N2V",
       "due": "2027-02-19"
      },
      {
-      "name": "Multiplication with exponents",
-      "code": "5SK",
+      "name": "Sale prices: find the original price",
+      "code": "BDA",
       "due": "2027-02-19"
      },
      {
-      "name": "Power rule",
-      "code": "8DA",
-      "due": "2027-02-19"
-     },
-     {
-      "name": "Understanding exponents",
-      "code": "BFA",
+      "name": "Which is the better coupon?",
+      "code": "QT6",
       "due": "2027-02-19"
      }
     ]
@@ -11135,26 +11132,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.02",
-    "title": "Quotient Laws of Exponents",
-    "unit": 8,
+    "code": "7.06",
+    "title": "Determining Tax, Tip, or Fees Given a Percentage",
+    "unit": 7,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Powers with negative bases",
-      "code": "WFW",
+      "name": "Tax, tip, and more: word problems",
+      "code": "24Z",
       "due": "2027-02-22"
      },
      {
-      "name": "Division with exponents",
-      "code": "XNC",
-      "due": "2027-02-22"
-     },
-     {
-      "name": "Identify equivalent expressions involving whole-number exponents",
-      "code": "KBE",
+      "name": "Find the percent: tax, discount, and more",
+      "code": "PBM",
       "due": "2027-02-22"
      }
     ]
@@ -11207,16 +11199,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.03",
-    "title": "Exponential Expressions",
-    "unit": 8,
+    "code": "7.07",
+    "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
+    "unit": 7,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate expressions using properties of exponents",
-      "code": "ZE9",
+      "name": "Multi-step problems with percents",
+      "code": "ZHX",
+      "due": "2027-02-23"
+     },
+     {
+      "name": "Solve percent equations: word problems",
+      "code": "JS6",
+      "due": "2027-02-23"
+     },
+     {
+      "name": "Estimate tips",
+      "code": "Y5R",
       "due": "2027-02-23"
      }
     ]
@@ -11282,16 +11284,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.04",
-    "title": "Evaluating Numeric Expressions – Part 1",
-    "unit": 8,
+    "code": "7.08",
+    "title": "Simple Interest",
+    "unit": 7,
     "benchmarks": [
-     "MA.7.NSO.2.1"
+     "MA.7.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
-      "code": "2XW",
+      "name": "Simple interest",
+      "code": "E7Y",
       "due": "2027-02-24"
      }
     ]
@@ -11362,31 +11364,21 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.05+06",
-    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
-    "unit": 8,
+    "code": "7.09",
+    "title": "Percent Increase and Decrease",
+    "unit": 7,
     "benchmarks": [
-     "MA.7.NSO.2.1"
+     "MA.7.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate numerical expressions involving rational numbers",
-      "code": "KG2",
+      "name": "Percent of change",
+      "code": "BL7",
       "due": "2027-02-25"
      },
      {
-      "name": "Evaluate numerical expressions involving decimals",
-      "code": "FNM",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Evaluate numerical expressions involving fractions",
-      "code": "XXQ",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Evaluate numerical expressions involving exponents",
-      "code": "D7P",
+      "name": "Percent of change: find the original amount word problems",
+      "code": "RCM",
       "due": "2027-02-25"
      }
     ]
@@ -11446,12 +11438,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "8.X1",
-    "title": "Unit 8 assessment, day 1",
-    "unit": 8,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "7.10",
+    "title": "Calculating Percent Error",
+    "unit": 7,
+    "benchmarks": [
+     "MA.7.AR.3.1"
+    ],
+    "ixl": [
+     {
+      "name": "Percent error: word problems",
+      "code": "6UY",
+      "due": "2027-02-26"
+     }
+    ]
    }
   },
   "2027-02-26": {
@@ -11508,10 +11508,10 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "8.X2",
-    "title": "Unit 8 assessment, day 2",
-    "unit": 8,
+    "kind": "review",
+    "code": "7.R",
+    "title": "Unit 7 review day",
+    "unit": 7,
     "benchmarks": [],
     "ixl": []
    }
@@ -11565,7 +11565,7 @@
     "kind": "off",
     "code": null,
     "title": "State test — no class",
-    "unit": 11,
+    "unit": 7,
     "benchmarks": [],
     "ixl": []
    }
@@ -11634,20 +11634,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.01",
-    "title": "Graphing Proportional Relationships",
-    "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.3"
-    ],
-    "ixl": [
-     {
-      "name": "Graph a proportional relationship: word problems",
-      "code": "FJW",
-      "due": "2027-03-03"
-     }
-    ]
+    "kind": "exam",
+    "code": "7.X1",
+    "title": "Unit 7 assessment, day 1",
+    "unit": 7,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-03": {
@@ -11710,30 +11702,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.02+03",
-    "title": "Constant of Proportionality – Parts 1 and 2",
-    "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.2"
-    ],
-    "ixl": [
-     {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "RMH",
-      "due": "2027-03-04"
-     },
-     {
-      "name": "Find the constant of proportionality from a table",
-      "code": "LKZ",
-      "due": "2027-03-04"
-     },
-     {
-      "name": "Find the constant of proportionality from a graph",
-      "code": "ZUT",
-      "due": "2027-03-04"
-     }
-    ]
+    "kind": "exam",
+    "code": "7.X2",
+    "title": "Unit 7 assessment, day 2",
+    "unit": 7,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-04": {
@@ -11785,16 +11759,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.04",
-    "title": "Features of Proportional Relationships",
+    "code": "11.01",
+    "title": "Graphing Proportional Relationships",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.1"
+     "MA.7.AR.4.3"
     ],
     "ixl": [
      {
-      "name": "Identify proportional relationships by graphing",
-      "code": "AAN",
+      "name": "Graph a proportional relationship: word problems",
+      "code": "FJW",
       "due": "2027-03-08"
      }
     ]
@@ -11886,16 +11860,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.05",
-    "title": "Is It Proportional?",
+    "code": "11.02+03",
+    "title": "Constant of Proportionality – Parts 1 and 2",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.1"
+     "MA.7.AR.4.2"
     ],
     "ixl": [
      {
-      "name": "Identify proportional relationships in tables and graphs",
-      "code": "VZK",
+      "name": "Interpret graphs of proportional relationships",
+      "code": "RMH",
+      "due": "2027-03-09"
+     },
+     {
+      "name": "Find the constant of proportionality from a table",
+      "code": "LKZ",
+      "due": "2027-03-09"
+     },
+     {
+      "name": "Find the constant of proportionality from a graph",
+      "code": "ZUT",
       "due": "2027-03-09"
      }
     ]
@@ -11948,26 +11932,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.06",
-    "title": "Representing Proportional Relationships With Equations",
+    "code": "11.04",
+    "title": "Features of Proportional Relationships",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.4"
+     "MA.7.AR.4.1"
     ],
     "ixl": [
      {
-      "name": "Write equations for proportional relationships from tables",
-      "code": "6GU",
-      "due": "2027-03-10"
-     },
-     {
-      "name": "Write equations for proportional relationships from graphs",
-      "code": "JKH",
-      "due": "2027-03-10"
-     },
-     {
-      "name": "Write and solve equations for proportional relationships",
-      "code": "VKK",
+      "name": "Identify proportional relationships by graphing",
+      "code": "AAN",
       "due": "2027-03-10"
      }
     ]
@@ -12020,13 +11994,19 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.07",
-    "title": "Translating Between Representations of Proportional Relationships",
+    "code": "11.05",
+    "title": "Is It Proportional?",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.4"
+     "MA.7.AR.4.1"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Identify proportional relationships in tables and graphs",
+      "code": "VZK",
+      "due": "2027-03-11"
+     }
+    ]
    }
   },
   "2027-03-11": {
@@ -12114,16 +12094,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.08",
-    "title": "Putting It All Together",
+    "code": "11.06",
+    "title": "Representing Proportional Relationships With Equations",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.5"
+     "MA.7.AR.4.4"
     ],
     "ixl": [
      {
-      "name": "Compare proportional relationships represented in different ways",
-      "code": "5A9",
+      "name": "Write equations for proportional relationships from tables",
+      "code": "6GU",
+      "due": "2027-03-12"
+     },
+     {
+      "name": "Write equations for proportional relationships from graphs",
+      "code": "JKH",
+      "due": "2027-03-12"
+     },
+     {
+      "name": "Write and solve equations for proportional relationships",
+      "code": "VKK",
       "due": "2027-03-12"
      }
     ]
@@ -12188,11 +12178,13 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "11.R",
-    "title": "Unit 11 review day",
+    "kind": "lesson",
+    "code": "11.07",
+    "title": "Translating Between Representations of Proportional Relationships",
     "unit": 11,
-    "benchmarks": [],
+    "benchmarks": [
+     "MA.7.AR.4.4"
+    ],
     "ixl": []
    }
   },
@@ -12261,12 +12253,20 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X1",
-    "title": "Unit 11 assessment, day 1",
+    "kind": "lesson",
+    "code": "11.08",
+    "title": "Putting It All Together",
     "unit": 11,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.AR.4.5"
+    ],
+    "ixl": [
+     {
+      "name": "Compare proportional relationships represented in different ways",
+      "code": "5A9",
+      "due": "2027-03-16"
+     }
+    ]
    }
   },
   "2027-03-16": {
@@ -12334,10 +12334,10 @@
     ]
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X2",
-    "title": "Unit 11 assessment, day 2",
-    "unit": 11,
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -12402,10 +12402,10 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "review",
+    "code": "11.R",
+    "title": "Unit 11 review day",
+    "unit": 11,
     "benchmarks": [],
     "ixl": []
    }
@@ -12469,10 +12469,10 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "exam",
+    "code": "11.X1",
+    "title": "Unit 11 assessment, day 1",
+    "unit": 11,
     "benchmarks": [],
     "ixl": []
    }
@@ -12541,10 +12541,10 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "exam",
+    "code": "11.X2",
+    "title": "Unit 11 assessment, day 2",
+    "unit": 11,
     "benchmarks": [],
     "ixl": []
    }
@@ -15831,12 +15831,26 @@
      "unit": null,
      "meets": false
     },
-    "2027-01-14": {
+    "2026-12-08": {
      "kind": "off",
      "code": "off",
-     "title": "State test — no class",
+     "title": "FAST PM2 — no class",
      "unit": null,
      "meets": false
+    },
+    "2026-12-17": {
+     "kind": "extra",
+     "code": "extra",
+     "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
+    },
+    "2026-12-18": {
+     "kind": "extra",
+     "code": "extra",
+     "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
     },
     "2027-03-01": {
      "kind": "off",
@@ -16136,47 +16150,39 @@
      "base": "2026-12-01"
     },
     {
-     "kind": "flex",
-     "code": "flex",
-     "title": "Flex day — reteach from exam evidence, or absorb a lost day",
-     "unit": 6,
-     "absorb": true,
-     "base": "2026-12-02"
-    },
-    {
      "kind": "lesson",
      "code": "7.01",
      "title": "Graphing proportional relationships",
      "unit": 7,
-     "base": "2026-12-03"
+     "base": "2026-12-02"
     },
     {
      "kind": "lesson",
      "code": "7.02+03",
      "title": "Constant of proportionality (table, graph, description)",
      "unit": 7,
-     "base": "2026-12-04"
+     "base": "2026-12-03"
     },
     {
      "kind": "lesson",
      "code": "7.04",
      "title": "Is it proportional?",
      "unit": 7,
-     "base": "2026-12-07"
+     "base": "2026-12-04"
     },
     {
      "kind": "lesson",
      "code": "7.05+06",
      "title": "Equations of proportional relationships; translating representations",
      "unit": 7,
-     "base": "2026-12-08"
+     "base": "2026-12-07"
     },
     {
      "kind": "lesson",
      "code": "7.07",
      "title": "Comparing proportional relationships",
      "unit": 7,
-     "base": "2026-12-09"
+     "base": "2026-12-08"
     },
     {
      "kind": "exam",
@@ -16196,21 +16202,21 @@
     {
      "kind": "pm3",
      "code": "PM2-R1",
-     "title": "PM2 review 1: number system, exponents, scientific notation (whiteboards)",
+     "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
      "unit": null,
      "base": "2026-12-14"
     },
     {
      "kind": "pm3",
      "code": "PM2-R2",
-     "title": "PM2 review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
+     "title": "Semester review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
      "unit": null,
      "base": "2026-12-15"
     },
     {
      "kind": "pm3",
      "code": "PM2-R3",
-     "title": "PM2 review 3: proportional → linear preview; mixed FAST-shaped round",
+     "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
      "unit": null,
      "base": "2026-12-16"
     },
@@ -16952,12 +16958,47 @@
      "meets": true,
      "unrecorded": true
     },
-    "2027-01-14": {
+    "2026-12-08": {
      "kind": "off",
      "code": null,
-     "title": "State test — no class",
+     "title": "FAST PM2 — no class",
      "unit": null,
      "meets": false
+    },
+    "2026-12-14": {
+     "kind": "extra",
+     "code": null,
+     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
+    },
+    "2026-12-15": {
+     "kind": "extra",
+     "code": null,
+     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
+    },
+    "2026-12-16": {
+     "kind": "extra",
+     "code": null,
+     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
+    },
+    "2026-12-17": {
+     "kind": "extra",
+     "code": null,
+     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
+    },
+    "2026-12-18": {
+     "kind": "extra",
+     "code": null,
+     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "unit": null,
+     "meets": true
     },
     "2027-03-01": {
      "kind": "off",
@@ -17223,328 +17264,39 @@
     },
     {
      "kind": "lesson",
-     "code": "5.01",
-     "title": "Random Samples vs. Population",
-     "unit": 5,
-     "need": 3,
-     "base": "2026-11-30"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.02",
-     "title": "Determining Probability",
-     "unit": 5,
-     "base": "2026-12-01"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.03",
-     "title": "Making Population Predictions – Part 1",
-     "unit": 5,
-     "base": "2026-12-02"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.04",
-     "title": "Making Population Predictions – Part 2",
-     "unit": 5,
-     "base": "2026-12-03"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.05",
-     "title": "Scale Factors – Perimeter",
-     "unit": 5,
-     "base": "2026-12-04"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.06",
-     "title": "Scale Factors – Area",
-     "unit": 5,
-     "base": "2026-12-07"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.07",
-     "title": "Scale Drawings",
-     "unit": 5,
-     "base": "2026-12-08"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.08",
-     "title": "Solving Problems Involving Dimensions and Perimeters of Geometric Figures",
-     "unit": 5,
-     "base": "2026-12-09"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.09",
-     "title": "Solving Problems Involving Dimensions and Areas of Geometric Figures",
-     "unit": 5,
-     "base": "2026-12-10"
-    },
-    {
-     "kind": "lesson",
-     "code": "5.10",
-     "title": "Solving Problems Involving Real-World Scale Drawings",
-     "unit": 5,
-     "base": "2026-12-11"
-    },
-    {
-     "kind": "review",
-     "code": "5.R",
-     "title": "Unit 5 review day",
-     "unit": 5,
-     "examIn": 1,
-     "base": "2026-12-14"
-    },
-    {
-     "kind": "exam",
-     "code": "5.X1",
-     "title": "Unit 5 assessment, day 1",
-     "unit": 5,
-     "examIn": 0,
-     "base": "2026-12-15"
-    },
-    {
-     "kind": "exam",
-     "code": "5.X2",
-     "title": "Unit 5 assessment, day 2",
-     "unit": 5,
-     "base": "2026-12-16"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.01",
-     "title": "Paying Your Way in Mathlandia",
-     "unit": 6,
-     "need": 3,
-     "base": "2027-01-06"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.02",
-     "title": "Currency Conversions",
-     "unit": 6,
-     "base": "2027-01-07"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.03",
-     "title": "Converting Units of Length",
-     "unit": 6,
-     "base": "2027-01-08"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.04",
-     "title": "Converting Mass and Area",
-     "unit": 6,
-     "base": "2027-01-11"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.05",
-     "title": "Converting Units of Volume",
-     "unit": 6,
-     "base": "2027-01-12"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.06",
-     "title": "Creating Proportions",
-     "unit": 6,
-     "base": "2027-01-13"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.07",
-     "title": "Using Proportions to Solve Problems",
-     "unit": 6,
-     "base": "2027-01-14"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.08",
-     "title": "Solving Real-World Problems Involving Proportions",
-     "unit": 6,
-     "base": "2027-01-15"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.09",
-     "title": "Exploring Multi-Step Proportions Problems",
-     "unit": 6,
-     "base": "2027-01-19"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.10",
-     "title": "Solving Multi-Step Proportion Problems",
-     "unit": 6,
-     "base": "2027-01-20"
-    },
-    {
-     "kind": "lesson",
-     "code": "6.11",
-     "title": "Reasoning Through Problems Involving Proportional Relationships",
-     "unit": 6,
-     "base": "2027-01-21"
-    },
-    {
-     "kind": "review",
-     "code": "6.R",
-     "title": "Unit 6 review day",
-     "unit": 6,
-     "examIn": 1,
-     "base": "2027-01-22"
-    },
-    {
-     "kind": "exam",
-     "code": "6.X1",
-     "title": "Unit 6 assessment, day 1",
-     "unit": 6,
-     "examIn": 0,
-     "base": "2027-01-25"
-    },
-    {
-     "kind": "exam",
-     "code": "6.X2",
-     "title": "Unit 6 assessment, day 2",
-     "unit": 6,
-     "base": "2027-01-26"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.01",
-     "title": "Circle Graphs",
-     "unit": 7,
-     "need": 3,
-     "base": "2027-01-27"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.02",
-     "title": "Sectors of a Circle",
-     "unit": 7,
-     "base": "2027-01-28"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.03",
-     "title": "Constructing Circle Graphs",
-     "unit": 7,
-     "base": "2027-01-29"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.04",
-     "title": "Interpreting Circle Graphs",
-     "unit": 7,
-     "base": "2027-02-01"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.05",
-     "title": "Discounts and Markups",
-     "unit": 7,
-     "base": "2027-02-02"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.06",
-     "title": "Determining Tax, Tip, or Fees Given a Percentage",
-     "unit": 7,
-     "base": "2027-02-03"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.07",
-     "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
-     "unit": 7,
-     "base": "2027-02-04"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.08",
-     "title": "Simple Interest",
-     "unit": 7,
-     "base": "2027-02-05"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.09",
-     "title": "Percent Increase and Decrease",
-     "unit": 7,
-     "base": "2027-02-08"
-    },
-    {
-     "kind": "lesson",
-     "code": "7.10",
-     "title": "Calculating Percent Error",
-     "unit": 7,
-     "base": "2027-02-09"
-    },
-    {
-     "kind": "review",
-     "code": "7.R",
-     "title": "Unit 7 review day",
-     "unit": 7,
-     "examIn": 1,
-     "base": "2027-02-10"
-    },
-    {
-     "kind": "exam",
-     "code": "7.X1",
-     "title": "Unit 7 assessment, day 1",
-     "unit": 7,
-     "examIn": 0,
-     "base": "2027-02-11"
-    },
-    {
-     "kind": "exam",
-     "code": "7.X2",
-     "title": "Unit 7 assessment, day 2",
-     "unit": 7,
-     "base": "2027-02-12"
-    },
-    {
-     "kind": "lesson",
      "code": "8.01",
      "title": "Product Laws of Exponents",
      "unit": 8,
      "need": 3,
-     "base": "2027-02-16"
+     "base": "2026-11-30"
     },
     {
      "kind": "lesson",
      "code": "8.02",
      "title": "Quotient Laws of Exponents",
      "unit": 8,
-     "base": "2027-02-17"
+     "base": "2026-12-01"
     },
     {
      "kind": "lesson",
      "code": "8.03",
      "title": "Exponential Expressions",
      "unit": 8,
-     "base": "2027-02-18"
+     "base": "2026-12-02"
     },
     {
      "kind": "lesson",
      "code": "8.04",
      "title": "Evaluating Numeric Expressions – Part 1",
      "unit": 8,
-     "base": "2027-02-19"
+     "base": "2026-12-03"
     },
     {
      "kind": "lesson",
      "code": "8.05+06",
      "title": "Evaluating Numeric Expressions – Parts 2 and 3",
      "unit": 8,
-     "base": "2027-02-22"
+     "base": "2026-12-04"
     },
     {
      "kind": "exam",
@@ -17552,14 +17304,287 @@
      "title": "Unit 8 assessment, day 1",
      "unit": 8,
      "examIn": 0,
-     "base": "2027-02-23"
+     "base": "2026-12-07"
     },
     {
      "kind": "exam",
      "code": "8.X2",
      "title": "Unit 8 assessment, day 2",
      "unit": 8,
-     "base": "2027-02-24"
+     "base": "2026-12-08"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.01",
+     "title": "Random Samples vs. Population",
+     "unit": 5,
+     "need": 3,
+     "base": "2026-12-09"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.02",
+     "title": "Determining Probability",
+     "unit": 5,
+     "base": "2026-12-10"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.03",
+     "title": "Making Population Predictions – Part 1",
+     "unit": 5,
+     "base": "2026-12-11"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.04",
+     "title": "Making Population Predictions – Part 2",
+     "unit": 5,
+     "base": "2026-12-14"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.05",
+     "title": "Scale Factors – Perimeter",
+     "unit": 5,
+     "base": "2026-12-15"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.06",
+     "title": "Scale Factors – Area",
+     "unit": 5,
+     "base": "2026-12-16"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.07",
+     "title": "Scale Drawings",
+     "unit": 5,
+     "base": "2026-12-17"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.08",
+     "title": "Solving Problems Involving Dimensions and Perimeters of Geometric Figures",
+     "unit": 5,
+     "base": "2026-12-18"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.09",
+     "title": "Solving Problems Involving Dimensions and Areas of Geometric Figures",
+     "unit": 5,
+     "base": "2027-01-06"
+    },
+    {
+     "kind": "lesson",
+     "code": "5.10",
+     "title": "Solving Problems Involving Real-World Scale Drawings",
+     "unit": 5,
+     "base": "2027-01-07"
+    },
+    {
+     "kind": "exam",
+     "code": "5.X1",
+     "title": "Unit 5 assessment, day 1",
+     "unit": 5,
+     "examIn": 0,
+     "base": "2027-01-11"
+    },
+    {
+     "kind": "exam",
+     "code": "5.X2",
+     "title": "Unit 5 assessment, day 2",
+     "unit": 5,
+     "base": "2027-01-12"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.01",
+     "title": "Paying Your Way in Mathlandia",
+     "unit": 6,
+     "need": 3,
+     "base": "2027-01-13"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.02",
+     "title": "Currency Conversions",
+     "unit": 6,
+     "base": "2027-01-14"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.03",
+     "title": "Converting Units of Length",
+     "unit": 6,
+     "base": "2027-01-15"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.04",
+     "title": "Converting Mass and Area",
+     "unit": 6,
+     "base": "2027-01-19"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.05",
+     "title": "Converting Units of Volume",
+     "unit": 6,
+     "base": "2027-01-20"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.06",
+     "title": "Creating Proportions",
+     "unit": 6,
+     "base": "2027-01-21"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.07",
+     "title": "Using Proportions to Solve Problems",
+     "unit": 6,
+     "base": "2027-01-22"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.08",
+     "title": "Solving Real-World Problems Involving Proportions",
+     "unit": 6,
+     "base": "2027-01-25"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.09",
+     "title": "Exploring Multi-Step Proportions Problems",
+     "unit": 6,
+     "base": "2027-01-26"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.10",
+     "title": "Solving Multi-Step Proportion Problems",
+     "unit": 6,
+     "base": "2027-01-27"
+    },
+    {
+     "kind": "lesson",
+     "code": "6.11",
+     "title": "Reasoning Through Problems Involving Proportional Relationships",
+     "unit": 6,
+     "base": "2027-01-28"
+    },
+    {
+     "kind": "exam",
+     "code": "6.X1",
+     "title": "Unit 6 assessment, day 1",
+     "unit": 6,
+     "examIn": 0,
+     "base": "2027-02-01"
+    },
+    {
+     "kind": "exam",
+     "code": "6.X2",
+     "title": "Unit 6 assessment, day 2",
+     "unit": 6,
+     "base": "2027-02-02"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.01",
+     "title": "Circle Graphs",
+     "unit": 7,
+     "need": 3,
+     "base": "2027-02-03"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.02",
+     "title": "Sectors of a Circle",
+     "unit": 7,
+     "base": "2027-02-04"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.03",
+     "title": "Constructing Circle Graphs",
+     "unit": 7,
+     "base": "2027-02-05"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.04",
+     "title": "Interpreting Circle Graphs",
+     "unit": 7,
+     "base": "2027-02-08"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.05",
+     "title": "Discounts and Markups",
+     "unit": 7,
+     "base": "2027-02-09"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.06",
+     "title": "Determining Tax, Tip, or Fees Given a Percentage",
+     "unit": 7,
+     "base": "2027-02-10"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.07",
+     "title": "Solving Multi-Step Problems Involving Discounts, Taxes, Tips, or Fees",
+     "unit": 7,
+     "base": "2027-02-11"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.08",
+     "title": "Simple Interest",
+     "unit": 7,
+     "base": "2027-02-12"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.09",
+     "title": "Percent Increase and Decrease",
+     "unit": 7,
+     "base": "2027-02-16"
+    },
+    {
+     "kind": "lesson",
+     "code": "7.10",
+     "title": "Calculating Percent Error",
+     "unit": 7,
+     "base": "2027-02-17"
+    },
+    {
+     "kind": "review",
+     "code": "7.R",
+     "title": "Unit 7 review day",
+     "unit": 7,
+     "examIn": 1,
+     "base": "2027-02-19"
+    },
+    {
+     "kind": "exam",
+     "code": "7.X1",
+     "title": "Unit 7 assessment, day 1",
+     "unit": 7,
+     "examIn": 0,
+     "base": "2027-02-22"
+    },
+    {
+     "kind": "exam",
+     "code": "7.X2",
+     "title": "Unit 7 assessment, day 2",
+     "unit": 7,
+     "base": "2027-02-23"
     },
     {
      "kind": "lesson",
@@ -17567,49 +17592,49 @@
      "title": "Graphing Proportional Relationships",
      "unit": 11,
      "need": 3,
-     "base": "2027-02-25"
+     "base": "2027-02-24"
     },
     {
      "kind": "lesson",
      "code": "11.02+03",
      "title": "Constant of Proportionality – Parts 1 and 2",
      "unit": 11,
-     "base": "2027-02-26"
+     "base": "2027-02-25"
     },
     {
      "kind": "lesson",
      "code": "11.04",
      "title": "Features of Proportional Relationships",
      "unit": 11,
-     "base": "2027-03-01"
+     "base": "2027-02-26"
     },
     {
      "kind": "lesson",
      "code": "11.05",
      "title": "Is It Proportional?",
      "unit": 11,
-     "base": "2027-03-02"
+     "base": "2027-03-01"
     },
     {
      "kind": "lesson",
      "code": "11.06",
      "title": "Representing Proportional Relationships With Equations",
      "unit": 11,
-     "base": "2027-03-03"
+     "base": "2027-03-02"
     },
     {
      "kind": "lesson",
      "code": "11.07",
      "title": "Translating Between Representations of Proportional Relationships",
      "unit": 11,
-     "base": "2027-03-04"
+     "base": "2027-03-03"
     },
     {
      "kind": "lesson",
      "code": "11.08",
      "title": "Putting It All Together",
      "unit": 11,
-     "base": "2027-03-08"
+     "base": "2027-03-04"
     },
     {
      "kind": "review",
@@ -17617,7 +17642,7 @@
      "title": "Unit 11 review day",
      "unit": 11,
      "examIn": 1,
-     "base": "2027-03-10"
+     "base": "2027-03-08"
     },
     {
      "kind": "exam",
@@ -17625,14 +17650,14 @@
      "title": "Unit 11 assessment, day 1",
      "unit": 11,
      "examIn": 0,
-     "base": "2027-03-11"
+     "base": "2027-03-09"
     },
     {
      "kind": "exam",
      "code": "11.X2",
      "title": "Unit 11 assessment, day 2",
      "unit": 11,
-     "base": "2027-03-12"
+     "base": "2027-03-10"
     },
     {
      "kind": "lesson",
@@ -17640,42 +17665,42 @@
      "title": "Finding Surface Area of Right Circular Cylinders Using Nets",
      "unit": 12,
      "need": 6,
-     "base": "2027-03-29"
+     "base": "2027-03-11"
     },
     {
      "kind": "lesson",
      "code": "12.02",
      "title": "Finding Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-30"
+     "base": "2027-03-12"
     },
     {
      "kind": "lesson",
      "code": "12.03",
      "title": "Solving Problems Involving Surface Area of Right Circular Cylinders",
      "unit": 12,
-     "base": "2027-03-31"
+     "base": "2027-03-15"
     },
     {
      "kind": "lesson",
      "code": "12.04",
      "title": "Volume of Right Circular Cylinders – Part 1",
      "unit": 12,
-     "base": "2027-04-01"
+     "base": "2027-03-16"
     },
     {
      "kind": "lesson",
      "code": "12.05",
      "title": "Volume of Right Circular Cylinders – Part 2",
      "unit": 12,
-     "base": "2027-04-02"
+     "base": "2027-03-17"
     },
     {
      "kind": "lesson",
      "code": "12.06",
      "title": "Problem-Solving With Volume of Cylinders",
      "unit": 12,
-     "base": "2027-04-05"
+     "base": "2027-03-18"
     },
     {
      "kind": "review",
@@ -17683,7 +17708,7 @@
      "title": "Unit 12 review day",
      "unit": 12,
      "examIn": 1,
-     "base": "2027-04-07"
+     "base": "2027-03-19"
     },
     {
      "kind": "exam",
@@ -17691,14 +17716,14 @@
      "title": "Unit 12 assessment, day 1",
      "unit": 12,
      "examIn": 0,
-     "base": "2027-04-08"
+     "base": "2027-03-29"
     },
     {
      "kind": "exam",
      "code": "12.X2",
      "title": "Unit 12 assessment, day 2",
      "unit": 12,
-     "base": "2027-04-09"
+     "base": "2027-03-30"
     },
     {
      "kind": "lesson",
@@ -17706,63 +17731,63 @@
      "title": "Effects of Outliers",
      "unit": 13,
      "need": 3,
-     "base": "2027-04-12"
+     "base": "2027-03-31"
     },
     {
      "kind": "lesson",
      "code": "13.02",
      "title": "Justifying Measures of Center and Spread",
      "unit": 13,
-     "base": "2027-04-13"
+     "base": "2027-04-01"
     },
     {
      "kind": "lesson",
      "code": "13.03",
      "title": "Determining Appropriate Measures of Center and Variation",
      "unit": 13,
-     "base": "2027-04-14"
+     "base": "2027-04-02"
     },
     {
      "kind": "lesson",
      "code": "13.04",
      "title": "Comparing Graphical Representations",
      "unit": 13,
-     "base": "2027-04-15"
+     "base": "2027-04-05"
     },
     {
      "kind": "lesson",
      "code": "13.05",
      "title": "Comparing Data Sets",
      "unit": 13,
-     "base": "2027-04-19"
+     "base": "2027-04-06"
     },
     {
      "kind": "lesson",
      "code": "13.06",
      "title": "Comparing Data Sets and Graphs",
      "unit": 13,
-     "base": "2027-04-20"
+     "base": "2027-04-07"
     },
     {
      "kind": "lesson",
      "code": "13.07",
      "title": "Representing Real-World Contexts With Graphs",
      "unit": 13,
-     "base": "2027-04-21"
+     "base": "2027-04-08"
     },
     {
      "kind": "lesson",
      "code": "13.08",
      "title": "Creating Displays for Numerical Data",
      "unit": 13,
-     "base": "2027-04-22"
+     "base": "2027-04-09"
     },
     {
      "kind": "lesson",
      "code": "13.09",
      "title": "Creating Displays for Categorical Data",
      "unit": 13,
-     "base": "2027-04-23"
+     "base": "2027-04-12"
     },
     {
      "kind": "review",
@@ -17770,7 +17795,7 @@
      "title": "Unit 13 review day",
      "unit": 13,
      "examIn": 1,
-     "base": "2027-04-26"
+     "base": "2027-04-15"
     },
     {
      "kind": "exam",
@@ -17778,14 +17803,14 @@
      "title": "Unit 13 assessment, day 1",
      "unit": 13,
      "examIn": 0,
-     "base": "2027-04-27"
+     "base": "2027-04-19"
     },
     {
      "kind": "exam",
      "code": "13.X2",
      "title": "Unit 13 assessment, day 2",
      "unit": 13,
-     "base": "2027-04-28"
+     "base": "2027-04-20"
     }
    ]
   }
