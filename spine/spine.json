@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-22T20:12:00-04:00",
+ "generatedAt": "2026-10-22T20:44:07-04:00",
  "sources": {
-  "a7": "20e879f1",
-  "m7": "0fc43a8",
+  "a7": "34b25504",
+  "m7": "f74917e",
   "deckhand": "411f496"
  },
  "year": {
@@ -5806,12 +5806,20 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "4.X2",
-    "title": "Unit 4 exam, day 2",
-    "unit": 4,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "5.01",
+    "title": "Scale drawings",
+    "unit": 5,
+    "benchmarks": [
+     "MA.7.GR.1.5"
+    ],
+    "ixl": [
+     {
+      "name": "Scale drawings: find the scale factor, missing side, or missing angle",
+      "code": "WEA",
+      "due": "2026-10-28"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -5863,16 +5871,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "5.01",
-    "title": "Scale drawings",
+    "code": "5.02+03",
+    "title": "Scale factor: perimeter and area (k and k²)",
     "unit": 5,
     "benchmarks": [
      "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Scale drawings: find the scale factor, missing side, or missing angle",
-      "code": "WEA",
+      "name": "Perimeter and area: changes in scale",
+      "code": "ZC6",
+      "due": "2026-10-29"
+     },
+     {
+      "name": "Scale drawings: find the scale factor or missing side",
+      "code": "XHM",
       "due": "2026-10-29"
      }
     ]
@@ -5933,21 +5946,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "5.02+03",
-    "title": "Scale factor: perimeter and area (k and k²)",
+    "code": "5.04",
+    "title": "Real-world scale drawings",
     "unit": 5,
     "benchmarks": [
      "MA.7.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Perimeter and area: changes in scale",
-      "code": "ZC6",
+      "name": "Scale drawings: word problems",
+      "code": "84H",
       "due": "2026-10-30"
      },
      {
-      "name": "Scale drawings: find the scale factor or missing side",
-      "code": "XHM",
+      "name": "Scale drawings: scale factor word problems",
+      "code": "KCM",
       "due": "2026-10-30"
      }
     ]
@@ -6008,22 +6021,27 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "5.04",
-    "title": "Real-world scale drawings",
+    "code": "5.06+07",
+    "title": "Converting length across systems; currency",
     "unit": 5,
     "benchmarks": [
-     "MA.7.GR.1.5"
+     "MA.7.AR.3.3"
     ],
     "ixl": [
      {
-      "name": "Scale drawings: word problems",
-      "code": "84H",
-      "due": "2026-11-02"
+      "name": "Convert between customary and metric systems",
+      "code": "E8Z",
+      "due": "2026-11-03"
      },
      {
-      "name": "Scale drawings: scale factor word problems",
-      "code": "KCM",
-      "due": "2026-11-02"
+      "name": "Compare and convert customary units",
+      "code": "4B8",
+      "due": "2026-11-03"
+     },
+     {
+      "name": "Compare and convert metric units",
+      "code": "HW2",
+      "due": "2026-11-03"
      }
     ]
    },
@@ -6103,8 +6121,8 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "5.06+07",
-    "title": "Converting length across systems; currency",
+    "code": "5.08+09",
+    "title": "Converting mass, area and volume across systems",
     "unit": 5,
     "benchmarks": [
      "MA.7.AR.3.3"
@@ -6113,17 +6131,17 @@
      {
       "name": "Convert between customary and metric systems",
       "code": "E8Z",
-      "due": "2026-11-04"
+      "due": "2026-11-03"
      },
      {
       "name": "Compare and convert customary units",
       "code": "4B8",
-      "due": "2026-11-04"
+      "due": "2026-11-03"
      },
      {
       "name": "Compare and convert metric units",
       "code": "HW2",
-      "due": "2026-11-04"
+      "due": "2026-11-03"
      }
     ]
    },
@@ -6175,26 +6193,22 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "5.08+09",
-    "title": "Converting mass, area and volume across systems",
+    "code": "5.10+11",
+    "title": "Multi-step proportion problems",
     "unit": 5,
     "benchmarks": [
-     "MA.7.AR.3.3"
+     "MA.7.AR.3.3",
+     "MA.7.AR.4.5"
     ],
     "ixl": [
      {
-      "name": "Convert between customary and metric systems",
-      "code": "E8Z",
+      "name": "Compare rates: word problems",
+      "code": "VVS",
       "due": "2026-11-04"
      },
      {
-      "name": "Compare and convert customary units",
-      "code": "4B8",
-      "due": "2026-11-04"
-     },
-     {
-      "name": "Compare and convert metric units",
-      "code": "HW2",
+      "name": "Multi-step problems with customary or metric unit conversions",
+      "code": "UCT",
       "due": "2026-11-04"
      }
     ]
@@ -6246,26 +6260,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "5.10+11",
-    "title": "Multi-step proportion problems",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 5,
-    "benchmarks": [
-     "MA.7.AR.3.3",
-     "MA.7.AR.4.5"
-    ],
-    "ixl": [
-     {
-      "name": "Compare rates: word problems",
-      "code": "VVS",
-      "due": "2026-11-05"
-     },
-     {
-      "name": "Multi-step problems with customary or metric unit conversions",
-      "code": "UCT",
-      "due": "2026-11-05"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "lesson",
@@ -11424,7 +11424,7 @@
      {
       "name": "Identify graphs: word problems",
       "code": "HWC",
-      "due": "2027-03-02"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11494,7 +11494,7 @@
      {
       "name": "Identify graphs: word problems",
       "code": "HWC",
-      "due": "2027-03-02"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11545,17 +11545,35 @@
    ],
    "events": [],
    "acc": {
-    "kind": "off",
-    "code": "off",
-    "title": "State test — no class",
+    "kind": "lesson",
+    "code": "12.07",
+    "title": "Functions from equations, tables, graphs",
     "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.F.1.2"
+    ],
+    "ixl": [
+     {
+      "name": "Complete a function table from an equation",
+      "code": "ESE",
+      "due": "2027-03-02"
+     },
+     {
+      "name": "Complete a table for a function graph",
+      "code": "7EK",
+      "due": "2027-03-02"
+     },
+     {
+      "name": "Find values using function graphs",
+      "code": "7N2",
+      "due": "2027-03-02"
+     }
+    ]
    },
    "on": {
-    "kind": "off",
-    "code": null,
-    "title": "State test — no class",
+    "kind": "exam",
+    "code": "7.X1",
+    "title": "Unit 7 assessment, day 1",
     "unit": 7,
     "benchmarks": [],
     "ixl": []
@@ -11600,34 +11618,30 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.07",
-    "title": "Functions from equations, tables, graphs",
+    "code": "12.08+09",
+    "title": "Is it linear? (graphs, equations, tables)",
     "unit": 12,
     "benchmarks": [
-     "MA.8.F.1.2"
+     "MA.8.F.1.2",
+     "MA.8.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Complete a function table from an equation",
-      "code": "ESE",
+      "name": "Identify linear and nonlinear functions: graphs and equations",
+      "code": "XB8",
       "due": "2027-03-03"
      },
      {
-      "name": "Complete a table for a function graph",
-      "code": "7EK",
-      "due": "2027-03-03"
-     },
-     {
-      "name": "Find values using function graphs",
-      "code": "7N2",
+      "name": "Identify linear and nonlinear functions: tables",
+      "code": "VGS",
       "due": "2027-03-03"
      }
     ]
    },
    "on": {
     "kind": "exam",
-    "code": "7.X1",
-    "title": "Unit 7 assessment, day 1",
+    "code": "7.X2",
+    "title": "Unit 7 assessment, day 2",
     "unit": 7,
     "benchmarks": [],
     "ixl": []
@@ -11671,34 +11685,28 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "12.08+09",
-    "title": "Is it linear? (graphs, equations, tables)",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 12,
+    "benchmarks": [],
+    "ixl": []
+   },
+   "on": {
+    "kind": "lesson",
+    "code": "11.01",
+    "title": "Graphing Proportional Relationships",
+    "unit": 11,
     "benchmarks": [
-     "MA.8.F.1.2",
-     "MA.8.AR.3.1"
+     "MA.7.AR.4.3"
     ],
     "ixl": [
      {
-      "name": "Identify linear and nonlinear functions: graphs and equations",
-      "code": "XB8",
-      "due": "2027-03-04"
-     },
-     {
-      "name": "Identify linear and nonlinear functions: tables",
-      "code": "VGS",
+      "name": "Graph a proportional relationship: word problems",
+      "code": "FJW",
       "due": "2027-03-04"
      }
     ]
-   },
-   "on": {
-    "kind": "exam",
-    "code": "7.X2",
-    "title": "Unit 7 assessment, day 2",
-    "unit": 7,
-    "benchmarks": [],
-    "ixl": []
    }
   },
   "2027-03-04": {
@@ -11750,16 +11758,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.01",
-    "title": "Graphing Proportional Relationships",
+    "code": "11.02+03",
+    "title": "Constant of Proportionality – Parts 1 and 2",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.3"
+     "MA.7.AR.4.2"
     ],
     "ixl": [
      {
-      "name": "Graph a proportional relationship: word problems",
-      "code": "FJW",
+      "name": "Interpret graphs of proportional relationships",
+      "code": "RMH",
+      "due": "2027-03-08"
+     },
+     {
+      "name": "Find the constant of proportionality from a table",
+      "code": "LKZ",
+      "due": "2027-03-08"
+     },
+     {
+      "name": "Find the constant of proportionality from a graph",
+      "code": "ZUT",
       "due": "2027-03-08"
      }
     ]
@@ -11851,26 +11869,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.02+03",
-    "title": "Constant of Proportionality – Parts 1 and 2",
+    "code": "11.04",
+    "title": "Features of Proportional Relationships",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.2"
+     "MA.7.AR.4.1"
     ],
     "ixl": [
      {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "RMH",
-      "due": "2027-03-09"
-     },
-     {
-      "name": "Find the constant of proportionality from a table",
-      "code": "LKZ",
-      "due": "2027-03-09"
-     },
-     {
-      "name": "Find the constant of proportionality from a graph",
-      "code": "ZUT",
+      "name": "Identify proportional relationships by graphing",
+      "code": "AAN",
       "due": "2027-03-09"
      }
     ]
@@ -11923,16 +11931,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.04",
-    "title": "Features of Proportional Relationships",
+    "code": "11.05",
+    "title": "Is It Proportional?",
     "unit": 11,
     "benchmarks": [
      "MA.7.AR.4.1"
     ],
     "ixl": [
      {
-      "name": "Identify proportional relationships by graphing",
-      "code": "AAN",
+      "name": "Identify proportional relationships in tables and graphs",
+      "code": "VZK",
       "due": "2027-03-10"
      }
     ]
@@ -11985,16 +11993,26 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.05",
-    "title": "Is It Proportional?",
+    "code": "11.06",
+    "title": "Representing Proportional Relationships With Equations",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.1"
+     "MA.7.AR.4.4"
     ],
     "ixl": [
      {
-      "name": "Identify proportional relationships in tables and graphs",
-      "code": "VZK",
+      "name": "Write equations for proportional relationships from tables",
+      "code": "6GU",
+      "due": "2027-03-11"
+     },
+     {
+      "name": "Write equations for proportional relationships from graphs",
+      "code": "JKH",
+      "due": "2027-03-11"
+     },
+     {
+      "name": "Write and solve equations for proportional relationships",
+      "code": "VKK",
       "due": "2027-03-11"
      }
     ]
@@ -12085,29 +12103,13 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.06",
-    "title": "Representing Proportional Relationships With Equations",
+    "code": "11.07",
+    "title": "Translating Between Representations of Proportional Relationships",
     "unit": 11,
     "benchmarks": [
      "MA.7.AR.4.4"
     ],
-    "ixl": [
-     {
-      "name": "Write equations for proportional relationships from tables",
-      "code": "6GU",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Write equations for proportional relationships from graphs",
-      "code": "JKH",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Write and solve equations for proportional relationships",
-      "code": "VKK",
-      "due": "2027-03-12"
-     }
-    ]
+    "ixl": []
    }
   },
   "2027-03-12": {
@@ -12170,13 +12172,19 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "11.07",
-    "title": "Translating Between Representations of Proportional Relationships",
+    "code": "11.08",
+    "title": "Putting It All Together",
     "unit": 11,
     "benchmarks": [
-     "MA.7.AR.4.4"
+     "MA.7.AR.4.5"
     ],
-    "ixl": []
+    "ixl": [
+     {
+      "name": "Compare proportional relationships represented in different ways",
+      "code": "5A9",
+      "due": "2027-03-15"
+     }
+    ]
    }
   },
   "2027-03-15": {
@@ -12244,20 +12252,12 @@
     ]
    },
    "on": {
-    "kind": "lesson",
-    "code": "11.08",
-    "title": "Putting It All Together",
+    "kind": "review",
+    "code": "11.R",
+    "title": "Unit 11 review day",
     "unit": 11,
-    "benchmarks": [
-     "MA.7.AR.4.5"
-    ],
-    "ixl": [
-     {
-      "name": "Compare proportional relationships represented in different ways",
-      "code": "5A9",
-      "due": "2027-03-16"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-03-16": {
@@ -12325,10 +12325,10 @@
     ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
+    "kind": "exam",
+    "code": "11.X1",
+    "title": "Unit 11 assessment, day 1",
+    "unit": 11,
     "benchmarks": [],
     "ixl": []
    }
@@ -12393,9 +12393,9 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "11.R",
-    "title": "Unit 11 review day",
+    "kind": "exam",
+    "code": "11.X2",
+    "title": "Unit 11 assessment, day 2",
     "unit": 11,
     "benchmarks": [],
     "ixl": []
@@ -12447,10 +12447,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X1",
-    "title": "Unit 11 assessment, day 1",
-    "unit": 11,
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -12501,10 +12501,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "11.X2",
-    "title": "Unit 11 assessment, day 2",
-    "unit": 11,
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -15842,13 +15842,6 @@
      "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
      "unit": null,
      "meets": true
-    },
-    "2027-03-01": {
-     "kind": "off",
-     "code": "off",
-     "title": "State test — no class",
-     "unit": null,
-     "meets": false
     }
    },
    "items": [
@@ -16002,6 +15995,7 @@
      "code": "4.X2",
      "title": "Unit 4 exam, day 2",
      "unit": 4,
+     "gone": "covered before 2026-10-27 (doubled up or skipped; the log does not say which day)",
      "base": "2026-10-23"
     },
     {
@@ -16010,6 +16004,7 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 4,
      "absorb": true,
+     "gone": "covered before 2026-10-27 (doubled up or skipped; the log does not say which day)",
      "base": "2026-10-26"
     },
     {
@@ -16990,13 +16985,6 @@
      "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
      "unit": null,
      "meets": true
-    },
-    "2027-03-01": {
-     "kind": "off",
-     "code": null,
-     "title": "State test — no class",
-     "unit": null,
-     "meets": false
     }
    },
    "items": [
