@@ -4,7 +4,52 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (23 Oct 2026, morning) — read this first
+## Where things stand (23 Oct 2026, evening) — read this first
+
+**A relationship-building day: M7 back a day with 9.06 and 9.07 as one day (ruling 50); A7's exam stays Monday**
+(Windmill `0f5a85d`, `ec508e0`, `300c73b`; A7 `637bd1c`; M7 `7b91732`, `1ed29d8`; mrshaffer-site `0368ec2`, deployed).
+Croix, 6:59 pm: *"Today was an off day for periods 3, 4, and 5. We did had a relationship building day so no math at all.
+First period worked on their study guides, 2nd period went on to the next lesson. The test for a7 is still on Monday. M7 is
+getting pushed back a day. Period two will be a day ahead, that's fine because I plan to make it up to them and 1st period
+in the near future."*
+- **M7.** Pushed back a day, Unit 10 no longer fit before Thanksgiving (twelve school days needed, eleven left), so ruling 48
+  sent it past the break and Unit 13 lost its review and test. Shown four ways back, he chose **9.06 + 9.07 as one day**.
+  Periods 4–5: 9.02 Mon 26, 9.03+04 Tue 27, 9.05 Wed 28 (43 minutes), 9.06+07 Thu 29, 9.08 Fri 30; Unit 9 test Mon–Tue
+  2–3 Nov, Unit 10's Thu–Fri 19–20 Nov, nothing later moves. Unit 9 is built, so the pair stays two decks (`MERGED` in
+  mkscope.py; `packkit.calendar(merged=True)` dates both lessons in START HERE). **Period 2** had 9.02 on 23 Oct and is a
+  day ahead; the plan follows periods 4–5. The ruling gives period 2 two ways back: 9.06 and 9.07 together keeps it a day
+  ahead until the make-up day he plans for periods 1 and 2; apart (Wed, Thu) puts it in step on Fri 30. His call in class.
+  When the make-up day happens, it is an as-run line like 23 Oct (a period-only day).
+- **A7.** `2026-10-23,review,…` and the exam anchored Mon 26 (`4.X1`): 4.07+08 (Real-World Order of Operations) is "covered
+  on a day the log does not name" — not taught in either period — and its IXL skill DPG is off Unit 4's due dates (offered to
+  Croix: keep it on the list). **Question 11 on both forms (the patio cost, 2 points) is 4.07's content**; the review's
+  33–35 practise it. Told to Croix. Period 1's make-up day is not logged yet.
+- **The kit's IXL gate refused both courses** once the plan changed (9.06's slide lacks 9.07's UG6; 4.07's DPG is in no
+  day). `ixlplan.py` rule 5: a merged day whose lessons each have a deck (the unit's specs read by the `code=` each names —
+  A7's u3/l07.py is the thread day 3.T1) is held as one: each deck only the day's skills, the decks between them all of
+  them. Rule 6: a lesson the flow marks `gone` may keep a code the plan dropped with it; a skill the plan knows under another
+  code is still a finding. Tested on a plan of the tests' own (`KIT_SPINE`, `KIT_UNITS`) and with planted defects on the
+  real 9.06/9.07 and 4.07.
+- **The kit's own tests had stopped at line 271** (a refused Your Turn fit raised instead of failing), hiding two more
+  crashes: the WOFF2 check needs Python's `brotli` (`pip install brotli --break-system-packages`; CI must have it) and the
+  retired HTML unit deck lacked the 17 Oct contents `title_size` (added to HtmlDeck). Now 172 of 173 (on) and 173 of 174
+  (acc) pass. **The one failure is real and open:** the tall Your Turn fixture (`_big`: three steps of (2/3)ⁿ fractions)
+  fits at no surface since the 18 Oct spacing (refused: the steps end at 7.09 in, 6.66 in at the smallest, and the answer is
+  1.32 in tall) — either the fixture or `_yt_fit`'s fallbacks need a look. Windmill check.sh still stops at the Drive test
+  (ruling 41), before the kit tests: run them directly.
+- **Checks.** Both `check_master_sheet.py`: a lesson with no class day expects no vocabulary (A7 prints "built, not on
+  the plan (not taught): 4.07"); M7's reads a day taught from two built lessons (link to the first, both lessons' IXL).
+  M7's damage test: `m_closure` replaced a fixed "1,067.60" that 4.10's answer ($549.50) no longer has — a silent no-op
+  reported as a miss; it now changes a digit of whatever is there. All 42 mutations caught.
+- **Published:** the phone page (Version 7), the schedules on mrshaffer.org (`schedule.py` shows an extra day's as-run note,
+  and an off day's note as is when it has a dash), the M7 Schedule doc (rev 35: byline 23 Oct, a paragraph on the day
+  under the intro, the October and IXL tables), START HERE (M7 Unit 9, A7 Unit 4), both master sheets (pushed; the Drive
+  script carries them).
+- **Not changed, offered:** the Halloween Week Plan doc (https://claude.ai/artifact/HFqzys89WiLMVc1AW3cYz2) still has
+  periods 4–5 on the old days (its days now fit period 2). Still open from the morning: whether a Hint-solved question stays
+  on "Practice my misses".
+
+## Where things stand (23 Oct 2026, morning)
 
 **A question solved with the Hint gets a small gray bulb, not words** (Windmill `c9cf1ae`; A7 `5d5e582`; M7 `5f13b7e`;
 mrshaffer-site `40f16dc`, `7173355`, `2cfae15` — the deploy of `7173355` failed on Cloudflare's side, the empty `2cfae15` rebuilt it). Croix, from his phone at 7:17 am, with a screenshot of "✓ Correct, with help — still a point":
@@ -1315,4 +1360,7 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (evening): Croix: "Pm 2 is December 8..." → rulings 47 and 48: PM2 off 8 Dec; 14 Jan a school day; M7 Unit 8 before Unit 5, catch-up week 14–18 Dec, Units 5 and 6 without review days, 10.09+10.10 one day so Unit 10 is tested before Thanksgiving, Unit 8's review day back; A7 Unit 7 around PM2, Thread B after the Unit 6 exam and Thread C after the Unit 13 exam, semester review + catch-up days 14–18 Dec; both tools refuse a unit split by a long break. Spine, scopes, sheets, phone page (V5), website schedules, M7 Schedule doc. Windmill 1bb8f4b/57091a0, M7 0fc43a8/f74917e, A7 20e879f/34b2550, site 647b21a.
 - 22 Oct (later): Croix: "A7s unit 4 test is Monday only. Mar 1 is definitely not a state test. May something will be our pm3" → A7 as-run 2026-10-27,5.01 (Unit 4 exam one day); 1 Mar out of both logs; START HERE A7 3–5; spine, sheets, phone page (V6), website, M7 doc. Windmill af132a9, M7 946f319, A7 aeb16a7, site ad7c5ef.
 - 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
+- 22 Oct (late): Croix: "Is there a way I can add in that variation factor? …" → the kit's variety check (practice/kit/check/variety.js, floor 100 versions a part); A7 U3, A7 U4, M7 U4 widened and republished. Windmill 8d91d6c, ce249a3; A7 6d502a2, 8922f29; M7 7db536d.
+- 23 Oct (7:17 am): Croix: "Can you get rid of the still a point comment. And also the with help comment…" → a small gray bulb marks a Hint-solved question; no words about help. Windmill c9cf1ae; A7 5d5e582; M7 5f13b7e; site 40f16dc, 7173355, 2cfae15.
+- 23 Oct (6:59 pm): Croix: "Today was an off day for periods 3, 4, and 5… M7 is getting pushed back a day…" → ruling 50, 9.06+07 one day Thu 29 Oct (his choice of four); A7 exam stays Mon 26, 4.07+08 untaught; kit IXL rules 5–6. Windmill 0f5a85d, ec508e0, 300c73b; A7 637bd1c; M7 7b91732, 1ed29d8; site 0368ec2; M7 Schedule doc rev 35; phone page V7.
 - 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
