@@ -27,6 +27,13 @@ section and I can keep teachers editions and tests, and tools like tally and geo
   `/tally`, `/cadence`, `/geopardy`, `/m7`). `tools/test_site.mjs`: the wall (tampered/expired cookies, open redirects),
   the moved addresses, every link on every page, every lesson day with slides linked. Deploy succeeded; the live site is
   not reachable from this workspace (the proxy), so the live wall is unverified until Croix opens /teacher/.
+- **Steward is the public board, Deckhand is behind the wall** (site `fc5c756`, 11:13 am: "switch deckhand for steward on
+  the public page. Update steward with anything necessary. Keep the coolest stuff for just me"): the home page's door is
+  Steward (`/steward/`); Deckhand sits at `/teacher/deckhand/` (first tile on the teacher page; `/deckhand/` redirects; the
+  old address keeps a worker that unregisters the old offline copy; the password form is always a 401 so Deckhand's
+  offline worker never caches it). Steward 1.1.0 (repo `6794089`) took Deckhand 7.43 (Done on a note) and 7.44 (the banner
+  fades) as patches; the rest of 7.39–7.51 is the math room's and was left out — Steward's docs/HANDOFF.md says how to port
+  more. `tools/sync.py board()` now takes the served folder.
 - **The publish step for a unit from now on:** course checks → `python3 build/publish_web.py --site ../mrshaffer-site` →
   in the site `python3 tools/schedule.py --windmill ../Windmill --m7 … --a7 …` → `node tools/build.mjs && node
   tools/test_site.mjs` → commit, push. (Replaces copying practice pages by hand.) A7 Unit 3's package has no All in One
