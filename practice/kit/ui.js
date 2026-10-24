@@ -195,7 +195,7 @@ function streakHtml(M0){ return M0.streak >= 3 ? ' <span class="streak">✓✓ '
    it; a second try changes nothing. Shown from two. The device keeps the unit's record run. */
 function runStep(indep){ if (S.mode === 'test') return; if (indep){ S.run = (S.run || 0) + 1; if (S.run > (S.best || 0)) S.best = S.run; } else S.run = 0; }
 function record_(){ return load('record') || {n: 0}; }
-function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span class="nw"><span class="streak">✓✓ ' + S.run + ' in a row</span></span>'; }   /* short: the bar is one phone line per piece; the record is told at the end */
+function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span class="nw streak">✓✓ ' + S.run + ' in a row</span>'; }   /* one atom for the translator: no span inside a span */   /* short: the bar is one phone line per piece; the record is told at the end */
 function another(baseId){
   var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: streaks()[b0.pos] || 0, earned: !!res(b0).earned});
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
