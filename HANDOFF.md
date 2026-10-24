@@ -30,9 +30,9 @@ practice tests, I got chatgpt to review some things."* — a spec in three prior
   and keeps "Right on the first try: F / N" beneath; "Every point earned." Test mode untouched. `check/page.js` 9b walks the
   spec's acceptance tests 1–4, 6, 9, 10; 4b (23 Oct) the locked "another". Portuguese entries added for the new lines so the
   three bilingual units still pass part C.
-- **P2, a plan, not a build:** the doc above. Route A (an Apps Script web app serving the page, embedded by URL) is the only
-  secure one; four prerequisites first (district approval of identifiable records, a school account, the Chromebook identity
-  test, deployment settings); one unit, analytics only, then the rest. Nothing changes until each go/no-go is met.
+- **P2, dropped.** The plan doc (above) was written; Croix, 9:47 am: *"the tracking sheet is going to be too much. I don't
+  need to track practice data. If anything, I can have the student send me a screenshot."* The end panel is the record a
+  student shows him. Nothing in the pages sends anything anywhere; keep it that way.
 - **Published:** all six pages (student A7 U4 Version 14, A7 U3 25, M7 U4 17; teacher copies 9, 5, 6), the site, Google
   Sites files sent (twice today — the second set is the one to use). Earlier today: the locked "Try another" (23 Oct evening
   section) and Cadence 29.16.
