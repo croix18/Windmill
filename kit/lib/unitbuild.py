@@ -21,7 +21,17 @@ from .profile import C
 # Ruling 33 (24 September): a unit test ships as Form A and Form B, plus the practice test — three
 # parallel forms, no number lining up. A spec may give `assessment.forms = {"A": sections,
 # "B": sections, "practice": sections}`; the older `sections` + `practice` pair still builds.
+# Ruling 49 (22 October): for a unit built from then on THE TEST IS A RANDOM SET OF THE PRACTICE
+# PAGE. Its unit.py gives `assessment.forms = {"practice": sections}` alone — the blueprint of the
+# test (sections by benchmark, points, item shapes) and the one paper the build writes, the
+# Practice Test with its key. No Form A/B, no transfer items (ruling 18 is for papers written by
+# hand), no worked-answers copy. `practice_only(A)` says which kind of unit this is.
 TEST_FORMS = ("A", "B")
+
+
+def practice_only(A):
+    """Ruling 49: the assessment is the practice test alone — the unit test is a random set of the practice page."""
+    return has_forms(A) and list(unit_forms(A)) == ["practice"]
 
 # Rulings on the assessment, in the words the student and the key read:
 #   27  one paper over two periods    19  follow-through credit    18  the transfer flag on the key
@@ -334,6 +344,9 @@ def check_forms(A):
     f = []
     forms = unit_forms(A)
     tests = {k: v for k, v in forms.items() if k != "practice"}
+    if not tests:                                 # ruling 49: the practice test alone; nothing to be parallel to
+        npr = len(_transfer_positions(forms["practice"]))
+        return [f"ruling 49: a transfer item has no place on the practice test (the test is a random set of the practice page), found {npr}"] if npr else []
     # a course whose practice test is the web page (A7 from Unit 4) ships test forms only: they are then
     # measured against each other, position for position
     prac = forms.get("practice") or next(iter(tests.values()))
@@ -480,8 +493,12 @@ def build_unit(U, outdir):
     for form in unit_forms(A):
         out[f"{form}"] = build_form(U, outdir, key=False, form=form)
         out[f"{form}_key"] = build_form(U, outdir, key=True, form=form)
-        out[f"{form}_wa"] = build_form(U, outdir, key=True, form=form, student=True)   # ruling 32
-    print(f"forms: {', '.join(unit_forms(A))} — parallel, transfer positions agree, no answer shared")
+        if not practice_only(A):
+            out[f"{form}_wa"] = build_form(U, outdir, key=True, form=form, student=True)   # ruling 32
+    if practice_only(A):
+        print("forms: the practice test alone (ruling 49: the unit test is a random set of the practice page)")
+    else:
+        print(f"forms: {', '.join(unit_forms(A))} — parallel, transfer positions agree, no answer shared")
     return out
 
 

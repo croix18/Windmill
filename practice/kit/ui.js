@@ -631,6 +631,9 @@ $('setgo').addEventListener('click', function(){ var v = Math.floor(+$('setin').
 $('setin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('setgo').click(); } });
 $('bNew').addEventListener('click', function(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Leave this set for a new one? This one stays saved on this device.', 'New set', go); else go(); });
 $('bAgain').addEventListener('click', function(){ ask('Clear your answers to this set and start it again?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
+/* Ruling 49 (22 Oct 2026): on a unit whose test is a random set of this page, the teacher bar (teacher.js) prints the
+   TEST as n forms — the make-up printing, headed "Test · Form A · Set N" instead of "Make-up". Teacher copies only. */
+window.PracticePrint = {forms: function(n, label){ if (teacherPage()) showPrint('mk' + Math.min(5, Math.max(1, n | 0)), label || 'Test'); }};
 window.addEventListener('hashchange', function(){ var h = fromHash(); if (h && (h.seed !== seed || h.scope !== scope)) openSet(h.seed, h.scope); });
 window.addEventListener('storage', function(e){                                       /* [R2-N4] two tabs on one set stay in step — without writing back [B1] */
   if (e.key !== PRE + key() || !e.newValue) return;
@@ -729,13 +732,14 @@ function collect(){                                        /* the items of DS, a
     else { var id2 = String(qn); ITEMS.push({id: id2, lab: id2, sec: di, type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
   }); });
 }
-function makeupHtml(n){
+function makeupHtml(n, label){
+  label = label || 'Make-up';                              /* 'Test' on a ruling-49 teacher copy: the unit test IS a random set of this page */
   var seeds = [seed], guard = 0;
   while (seeds.length < n && guard++ < 50){ var r = randomSeed(); if (seeds.indexOf(r) < 0) seeds.push(r); }
   var forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: worksheetHtml(), key: keyListHtml(), form: LET[k], seed: s}; }); });
   var h = forms.map(function(f, k){ return (k ? '<div class="pbreak"></div>' : '') + '<div class="pform" data-form="' + f.form + '">' +
     f.ws.replace(/<div class="pt1"><span class="bt">([^<]*)<\/span>/, function(m, t){ return '<div class="pt1 ptest"><span class="bt">' + t.replace(/\s*Practice Test\b/i, ' Test') + '</span>'; })
-        .replace(/<div class="pt2"><span class="bt">[^<]*<\/span>/, '<div class="pt2"><span class="bt">Make-up · Form ' + f.form + ' · Set ' + f.seed + '</span>') + '</div>'; }).join('');
+        .replace(/<div class="pt2"><span class="bt">[^<]*<\/span>/, '<div class="pt2"><span class="bt">' + label + ' · Form ' + f.form + ' · Set ' + f.seed + '</span>') + '</div>'; }).join('');
   h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform">' + f.key.replace('Answer key</span>', 'Answer key — Form ' + f.form + '</span>') + '</div>'; }).join('');
   return h;
 }
@@ -745,13 +749,13 @@ function ask0(text, opts){                                   /* the print choice
   $('cn').onclick = function(){ closeAsk(); var b = $('bPrint'); if (b) b.focus(); };
   var f = c.querySelector('[data-print]:not([disabled])'); if (f) f.focus();
 }
-function showPrint(kind){
+function showPrint(kind, label){
   if (/^mk/.test(kind) && !teacherPage()) return;            /* no make-up tests on a student page, whatever asks */
   closeAsk();
   var pv = $('printview'); if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-label', 'Print preview'); document.body.appendChild(pv); }
   if (kind === 'mk'){ makeupMenu(); return; }
   var mk = /^mk(\d)$/.exec(kind);
-  var body = mk ? makeupHtml(+mk[1]) : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
+  var body = mk ? makeupHtml(+mk[1], label) : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
   pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button><span class="pvhint bt">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage">' + body + '</div>';
   pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
   $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };

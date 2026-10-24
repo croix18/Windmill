@@ -357,6 +357,19 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose');
     const after = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent}));
     if (after.h !== before.h || after.n !== before.n || after.first !== before.first) fail('make-up: the page changed after printing make-ups');
+    /* ruling 49 (22 Oct 2026): a teacher copy of a unit with no fixed forms has a bar that prints THE TEST as n random sets,
+       headed "Test · Form A · Set N" (never "Make-up", never "Practice Test"), each key on its own page */
+    const random = await p.evaluate(() => !!(window.TEACHER_TEST && window.TEACHER_TEST.random));
+    if (random) {
+      if (!(await p.isVisible('.teacherbar [data-tforms="2"]'))) fail('ruling 49: the teacher bar has no "2 forms" button');
+      await p.click('.teacherbar [data-tforms="2"]'); await p.waitForTimeout(150);
+      const rt = await p.evaluate(() => ({ heads: Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .pt2')).map(e => e.textContent.trim()),
+        titles: Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .pt1')).map(e => e.textContent.trim()), nk: document.querySelectorAll('#printview .pform.pkeyform').length }));
+      if (rt.heads.length !== 2 || rt.nk !== 2) fail('ruling 49: ' + rt.heads.length + ' forms / ' + rt.nk + ' keys for 2');
+      rt.heads.forEach((h, k) => { if (!h.startsWith('Test · Form ' + 'AB'[k] + ' · Set ')) fail('ruling 49: a test form is headed "' + h + '"'); });
+      rt.titles.forEach(t => { if (/Practice/i.test(t) || !/Test/.test(t)) fail('ruling 49: a printed test is titled "' + t + '"'); });
+      await p.click('#pvClose');
+    } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');
     }
     await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     await p.emulateMedia({ media: 'print' });

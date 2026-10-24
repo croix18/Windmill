@@ -8,6 +8,15 @@ const dir = path.resolve(process.argv[2] || '.'), KIT = path.join(__dirname, '..
 const katex = require(path.join(KIT, 'vendor', 'katex', 'katex.min.js'));
 const win = {}; vm.runInNewContext(fs.readFileSync(path.join(dir, 'test.js'), 'utf8'), { window: win });
 const T = win.TEACHER_TEST; const fails = []; const fail = m => fails.push(m);
+if (T && T.random) {                                   /* ruling 49: no fixed forms — the bar prints random sets of the page (check/page.js exercises it) */
+  if (Object.keys(T.forms || {}).length) fail('a random-set teacher copy carries fixed forms');
+  const ctxR = { window: { TEACHER_TEST: T, PracticePrint: { forms() {} } }, document: { createElement: () => stubR(), querySelector: () => stubR(), getElementById: () => null, body: stubR(), title: '' }, Math, String, Object, console, setTimeout };
+  function stubR() { return { className: '', innerHTML: '', hidden: false, dataset: {}, value: '', setAttribute() {}, insertBefore() {}, appendChild() {}, addEventListener() {}, focus() {}, querySelector: () => null, classList: { add() {}, remove() {} } }; }
+  vm.runInNewContext(fs.readFileSync(path.join(KIT, 'teacher.js'), 'utf8'), ctxR);
+  if (!ctxR.window.TEACHER || !ctxR.window.TEACHER.random) fail('teacher.js did not mount its random-set bar');
+  if (fails.length) { console.log('TEACHER CHECKS FAILED\n' + fails.join('\n')); process.exit(1); }
+  console.log('teacher page: no fixed forms (ruling 49: the test is a random set of the page); the bar mounts; TEACHER CHECKS PASS'); process.exit(0);
+}
 let n = 0, parts = 0, figs = 0;
 const every = (s, where) => { String(s).split('$').forEach((seg, k) => { if (k % 2) { n++; try { katex.renderToString('\\displaystyle ' + seg, { throwOnError: true, strict: 'ignore', output: 'html' }); } catch (e) { fail(where + ': KaTeX refuses "' + seg + '": ' + (e.message || e)); } } }); };
 Object.keys(T.forms).forEach(f => { let fp = 0; T.forms[f].forEach((sec, si) => sec.items.forEach((it, ii) => {

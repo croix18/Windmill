@@ -699,6 +699,16 @@ ok("ruling 18: a paper needs exactly two transfer items — or one, when transfe
    and _ub18.transfer_needed({"transfer_cut": ["one cut.", "the other cut."]}) == 0 and _ub18.transfer_needed({"transfer_cut": ["one cut.", ""]}) == 1
    and "none on this paper" in _ub18.transfer_line({"transfer_cut": ["one cut.", "the other cut."]}, [])
    and "(2) the other cut." in _ub18.transfer_line({"transfer_cut": ["one cut.", "the other cut."]}, []))
+# ---- ruling 49: a unit built as the practice test alone (the unit test is a random set of the practice page)
+_sec49 = lambda ans, chk: [dict(title="Area", benchmark="MA.7.GR.1.1", points=1, items=[dict(stem="Find $3 \\times 4$.", answer=ans, check=chk, space=0.5)])]
+_P49 = {"forms": {"practice": _sec49("$12$", ("val", "3*4", "12"))}}
+_T49 = {"forms": {"practice": [dict(title="Area", benchmark="MA.7.GR.1.1", points=1, items=[dict(stem="Find $3 \\times 4$.", answer="$12$", check=("val", "3*4", "12"), space=0.5, transfer=True)])]}}
+_AB49 = {"forms": {"A": _sec49("$12$", ("val", "3*4", "12")), "B": _sec49("$12$", ("val", "3*4", "12"))}}
+ok("ruling 49: the practice test alone is a complete assessment — no parallel form, no transfer item, no shared-answer check against itself",
+   _ub18.practice_only(_P49) and not _ub18.practice_only(_AB49) and not _ub18.practice_only({"sections": [], "practice": []})
+   and _ub18.check_forms(_P49) == [] and _ub18.check_distinct(_P49) == []
+   and any("ruling 49" in x and "transfer" in x for x in _ub18.check_forms(_T49))
+   and any("ruling 18" in x for x in _ub18.check_forms(_AB49)) and any("ruling 33" in x for x in _ub18.check_distinct(_AB49)))
 # ---- ruling 44's look-through: every picture of a unit drawn beside its words
 import figure_sheets as _fsh
 from lib import figkit as _fk44, mathimg as _mi44

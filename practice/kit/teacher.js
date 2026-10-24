@@ -8,6 +8,18 @@
    the answer key in its source, so it is never linked for students — Google Sites gets the student page only. */
 (function boot(tries){
   var T = window.TEACHER_TEST; if (!T) return;
+  if (T.random){                                          /* ruling 49 (22 Oct 2026): the unit test IS a random set of this page */
+    if (!window.PracticePrint){ if ((tries || 0) < 200) setTimeout(function(){ boot((tries || 0) + 1); }, 25); return; }
+    var rbar = document.createElement('div'); rbar.className = 'teacherbar'; rbar.setAttribute('translate', 'no'); rbar.setAttribute('role', 'region'); rbar.setAttribute('aria-label', 'Teacher copy');
+    rbar.innerHTML = '<div class="tbtxt"><b>Teacher copy.</b> The Unit ' + T.unit + ' test is a random set of this page: every form below is a different set, headed as a test, ' +
+      'with its answer key on its own page. Do not share this link or file with students — the student page is the one on Google Sites.</div>' +
+      '<div class="tbbtns"><span class="tblab">Print the test:</span>' + [1, 2, 3, 4, 5].map(function(n){ return '<button type="button"' + (n === 1 ? ' class="go"' : '') + ' data-tforms="' + n + '">' + n + (n === 1 ? ' form' : ' forms') + '</button>'; }).join('') + '</div>';
+    var rsheet = document.querySelector('.sheet'); if (rsheet) rsheet.insertBefore(rbar, rsheet.firstChild);
+    rbar.addEventListener('click', function(e){ var b = e.target.closest('[data-tforms]'); if (b) window.PracticePrint.forms(+b.dataset.tforms, 'Test'); });
+    document.title = T.course + ' Unit ' + T.unit + ' — Teacher copy';
+    window.TEACHER = {random: true, forms: [], errors: [], print: function(n){ window.PracticePrint.forms(n, 'Test'); }};
+    return;
+  }
   if (!window.katex){ if ((tries || 0) < 200) setTimeout(function(){ boot((tries || 0) + 1); }, 25); return; }   /* KaTeX is inlined after the unit scripts */
   var LET = 'ABCDEFGH', FORMS = Object.keys(T.forms), form = FORMS[0];
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }

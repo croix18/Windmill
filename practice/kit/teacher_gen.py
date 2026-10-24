@@ -116,9 +116,12 @@ def extract(U, course):
     for fk, sections in forms_of(A).items():
         forms[fk] = [{"title": sec["title"], "benchmark": sec["benchmark"], "points": A["tracker"][sec["benchmark"]],
                       "items": [item(it) for it in sec["items"] if not it.get("heading") and not it.get("table_only")]} for sec in sections]
-    return {"course": course, "unit": U["unit"], "title": U["title"], "total": A["total"], "tracker": A["tracker"], "tracker_order": A.get("tracker_order", list(A["tracker"])),
-            "forms": forms, "notes": [SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else "")], "two_day": TWO_DAY_LINE, "follow_through_student": FOLLOW_THROUGH,
-            "follow_through_key": A.get("follow_through", ""), "transfer_flag": TRANSFER_FLAG}
+    T = {"course": course, "unit": U["unit"], "title": U["title"], "total": A["total"], "tracker": A["tracker"], "tracker_order": A.get("tracker_order", list(A["tracker"])),
+         "forms": forms, "notes": [SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else "")], "two_day": TWO_DAY_LINE, "follow_through_student": FOLLOW_THROUGH,
+         "follow_through_key": A.get("follow_through", ""), "transfer_flag": TRANSFER_FLAG}
+    if not forms:                     # ruling 49 (22 Oct 2026): no fixed forms — the unit test is a random set of the practice page
+        T["random"] = True
+    return T
 
 def render(T): return HEADER + "window.TEACHER_TEST = " + json.dumps(T, ensure_ascii=False, indent=1) + ";\n"
 
@@ -198,5 +201,5 @@ def main(unit_py, out="test.js", course=None):
         bad = check(U, T, out)
         n = sum(len(it.get("parts") or [it]) for f in T["forms"].values() for s in f for it in s["items"])
         if bad: print("\n".join(bad)); print("TEST CHECK FAILED (%d)" % len(bad)); sys.exit(1)
-        print("test.js matches unit.py; forms %s; %d parts; every check re-passed under sympy; %d points a form" % (", ".join(T["forms"]), n, T["total"])); sys.exit(0)
-    open(out, "w", encoding="utf-8").write(render(T)); print("wrote %s (forms %s)" % (os.path.basename(out), ", ".join(T["forms"])))
+        print("test.js matches unit.py; %s; %d parts; every check re-passed under sympy; %d points a form" % (("forms " + ", ".join(T["forms"])) if T["forms"] else "no fixed forms (ruling 49: the test is a random set of the page)", n, T["total"])); sys.exit(0)
+    open(out, "w", encoding="utf-8").write(render(T)); print("wrote %s (%s)" % (os.path.basename(out), ("forms " + ", ".join(T["forms"])) if T["forms"] else "ruling 49: no fixed forms"))
