@@ -91,8 +91,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       await answer(p, C); await check(p, C.id);
       const fb = await p.$eval('#fb' + C.id, e => e.innerText); if (!/Correct/.test(fb)) fail('choice question ' + C.id + ' not right after the key: ' + fb.slice(0, 60));
       await p.click('[data-another="' + C.id + '"]');
-      const locked = await p.$$eval('input[name="q' + C.id + 'x1"]', xs => xs.filter(x => x.disabled).length); if (locked) fail('Try another on ' + C.id + ': ' + locked + ' of the new choices are disabled');
-      await p.click('#ch' + C.id + 'x1A'); const on = await p.$eval('input[name="q' + C.id + 'x1"][value="0"]', x => x.checked); if (!on) fail('Try another on ' + C.id + ': the new choice did not tick');
+      const locked = await p.$$eval('input[name="q' + C.id + 'x1"]', xs => xs.filter(x => x.disabled).length); if (locked) fail('Try another on ' + C.id + ': ' + locked + ' of the new choices are disabled — the student cannot touch the new question');
+      else { await p.click('#ch' + C.id + 'x1A'); const on = await p.$eval('input[name="q' + C.id + 'x1"][value="0"]', x => x.checked); if (!on) fail('Try another on ' + C.id + ': the new choice did not tick'); }
       const still = await p.$$eval('input[name="q' + C.id + '"]', xs => xs.filter(x => !x.disabled).length); if (still) fail('the right answer on ' + C.id + ' no longer locks its own choices'); } }
   /* 5. Hint takes focus into the walkthrough; Close gives it back to Hint */
   await p.click('[data-walk="' + T[1].id + '"]'); { const a = await active(p); if (!/wopt|^wn/.test(a)) fail('Hint: focus is ' + a); }
