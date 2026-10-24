@@ -48,6 +48,17 @@ in the code; the four reports are in the Windmill HANDOFF.
     Check-as-I-go is a miss too (before: "not done", and not practised).
   - *Like the real test* is untouched: no help before Finish, so its score is what was right at Finish; help and fresh ones
     after Finish never change it.
+- **Two streaks** (24 Oct 2026; Croix: "Several kids loved the streak of getting multiple questions right in a row. Can you
+  make sure that's well thought out and implemented well."):
+  - **A question's own count**, in the "Try another" header: fresh ones of that question in a row solved on your own, kept on
+    the device across sets. "✓ one in a row", "✓✓ 2 in a row — you've got this one" (the second clears the miss), then
+    "✓✓ 5 in a row" — the count goes on; it never drops to nothing while the kid is on a roll.
+  - **The run**, in the bar: first checks right on your own in a row across the set, questions and fresh ones alike, in the
+    order checked. A wrong first check, or a right one after help, ends it; second tries change nothing. Shown from two
+    ("✓✓ 4 in a row"), short enough for a phone's bar. The end panel says "Best run this set: 7 in a row", with "— a new
+    record" or "· your record: 12" (the device keeps the unit's record run). Not in test mode before Finish: nothing there
+    says right or wrong until then.
+  - One primary button at a time: when the point is still owed, "Try another like this" is the primary and "Next ↓" is not.
 - **Practice menu:** whole test, one part (two rounds with new numbers), or my misses (new numbers; one round if there
   are more than 8).
 - **The end:**

@@ -71,6 +71,10 @@ var T = {
   'Close': 'Fechar',
   'Show this step': 'Mostrar este passo',
   '✓✓ # in a row — you’ve got this one': '✓✓ # seguidas — você já domina esta',
+  '✓✓ # in a row': '✓✓ # seguidas',
+  'Best run this set: <b>#</b> in a row': 'Melhor sequência nesta lista: <b>#</b> seguidas',
+  'Best run this set: <b>#</b> in a row — a new record': 'Melhor sequência nesta lista: <b>#</b> seguidas — novo recorde',
+  'Best run this set: <b>#</b> in a row · your record: #': 'Melhor sequência nesta lista: <b>#</b> seguidas · seu recorde: #',
   '✓ one in a row': '✓ uma seguida',
 
   /* Show me how, and the Hint */

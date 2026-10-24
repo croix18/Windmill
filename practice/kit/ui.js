@@ -52,7 +52,7 @@ function streaks(){ return load('streaks') || {}; }
    base question and every "Try another like this" of it count alike. */
 function streakStep(pos, fam, indep){
   var st = streaks(), ms = misses(), n = indep ? (st[pos] || 0) + 1 : 0;
-  if (n >= 2){ delete ms[pos]; n = 0; } else if (!indep) ms[pos] = fam;
+  if (n >= 2) delete ms[pos]; else if (!indep) ms[pos] = fam;             /* the second in a row clears the miss; the count goes on (24 Oct) */
   if (n) st[pos] = n; else delete st[pos];
   store('streaks', st); store('misses', ms); return n;
 }
@@ -189,7 +189,13 @@ function mountExtra(base){
   var box = $('ag' + base.id); box.innerHTML = h; box.hidden = false;
   restoreOne(EX[id]); paintItem(EX[id]);
 }
-function streakHtml(M0){ return M0.streak >= 2 ? ' <span class="streak">✓✓ ' + M0.streak + ' in a row — you’ve got this one</span>' : M0.streak === 1 ? ' <span class="streak">✓ one in a row</span>' : M0.earned ? ' <span class="streak">✓ point earned</span>' : ''; }
+function streakHtml(M0){ return M0.streak >= 3 ? ' <span class="streak">✓✓ ' + M0.streak + ' in a row</span>' : M0.streak === 2 ? ' <span class="streak">✓✓ 2 in a row — you’ve got this one</span>' : M0.streak === 1 ? ' <span class="streak">✓ one in a row</span>' : M0.earned ? ' <span class="streak">✓ point earned</span>' : ''; }
+/* The run (24 Oct 2026; "several kids loved the streak"): first checks right on your own, in a row, across the set — the
+   questions and their fresh ones alike, in the order they are checked. A wrong first check, or a right one after help, ends
+   it; a second try changes nothing. Shown from two. The device keeps the unit's record run. */
+function runStep(indep){ if (S.mode === 'test') return; if (indep){ S.run = (S.run || 0) + 1; if (S.run > (S.best || 0)) S.best = S.run; } else S.run = 0; }
+function record_(){ return load('record') || {n: 0}; }
+function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span class="nw"><span class="streak">✓✓ ' + S.run + ' in a row</span></span>'; }   /* short: the bar is one phone line per piece; the record is told at the end */
 function another(baseId){
   var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: streaks()[b0.pos] || 0, earned: !!res(b0).earned});
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
@@ -226,6 +232,7 @@ function record(it, f, late){
   if (R.first === null){ R.first = (f.v === 'right'); R.helped = R.first && !!(R.hinted || R.shown); if (late) R.late = true; }   /* what happened on the first check: kept, never rewritten */
   if (R.tries === 1){
     var n = streakStep(it.pos, famOf(it), indep);                                    /* the one miss rule, base question or "another" */
+    if (!late) runStep(indep);                                                        /* the run across the set (not a check Finish made) */
     if (it.extra){ var M0 = S.more[it.base], B = res(byId(it.base)); M0.streak = n; if (indep && S.mode !== 'test' && !B.earned){ B.earned = true; M0.earned = true; B.earnedBy = it.id; } }
     else R.earned = indep;                                                           /* the point: right on the first check with no help, or on a fresh one (above) */
   }
@@ -304,16 +311,16 @@ function paintItem(it){
   if (R.v) host.classList.add(R.v === 'right' ? 'is-right' : R.v === 'form' ? 'is-form' : 'is-wrong');
   if (R.v){ fb.innerHTML = cardHtml(it, R, lastFeedback(it)); delete FLASH[it.id]; } else if (!FLASH[it.id]) fb.innerHTML = '';
   var b = [], all = (R.steps || 0) >= n, walkOn = S.walkOpen[it.id] && R.v !== 'right';
+  var owed = S.mode !== 'test' && !R.earned && (R.v || R.shown || R.hinted);            /* the point is not earned yet: a fresh one is the way (24 Oct 2026) */
   if (R.v === 'right'){
     var nx = it.extra ? null : nextOpen(it);
-    if (nx) b.push('<button type="button" class="go" data-next="' + it.id + '" data-to="' + nx.id + '" aria-label="Next: question ' + nx.lab + '">Next ↓</button>');
+    if (nx) b.push('<button type="button" class="' + (owed ? '' : 'go') + '" data-next="' + it.id + '" data-to="' + nx.id + '" aria-label="Next: question ' + nx.lab + '">Next ↓</button>');   /* one primary button: Try another when the point is owed */
     if (!all) b.push('<button type="button" data-all="' + it.id + '" aria-label="Show me how for ' + it.lab + '">Show me how</button>');
   } else {
     if (!all && !walkOn && walkOf(it)) b.push('<button type="button" data-walk="' + it.id + '" aria-label="Hint for ' + it.lab + '">Hint</button>');   /* [J-3] least help first; no Hint once the steps are open */
     if (!all && (R.tries > 0 || S.done)) b.push('<button type="button" data-all="' + it.id + '" aria-label="Show me how for ' + it.lab + '">Show me how</button>');
   }
   var missed = (R.v && R.v !== 'right') || R.shown || (R.v === 'right' && R.first === false);
-  var owed = S.mode !== 'test' && !R.earned && (R.v || R.shown || R.hinted);            /* the point is not earned yet: a fresh one is the way (24 Oct 2026) */
   if (!it.extra && (missed || owed) && !S.more[it.id]) b.push('<button type="button" class="' + (R.v === 'right' || all || owed ? 'go' : '') + '" data-another="' + it.id + '">Try another like this</button>');
   if (it.extra && (R.v || R.shown)) b.push('<button type="button" class="' + (R.v === 'right' || !res(byId(it.base)).earned ? 'go' : '') + '" data-another="' + it.base + '">Try another like this</button>');
   var hs = $('hs' + it.id), hintOnly = b.length === 1 && /data-walk=/.test(b[0]) && !R.v && !(R.tries > 0);   /* [D-8] before any try the Hint sits beside Check, not on a row of its own */
@@ -499,7 +506,7 @@ function paintScore(light){
   var t = tally(), sc = $('score'), N = ITEMS.length, nb = function(s){ return '<span class="nw">' + s + '</span>'; };
   if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered') + ' · ' + nb('marked when you finish');
   else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = nb('<b>' + N + '</b> part' + (N === 1 ? '' : 's') + ' to answer');
-  else sc.innerHTML = nb('<b>' + t.earned + '</b> ' + (S.mode === 'test' ? 'right' : 'earned')) + (t.helped ? bulb(t.helped) : '') + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done');   /* [J-2]; the points earned on your own (24 Oct 2026) */
+  else sc.innerHTML = nb('<b>' + t.earned + '</b> ' + (S.mode === 'test' ? 'right' : 'earned')) + (t.helped ? bulb(t.helped) : '') + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done') + runHtml();   /* [J-2]; the points earned on your own (24 Oct 2026) */
   if (light) return;
   paintResult(t); paintScopes(); paintSections();
 }
@@ -530,9 +537,10 @@ function paintResult(t){
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
   var lastLine = prev ? '<p class="last">Last time: ' + pe + ' / ' + prev.of + ' in ' + fmt(prev.time) + '. Today: ' + t.earned + ' / ' + N + (prev.of === N ? ' (' + (t.earned - pe >= 0 ? '+' : '−') + Math.abs(t.earned - pe) + ')' : '') + '.</p>' : '';   /* [J-10] */
   var firstLine = test ? '' : '<p class="last">Right on the first try: ' + t.first + ' / ' + N + (t.helped ? ' ' + bulb(t.helped) : '') + '</p>';
+  var rec = record_(), runLine = test || !(S.best >= 2) ? '' : '<p class="last">Best run this set: <b>' + S.best + '</b> in a row' + (S.newRecord ? ' — a new record' : rec.n > S.best ? ' · your record: ' + rec.n : '') + '</p>';
   box.innerHTML = '<h2>Set ' + seed + ' · ' + esc(SCOPES[scope]) + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</h2>' +
     '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points earned on your own') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
-    firstLine + lastLine +
+    firstLine + runLine + lastLine +
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') +
     '<div class="tw"><table><thead><tr><th>Part</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
@@ -553,6 +561,7 @@ function finish(){
       else record(it, f, S.mode !== 'test');
     } else if (R.first === null){ R.first = false; R.skipped = true; streakStep(it.pos, famOf(it), false); }   /* skipped in practice: on My misses, like a miss (24 Oct 2026) */
   });
+  if (S.mode !== 'test' && (S.best || 0) >= 2 && S.best > record_().n){ store('record', {n: S.best, seed: seed, at: S.finishedAt}); S.newRecord = true; }   /* the device's record run for this unit */
   var t = tally(), H = hist(), hk = scope + '.' + S.mode;
   H[hk] = [{seed: seed, first: t.first, earned: t.earned, of: ITEMS.length, time: S.acc, at: S.finishedAt}].concat(H[hk] || []).slice(0, 5); store('hist', H);
   save(); paintAll(); window.scrollTo(0, 0); var rb = $('result'); if (rb){ rb.setAttribute('tabindex', '-1'); rb.focus({preventScroll: true}); }

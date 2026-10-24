@@ -142,6 +142,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (!/^1 earned/.test(await bar())) fail('bar after a hinted point: ' + await bar());
     const fbB = await p.$eval('#fb' + B.id, e => e.textContent); if (!/One on your own earns the point/.test(fbB) || /first try/.test(fbB)) fail('hinted right card: ' + fbB);
     if (!(await p.$('[data-another="' + B.id + '"].go'))) fail('after help, Try another is not the primary button');
+    if ((await p.$$('#mo' + B.id + ' button.go')).length !== 1) fail('a hinted right answer should have exactly one primary button');
     /* 3. the fresh one right on its first check, no help → the base question's point; the original first try unchanged */
     await p.click('[data-another="' + B.id + '"]'); await fillExtra(B, 1); await check(p, B.id + 'x1'); R = await resOf(B.id); const X = await resOf(B.id + 'x1');
     if (!(X.first === true && R.earned === true && R.first === true && R.helped === true)) fail('fresh one unaided: base earned/first/helped = ' + [R.earned, R.first, R.helped] + ', extra first ' + X.first);
@@ -161,10 +162,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('[data-another="' + Dd.id + '"]'); await fillExtra(Dd, 3); await check(p, Dd.id + 'x3');
     await p.click('[data-another="' + Dd.id + '"]'); await fillExtra(Dd, 4); await check(p, Dd.id + 'x4'); ms = await store('misses'); if (ms[Dd.pos]) fail('two in a row did not clear the miss');
     R = await resOf(Dd.id); if (!(R.earned === true && R.first === false)) fail('after two fresh ones: earned/first = ' + [R.earned, R.first]);
+    /* the run: two fresh ones in a row on your own show in the bar, and a first run is the device's record */
+    if (!/✓✓ 2 in a row/.test(await bar())) fail('bar after two in a row: ' + await bar());
+    const xs = await p.$eval('#xs' + Dd.id + 'x4', e => e.textContent); if (!/2 in a row/.test(xs)) fail('the fresh one\'s own count after two: ' + xs);
     /* 10. a blank at Finish (Check as I go) is on My misses; the end panel leads with the points earned */
     await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100); ms = await store('misses'); if (!ms[E5.pos]) fail('a blank at Finish is not on My misses');
     R = await resOf(E5.id); if (!(R.skipped && R.first === false && !R.earned)) fail('a blank at Finish: skipped/first/earned = ' + [R.skipped, R.first, R.earned]);
     const big = await p.$eval('.big b', e => e.textContent); if (!/^4\D/.test(big)) fail('end panel leads with ' + big + ', not the 4 points earned');
+    if (!/Best run this set: 2 in a row — a new record/.test(await p.$eval('#result', e => e.textContent))) fail('end panel has no best run line');
+    const rec = await store('record'); if (!rec || rec.n !== 2) fail('the record run was not kept: ' + JSON.stringify(rec));
     const ft = await p.$eval('#result', e => e.textContent); if (!/Right on the first try: 3 \/ /.test(ft)) fail('end panel first-try line: ' + (ft.match(/Right on the first try.{0,12}/) || [''])[0]);
     const nf = Object.entries((await state(p, 781)).res).filter(([k, r]) => !/x\d+$/.test(k) && r.first === true).length; if (nf !== 3) fail('first-try count ' + nf + ', expected 3 (A, B and C were right on their first check)'); }
   /* 10. test mode: only "can't read this yet"; results' buttons practise with checking */
