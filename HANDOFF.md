@@ -4,6 +4,42 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (24 Oct 2026, midday) — read this first
+
+**The site is course-first, each day opens its slides, and the teacher's things are behind a password** (mrshaffer-site
+`36b27bc`; Windmill `90fd2c4` the kit tools; M7 `6820b04` the merged deck). Croix, 10:23 am: *"Can you also create the slides
+as html … I'd like the html slides to be uploaded to the website and have the calendar link to the days slides. Also a7 and
+m7 live in a link that on the landing page says practice. That's a weird way to organize the schedule. Revise that. Perhaps the
+practice can be integrated in a similar way."* 10:27: *"Is it possible to have a walled off version, like a password protected
+section and I can keep teachers editions and tests, and tools like tally and geopardy behind and not accessible to others?"*
+- **Kit:** `kit/web_decks.py <outdir> [uN…]` builds the HtmlDeck (lib/htmlkit — the same slides as the .pptx) for the website
+  alone, one file per lesson named by the plan's day (`9.06-07.html`, `T-A1.html`, `9.R.html`); ruling 41 stands for the
+  package (course.py HTML stays False). `kit/publish_web.py --site <mrshaffer-site>` publishes a course: the decks into
+  `slides/<course>/`, the practice tests and teacher copies, and the unit's four All-in-One PDFs into
+  `teacher/units/<course>/unit-N/`. Both vendored into both courses and run.
+- **Site:** home = M7 / A7 doors, Deckhand, the Teacher door. `tools/schedule.py` writes `/m7/` and `/a7/` (the calendar: a
+  lesson day links to `slides/<day>/` when the file exists, a test or review day to `practice/unit-N/`; the practice tests
+  listed above the calendar). `tools/build.mjs` (replaces practice.mjs) builds `/<course>/practice/`, `/<course>/slides/`,
+  and `/teacher/` (Tally, Cadence, Boards Up moved under it; teacher copies at `/teacher/<course>/unit-N/`; the PDFs at
+  `/teacher/units/<course>/unit-N/`). `teacher.js` is the wall: `wrangler.jsonc` `run_worker_first` on `/teacher/*`; a
+  password form once, a 90-day HMAC-signed cookie; **the secret `TEACHER_PASS` must be set in Cloudflare by Croix** — until
+  then the section says "Locked: no password is set yet". `worker.js` 301s the old addresses (`/practice/…`, `/schedule/…`,
+  `/tally`, `/cadence`, `/geopardy`, `/m7`). `tools/test_site.mjs`: the wall (tampered/expired cookies, open redirects),
+  the moved addresses, every link on every page, every lesson day with slides linked. Deploy succeeded; the live site is
+  not reachable from this workspace (the proxy), so the live wall is unverified until Croix opens /teacher/.
+- **The publish step for a unit from now on:** course checks → `python3 build/publish_web.py --site ../mrshaffer-site` →
+  in the site `python3 tools/schedule.py --windmill ../Windmill --m7 … --a7 …` → `node tools/build.mjs && node
+  tools/test_site.mjs` → commit, push. (Replaces copying practice pages by hand.) A7 Unit 3's package has no All in One
+  folder, so no teacher PDFs for it yet.
+- **M7 9.06+07 is one deck** (Croix, 9:56: "I definitely can't get through two sets of slides on most days"): `u9/l06.py`
+  rewritten as one 53-minute lesson; `l07.py` retired; ruling 50 amended — a merged day is one deck whether or not the unit
+  was built when it was merged. Teacher's edition trimmed to 4 pages (page 1 had overflowed by two lines, wasting a page).
+- **The streaks** (Croix, 9:51): practice kit `1f2b084` — a question's "Try another" count keeps going past two (the
+  morning's miss rule had reset it to nothing); the run across the set in the bar ("✓✓ 4 in a row", from two) and "Best run
+  this set … · your record" at the end (the device's record per unit); one primary button when the point is owed; the bar's
+  run is one `nw streak` atom for the translator. All six pages rebuilt and republished (A7 U4 Version 15, A7 U3 26, M7 U4
+  18; teacher 10, 6, 7); Google Sites files sent (the 10:50 set is the one to use).
+
 ## Where things stand (24 Oct 2026) — read this first
 
 **The ChatGPT review of the A7 Unit 4 page** (Windmill `0422bd1`, `1c87b38`, `1584b67`; mrshaffer-site `9e21952`; A7 and M7
@@ -1407,6 +1443,7 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
 - 22 Oct (late): Croix: "Is there a way I can add in that variation factor? …" → the kit's variety check (practice/kit/check/variety.js, floor 100 versions a part); A7 U3, A7 U4, M7 U4 widened and republished. Windmill 8d91d6c, ce249a3; A7 6d502a2, 8922f29; M7 7db536d.
 - 23 Oct (7:17 am): Croix: "Can you get rid of the still a point comment. And also the with help comment…" → a small gray bulb marks a Hint-solved question; no words about help. Windmill c9cf1ae; A7 5d5e582; M7 5f13b7e; site 40f16dc, 7173355, 2cfae15.
+- 24 Oct (9:51–10:27 am): the streaks thought through (kit 1f2b084); M7 9.06+07 one deck (M7 6820b04); the site course-first with HTML slides per day and the teacher wall (site 36b27bc; kit web_decks.py, publish_web.py). TEACHER_PASS to be set by Croix.
 - 24 Oct (8:52 am): Croix: "Let's take a look at the practice tests, I got chatgpt to review some things." → P0 the test numbers off the pages, P1 the point from one on your own, P2 the Sheets plan (doc); "Drop the Portuguese … going forward." Windmill 0422bd1, 1c87b38, 1584b67; site 9e21952.
 - 24 Oct (7:18 am): Croix: "This standard seems like it disproportionately draws fractions…" → Cadence 29.16: MA.7.AR.1.1 draws int/dec/frac a third each (fc26d3a; site 5e9cb39).
 - 23 Oct (8:01 pm): Croix: "The a7 unit 4 practice failed today…" → the right answer's lock reached the Try another inside its box (choice questions only); kit a69d5e5, 9d9a20d; all three units and teacher copies rebuilt and republished; site c3363c0.
