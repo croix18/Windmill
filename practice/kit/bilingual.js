@@ -24,7 +24,7 @@ function tokOf(i){ return '\u0000' + i + '\u0000'; }
 
 /* a math span may hold one level of nested spans (fractions) */
 var MATH = /<span class="m"[^>]*>(?:[^<]|<(?!\/?span)[^>]*>|<span[^>]*>(?:[^<]|<(?!\/?span)[^>]*>|<span[^>]*>[^<]*<\/span>)*<\/span>)*<\/span>/g;
-var ATOM = /<(span|button|b) class="(?:tag[^"]*|nw|streak|alt|kl|wgave|chg|wok|wno|wq)"[^>]*>(?:[^<]|<(?!\/?(?:span|button)\b)[^>]*>|<span class="m"[^>]*>[^<]*<\/span>)*<\/\1>|<button[^>]*class="jump"[^>]*>[^<]*<\/button>|<b>[A-H]\.<\/b>|<b>[A-Z][a-z ]{1,24}:<\/b>/g;
+var ATOM = /<(span|button|b) class="(?:tag[^"]*|nw|nw streak|streak|alt|kl|wgave|chg|wok|wno|wq)"[^>]*>(?:[^<]|<(?!\/?(?:span|button)\b)[^>]*>|<span class="m"[^>]*>[^<]*<\/span>)*<\/\1>|<button[^>]*class="jump"[^>]*>[^<]*<\/button>|<b>[A-H]\.<\/b>|<b>[A-Z][a-z ]{1,24}:<\/b>/g;
 var NUM = /(?<![\w\u0000])\d{1,3}(?:,\d{3})+(?:\.\d+)?(?![\w])|(?<![\w\u0000])\d+(?:\.\d+)?/g;
 
 function protect(html, names){
@@ -128,7 +128,7 @@ function make(table, names){
 /* ------------------------------------------------ the page: the toggle, and the translation under each block */
 /* the blocks that carry words; buttons get theirs as a second small line inside the button */
 var BLOCK = ['#eyebrow', '#h1', '.itx', '.pinote', '#total', '.setbox summary', '.setrow label', '#notice', '#confirm > span', '.how',
-  '.sechead h2', '.sechead .pts', '.stem .st', '.line .st', '.cv', '.xhead .xt', '.streak', '.fbx p', '.fbx li', '.note2', '.rd',
+  '.sechead h2', '.sechead .pts', '.stem .st', '.line .st', '.cv', '.xhead .xt', '.xhead .streak', '.fbx p', '.fbx li', '.note2', '.rd',
   '.sthead', '.solhead .kl', '.say', '.offnote', '.key .kl', '.key .kv', '.why > summary', '.vis .cap', '.vis p', '.wpl',
   '.wkhead b', '.wask', '.wgot', '.wwhy', '.wfin', '#score', '#result h2', '#result .big span', '#result .last',
   '.bt', '#result .perfect', '#result .nry', '#result .note:not(:has(.nry))', '#result th', '#result td:first-child'].join(',');
