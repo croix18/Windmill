@@ -27,6 +27,19 @@ section and I can keep teachers editions and tests, and tools like tally and geo
   `/tally`, `/cadence`, `/geopardy`, `/m7`). `tools/test_site.mjs`: the wall (tampered/expired cookies, open redirects),
   the moved addresses, every link on every page, every lesson day with slides linked. Deploy succeeded; the live site is
   not reachable from this workspace (the proxy), so the live wall is unverified until Croix opens /teacher/.
+- **Ruling 49 is in the toolchain; two build chats are briefed** (evening; Windmill `aaa42d6`, `197b9cc`, `7542cae`; M7
+  `eadd2cc`, `007d719`; A7 `dcfa28d`, `775b2c5`). Croix: *"I would like to have two other chats focus on building those. One
+  for each class … opus 5.5 … I need you to do a ton of heavy lifting in the beginning … You're the brain and they are the
+  muscle."* So: (1) **a practice-only unit flows end to end** — `assessment.forms = {"practice": …}` alone; `unitbuild.
+  practice_only()`; no transfer/parallel checks, no worked answers; both `install_unit.py` START HEREs, both master sheets and
+  their checks, `teacher_gen.py` (`TEACHER_TEST.random`), `teacher.js` (a bar that prints the test as 1–5 random sets via
+  `ui.js` `PracticePrint.forms`, headed "Test · Form A · Set N"), `check/page.js` and `check/teacher_check.js`; tried on M7
+  u9's spec end to end (build, checks, install, master sheet, teacher copy in a browser), then restored. (2) **`briefs/`**:
+  `00 - HOW WE WORK`, `M7 UNIT 10 - BRIEF`, `A7 UNIT 6 + THREAD B - BRIEF`, `REVIEW AND PUBLISH (the Fable pass)`; the kickoff
+  files sent to Croix are HOW WE WORK + the brief. The chats stop at the course repo; a Fable session reviews and publishes
+  (the REVIEW doc). Croix generates a new token for them (this session's is not to be passed on). Math Nation folders on Drive:
+  M7 U10 `1QhzQ30kMKzhNEexTsZOAki62Db5uMNbA`, A7 U06 `1zHNbt1F2osMJLuFTnS34MZqAC6MhjTSs`, A7 U16 (Thread B)
+  `1B9nlUOOCETnbfKrIZq-uV4uyKn961SzP`. ELA's PM2 (Tue 1 Dec, probable) logged off in both courses; A7 Unit 7 test Thu 10 Dec.
 - **Ruling 51 (4:21 and 4:45 pm): every A7 unit test is one period, on any day but a Wednesday; the gained days are PM3
   review.** Windmill `3a9162f` + `182f5d8`, A7 `f897266`, M7 `5eb5197` (rulebook note). `rules.exam.days` in flow.py/.js
   (default 2; A7 sets 1, `weekdays` `[0,1,3,4]`); A7's plan has one X row per unit (`5.X`); a unit's first lesson carries
