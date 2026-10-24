@@ -6,6 +6,18 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 ## Where things stand (23 Oct 2026, evening) — read this first
 
+**"Try another" after a choice question got right opened locked** (Windmill `a69d5e5`, `9d9a20d`; mrshaffer-site `c3363c0`;
+A7 and M7 pushed after). Croix, 8:01 pm: *"The a7 unit 4 practice failed today. Girl in class today, I uploaded it to sites as
+an embedded site, tried to click on the retry and it opened a new problem, but she wasn't able to click on it or interact with
+it. It was a select all if I remember."* Reproduced in Playwright: a right answer disables that question's `.ch input`s
+(paintItem, so a marked answer stays as marked); the "another" mounts in `#ag<id>` inside the same `[data-host]`, so the one
+line disabled its checkboxes too. Every select-all and multiple-choice "another" from a right base was dead (wrong first,
+right later, Try another — her path); from a wrong base the first one worked; typed answers were never affected. ui.js locks
+only inputs whose nearest `[data-host]` is the host. `check/page.js` 4b runs her path and names a locked "another"; it was
+run against the pre-fix page and fails there. A7 U3, A7 U4, M7 U4 and teacher copies rebuilt at every check passing;
+republished at their links (A7 U4 Version 13, A7 U3 Version 24, M7 U4 Version 16; teacher copies 8, 4, 5), on the site, and the
+Google Sites files sent. Not changed: nothing else in the kit.
+
 **A relationship-building day: M7 back a day with 9.06 and 9.07 as one day (ruling 50); A7's exam stays Monday**
 (Windmill `0f5a85d`, `ec508e0`, `300c73b`; A7 `637bd1c`; M7 `7b91732`, `1ed29d8`; mrshaffer-site `0368ec2`, deployed).
 Croix, 6:59 pm: *"Today was an off day for periods 3, 4, and 5. We did had a relationship building day so no math at all.
@@ -1362,5 +1374,6 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
 - 22 Oct (late): Croix: "Is there a way I can add in that variation factor? …" → the kit's variety check (practice/kit/check/variety.js, floor 100 versions a part); A7 U3, A7 U4, M7 U4 widened and republished. Windmill 8d91d6c, ce249a3; A7 6d502a2, 8922f29; M7 7db536d.
 - 23 Oct (7:17 am): Croix: "Can you get rid of the still a point comment. And also the with help comment…" → a small gray bulb marks a Hint-solved question; no words about help. Windmill c9cf1ae; A7 5d5e582; M7 5f13b7e; site 40f16dc, 7173355, 2cfae15.
+- 23 Oct (8:01 pm): Croix: "The a7 unit 4 practice failed today…" → the right answer's lock reached the Try another inside its box (choice questions only); kit a69d5e5, 9d9a20d; all three units and teacher copies rebuilt and republished; site c3363c0.
 - 23 Oct (6:59 pm): Croix: "Today was an off day for periods 3, 4, and 5… M7 is getting pushed back a day…" → ruling 50, 9.06+07 one day Thu 29 Oct (his choice of four); A7 exam stays Mon 26, 4.07+08 untaught; kit IXL rules 5–6. Windmill 0f5a85d, ec508e0, 300c73b; A7 637bd1c; M7 7b91732, 1ed29d8; site 0368ec2; M7 Schedule doc rev 35; phone page V7.
 - 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
