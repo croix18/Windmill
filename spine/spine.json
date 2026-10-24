@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-24T16:48:26-04:00",
+ "generatedAt": "2026-10-24T17:27:23-04:00",
  "sources": {
-  "a7": "406a25dc",
-  "m7": "27ae670",
+  "a7": "f8972665",
+  "m7": "5eb5197",
   "deckhand": "b37ba97"
  },
  "year": {
@@ -7380,7 +7380,7 @@
      {
       "name": "Graph a proportional relationship: word problems",
       "code": "FJW",
-      "due": "2026-12-01"
+      "due": "2026-12-02"
      }
     ]
    },
@@ -7396,22 +7396,22 @@
      {
       "name": "Evaluate powers",
       "code": "SZQ",
-      "due": "2026-12-01"
+      "due": "2026-12-02"
      },
      {
       "name": "Multiplication with exponents",
       "code": "5SK",
-      "due": "2026-12-01"
+      "due": "2026-12-02"
      },
      {
       "name": "Power rule",
       "code": "8DA",
-      "due": "2026-12-01"
+      "due": "2026-12-02"
      },
      {
       "name": "Understanding exponents",
       "code": "BFA",
-      "due": "2026-12-01"
+      "due": "2026-12-02"
      }
     ]
    }
@@ -7454,56 +7454,20 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "7.02+03",
-    "title": "Constant of proportionality (table, graph, description)",
+    "kind": "off",
+    "code": "off",
+    "title": "FAST PM2 (ELA) — no class",
     "unit": 7,
-    "benchmarks": [
-     "MA.7.AR.4.2"
-    ],
-    "ixl": [
-     {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "RMH",
-      "due": "2026-12-02"
-     },
-     {
-      "name": "Find the constant of proportionality from a table",
-      "code": "LKZ",
-      "due": "2026-12-02"
-     },
-     {
-      "name": "Find the constant of proportionality from a graph",
-      "code": "ZUT",
-      "due": "2026-12-02"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "8.02",
-    "title": "Quotient Laws of Exponents",
+    "kind": "off",
+    "code": null,
+    "title": "FAST PM2 (ELA) — no class",
     "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.1.1"
-    ],
-    "ixl": [
-     {
-      "name": "Powers with negative bases",
-      "code": "WFW",
-      "due": "2026-12-02"
-     },
-     {
-      "name": "Division with exponents",
-      "code": "XNC",
-      "due": "2026-12-02"
-     },
-     {
-      "name": "Identify equivalent expressions involving whole-number exponents",
-      "code": "KBE",
-      "due": "2026-12-02"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-02": {
@@ -7545,6 +7509,96 @@
    "events": [],
    "acc": {
     "kind": "lesson",
+    "code": "7.02+03",
+    "title": "Constant of proportionality (table, graph, description)",
+    "unit": 7,
+    "benchmarks": [
+     "MA.7.AR.4.2"
+    ],
+    "ixl": [
+     {
+      "name": "Interpret graphs of proportional relationships",
+      "code": "RMH",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Find the constant of proportionality from a table",
+      "code": "LKZ",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Find the constant of proportionality from a graph",
+      "code": "ZUT",
+      "due": "2026-12-03"
+     }
+    ]
+   },
+   "on": {
+    "kind": "lesson",
+    "code": "8.02",
+    "title": "Quotient Laws of Exponents",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.NSO.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Powers with negative bases",
+      "code": "WFW",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Division with exponents",
+      "code": "XNC",
+      "due": "2026-12-03"
+     },
+     {
+      "name": "Identify equivalent expressions involving whole-number exponents",
+      "code": "KBE",
+      "due": "2026-12-03"
+     }
+    ]
+   }
+  },
+  "2026-12-03": {
+   "week": "Black Week",
+   "wednesday": false,
+   "quarter": 2,
+   "periods": [
+    {
+     "period": 6,
+     "start": "9:20",
+     "end": "10:13"
+    },
+    {
+     "period": 5,
+     "start": "10:16",
+     "end": "11:09"
+    },
+    {
+     "period": 3,
+     "start": "11:46",
+     "end": "12:39"
+    },
+    {
+     "period": 4,
+     "start": "1:15",
+     "end": "2:08"
+    },
+    {
+     "period": 2,
+     "start": "2:11",
+     "end": "3:04"
+    },
+    {
+     "period": 1,
+     "start": "3:07",
+     "end": "4:00"
+    }
+   ],
+   "events": [],
+   "acc": {
+    "kind": "lesson",
     "code": "7.04",
     "title": "Is it proportional?",
     "unit": 7,
@@ -7556,12 +7610,12 @@
      {
       "name": "Identify proportional relationships by graphing",
       "code": "AAN",
-      "due": "2026-12-03"
+      "due": "2026-12-04"
      },
      {
       "name": "Identify proportional relationships in tables and graphs",
       "code": "VZK",
-      "due": "2026-12-03"
+      "due": "2026-12-04"
      }
     ]
    },
@@ -7577,12 +7631,12 @@
      {
       "name": "Evaluate expressions using properties of exponents",
       "code": "ZE9",
-      "due": "2026-12-03"
+      "due": "2026-12-04"
      }
     ]
    }
   },
-  "2026-12-03": {
+  "2026-12-04": {
    "week": "Black Week",
    "wednesday": false,
    "quarter": 2,
@@ -7631,17 +7685,17 @@
      {
       "name": "Write equations for proportional relationships from tables",
       "code": "6GU",
-      "due": "2026-12-04"
+      "due": "2026-12-07"
      },
      {
       "name": "Write equations for proportional relationships from graphs",
       "code": "JKH",
-      "due": "2026-12-04"
+      "due": "2026-12-07"
      },
      {
       "name": "Write and solve equations for proportional relationships",
       "code": "VKK",
-      "due": "2026-12-04"
+      "due": "2026-12-07"
      }
     ]
    },
@@ -7657,91 +7711,6 @@
      {
       "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
       "code": "2XW",
-      "due": "2026-12-04"
-     }
-    ]
-   }
-  },
-  "2026-12-04": {
-   "week": "Black Week",
-   "wednesday": false,
-   "quarter": 2,
-   "periods": [
-    {
-     "period": 6,
-     "start": "9:20",
-     "end": "10:13"
-    },
-    {
-     "period": 5,
-     "start": "10:16",
-     "end": "11:09"
-    },
-    {
-     "period": 3,
-     "start": "11:46",
-     "end": "12:39"
-    },
-    {
-     "period": 4,
-     "start": "1:15",
-     "end": "2:08"
-    },
-    {
-     "period": 2,
-     "start": "2:11",
-     "end": "3:04"
-    },
-    {
-     "period": 1,
-     "start": "3:07",
-     "end": "4:00"
-    }
-   ],
-   "events": [],
-   "acc": {
-    "kind": "lesson",
-    "code": "7.07",
-    "title": "Comparing proportional relationships",
-    "unit": 7,
-    "benchmarks": [
-     "MA.7.AR.4.5"
-    ],
-    "ixl": [
-     {
-      "name": "Compare proportional relationships represented in different ways",
-      "code": "5A9",
-      "due": "2026-12-07"
-     }
-    ]
-   },
-   "on": {
-    "kind": "lesson",
-    "code": "8.05+06",
-    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
-    "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate numerical expressions involving rational numbers",
-      "code": "KG2",
-      "due": "2026-12-07"
-     },
-     {
-      "name": "Evaluate numerical expressions involving decimals",
-      "code": "FNM",
-      "due": "2026-12-07"
-     },
-     {
-      "name": "Evaluate numerical expressions involving fractions",
-      "code": "XXQ",
-      "due": "2026-12-07"
-     },
-     {
-      "name": "Evaluate numerical expressions involving exponents",
-      "code": "D7P",
       "due": "2026-12-07"
      }
     ]
@@ -7785,20 +7754,51 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "7.X",
-    "title": "Unit 7 exam",
+    "kind": "lesson",
+    "code": "7.07",
+    "title": "Comparing proportional relationships",
     "unit": 7,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.AR.4.5"
+    ],
+    "ixl": [
+     {
+      "name": "Compare proportional relationships represented in different ways",
+      "code": "5A9",
+      "due": "2026-12-09"
+     }
+    ]
    },
    "on": {
-    "kind": "spiral",
-    "code": null,
-    "title": "Spiral / FAST practice day",
-    "unit": null,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "8.05+06",
+    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
+    "unit": 8,
+    "benchmarks": [
+     "MA.7.NSO.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Evaluate numerical expressions involving rational numbers",
+      "code": "KG2",
+      "due": "2026-12-09"
+     },
+     {
+      "name": "Evaluate numerical expressions involving decimals",
+      "code": "FNM",
+      "due": "2026-12-09"
+     },
+     {
+      "name": "Evaluate numerical expressions involving fractions",
+      "code": "XXQ",
+      "due": "2026-12-09"
+     },
+     {
+      "name": "Evaluate numerical expressions involving exponents",
+      "code": "D7P",
+      "due": "2026-12-09"
+     }
+    ]
    }
   },
   "2026-12-08": {
@@ -7842,7 +7842,7 @@
     "kind": "off",
     "code": "off",
     "title": "FAST PM2 — no class",
-    "unit": null,
+    "unit": 7,
     "benchmarks": [],
     "ixl": []
    },
@@ -7893,19 +7893,11 @@
    ],
    "events": [],
    "acc": {
-    "kind": "pm3",
-    "code": "PM2-R1",
-    "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
-    "unit": null,
-    "benchmarks": [
-     "MA.8.NSO.1.1",
-     "MA.8.NSO.1.2",
-     "MA.8.NSO.1.3",
-     "MA.8.NSO.1.4",
-     "MA.8.NSO.1.5",
-     "MA.8.NSO.1.6",
-     "MA.8.NSO.1.7"
-    ],
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
+    "unit": 7,
+    "benchmarks": [],
     "ixl": []
    },
    "on": {
@@ -7955,21 +7947,11 @@
    ],
    "events": [],
    "acc": {
-    "kind": "pm3",
-    "code": "PM2-R2",
-    "title": "Semester review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
-    "unit": null,
-    "benchmarks": [
-     "MA.8.AR.2.1",
-     "MA.8.AR.2.2",
-     "MA.8.AR.2.3",
-     "MA.8.GR.1.1",
-     "MA.8.GR.1.2",
-     "MA.8.GR.1.3",
-     "MA.8.GR.1.4",
-     "MA.8.GR.1.5",
-     "MA.8.GR.1.6"
-    ],
+    "kind": "exam",
+    "code": "7.X",
+    "title": "Unit 7 exam",
+    "unit": 7,
+    "benchmarks": [],
     "ixl": []
    },
    "on": {
@@ -8020,16 +8002,17 @@
    "events": [],
    "acc": {
     "kind": "pm3",
-    "code": "PM2-R3",
-    "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
+    "code": "PM2-R1",
+    "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
     "unit": null,
     "benchmarks": [
-     "MA.8.AR.3.1",
-     "MA.8.AR.3.2",
-     "MA.8.AR.3.3",
-     "MA.8.AR.3.4",
-     "MA.8.AR.3.5",
-     "MA.8.AR.1.1"
+     "MA.8.NSO.1.1",
+     "MA.8.NSO.1.2",
+     "MA.8.NSO.1.3",
+     "MA.8.NSO.1.4",
+     "MA.8.NSO.1.5",
+     "MA.8.NSO.1.6",
+     "MA.8.NSO.1.7"
     ],
     "ixl": []
    },
@@ -8080,11 +8063,21 @@
    ],
    "events": [],
    "acc": {
-    "kind": "spiral",
-    "code": "spiral",
-    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
-    "unit": 8,
-    "benchmarks": [],
+    "kind": "pm3",
+    "code": "PM2-R2",
+    "title": "Semester review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
+    "unit": null,
+    "benchmarks": [
+     "MA.8.AR.2.1",
+     "MA.8.AR.2.2",
+     "MA.8.AR.2.3",
+     "MA.8.GR.1.1",
+     "MA.8.GR.1.2",
+     "MA.8.GR.1.3",
+     "MA.8.GR.1.4",
+     "MA.8.GR.1.5",
+     "MA.8.GR.1.6"
+    ],
     "ixl": []
    },
    "on": {
@@ -8134,11 +8127,18 @@
    ],
    "events": [],
    "acc": {
-    "kind": "spiral",
-    "code": "spiral",
-    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
-    "unit": 8,
-    "benchmarks": [],
+    "kind": "pm3",
+    "code": "PM2-R3",
+    "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
+    "unit": null,
+    "benchmarks": [
+     "MA.8.AR.3.1",
+     "MA.8.AR.3.2",
+     "MA.8.AR.3.3",
+     "MA.8.AR.3.4",
+     "MA.8.AR.3.5",
+     "MA.8.AR.1.1"
+    ],
     "ixl": []
    },
    "on": {
@@ -15827,6 +15827,13 @@
      "unit": null,
      "meets": true
     },
+    "2026-12-01": {
+     "kind": "off",
+     "code": "off",
+     "title": "FAST PM2 (ELA) — no class",
+     "unit": null,
+     "meets": false
+    },
     "2026-12-08": {
      "kind": "off",
      "code": "off",
@@ -16875,6 +16882,13 @@
      "kind": "off",
      "code": null,
      "title": "Relationship-building day — no math",
+     "unit": null,
+     "meets": false
+    },
+    "2026-12-01": {
+     "kind": "off",
+     "code": null,
+     "title": "FAST PM2 (ELA) — no class",
      "unit": null,
      "meets": false
     },
