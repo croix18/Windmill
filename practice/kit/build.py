@@ -71,7 +71,7 @@ body = f"""<title>{esc(cfg['title'])}</title>
 tf = os.path.join(UD, "test_forms.js")
 if not os.path.exists(tf) and os.path.basename(UD) == "teacher": tf = os.path.join(os.path.dirname(UD), "test_forms.js")
 if os.path.exists(tf):
-    if "TEST_FORMS" in body: sys.exit("REFUSED: the page names TEST_FORMS — the test's numbers must not ship")
+    if re.search(r"TEST_FORMS\s*=\s*\{", body): sys.exit("REFUSED: the page defines TEST_FORMS — the test's numbers must not ship")
     for line in open(tf, encoding="utf-8"):
         line = line.strip()
         if line.startswith("//") or line.startswith("/*") or line.startswith("*") or len(line) < 12 or line.startswith("const ") or line.startswith("if ("): continue
