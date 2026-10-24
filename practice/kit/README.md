@@ -10,8 +10,8 @@ in the code; the four reports are in the Windmill HANDOFF.
 ## What a student gets
 - **A new set of numbers every time.** The questions are the same kinds as the unit test, in the same order, with the same
   points. `#set-4821` in the link always opens set 4821, so a teacher can say "everyone do set 4821".
-  - No question is ever one from the real test forms, including the same question written backwards or with its factors
-    swapped.
+  - The real test forms' numbers are not on the page (24 Oct 2026; see "Making the next unit"). A unit built before ruling 49
+    keeps its forms' numbers in `test_forms.js` for its checks, which count the parts that print a test part's numbers.
   - **A set never changes under a student.** Each question slot draws from its own random stream (`core.js`: `slot`, `draw`),
     and `check/lock.js` holds the questions of sets 1–300. If any set changes, the unit's `contentVersion` must be bumped.
     Saved answers on a changed set are then cleared, with a notice.
@@ -27,19 +27,31 @@ in the code; the four reports are in the Windmill HANDOFF.
   - The picture appears at the step it explains. The walkthrough ends with the answer, as Croix chose.
 - **After an answer:**
   - **Show me how** (after a try): every step, the step where the student's answer went off, and "See why it works".
-  - **Try another like this:** the same kind of question with new numbers, never a repeat. Two right in a row on your
-    own clears it from misses.
+  - **Try another like this:** the same kind of question with new numbers, never a repeat. It is offered after a miss and
+    whenever the question's point is not earned yet (then as the primary button), and on a fresh one after any check.
   - **Next ↓** after a right answer. Focus never jumps by itself.
-- **Scoring:** right on the first check is a point, Hint or not. A question solved with the Hint says the same "✓ Correct on
-  the first try" and gets a small gray bulb beside it — the Hint button's own icon, no words. The bar counts them beside the
-  score: "9 right first try 💡2 · 12 of 36 done"; the results table has a bulb column. Croix, 23 Oct 2026: *"Can you get rid of
-  the still a point comment. And also the with help comment. Have a more dignified or subtle way to mark the with help
-  questions. Like I'm not trying to discourage the students from using the help button when they need it."* (Before: "✓
-  Correct, with help — still a point" and "(2 with help)".) Each section counts up ("4 / 9", then "9 / 9 ✓").
+- **Scoring — the point comes from one on your own (24 Oct 2026).** A question's point is earned by a right answer on the
+  first check with no Hint and no Show me how — on the question itself, or on a fresh one of the same kind ("Try another like
+  this") solved that way. Help is unlimited and never shamed: a question solved with the Hint says "✓ Correct" with the small
+  gray bulb (the Hint button's own icon, no words) and "One on your own earns the point."; its fresh one, right unaided, earns
+  it, and the question's card then says "point earned". A fresh one answered wrong and then corrected earns nothing; the next
+  fresh one can. Two measures, never conflated: the bar and the end panel lead with the points earned ("9 earned 💡2 · 12 of
+  36 done"; "9 / 36 points earned on your own"); "Right on the first try: 7 / 36" is kept beneath as what happened on the
+  original first check, and is never rewritten. Help after the point is earned changes nothing. Croix brought the rule from a
+  ChatGPT review of the A7 Unit 4 page (24 Oct): "The student may learn with as much help as needed. The final practice point
+  must represent a complete and independent solution to a fresh problem, not merely recognition of an answer they just saw."
+  (Before, from 11 Oct: right on the first check was a point, Hint or not; 23 Oct: the bulb in place of "with help".) Each
+  section counts up ("4 / 9", then "9 / 9 ✓").
+  - **One rule for misses:** a first check right with no help is one in a row; two in a row clear the miss. Any other first
+    check — wrong, or right after help — adds the miss and starts the count over. The question itself and its fresh ones count
+    alike (before: one unaided first try on the question cleared it; a fresh one needed two). A blank left at Finish in
+    Check-as-I-go is a miss too (before: "not done", and not practised).
+  - *Like the real test* is untouched: no help before Finish, so its score is what was right at Finish; help and fresh ones
+    after Finish never change it.
 - **Practice menu:** whole test, one part (two rounds with new numbers), or my misses (new numbers; one round if there
   are more than 8).
 - **The end:**
-  - "Every one on the first try." when it's perfect.
+  - "Every one on the first try." when it's perfect; "Every point earned." when every point came, some from a fresh one.
   - Otherwise, jump links to the parts not right yet, "Practice my misses", and the parts under 80%.
   - "Last time: … Today: … (+6)".
 - **The clock:** it starts with the first answer and pauses when the page is hidden (Resume brings it back).
