@@ -88,8 +88,11 @@ keyText(part) → what a student would type (for the checks)
 ```
 
 ## Making the next unit (the skill "practice-test-from-unit-test" walks through it)
-1. Read the unit's test spec (`build/uN/unit.py`): every question, its points, its numbers on Form A, Form B and the
-   paper practice form, and the rulings. Transfer items stay off the practice page.
+1. Read the unit's test spec (`build/uN/unit.py`): every question, its points, and the rulings. Transfer items stay off the
+   practice page. **The test's own numbers never go on the page** (24 Oct 2026): a unit with fixed forms keeps them in
+   `test_forms.js`, which only a check may load (and then only as a count — a check must generate what the page generates);
+   `build.py` refuses a page that holds that file's name or a line of its data. Since ruling 49 the test is a random set of
+   the page, so a new unit has no forms to keep off it.
 2. Copy the closest unit folder. Write each question kind as a generator plus its family: models, rule, solution and walk.
 3. Fill in `unit.json` and `unit.js`. Set `contentVersion: 1`.
 4. Write the unit's checks to the same standard, plus the sympy oracle.
@@ -98,9 +101,11 @@ keyText(part) → what a student would type (for the checks)
    100 over 20,000 set numbers. Widen its numbers inside the benchmark's limits — the same question, more versions.
 6. Run the Apple review (four reviewers), fix what it finds, and run again.
 7. Publish the artifact and send the download.
+8. **No second language on a new unit** (Croix, 24 Oct 2026: "Drop the Portuguese. You don't have to change it retroactively
+   but you don't need it going forward."): no `"second"` in `unit.json`, no `pt.js`. A7 Units 3–4 and M7 Unit 4 keep theirs.
 
 
-## A second language under the English (16 Oct 2026)
+## A second language under the English (16 Oct 2026; not for new units since 24 Oct)
 Croix: *"a Portuguese version of the question and explanation for my kids from Brazil … toggle it on and off."* He chose
 everything on the page, with both languages stacked (the English stays; the translation sits under each line).
 

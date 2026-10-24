@@ -66,6 +66,16 @@ body = f"""<title>{esc(cfg['title'])}</title>
 <script>{rk('core.js')}</script>
 <script>{rk('bilingual.js')}</script>
 """ + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+# the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
+# holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
+tf = os.path.join(UD, "test_forms.js")
+if not os.path.exists(tf) and os.path.basename(UD) == "teacher": tf = os.path.join(os.path.dirname(UD), "test_forms.js")
+if os.path.exists(tf):
+    if "TEST_FORMS" in body: sys.exit("REFUSED: the page names TEST_FORMS — the test's numbers must not ship")
+    for line in open(tf, encoding="utf-8"):
+        line = line.strip()
+        if line.startswith("//") or line.startswith("/*") or line.startswith("*") or len(line) < 12 or line.startswith("const ") or line.startswith("if ("): continue
+        if line.rstrip(",") in body: sys.exit("REFUSED: the page holds a line of test_forms.js: " + line[:60])
 open(os.path.join(UD, cfg["file"]), "w", encoding="utf-8").write(body)
 title = body.split("\n", 1)[0]
 full = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
