@@ -1,10 +1,10 @@
 {
  "v": 1,
- "generatedAt": "2026-10-23T19:19:28-04:00",
+ "generatedAt": "2026-10-24T16:34:31-04:00",
  "sources": {
-  "a7": "5d5e582b",
-  "m7": "5f13b7e",
-  "deckhand": "411f496"
+  "a7": "827815c5",
+  "m7": "6371b4a",
+  "deckhand": "b37ba97"
  },
  "year": {
   "first": "2026-09-23",
@@ -5262,8 +5262,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "3.X1",
-    "title": "Unit 3 exam, day 1",
+    "code": "3.X",
+    "title": "Unit 3 exam",
     "unit": 3,
     "benchmarks": [],
     "ixl": []
@@ -5712,8 +5712,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "4.X1",
-    "title": "Unit 4 exam, day 1",
+    "code": "4.X",
+    "title": "Unit 4 exam",
     "unit": 4,
     "benchmarks": [],
     "ixl": []
@@ -6310,8 +6310,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "5.X1",
-    "title": "Unit 5 exam, day 1",
+    "code": "5.X",
+    "title": "Unit 5 exam",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -6381,12 +6381,25 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "5.X2",
-    "title": "Unit 5 exam, day 2",
-    "unit": 5,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "6.01+02",
+    "title": "Triangle Inequality Theorem; converse of the Pythagorean Theorem",
+    "unit": 6,
+    "benchmarks": [
+     "MA.8.GR.1.3"
+    ],
+    "ixl": [
+     {
+      "name": "Triangle inequality",
+      "code": "2N5",
+      "due": "2026-11-09"
+     },
+     {
+      "name": "Converse of the Pythagorean theorem: is it a right triangle?",
+      "code": "EQZ",
+      "due": "2026-11-09"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -6438,21 +6451,16 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "6.01+02",
-    "title": "Triangle Inequality Theorem; converse of the Pythagorean Theorem",
+    "code": "6.03",
+    "title": "Pythagorean Theorem (memorize)",
     "unit": 6,
     "benchmarks": [
-     "MA.8.GR.1.3"
+     "MA.8.GR.1.1"
     ],
     "ixl": [
      {
-      "name": "Triangle inequality",
-      "code": "2N5",
-      "due": "2026-11-10"
-     },
-     {
-      "name": "Converse of the Pythagorean theorem: is it a right triangle?",
-      "code": "EQZ",
+      "name": "Pythagorean theorem: find the missing leg or hypotenuse length",
+      "code": "MTM",
       "due": "2026-11-10"
      }
     ]
@@ -6535,16 +6543,16 @@
    ],
    "acc": {
     "kind": "lesson",
-    "code": "6.03",
-    "title": "Pythagorean Theorem (memorize)",
+    "code": "6.04",
+    "title": "Pythagorean Theorem in real-world problems",
     "unit": 6,
     "benchmarks": [
      "MA.8.GR.1.1"
     ],
     "ixl": [
      {
-      "name": "Pythagorean theorem: find the missing leg or hypotenuse length",
-      "code": "MTM",
+      "name": "Pythagorean theorem: word problems",
+      "code": "87U",
       "due": "2026-11-12"
      }
     ]
@@ -6654,16 +6662,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "6.04",
-    "title": "Pythagorean Theorem in real-world problems",
+    "code": "6.05",
+    "title": "Distance on the coordinate plane",
     "unit": 6,
     "benchmarks": [
-     "MA.8.GR.1.1"
+     "MA.8.GR.1.2"
     ],
     "ixl": [
      {
-      "name": "Pythagorean theorem: word problems",
-      "code": "87U",
+      "name": "Find the distance between two points on a horizontal or vertical line",
+      "code": "L9V",
+      "due": "2026-11-13"
+     },
+     {
+      "name": "Find the distance between two points",
+      "code": "ZBP",
       "due": "2026-11-13"
      }
     ]
@@ -6731,21 +6744,16 @@
    ],
    "acc": {
     "kind": "lesson",
-    "code": "6.05",
-    "title": "Distance on the coordinate plane",
+    "code": "6.06",
+    "title": "Real-world coordinate-plane problems; perimeter",
     "unit": 6,
     "benchmarks": [
      "MA.8.GR.1.2"
     ],
     "ixl": [
      {
-      "name": "Find the distance between two points on a horizontal or vertical line",
-      "code": "L9V",
-      "due": "2026-11-16"
-     },
-     {
-      "name": "Find the distance between two points",
-      "code": "ZBP",
+      "name": "Pythagorean theorem: find the perimeter",
+      "code": "VGE",
       "due": "2026-11-16"
      }
     ]
@@ -6821,16 +6829,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "6.06",
-    "title": "Real-world coordinate-plane problems; perimeter",
+    "code": "6.07+08",
+    "title": "Similar triangles; indirect measurement",
     "unit": 6,
     "benchmarks": [
-     "MA.8.GR.1.2"
+     "MA.8.GR.2.4"
     ],
     "ixl": [
      {
-      "name": "Pythagorean theorem: find the perimeter",
-      "code": "VGE",
+      "name": "Side lengths of similar triangles",
+      "code": "QSK",
+      "due": "2026-11-17"
+     },
+     {
+      "name": "Similar triangles and indirect measurement",
+      "code": "88W",
+      "due": "2026-11-17"
+     },
+     {
+      "name": "Identify similar triangles",
+      "code": "6PD",
       "due": "2026-11-17"
      }
     ]
@@ -6890,30 +6908,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "6.07+08",
-    "title": "Similar triangles; indirect measurement",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 6,
-    "benchmarks": [
-     "MA.8.GR.2.4"
-    ],
-    "ixl": [
-     {
-      "name": "Side lengths of similar triangles",
-      "code": "QSK",
-      "due": "2026-11-18"
-     },
-     {
-      "name": "Similar triangles and indirect measurement",
-      "code": "88W",
-      "due": "2026-11-18"
-     },
-     {
-      "name": "Identify similar triangles",
-      "code": "6PD",
-      "due": "2026-11-18"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "lesson",
@@ -7029,8 +7029,8 @@
    ],
    "acc": {
     "kind": "exam",
-    "code": "6.X1",
-    "title": "Unit 6 exam, day 1",
+    "code": "6.X",
+    "title": "Unit 6 exam",
     "unit": 6,
     "benchmarks": [],
     "ixl": []
@@ -7084,9 +7084,9 @@
     "CSA (AR.2.2 plan)"
    ],
    "acc": {
-    "kind": "exam",
-    "code": "6.X2",
-    "title": "Unit 6 exam, day 2",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 6,
     "benchmarks": [],
     "ixl": []
@@ -7948,8 +7948,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "7.X1",
-    "title": "Unit 7 exam, day 1",
+    "code": "7.X",
+    "title": "Unit 7 exam",
     "unit": 7,
     "benchmarks": [],
     "ixl": []
@@ -8001,60 +8001,6 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "7.X2",
-    "title": "Unit 7 exam, day 2",
-    "unit": 7,
-    "benchmarks": [],
-    "ixl": []
-   },
-   "on": {
-    "kind": "exam",
-    "code": "8.X2",
-    "title": "Unit 8 assessment, day 2",
-    "unit": 8,
-    "benchmarks": [],
-    "ixl": []
-   }
-  },
-  "2026-12-14": {
-   "week": "Black Week",
-   "wednesday": false,
-   "quarter": 2,
-   "periods": [
-    {
-     "period": 6,
-     "start": "9:20",
-     "end": "10:13"
-    },
-    {
-     "period": 5,
-     "start": "10:16",
-     "end": "11:09"
-    },
-    {
-     "period": 3,
-     "start": "11:46",
-     "end": "12:39"
-    },
-    {
-     "period": 4,
-     "start": "1:15",
-     "end": "2:08"
-    },
-    {
-     "period": 2,
-     "start": "2:11",
-     "end": "3:04"
-    },
-    {
-     "period": 1,
-     "start": "3:07",
-     "end": "4:00"
-    }
-   ],
-   "events": [],
-   "acc": {
     "kind": "pm3",
     "code": "PM2-R1",
     "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
@@ -8071,15 +8017,15 @@
     "ixl": []
    },
    "on": {
-    "kind": "extra",
-    "code": null,
-    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
-    "unit": 5,
+    "kind": "exam",
+    "code": "8.X2",
+    "title": "Unit 8 assessment, day 2",
+    "unit": 8,
     "benchmarks": [],
     "ixl": []
    }
   },
-  "2026-12-15": {
+  "2026-12-14": {
    "week": "Black Week",
    "wednesday": false,
    "quarter": 2,
@@ -8143,6 +8089,67 @@
     "ixl": []
    }
   },
+  "2026-12-15": {
+   "week": "Black Week",
+   "wednesday": false,
+   "quarter": 2,
+   "periods": [
+    {
+     "period": 6,
+     "start": "9:20",
+     "end": "10:13"
+    },
+    {
+     "period": 5,
+     "start": "10:16",
+     "end": "11:09"
+    },
+    {
+     "period": 3,
+     "start": "11:46",
+     "end": "12:39"
+    },
+    {
+     "period": 4,
+     "start": "1:15",
+     "end": "2:08"
+    },
+    {
+     "period": 2,
+     "start": "2:11",
+     "end": "3:04"
+    },
+    {
+     "period": 1,
+     "start": "3:07",
+     "end": "4:00"
+    }
+   ],
+   "events": [],
+   "acc": {
+    "kind": "pm3",
+    "code": "PM2-R3",
+    "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
+    "unit": null,
+    "benchmarks": [
+     "MA.8.AR.3.1",
+     "MA.8.AR.3.2",
+     "MA.8.AR.3.3",
+     "MA.8.AR.3.4",
+     "MA.8.AR.3.5",
+     "MA.8.AR.1.1"
+    ],
+    "ixl": []
+   },
+   "on": {
+    "kind": "extra",
+    "code": null,
+    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+    "unit": 5,
+    "benchmarks": [],
+    "ixl": []
+   }
+  },
   "2026-12-16": {
    "week": "Black Week",
    "wednesday": true,
@@ -8181,18 +8188,11 @@
    ],
    "events": [],
    "acc": {
-    "kind": "pm3",
-    "code": "PM2-R3",
-    "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
-    "unit": null,
-    "benchmarks": [
-     "MA.8.AR.3.1",
-     "MA.8.AR.3.2",
-     "MA.8.AR.3.3",
-     "MA.8.AR.3.4",
-     "MA.8.AR.3.5",
-     "MA.8.AR.1.1"
-    ],
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
+    "unit": 8,
+    "benchmarks": [],
     "ixl": []
    },
    "on": {
@@ -9577,8 +9577,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "8/9.X1",
-    "title": "Units 8–9 exam, day 1",
+    "code": "8/9.X",
+    "title": "Units 8–9 exam",
     "unit": 9,
     "benchmarks": [],
     "ixl": []
@@ -9630,12 +9630,40 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "8/9.X2",
-    "title": "Units 8–9 exam, day 2",
-    "unit": 9,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "10.01",
+    "title": "Proportional relationships revisited (linear ⇒ proportional?)",
+    "unit": 10,
+    "benchmarks": [
+     "MA.8.AR.3.1"
+    ],
+    "ixl": [
+     {
+      "name": "Find the constant of proportionality from a table",
+      "code": "ZCK",
+      "due": "2027-01-25"
+     },
+     {
+      "name": "Identify proportional relationships by graphing",
+      "code": "RXD",
+      "due": "2027-01-25"
+     },
+     {
+      "name": "Identify proportional relationships",
+      "code": "Z64",
+      "due": "2027-01-25"
+     },
+     {
+      "name": "Write equations for proportional relationships from tables and graphs",
+      "code": "VXM",
+      "due": "2027-01-25"
+     },
+     {
+      "name": "Interpret graphs of proportional relationships",
+      "code": "Q96",
+      "due": "2027-01-25"
+     }
+    ]
    },
    "on": {
     "kind": "exam",
@@ -9685,36 +9713,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.01",
-    "title": "Proportional relationships revisited (linear ⇒ proportional?)",
+    "code": "10.02+03",
+    "title": "Slope from two points, graphs, tables",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.1"
+     "MA.8.AR.3.2"
     ],
     "ixl": [
      {
-      "name": "Find the constant of proportionality from a table",
-      "code": "ZCK",
+      "name": "Find the slope from two points",
+      "code": "ZAC",
       "due": "2027-01-26"
      },
      {
-      "name": "Identify proportional relationships by graphing",
-      "code": "RXD",
+      "name": "Find the slope from a table",
+      "code": "GSB",
       "due": "2027-01-26"
      },
      {
-      "name": "Identify proportional relationships",
-      "code": "Z64",
-      "due": "2027-01-26"
-     },
-     {
-      "name": "Write equations for proportional relationships from tables and graphs",
-      "code": "VXM",
-      "due": "2027-01-26"
-     },
-     {
-      "name": "Interpret graphs of proportional relationships",
-      "code": "Q96",
+      "name": "Find the slope from a graph",
+      "code": "Q94",
       "due": "2027-01-26"
      }
     ]
@@ -9769,26 +9787,22 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.02+03",
-    "title": "Slope from two points, graphs, tables",
+    "code": "10.04",
+    "title": "Slope in context",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.2"
+     "MA.8.AR.3.2",
+     "MA.8.AR.3.5"
     ],
     "ixl": [
      {
-      "name": "Find the slope from two points",
-      "code": "ZAC",
+      "name": "Rate of change of a linear function: graphs",
+      "code": "ZPF",
       "due": "2027-01-27"
      },
      {
-      "name": "Find the slope from a table",
-      "code": "GSB",
-      "due": "2027-01-27"
-     },
-     {
-      "name": "Find the slope from a graph",
-      "code": "Q94",
+      "name": "Rate of change of a linear function: tables",
+      "code": "8FE",
       "due": "2027-01-27"
      }
     ]
@@ -9843,22 +9857,36 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.04",
-    "title": "Slope in context",
+    "code": "10.05",
+    "title": "Slope-intercept form; graph a line",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.2",
-     "MA.8.AR.3.5"
+     "MA.8.AR.3.4"
     ],
     "ixl": [
      {
-      "name": "Rate of change of a linear function: graphs",
-      "code": "ZPF",
+      "name": "Slope-intercept form: find the slope and y-intercept",
+      "code": "U55",
       "due": "2027-01-28"
      },
      {
-      "name": "Rate of change of a linear function: tables",
-      "code": "8FE",
+      "name": "Graph a line using slope",
+      "code": "FSV",
+      "due": "2027-01-28"
+     },
+     {
+      "name": "Graph a line from an equation in slope-intercept form",
+      "code": "W5E",
+      "due": "2027-01-28"
+     },
+     {
+      "name": "Write a linear equation from a slope and y-intercept",
+      "code": "WHP",
+      "due": "2027-01-28"
+     },
+     {
+      "name": "Compare linear functions: tables, graphs, and equations",
+      "code": "N7D",
       "due": "2027-01-28"
      }
     ]
@@ -9919,36 +9947,31 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.05",
-    "title": "Slope-intercept form; graph a line",
+    "code": "10.06",
+    "title": "Graphing from tables and contexts",
     "unit": 10,
     "benchmarks": [
      "MA.8.AR.3.4"
     ],
     "ixl": [
      {
-      "name": "Slope-intercept form: find the slope and y-intercept",
-      "code": "U55",
+      "name": "Complete a table and graph a linear function",
+      "code": "DC2",
       "due": "2027-01-29"
      },
      {
-      "name": "Graph a line using slope",
-      "code": "FSV",
+      "name": "Complete a table and make a graph: word problems",
+      "code": "T7R",
       "due": "2027-01-29"
      },
      {
-      "name": "Graph a line from an equation in slope-intercept form",
-      "code": "W5E",
+      "name": "Complete a table for a linear function",
+      "code": "D9B",
       "due": "2027-01-29"
      },
      {
-      "name": "Write a linear equation from a slope and y-intercept",
-      "code": "WHP",
-      "due": "2027-01-29"
-     },
-     {
-      "name": "Compare linear functions: tables, graphs, and equations",
-      "code": "N7D",
+      "name": "Graph a line from an equation in standard form",
+      "code": "7MZ",
       "due": "2027-01-29"
      }
     ]
@@ -10014,31 +10037,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.06",
-    "title": "Graphing from tables and contexts",
+    "code": "10.07+08",
+    "title": "Interpreting slope and intercept (graphs, equations, tables, descriptions; F↔C)",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.4"
+     "MA.8.AR.3.5"
     ],
     "ixl": [
      {
-      "name": "Complete a table and graph a linear function",
-      "code": "DC2",
+      "name": "Interpret the slope and y-intercept of a linear function",
+      "code": "H5B",
       "due": "2027-02-01"
      },
      {
-      "name": "Complete a table and make a graph: word problems",
-      "code": "T7R",
-      "due": "2027-02-01"
-     },
-     {
-      "name": "Complete a table for a linear function",
-      "code": "D9B",
-      "due": "2027-02-01"
-     },
-     {
-      "name": "Graph a line from an equation in standard form",
-      "code": "7MZ",
+      "name": "Interpret points on the graph of a linear function",
+      "code": "9E8",
       "due": "2027-02-01"
      }
     ]
@@ -10104,21 +10117,31 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.07+08",
-    "title": "Interpreting slope and intercept (graphs, equations, tables, descriptions; F↔C)",
+    "code": "10.09",
+    "title": "Writing equations of lines",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.5"
+     "MA.8.AR.3.3"
     ],
     "ixl": [
      {
-      "name": "Interpret the slope and y-intercept of a linear function",
-      "code": "H5B",
+      "name": "Write a linear equation from a graph",
+      "code": "WHM",
       "due": "2027-02-02"
      },
      {
-      "name": "Interpret points on the graph of a linear function",
-      "code": "9E8",
+      "name": "Write a linear function from a table",
+      "code": "UYY",
+      "due": "2027-02-02"
+     },
+     {
+      "name": "Write a linear equation from a slope and a point",
+      "code": "VKP",
+      "due": "2027-02-02"
+     },
+     {
+      "name": "Write a linear equation from two points",
+      "code": "2R9",
       "due": "2027-02-02"
      }
     ]
@@ -10173,31 +10196,17 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "10.09",
-    "title": "Writing equations of lines",
+    "code": "10.10",
+    "title": "Writing equations for contexts; lines of fit preview",
     "unit": 10,
     "benchmarks": [
-     "MA.8.AR.3.3"
+     "MA.8.AR.3.3",
+     "MA.8.AR.3.5"
     ],
     "ixl": [
      {
-      "name": "Write a linear equation from a graph",
-      "code": "WHM",
-      "due": "2027-02-03"
-     },
-     {
-      "name": "Write a linear function from a table",
-      "code": "UYY",
-      "due": "2027-02-03"
-     },
-     {
-      "name": "Write a linear equation from a slope and a point",
-      "code": "VKP",
-      "due": "2027-02-03"
-     },
-     {
-      "name": "Write a linear equation from two points",
-      "code": "2R9",
+      "name": "Write linear functions: word problems",
+      "code": "YK6",
       "due": "2027-02-03"
      }
     ]
@@ -10262,21 +10271,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "10.10",
-    "title": "Writing equations for contexts; lines of fit preview",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 10,
-    "benchmarks": [
-     "MA.8.AR.3.3",
-     "MA.8.AR.3.5"
-    ],
-    "ixl": [
-     {
-      "name": "Write linear functions: word problems",
-      "code": "YK6",
-      "due": "2027-02-04"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "lesson",
@@ -10344,8 +10344,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "10.X1",
-    "title": "Unit 10 exam, day 1",
+    "code": "10.X",
+    "title": "Unit 10 exam",
     "unit": 10,
     "benchmarks": [],
     "ixl": []
@@ -10410,12 +10410,30 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "10.X2",
-    "title": "Unit 10 exam, day 2",
-    "unit": 10,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "11.01",
+    "title": "Equations with like terms and the distributive property",
+    "unit": 11,
+    "benchmarks": [
+     "MA.8.AR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Solve equations involving like terms",
+      "code": "Q2B",
+      "due": "2027-02-08"
+     },
+     {
+      "name": "Solve equations using the distributive property",
+      "code": "QWE",
+      "due": "2027-02-08"
+     },
+     {
+      "name": "Solve two-step equations: word problems",
+      "code": "8CZ",
+      "due": "2027-02-08"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -10478,26 +10496,16 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.01",
-    "title": "Equations with like terms and the distributive property",
+    "code": "11.02",
+    "title": "Variables on both sides",
     "unit": 11,
     "benchmarks": [
      "MA.8.AR.2.1"
     ],
     "ixl": [
      {
-      "name": "Solve equations involving like terms",
-      "code": "Q2B",
-      "due": "2027-02-09"
-     },
-     {
-      "name": "Solve equations using the distributive property",
-      "code": "QWE",
-      "due": "2027-02-09"
-     },
-     {
-      "name": "Solve two-step equations: word problems",
-      "code": "8CZ",
+      "name": "Solve equations with variables on both sides",
+      "code": "ZYL",
       "due": "2027-02-09"
      }
     ]
@@ -10552,16 +10560,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.02",
-    "title": "Variables on both sides",
+    "code": "11.03",
+    "title": "One, none, infinitely many solutions",
     "unit": 11,
     "benchmarks": [
      "MA.8.AR.2.1"
     ],
     "ixl": [
      {
-      "name": "Solve equations with variables on both sides",
-      "code": "ZYL",
+      "name": "Find the number of solutions",
+      "code": "XDE",
+      "due": "2027-02-10"
+     },
+     {
+      "name": "Create equations with no solutions or infinitely many solutions",
+      "code": "7TY",
       "due": "2027-02-10"
      }
     ]
@@ -10614,21 +10627,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.03",
-    "title": "One, none, infinitely many solutions",
+    "code": "11.04",
+    "title": "Multi-step equations",
     "unit": 11,
     "benchmarks": [
      "MA.8.AR.2.1"
     ],
     "ixl": [
      {
-      "name": "Find the number of solutions",
-      "code": "XDE",
+      "name": "Solve multi-step equations",
+      "code": "55K",
       "due": "2027-02-11"
      },
      {
-      "name": "Create equations with no solutions or infinitely many solutions",
-      "code": "7TY",
+      "name": "Solve multi-step equations: complete the solution",
+      "code": "PGH",
+      "due": "2027-02-11"
+     },
+     {
+      "name": "Solve equations: mixed review",
+      "code": "HZZ",
       "due": "2027-02-11"
      }
     ]
@@ -10681,26 +10699,27 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.04",
-    "title": "Multi-step equations",
+    "code": "11.05+06",
+    "title": "Systems: which points are solutions; how many solutions",
     "unit": 11,
     "benchmarks": [
-     "MA.8.AR.2.1"
+     "MA.8.AR.4.1",
+     "MA.8.AR.4.2"
     ],
     "ixl": [
      {
-      "name": "Solve multi-step equations",
-      "code": "55K",
+      "name": "Is (x, y) a solution to the system of equations?",
+      "code": "N46",
       "due": "2027-02-12"
      },
      {
-      "name": "Solve multi-step equations: complete the solution",
-      "code": "PGH",
+      "name": "Find the number of solutions to a system of equations by graphing",
+      "code": "AGZ",
       "due": "2027-02-12"
      },
      {
-      "name": "Solve equations: mixed review",
-      "code": "HZZ",
+      "name": "Solve a system of equations in slope-intercept form",
+      "code": "9Z8",
       "due": "2027-02-12"
      }
     ]
@@ -10761,27 +10780,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.05+06",
-    "title": "Systems: which points are solutions; how many solutions",
+    "code": "11.07",
+    "title": "Solving systems by graphing",
     "unit": 11,
     "benchmarks": [
-     "MA.8.AR.4.1",
-     "MA.8.AR.4.2"
+     "MA.8.AR.4.3"
     ],
     "ixl": [
      {
-      "name": "Is (x, y) a solution to the system of equations?",
-      "code": "N46",
+      "name": "Solve a system of equations by graphing",
+      "code": "C8X",
       "due": "2027-02-16"
      },
      {
-      "name": "Find the number of solutions to a system of equations by graphing",
-      "code": "AGZ",
-      "due": "2027-02-16"
-     },
-     {
-      "name": "Solve a system of equations in slope-intercept form",
-      "code": "9Z8",
+      "name": "Write a system of equations given a graph",
+      "code": "TS7",
       "due": "2027-02-16"
      }
     ]
@@ -10875,21 +10888,16 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.07",
-    "title": "Solving systems by graphing",
+    "code": "11.08",
+    "title": "Systems in context (approximate solutions)",
     "unit": 11,
     "benchmarks": [
      "MA.8.AR.4.3"
     ],
     "ixl": [
      {
-      "name": "Solve a system of equations by graphing",
-      "code": "C8X",
-      "due": "2027-02-17"
-     },
-     {
-      "name": "Write a system of equations given a graph",
-      "code": "TS7",
+      "name": "Solve a system of equations by graphing: word problems",
+      "code": "W9J",
       "due": "2027-02-17"
      }
     ]
@@ -10949,20 +10957,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "11.08",
-    "title": "Systems in context (approximate solutions)",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 11,
-    "benchmarks": [
-     "MA.8.AR.4.3"
-    ],
-    "ixl": [
-     {
-      "name": "Solve a system of equations by graphing: word problems",
-      "code": "W9J",
-      "due": "2027-02-18"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "lesson",
@@ -11020,8 +11020,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "11.X1",
-    "title": "Unit 11 exam, day 1",
+    "code": "11.X",
+    "title": "Unit 11 exam",
     "unit": 11,
     "benchmarks": [],
     "ixl": []
@@ -11091,9 +11091,9 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "11.X2",
-    "title": "Unit 11 exam, day 2",
+    "kind": "flex",
+    "code": "flex",
+    "title": "Flex day — reteach from exam evidence, or absorb a lost day",
     "unit": 11,
     "benchmarks": [],
     "ixl": []
@@ -11158,12 +11158,25 @@
    ],
    "events": [],
    "acc": {
-    "kind": "flex",
-    "code": "flex",
-    "title": "Flex day — reteach from exam evidence, or absorb a lost day",
-    "unit": 11,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "12.01+02",
+    "title": "Relations; domain and range",
+    "unit": 12,
+    "benchmarks": [
+     "MA.8.F.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Relations: convert between mappings, tables, graphs, and ordered pairs",
+      "code": "LQJ",
+      "due": "2027-02-23"
+     },
+     {
+      "name": "Domain and range of relations",
+      "code": "T7P",
+      "due": "2027-02-23"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -11231,21 +11244,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.01+02",
-    "title": "Relations; domain and range",
+    "code": "12.03",
+    "title": "Is it a function?",
     "unit": 12,
     "benchmarks": [
      "MA.8.F.1.1"
     ],
     "ixl": [
      {
-      "name": "Relations: convert between mappings, tables, graphs, and ordered pairs",
-      "code": "LQJ",
+      "name": "Identify functions",
+      "code": "JT2",
       "due": "2027-02-24"
      },
      {
-      "name": "Domain and range of relations",
-      "code": "T7P",
+      "name": "Identify functions: graphs",
+      "code": "AEB",
+      "due": "2027-02-24"
+     },
+     {
+      "name": "Identify independent and dependent variables",
+      "code": "FSF",
       "due": "2027-02-24"
      }
     ]
@@ -11306,27 +11324,17 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.03",
-    "title": "Is it a function?",
+    "code": "12.04+05",
+    "title": "Describing graphs: increasing, decreasing, constant",
     "unit": 12,
     "benchmarks": [
-     "MA.8.F.1.1"
+     "MA.8.F.1.3"
     ],
     "ixl": [
      {
-      "name": "Identify functions",
-      "code": "JT2",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Identify functions: graphs",
-      "code": "AEB",
-      "due": "2027-02-25"
-     },
-     {
-      "name": "Identify independent and dependent variables",
-      "code": "FSF",
-      "due": "2027-02-25"
+      "name": "Identify graphs: word problems",
+      "code": "HWC",
+      "due": "2027-02-26"
      }
     ]
    },
@@ -11391,8 +11399,8 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.04+05",
-    "title": "Describing graphs: increasing, decreasing, constant",
+    "code": "12.06",
+    "title": "Sketching graphs from descriptions",
     "unit": 12,
     "benchmarks": [
      "MA.8.F.1.3"
@@ -11401,7 +11409,7 @@
      {
       "name": "Identify graphs: word problems",
       "code": "HWC",
-      "due": "2027-03-01"
+      "due": "2027-02-26"
      }
     ]
    },
@@ -11461,16 +11469,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.06",
-    "title": "Sketching graphs from descriptions",
+    "code": "12.07",
+    "title": "Functions from equations, tables, graphs",
     "unit": 12,
     "benchmarks": [
-     "MA.8.F.1.3"
+     "MA.8.F.1.2"
     ],
     "ixl": [
      {
-      "name": "Identify graphs: word problems",
-      "code": "HWC",
+      "name": "Complete a function table from an equation",
+      "code": "ESE",
+      "due": "2027-03-01"
+     },
+     {
+      "name": "Complete a table for a function graph",
+      "code": "7EK",
+      "due": "2027-03-01"
+     },
+     {
+      "name": "Find values using function graphs",
+      "code": "7N2",
       "due": "2027-03-01"
      }
     ]
@@ -11523,26 +11541,22 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "12.07",
-    "title": "Functions from equations, tables, graphs",
+    "code": "12.08+09",
+    "title": "Is it linear? (graphs, equations, tables)",
     "unit": 12,
     "benchmarks": [
-     "MA.8.F.1.2"
+     "MA.8.F.1.2",
+     "MA.8.AR.3.1"
     ],
     "ixl": [
      {
-      "name": "Complete a function table from an equation",
-      "code": "ESE",
+      "name": "Identify linear and nonlinear functions: graphs and equations",
+      "code": "XB8",
       "due": "2027-03-02"
      },
      {
-      "name": "Complete a table for a function graph",
-      "code": "7EK",
-      "due": "2027-03-02"
-     },
-     {
-      "name": "Find values using function graphs",
-      "code": "7N2",
+      "name": "Identify linear and nonlinear functions: tables",
+      "code": "VGS",
       "due": "2027-03-02"
      }
     ]
@@ -11594,26 +11608,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "12.08+09",
-    "title": "Is it linear? (graphs, equations, tables)",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 12,
-    "benchmarks": [
-     "MA.8.F.1.2",
-     "MA.8.AR.3.1"
-    ],
-    "ixl": [
-     {
-      "name": "Identify linear and nonlinear functions: graphs and equations",
-      "code": "XB8",
-      "due": "2027-03-03"
-     },
-     {
-      "name": "Identify linear and nonlinear functions: tables",
-      "code": "VGS",
-      "due": "2027-03-03"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -11726,9 +11726,9 @@
     "Q3 ends"
    ],
    "acc": {
-    "kind": "spiral",
-    "code": "spiral",
-    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
+    "kind": "exam",
+    "code": "12.X",
+    "title": "Unit 12 exam",
     "unit": 12,
     "benchmarks": [],
     "ixl": []
@@ -11837,9 +11837,9 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "12.X1",
-    "title": "Unit 12 exam, day 1",
+    "kind": "flex",
+    "code": "flex",
+    "title": "Flex day — reteach from exam evidence, or absorb a lost day",
     "unit": 12,
     "benchmarks": [],
     "ixl": []
@@ -11899,12 +11899,50 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "12.X2",
-    "title": "Unit 12 exam, day 2",
-    "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.01+02+03",
+    "title": "Choosing and creating displays (numerical, categorical)",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.5"
+    ],
+    "ixl": [
+     {
+      "name": "Choose the best type of graph",
+      "code": "VP6",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Create dot plots",
+      "code": "22B",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Create stem-and-leaf plots",
+      "code": "8AP",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Create histograms",
+      "code": "LGG",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Box plots",
+      "code": "SKN",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Create and interpret dot plots with fractions",
+      "code": "SHS",
+      "due": "2027-03-10"
+     },
+     {
+      "name": "Create bar graphs",
+      "code": "E76",
+      "due": "2027-03-10"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -11961,12 +11999,25 @@
    ],
    "events": [],
    "acc": {
-    "kind": "flex",
-    "code": "flex",
-    "title": "Flex day — reteach from exam evidence, or absorb a lost day",
-    "unit": 12,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.04+05",
+    "title": "Bivariate data; line graphs",
+    "unit": 13,
+    "benchmarks": [
+     "MA.8.DP.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Create line graphs",
+      "code": "ERM",
+      "due": "2027-03-11"
+     },
+     {
+      "name": "Interpret line graphs",
+      "code": "TGQ",
+      "due": "2027-03-11"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -12034,46 +12085,27 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "13.01+02+03",
-    "title": "Choosing and creating displays (numerical, categorical)",
+    "code": "13.06",
+    "title": "Scatter plots and association",
     "unit": 13,
     "benchmarks": [
-     "MA.7.DP.1.5"
+     "MA.8.DP.1.1",
+     "MA.8.DP.1.2"
     ],
     "ixl": [
      {
-      "name": "Choose the best type of graph",
-      "code": "VP6",
+      "name": "Create scatter plots",
+      "code": "AVL",
       "due": "2027-03-12"
      },
      {
-      "name": "Create dot plots",
-      "code": "22B",
+      "name": "Describe scatter plots",
+      "code": "CG8",
       "due": "2027-03-12"
      },
      {
-      "name": "Create stem-and-leaf plots",
-      "code": "8AP",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Create histograms",
-      "code": "LGG",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Box plots",
-      "code": "SKN",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Create and interpret dot plots with fractions",
-      "code": "SHS",
-      "due": "2027-03-12"
-     },
-     {
-      "name": "Create bar graphs",
-      "code": "E76",
+      "name": "Describe associations between two variables using scatter plots",
+      "code": "9ER",
       "due": "2027-03-12"
      }
     ]
@@ -12128,21 +12160,27 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "13.04+05",
-    "title": "Bivariate data; line graphs",
+    "code": "13.07+08",
+    "title": "Lines of fit; outliers",
     "unit": 13,
     "benchmarks": [
-     "MA.8.DP.1.1"
+     "MA.8.DP.1.3",
+     "MA.8.DP.1.2"
     ],
     "ixl": [
      {
-      "name": "Create line graphs",
-      "code": "ERM",
+      "name": "Outliers in scatter plots",
+      "code": "RP8",
       "due": "2027-03-15"
      },
      {
-      "name": "Interpret line graphs",
-      "code": "TGQ",
+      "name": "Identify lines of best fit",
+      "code": "BG7",
+      "due": "2027-03-15"
+     },
+     {
+      "name": "Make predictions with scatter plots",
+      "code": "CM7",
       "due": "2027-03-15"
      }
     ]
@@ -12203,27 +12241,22 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "13.06",
-    "title": "Scatter plots and association",
+    "code": "13.09",
+    "title": "Interpreting the equation of a line of fit",
     "unit": 13,
     "benchmarks": [
-     "MA.8.DP.1.1",
-     "MA.8.DP.1.2"
+     "MA.8.DP.1.3",
+     "MA.8.AR.3.5"
     ],
     "ixl": [
      {
-      "name": "Create scatter plots",
-      "code": "AVL",
+      "name": "Interpret lines of best fit: word problems",
+      "code": "9DW",
       "due": "2027-03-16"
      },
      {
-      "name": "Describe scatter plots",
-      "code": "CG8",
-      "due": "2027-03-16"
-     },
-     {
-      "name": "Describe associations between two variables using scatter plots",
-      "code": "9ER",
+      "name": "Write equations for lines of best fit",
+      "code": "ZQ6",
       "due": "2027-03-16"
      }
     ]
@@ -12275,31 +12308,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "13.07+08",
-    "title": "Lines of fit; outliers",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 13,
-    "benchmarks": [
-     "MA.8.DP.1.3",
-     "MA.8.DP.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Outliers in scatter plots",
-      "code": "RP8",
-      "due": "2027-03-17"
-     },
-     {
-      "name": "Identify lines of best fit",
-      "code": "BG7",
-      "due": "2027-03-17"
-     },
-     {
-      "name": "Make predictions with scatter plots",
-      "code": "CM7",
-      "due": "2027-03-17"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -12348,26 +12362,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "13.09",
-    "title": "Interpreting the equation of a line of fit",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 13,
-    "benchmarks": [
-     "MA.8.DP.1.3",
-     "MA.8.AR.3.5"
-    ],
-    "ixl": [
-     {
-      "name": "Interpret lines of best fit: word problems",
-      "code": "9DW",
-      "due": "2027-03-18"
-     },
-     {
-      "name": "Write equations for lines of best fit",
-      "code": "ZQ6",
-      "due": "2027-03-18"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -12417,8 +12417,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "13.X1",
-    "title": "Unit 13 exam, day 1",
+    "code": "13.X",
+    "title": "Unit 13 exam",
     "unit": 13,
     "benchmarks": [],
     "ixl": []
@@ -12470,9 +12470,9 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "13.X2",
-    "title": "Unit 13 exam, day 2",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 13,
     "benchmarks": [],
     "ixl": []
@@ -13120,8 +13120,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "14.X1",
-    "title": "Unit 14 exam, day 1",
+    "code": "14.X",
+    "title": "Unit 14 exam",
     "unit": 14,
     "benchmarks": [],
     "ixl": []
@@ -13181,12 +13181,25 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "14.X2",
-    "title": "Unit 14 exam, day 2",
-    "unit": 14,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "15.01",
+    "title": "Slides, flips, spins",
+    "unit": 15,
+    "benchmarks": [
+     "MA.8.GR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Describe how a figure moves",
+      "code": "WER",
+      "due": "2027-04-07"
+     },
+     {
+      "name": "Congruence statements and corresponding parts",
+      "code": "LPP",
+      "due": "2027-04-07"
+     }
+    ]
    },
    "on": {
     "kind": "spiral",
@@ -13236,21 +13249,36 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.01",
-    "title": "Slides, flips, spins",
+    "code": "15.02+03",
+    "title": "Reflections, rotations, translations — identify and describe",
     "unit": 15,
     "benchmarks": [
      "MA.8.GR.2.1"
     ],
     "ixl": [
      {
-      "name": "Describe how a figure moves",
-      "code": "WER",
+      "name": "Identify reflections and rotations",
+      "code": "S8S",
       "due": "2027-04-08"
      },
      {
-      "name": "Congruence statements and corresponding parts",
-      "code": "LPP",
+      "name": "Rotate polygons about a point",
+      "code": "A5K",
+      "due": "2027-04-08"
+     },
+     {
+      "name": "Identify translations",
+      "code": "HJ9",
+      "due": "2027-04-08"
+     },
+     {
+      "name": "Translations: graph the image",
+      "code": "XUS",
+      "due": "2027-04-08"
+     },
+     {
+      "name": "Translations: find the coordinates",
+      "code": "RUP",
       "due": "2027-04-08"
      }
     ]
@@ -13303,23 +13331,13 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.02+03",
-    "title": "Reflections, rotations, translations — identify and describe",
+    "code": "15.03b",
+    "title": "Translations on the coordinate plane",
     "unit": 15,
     "benchmarks": [
-     "MA.8.GR.2.1"
+     "MA.8.GR.2.3"
     ],
     "ixl": [
-     {
-      "name": "Identify reflections and rotations",
-      "code": "S8S",
-      "due": "2027-04-09"
-     },
-     {
-      "name": "Rotate polygons about a point",
-      "code": "A5K",
-      "due": "2027-04-09"
-     },
      {
       "name": "Identify translations",
       "code": "HJ9",
@@ -13385,26 +13403,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.03b",
-    "title": "Translations on the coordinate plane",
+    "code": "15.04",
+    "title": "Reflections on the coordinate plane",
     "unit": 15,
     "benchmarks": [
      "MA.8.GR.2.3"
     ],
     "ixl": [
      {
-      "name": "Identify translations",
-      "code": "HJ9",
+      "name": "Reflections: graph the image",
+      "code": "QLJ",
       "due": "2027-04-12"
      },
      {
-      "name": "Translations: graph the image",
-      "code": "XUS",
-      "due": "2027-04-12"
-     },
-     {
-      "name": "Translations: find the coordinates",
-      "code": "RUP",
+      "name": "Reflections: find the coordinates",
+      "code": "AQ8",
       "due": "2027-04-12"
      }
     ]
@@ -13457,21 +13470,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.04",
-    "title": "Reflections on the coordinate plane",
+    "code": "15.05",
+    "title": "Rotations on the coordinate plane (about the origin)",
     "unit": 15,
     "benchmarks": [
      "MA.8.GR.2.3"
     ],
     "ixl": [
      {
-      "name": "Reflections: graph the image",
-      "code": "QLJ",
+      "name": "Rotations: graph the image",
+      "code": "AC9",
       "due": "2027-04-13"
      },
      {
-      "name": "Reflections: find the coordinates",
-      "code": "AQ8",
+      "name": "Rotations: find the coordinates",
+      "code": "HHS",
       "due": "2027-04-13"
      }
     ]
@@ -13552,21 +13565,22 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.05",
-    "title": "Rotations on the coordinate plane (about the origin)",
+    "code": "15.06",
+    "title": "Describing rigid transformations; congruence",
     "unit": 15,
     "benchmarks": [
+     "MA.8.GR.2.1",
      "MA.8.GR.2.3"
     ],
     "ixl": [
      {
-      "name": "Rotations: graph the image",
-      "code": "AC9",
+      "name": "Describe transformations",
+      "code": "VAY",
       "due": "2027-04-14"
      },
      {
-      "name": "Rotations: find the coordinates",
-      "code": "HHS",
+      "name": "Determine if two figures are congruent: justify your answer",
+      "code": "HJU",
       "due": "2027-04-14"
      }
     ]
@@ -13627,22 +13641,26 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.06",
-    "title": "Describing rigid transformations; congruence",
+    "code": "15.07+09",
+    "title": "Dilations and scale factor",
     "unit": 15,
     "benchmarks": [
-     "MA.8.GR.2.1",
-     "MA.8.GR.2.3"
+     "MA.8.GR.2.2"
     ],
     "ixl": [
      {
-      "name": "Describe transformations",
-      "code": "VAY",
+      "name": "Classify dilations",
+      "code": "JTS",
       "due": "2027-04-15"
      },
      {
-      "name": "Determine if two figures are congruent: justify your answer",
-      "code": "HJU",
+      "name": "Scaled polygons",
+      "code": "9ZA",
+      "due": "2027-04-15"
+     },
+     {
+      "name": "Dilations: find the scale factor",
+      "code": "8NK",
       "due": "2027-04-15"
      }
     ]
@@ -13703,26 +13721,31 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.07+09",
-    "title": "Dilations and scale factor",
+    "code": "15.08",
+    "title": "Dilations on the coordinate plane (centered at the origin)",
     "unit": 15,
     "benchmarks": [
-     "MA.8.GR.2.2"
+     "MA.8.GR.2.3"
     ],
     "ixl": [
      {
-      "name": "Classify dilations",
-      "code": "JTS",
+      "name": "Dilations: graph the image",
+      "code": "9T4",
       "due": "2027-04-19"
      },
      {
-      "name": "Scaled polygons",
-      "code": "9ZA",
+      "name": "Dilations: find the coordinates",
+      "code": "UV9",
       "due": "2027-04-19"
      },
      {
-      "name": "Dilations: find the scale factor",
-      "code": "8NK",
+      "name": "Similar and congruent figures",
+      "code": "U85",
+      "due": "2027-04-19"
+     },
+     {
+      "name": "Determine if two figures are similar: justify your answer",
+      "code": "CWB",
       "due": "2027-04-19"
      }
     ]
@@ -13822,31 +13845,42 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "15.08",
-    "title": "Dilations on the coordinate plane (centered at the origin)",
-    "unit": 15,
+    "code": "16.01+02",
+    "title": "Angle relationships — consolidation of Thread B",
+    "unit": 16,
     "benchmarks": [
-     "MA.8.GR.2.3"
+     "MA.8.GR.1.4",
+     "MA.8.GR.1.5"
     ],
     "ixl": [
      {
-      "name": "Dilations: graph the image",
-      "code": "9T4",
+      "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
+      "code": "HGV",
       "due": "2027-04-20"
      },
      {
-      "name": "Dilations: find the coordinates",
-      "code": "UV9",
+      "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
+      "code": "R2B",
       "due": "2027-04-20"
      },
      {
-      "name": "Similar and congruent figures",
-      "code": "U85",
+      "name": "Write and solve equations using angle relationships",
+      "code": "DBV",
       "due": "2027-04-20"
      },
      {
-      "name": "Determine if two figures are similar: justify your answer",
-      "code": "CWB",
+      "name": "Find missing angles in triangles",
+      "code": "JFJ",
+      "due": "2027-04-20"
+     },
+     {
+      "name": "Exterior Angle Theorem",
+      "code": "FMP",
+      "due": "2027-04-20"
+     },
+     {
+      "name": "Triangle Angle-Sum Theorem",
+      "code": "6Q6",
       "due": "2027-04-20"
      }
     ]
@@ -13907,42 +13941,16 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "16.01+02",
-    "title": "Angle relationships — consolidation of Thread B",
+    "code": "16.03+04",
+    "title": "Interior angles of polygons",
     "unit": 16,
     "benchmarks": [
-     "MA.8.GR.1.4",
-     "MA.8.GR.1.5"
+     "MA.8.GR.1.6"
     ],
     "ixl": [
      {
-      "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
-      "code": "HGV",
-      "due": "2027-04-21"
-     },
-     {
-      "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
-      "code": "R2B",
-      "due": "2027-04-21"
-     },
-     {
-      "name": "Write and solve equations using angle relationships",
-      "code": "DBV",
-      "due": "2027-04-21"
-     },
-     {
-      "name": "Find missing angles in triangles",
-      "code": "JFJ",
-      "due": "2027-04-21"
-     },
-     {
-      "name": "Exterior Angle Theorem",
-      "code": "FMP",
-      "due": "2027-04-21"
-     },
-     {
-      "name": "Triangle Angle-Sum Theorem",
-      "code": "6Q6",
+      "name": "Interior angles of polygons",
+      "code": "JBP",
       "due": "2027-04-21"
      }
     ]
@@ -14002,20 +14010,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "16.03+04",
-    "title": "Interior angles of polygons",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 16,
-    "benchmarks": [
-     "MA.8.GR.1.6"
-    ],
-    "ixl": [
-     {
-      "name": "Interior angles of polygons",
-      "code": "JBP",
-      "due": "2027-04-22"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "lesson",
@@ -14073,8 +14073,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "15/16.X1",
-    "title": "Units 15–16 exam, day 1",
+    "code": "15/16.X",
+    "title": "Units 15–16 exam",
     "unit": 16,
     "benchmarks": [],
     "ixl": []
@@ -14154,12 +14154,41 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "15/16.X2",
-    "title": "Units 15–16 exam, day 2",
-    "unit": 16,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "17.01–03",
+    "title": "Repeated experiments — consolidation of Thread C",
+    "unit": 17,
+    "benchmarks": [
+     "MA.8.DP.2.1",
+     "MA.8.DP.2.2"
+    ],
+    "ixl": [
+     {
+      "name": "Compound events: find the number of outcomes",
+      "code": "P5R",
+      "due": "2027-04-26"
+     },
+     {
+      "name": "Samples spaces for repeated events",
+      "code": "AGW",
+      "due": "2027-04-26"
+     },
+     {
+      "name": "Probability of repeated experiments",
+      "code": "BDZ",
+      "due": "2027-04-26"
+     },
+     {
+      "name": "Probability of simple events",
+      "code": "5ZY",
+      "due": "2027-04-26"
+     },
+     {
+      "name": "Experimental probability",
+      "code": "FRL",
+      "due": "2027-04-26"
+     }
+    ]
    },
    "on": {
     "kind": "lesson",
@@ -14217,37 +14246,21 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "17.01–03",
-    "title": "Repeated experiments — consolidation of Thread C",
+    "code": "17.04–06",
+    "title": "Predictions from theoretical probability",
     "unit": 17,
     "benchmarks": [
-     "MA.8.DP.2.1",
-     "MA.8.DP.2.2"
+     "MA.8.DP.2.3"
     ],
     "ixl": [
      {
-      "name": "Compound events: find the number of outcomes",
-      "code": "P5R",
+      "name": "Make predictions",
+      "code": "38C",
       "due": "2027-04-27"
      },
      {
-      "name": "Samples spaces for repeated events",
-      "code": "AGW",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Probability of repeated experiments",
-      "code": "BDZ",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Probability of simple events",
-      "code": "5ZY",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Experimental probability",
-      "code": "FRL",
+      "name": "Write a discrete probability distribution",
+      "code": "ELU",
       "due": "2027-04-27"
      }
     ]
@@ -14299,25 +14312,12 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "17.04–06",
-    "title": "Predictions from theoretical probability",
+    "kind": "spiral",
+    "code": "spiral",
+    "title": "Spiral day — mixed retrieval from the unit just finished and the two before it",
     "unit": 17,
-    "benchmarks": [
-     "MA.8.DP.2.3"
-    ],
-    "ixl": [
-     {
-      "name": "Make predictions",
-      "code": "38C",
-      "due": "2027-04-28"
-     },
-     {
-      "name": "Write a discrete probability distribution",
-      "code": "ELU",
-      "due": "2027-04-28"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
     "kind": "exam",
@@ -14421,8 +14421,8 @@
    "events": [],
    "acc": {
     "kind": "exam",
-    "code": "17.X1",
-    "title": "Unit 17 exam, day 1",
+    "code": "17.X",
+    "title": "Unit 17 exam",
     "unit": 17,
     "benchmarks": [],
     "ixl": []
@@ -14474,10 +14474,10 @@
    ],
    "events": [],
    "acc": {
-    "kind": "exam",
-    "code": "17.X2",
-    "title": "Unit 17 exam, day 2",
-    "unit": 17,
+    "kind": "pm3",
+    "code": "PM3-R1",
+    "title": "PM3 review 1: NSO and probability",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    },
@@ -15728,14 +15728,19 @@
     "2027-05-27",
     "2027-05-28"
    ],
-   "breaks": [],
+   "breaks": [
+    "2026-11-23",
+    "2026-12-21",
+    "2027-03-22"
+   ],
    "rules": {
     "exam": {
      "weekdays": [
       0,
       3
      ],
-     "minBeforeBreak": 0
+     "minBeforeBreak": 0,
+     "days": 1
     },
     "filler": {
      "unit": "next",
@@ -15901,19 +15906,11 @@
     },
     {
      "kind": "exam",
-     "code": "3.X1",
-     "title": "Unit 3 exam, day 1",
+     "code": "3.X",
+     "title": "Unit 3 exam",
      "unit": 3,
      "examIn": 0,
      "base": "2026-10-08"
-    },
-    {
-     "kind": "exam",
-     "code": "3.X2",
-     "title": "Unit 3 exam, day 2",
-     "unit": 3,
-     "gone": "covered before 2026-10-16 (doubled up or skipped; the log does not say which day)",
-     "base": "2026-10-09"
     },
     {
      "kind": "flex",
@@ -15921,43 +15918,43 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 3,
      "absorb": true,
-     "gone": "covered before 2026-10-16 (doubled up or skipped; the log does not say which day)",
-     "base": "2026-10-13"
+     "gone": "covered before 2026-10-26 (doubled up or skipped; the log does not say which day)",
+     "base": "2026-10-09"
     },
     {
      "kind": "lesson",
      "code": "4.01",
      "title": "Add and subtract in scientific notation",
      "unit": 4,
-     "base": "2026-10-14"
+     "base": "2026-10-13"
     },
     {
      "kind": "lesson",
      "code": "4.02+03",
      "title": "Multiply and divide in scientific notation",
      "unit": 4,
-     "base": "2026-10-15"
+     "base": "2026-10-14"
     },
     {
      "kind": "lesson",
      "code": "4.04",
      "title": "Real-world scientific notation; significant digits",
      "unit": 4,
-     "base": "2026-10-16"
+     "base": "2026-10-15"
     },
     {
      "kind": "lesson",
      "code": "4.05",
      "title": "Expressions with radicals (perfect squares to 225, cubes −125 to 125)",
      "unit": 4,
-     "base": "2026-10-19"
+     "base": "2026-10-16"
     },
     {
      "kind": "lesson",
      "code": "4.06",
      "title": "Order of operations with exponents and radicals",
      "unit": 4,
-     "base": "2026-10-20"
+     "base": "2026-10-19"
     },
     {
      "kind": "lesson",
@@ -15965,23 +15962,15 @@
      "title": "Real-world order-of-operations problems",
      "unit": 4,
      "gone": "covered before 2026-10-26 (doubled up or skipped; the log does not say which day)",
-     "base": "2026-10-21"
+     "base": "2026-10-20"
     },
     {
      "kind": "exam",
-     "code": "4.X1",
-     "title": "Unit 4 exam, day 1",
+     "code": "4.X",
+     "title": "Unit 4 exam",
      "unit": 4,
      "examIn": 0,
      "base": "2026-10-22"
-    },
-    {
-     "kind": "exam",
-     "code": "4.X2",
-     "title": "Unit 4 exam, day 2",
-     "unit": 4,
-     "gone": "covered before 2026-10-27 (doubled up or skipped; the log does not say which day)",
-     "base": "2026-10-23"
     },
     {
      "kind": "flex",
@@ -15989,128 +15978,114 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 4,
      "absorb": true,
-     "gone": "covered before 2026-10-27 (doubled up or skipped; the log does not say which day)",
-     "base": "2026-10-26"
+     "base": "2026-10-23"
     },
     {
      "kind": "lesson",
      "code": "5.01",
      "title": "Scale drawings",
      "unit": 5,
-     "base": "2026-10-27"
+     "base": "2026-10-26"
     },
     {
      "kind": "lesson",
      "code": "5.02+03",
      "title": "Scale factor: perimeter and area (k and k²)",
      "unit": 5,
-     "base": "2026-10-28"
+     "base": "2026-10-27"
     },
     {
      "kind": "lesson",
      "code": "5.04",
      "title": "Real-world scale drawings",
      "unit": 5,
-     "base": "2026-10-29"
+     "base": "2026-10-28"
     },
     {
      "kind": "lesson",
      "code": "5.06+07",
      "title": "Converting length across systems; currency",
      "unit": 5,
-     "base": "2026-10-30"
+     "base": "2026-10-29"
     },
     {
      "kind": "lesson",
      "code": "5.08+09",
      "title": "Converting mass, area and volume across systems",
      "unit": 5,
-     "base": "2026-11-02"
+     "base": "2026-10-30"
     },
     {
      "kind": "lesson",
      "code": "5.10+11",
      "title": "Multi-step proportion problems",
      "unit": 5,
-     "base": "2026-11-03"
+     "base": "2026-11-02"
     },
     {
      "kind": "exam",
-     "code": "5.X1",
-     "title": "Unit 5 exam, day 1",
+     "code": "5.X",
+     "title": "Unit 5 exam",
      "unit": 5,
      "examIn": 0,
      "base": "2026-11-05"
-    },
-    {
-     "kind": "exam",
-     "code": "5.X2",
-     "title": "Unit 5 exam, day 2",
-     "unit": 5,
-     "base": "2026-11-06"
     },
     {
      "kind": "lesson",
      "code": "6.01+02",
      "title": "Triangle Inequality Theorem; converse of the Pythagorean Theorem",
      "unit": 6,
-     "base": "2026-11-09"
+     "base": "2026-11-06"
     },
     {
      "kind": "lesson",
      "code": "6.03",
      "title": "Pythagorean Theorem (memorize)",
      "unit": 6,
-     "base": "2026-11-10"
+     "base": "2026-11-09"
     },
     {
      "kind": "lesson",
      "code": "6.04",
      "title": "Pythagorean Theorem in real-world problems",
      "unit": 6,
-     "base": "2026-11-12"
+     "base": "2026-11-10"
     },
     {
      "kind": "lesson",
      "code": "6.05",
      "title": "Distance on the coordinate plane",
      "unit": 6,
-     "base": "2026-11-13"
+     "base": "2026-11-12"
     },
     {
      "kind": "lesson",
      "code": "6.06",
      "title": "Real-world coordinate-plane problems; perimeter",
      "unit": 6,
-     "base": "2026-11-16"
+     "base": "2026-11-13"
     },
     {
      "kind": "lesson",
      "code": "6.07+08",
      "title": "Similar triangles; indirect measurement",
      "unit": 6,
-     "base": "2026-11-17"
+     "base": "2026-11-16"
     },
     {
      "kind": "exam",
-     "code": "6.X1",
-     "title": "Unit 6 exam, day 1",
+     "code": "6.X",
+     "title": "Unit 6 exam",
      "unit": 6,
      "examIn": 0,
      "base": "2026-11-19"
-    },
-    {
-     "kind": "exam",
-     "code": "6.X2",
-     "title": "Unit 6 exam, day 2",
-     "unit": 6,
-     "base": "2026-11-20"
     },
     {
      "kind": "thread",
      "code": "T-B1",
      "title": "Thread B: angle pairs — supplementary, complementary, vertical, adjacent (16.1)",
      "unit": 6,
+     "need": 2,
      "base": "2026-11-30"
     },
     {
@@ -16157,103 +16132,90 @@
     },
     {
      "kind": "exam",
-     "code": "7.X1",
-     "title": "Unit 7 exam, day 1",
+     "code": "7.X",
+     "title": "Unit 7 exam",
      "unit": 7,
      "examIn": 0,
      "base": "2026-12-10"
-    },
-    {
-     "kind": "exam",
-     "code": "7.X2",
-     "title": "Unit 7 exam, day 2",
-     "unit": 7,
-     "base": "2026-12-11"
     },
     {
      "kind": "pm3",
      "code": "PM2-R1",
      "title": "Semester review 1: number system, exponents, scientific notation (whiteboards)",
      "unit": null,
-     "base": "2026-12-14"
+     "base": "2026-12-11"
     },
     {
      "kind": "pm3",
      "code": "PM2-R2",
      "title": "Semester review 2: equations, inequalities, Pythagorean, angles (whiteboards)",
      "unit": null,
-     "base": "2026-12-15"
+     "base": "2026-12-14"
     },
     {
      "kind": "pm3",
      "code": "PM2-R3",
      "title": "Semester review 3: proportional → linear preview; mixed FAST-shaped round",
      "unit": null,
-     "base": "2026-12-16"
+     "base": "2026-12-15"
     },
     {
      "kind": "lesson",
      "code": "8.01+02",
      "title": "Circle relationships; circumference",
      "unit": 8,
-     "base": "2026-12-17"
+     "need": 3,
+     "base": "2026-12-16"
     },
     {
      "kind": "lesson",
      "code": "8.03",
      "title": "Radius and diameter from circumference",
      "unit": 8,
-     "base": "2026-12-18"
+     "base": "2026-12-17"
     },
     {
      "kind": "lesson",
      "code": "8.04+05",
      "title": "Area of a circle",
      "unit": 8,
-     "base": "2027-01-06"
+     "base": "2026-12-18"
     },
     {
      "kind": "lesson",
      "code": "8.06",
      "title": "Circumference and area problems; sectors",
      "unit": 8,
-     "base": "2027-01-07"
+     "base": "2027-01-06"
     },
     {
      "kind": "lesson",
      "code": "8.08+09",
      "title": "Sectors and circle graphs",
      "unit": 8,
-     "base": "2027-01-08"
+     "base": "2027-01-07"
     },
     {
      "kind": "lesson",
      "code": "9.01+02",
      "title": "Surface area of cylinders from nets",
      "unit": 9,
-     "base": "2027-01-11"
+     "base": "2027-01-08"
     },
     {
      "kind": "lesson",
      "code": "9.03+04+05",
      "title": "Volume of cylinders; problems",
      "unit": 9,
-     "base": "2027-01-12"
+     "base": "2027-01-11"
     },
     {
      "kind": "exam",
-     "code": "8/9.X1",
-     "title": "Units 8–9 exam, day 1",
+     "code": "8/9.X",
+     "title": "Units 8–9 exam",
      "unit": 9,
      "examIn": 0,
      "base": "2027-01-14"
-    },
-    {
-     "kind": "exam",
-     "code": "8/9.X2",
-     "title": "Units 8–9 exam, day 2",
-     "unit": 9,
-     "base": "2027-01-15"
     },
     {
      "kind": "flex",
@@ -16261,78 +16223,71 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 9,
      "absorb": true,
-     "base": "2027-01-19"
+     "base": "2027-01-15"
     },
     {
      "kind": "lesson",
      "code": "10.01",
      "title": "Proportional relationships revisited (linear ⇒ proportional?)",
      "unit": 10,
-     "base": "2027-01-20"
+     "base": "2027-01-19"
     },
     {
      "kind": "lesson",
      "code": "10.02+03",
      "title": "Slope from two points, graphs, tables",
      "unit": 10,
-     "base": "2027-01-21"
+     "base": "2027-01-20"
     },
     {
      "kind": "lesson",
      "code": "10.04",
      "title": "Slope in context",
      "unit": 10,
-     "base": "2027-01-22"
+     "base": "2027-01-21"
     },
     {
      "kind": "lesson",
      "code": "10.05",
      "title": "Slope-intercept form; graph a line",
      "unit": 10,
-     "base": "2027-01-25"
+     "base": "2027-01-22"
     },
     {
      "kind": "lesson",
      "code": "10.06",
      "title": "Graphing from tables and contexts",
      "unit": 10,
-     "base": "2027-01-26"
+     "base": "2027-01-25"
     },
     {
      "kind": "lesson",
      "code": "10.07+08",
      "title": "Interpreting slope and intercept (graphs, equations, tables, descriptions; F↔C)",
      "unit": 10,
-     "base": "2027-01-27"
+     "base": "2027-01-26"
     },
     {
      "kind": "lesson",
      "code": "10.09",
      "title": "Writing equations of lines",
      "unit": 10,
-     "base": "2027-01-28"
+     "base": "2027-01-27"
     },
     {
      "kind": "lesson",
      "code": "10.10",
      "title": "Writing equations for contexts; lines of fit preview",
      "unit": 10,
-     "base": "2027-01-29"
+     "base": "2027-01-28"
     },
     {
      "kind": "exam",
-     "code": "10.X1",
-     "title": "Unit 10 exam, day 1",
+     "code": "10.X",
+     "title": "Unit 10 exam",
      "unit": 10,
      "examIn": 0,
      "base": "2027-02-01"
-    },
-    {
-     "kind": "exam",
-     "code": "10.X2",
-     "title": "Unit 10 exam, day 2",
-     "unit": 10,
-     "base": "2027-02-02"
     },
     {
      "kind": "flex",
@@ -16340,71 +16295,64 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 10,
      "absorb": true,
-     "base": "2027-02-03"
+     "base": "2027-02-02"
     },
     {
      "kind": "lesson",
      "code": "11.01",
      "title": "Equations with like terms and the distributive property",
      "unit": 11,
-     "base": "2027-02-04"
+     "base": "2027-02-03"
     },
     {
      "kind": "lesson",
      "code": "11.02",
      "title": "Variables on both sides",
      "unit": 11,
-     "base": "2027-02-05"
+     "base": "2027-02-04"
     },
     {
      "kind": "lesson",
      "code": "11.03",
      "title": "One, none, infinitely many solutions",
      "unit": 11,
-     "base": "2027-02-08"
+     "base": "2027-02-05"
     },
     {
      "kind": "lesson",
      "code": "11.04",
      "title": "Multi-step equations",
      "unit": 11,
-     "base": "2027-02-09"
+     "base": "2027-02-08"
     },
     {
      "kind": "lesson",
      "code": "11.05+06",
      "title": "Systems: which points are solutions; how many solutions",
      "unit": 11,
-     "base": "2027-02-10"
+     "base": "2027-02-09"
     },
     {
      "kind": "lesson",
      "code": "11.07",
      "title": "Solving systems by graphing",
      "unit": 11,
-     "base": "2027-02-11"
+     "base": "2027-02-10"
     },
     {
      "kind": "lesson",
      "code": "11.08",
      "title": "Systems in context (approximate solutions)",
      "unit": 11,
-     "base": "2027-02-12"
+     "base": "2027-02-11"
     },
     {
      "kind": "exam",
-     "code": "11.X1",
-     "title": "Unit 11 exam, day 1",
+     "code": "11.X",
+     "title": "Unit 11 exam",
      "unit": 11,
      "examIn": 0,
      "base": "2027-02-18"
-    },
-    {
-     "kind": "exam",
-     "code": "11.X2",
-     "title": "Unit 11 exam, day 2",
-     "unit": 11,
-     "base": "2027-02-19"
     },
     {
      "kind": "flex",
@@ -16412,64 +16360,57 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 11,
      "absorb": true,
-     "base": "2027-02-22"
+     "base": "2027-02-19"
     },
     {
      "kind": "lesson",
      "code": "12.01+02",
      "title": "Relations; domain and range",
      "unit": 12,
-     "base": "2027-02-23"
+     "base": "2027-02-22"
     },
     {
      "kind": "lesson",
      "code": "12.03",
      "title": "Is it a function?",
      "unit": 12,
-     "base": "2027-02-24"
+     "base": "2027-02-23"
     },
     {
      "kind": "lesson",
      "code": "12.04+05",
      "title": "Describing graphs: increasing, decreasing, constant",
      "unit": 12,
-     "base": "2027-02-25"
+     "base": "2027-02-24"
     },
     {
      "kind": "lesson",
      "code": "12.06",
      "title": "Sketching graphs from descriptions",
      "unit": 12,
-     "base": "2027-02-26"
+     "base": "2027-02-25"
     },
     {
      "kind": "lesson",
      "code": "12.07",
      "title": "Functions from equations, tables, graphs",
      "unit": 12,
-     "base": "2027-03-01"
+     "base": "2027-02-26"
     },
     {
      "kind": "lesson",
      "code": "12.08+09",
      "title": "Is it linear? (graphs, equations, tables)",
      "unit": 12,
-     "base": "2027-03-02"
+     "base": "2027-03-01"
     },
     {
      "kind": "exam",
-     "code": "12.X1",
-     "title": "Unit 12 exam, day 1",
+     "code": "12.X",
+     "title": "Unit 12 exam",
      "unit": 12,
      "examIn": 0,
-     "base": "2027-03-08"
-    },
-    {
-     "kind": "exam",
-     "code": "12.X2",
-     "title": "Unit 12 exam, day 2",
-     "unit": 12,
-     "base": "2027-03-09"
+     "base": "2027-03-04"
     },
     {
      "kind": "flex",
@@ -16477,63 +16418,57 @@
      "title": "Flex day — reteach from exam evidence, or absorb a lost day",
      "unit": 12,
      "absorb": true,
-     "base": "2027-03-10"
+     "base": "2027-03-08"
     },
     {
      "kind": "lesson",
      "code": "13.01+02+03",
      "title": "Choosing and creating displays (numerical, categorical)",
      "unit": 13,
-     "base": "2027-03-11"
+     "base": "2027-03-09"
     },
     {
      "kind": "lesson",
      "code": "13.04+05",
      "title": "Bivariate data; line graphs",
      "unit": 13,
-     "base": "2027-03-12"
+     "base": "2027-03-10"
     },
     {
      "kind": "lesson",
      "code": "13.06",
      "title": "Scatter plots and association",
      "unit": 13,
-     "base": "2027-03-15"
+     "base": "2027-03-11"
     },
     {
      "kind": "lesson",
      "code": "13.07+08",
      "title": "Lines of fit; outliers",
      "unit": 13,
-     "base": "2027-03-16"
+     "base": "2027-03-12"
     },
     {
      "kind": "lesson",
      "code": "13.09",
      "title": "Interpreting the equation of a line of fit",
      "unit": 13,
-     "base": "2027-03-17"
+     "base": "2027-03-15"
     },
     {
      "kind": "exam",
-     "code": "13.X1",
-     "title": "Unit 13 exam, day 1",
+     "code": "13.X",
+     "title": "Unit 13 exam",
      "unit": 13,
      "examIn": 0,
      "base": "2027-03-18"
-    },
-    {
-     "kind": "exam",
-     "code": "13.X2",
-     "title": "Unit 13 exam, day 2",
-     "unit": 13,
-     "base": "2027-03-19"
     },
     {
      "kind": "thread",
      "code": "T-C1",
      "title": "Thread C: sample spaces of repeated experiments (17.1)",
      "unit": 13,
+     "need": 2,
      "base": "2027-03-29"
     },
     {
@@ -16566,132 +16501,111 @@
     },
     {
      "kind": "exam",
-     "code": "14.X1",
-     "title": "Unit 14 exam, day 1",
+     "code": "14.X",
+     "title": "Unit 14 exam",
      "unit": 14,
      "examIn": 0,
      "base": "2027-04-05"
-    },
-    {
-     "kind": "exam",
-     "code": "14.X2",
-     "title": "Unit 14 exam, day 2",
-     "unit": 14,
-     "base": "2027-04-06"
     },
     {
      "kind": "lesson",
      "code": "15.01",
      "title": "Slides, flips, spins",
      "unit": 15,
-     "base": "2027-04-07"
+     "base": "2027-04-06"
     },
     {
      "kind": "lesson",
      "code": "15.02+03",
      "title": "Reflections, rotations, translations — identify and describe",
      "unit": 15,
-     "base": "2027-04-08"
+     "base": "2027-04-07"
     },
     {
      "kind": "lesson",
      "code": "15.03b",
      "title": "Translations on the coordinate plane",
      "unit": 15,
-     "base": "2027-04-09"
+     "base": "2027-04-08"
     },
     {
      "kind": "lesson",
      "code": "15.04",
      "title": "Reflections on the coordinate plane",
      "unit": 15,
-     "base": "2027-04-12"
+     "base": "2027-04-09"
     },
     {
      "kind": "lesson",
      "code": "15.05",
      "title": "Rotations on the coordinate plane (about the origin)",
      "unit": 15,
-     "base": "2027-04-13"
+     "base": "2027-04-12"
     },
     {
      "kind": "lesson",
      "code": "15.06",
      "title": "Describing rigid transformations; congruence",
      "unit": 15,
-     "base": "2027-04-14"
+     "base": "2027-04-13"
     },
     {
      "kind": "lesson",
      "code": "15.07+09",
      "title": "Dilations and scale factor",
      "unit": 15,
-     "base": "2027-04-15"
+     "base": "2027-04-14"
     },
     {
      "kind": "lesson",
      "code": "15.08",
      "title": "Dilations on the coordinate plane (centered at the origin)",
      "unit": 15,
-     "base": "2027-04-19"
+     "base": "2027-04-15"
     },
     {
      "kind": "lesson",
      "code": "16.01+02",
      "title": "Angle relationships — consolidation of Thread B",
      "unit": 16,
-     "base": "2027-04-20"
+     "base": "2027-04-19"
     },
     {
      "kind": "lesson",
      "code": "16.03+04",
      "title": "Interior angles of polygons",
      "unit": 16,
-     "base": "2027-04-21"
+     "base": "2027-04-20"
     },
     {
      "kind": "exam",
-     "code": "15/16.X1",
-     "title": "Units 15–16 exam, day 1",
+     "code": "15/16.X",
+     "title": "Units 15–16 exam",
      "unit": 16,
      "examIn": 0,
      "base": "2027-04-22"
-    },
-    {
-     "kind": "exam",
-     "code": "15/16.X2",
-     "title": "Units 15–16 exam, day 2",
-     "unit": 16,
-     "base": "2027-04-23"
     },
     {
      "kind": "lesson",
      "code": "17.01–03",
      "title": "Repeated experiments — consolidation of Thread C",
      "unit": 17,
-     "base": "2027-04-26"
+     "base": "2027-04-23"
     },
     {
      "kind": "lesson",
      "code": "17.04–06",
      "title": "Predictions from theoretical probability",
      "unit": 17,
-     "base": "2027-04-27"
+     "base": "2027-04-26"
     },
     {
      "kind": "exam",
-     "code": "17.X1",
-     "title": "Unit 17 exam, day 1",
+     "code": "17.X",
+     "title": "Unit 17 exam",
      "unit": 17,
      "examIn": 0,
      "base": "2027-04-29"
-    },
-    {
-     "kind": "exam",
-     "code": "17.X2",
-     "title": "Unit 17 exam, day 2",
-     "unit": 17,
-     "base": "2027-04-30"
     }
    ]
   },

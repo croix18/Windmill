@@ -30,9 +30,11 @@ The rules (each is data, so the JS reads the same thing):
 
   item["examIn"] = n     this item sits exactly n teaching days before an exam's first day (the first
                          exam day itself: 0; M7's review day: 1). An exam's first day is a weekday in
-                         rules.exam.weekdays, its second day is the next calendar day, and it is at
-                         least rules.exam.minBeforeBreak teaching days before a break. Days that have
-                         to pass first are FILLER days (rules.filler: a spiral day).
+                         rules.exam.weekdays and at least rules.exam.minBeforeBreak teaching days before
+                         a break; rules.exam.days (2 unless set) says how many days the exam takes, and
+                         a two-day exam's second day is the next calendar day (never across a weekend).
+                         A7's exams are one day (Croix, 24 Oct 2026: "Move to all 1 day tests"). Days
+                         that have to pass first are FILLER days (rules.filler: a spiral day).
   item["need"] = n       do not start this item with fewer than n teaching days before a break
                          (M7: a unit does not start three days before a break); filler until then.
   item["absorb"]         a flex day: it is dropped when its day would come later than it did in the
@@ -81,7 +83,7 @@ def lay(flow, start=None, blocked=None, limit=None):
     avail = [d for d in span if d not in off]
     breaks = sorted(flow.get("breaks") or [])
     ex = rules.get("exam") or {}
-    exam_days, min_before = ex.get("weekdays", [0, 3]), ex.get("minBeforeBreak", 0)
+    exam_days, min_before, exam_len = ex.get("weekdays", [0, 3]), ex.get("minBeforeBreak", 0), ex.get("days", 2)
     fill = rules["filler"]
 
     def before_break(a):                     # teaching days from avail[a] to the next break
@@ -94,10 +96,11 @@ def lay(flow, start=None, blocked=None, limit=None):
         return n
 
     def exam_ok(a):
-        if a + 1 >= len(avail):
+        if a + exam_len > len(avail):
             return False
-        return (_weekday(avail[a]) in exam_days and (_date(avail[a + 1]) - _date(avail[a])).days == 1
-                and before_break(a) >= min_before)
+        if exam_len > 1 and (_date(avail[a + 1]) - _date(avail[a])).days != 1:
+            return False
+        return _weekday(avail[a]) in exam_days and before_break(a) >= min_before
 
     placed, dropped, a, ran_out = {}, [], 0, False
     stop = len(avail) if limit is None else min(len(avail), limit)
@@ -130,7 +133,7 @@ def lay(flow, start=None, blocked=None, limit=None):
                 while j < len(avail) and not exam_ok(j):
                     j += 1
                 if j >= len(avail):
-                    ran_out = True           # no two days left for this test: it and what follows are `left`
+                    ran_out = True           # no room left for this test: it and what follows are `left`
                     break
                 if j - it["examIn"] > a:
                     filler(it)

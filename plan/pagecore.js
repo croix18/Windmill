@@ -64,8 +64,9 @@
     out.exams = [];
     rows.forEach(function (r, i) {
       if (!r.exam) return;
-      var second = null;
-      for (var j = i + 1; j < rows.length; j++) if (rows[j].src === 'item') { second = rows[j]; break; }
+      var second = null;   // a two-day test's second day is the next item; a one-day course (A7, rules.exam.days = 1) has none
+      if (((DATA.courses[course].flow.rules.exam || {}).days || 2) > 1)
+        for (var j = i + 1; j < rows.length; j++) if (rows[j].src === 'item') { second = rows[j]; break; }
       var q = quarter(DATA, r.date), q0 = r.base ? quarter(DATA, r.base) : q;
       out.exams.push({ unit: r.unit, title: r.title, d1: r.date, d2: second ? second.date : null, base: r.base, moved: r.moved, quarter: q, baseQuarter: q0, crossed: q !== q0, past: r.date < today });
     });

@@ -33,7 +33,7 @@
     var span = days.filter(function (d) { return !first || d >= first; });
     var avail = span.filter(function (d) { return !has(off, d); });
     var breaks = (flow.breaks || []).slice().sort();
-    var ex = rules.exam || {}, examDays = ex.weekdays || [0, 3], minBefore = ex.minBeforeBreak || 0, fill = rules.filler;
+    var ex = rules.exam || {}, examDays = ex.weekdays || [0, 3], minBefore = ex.minBeforeBreak || 0, examLen = ex.days || 2, fill = rules.filler;
 
     function beforeBreak(a) {                                 // teaching days from avail[a] to the next break
       var b = null, i;
@@ -44,8 +44,9 @@
       return n;
     }
     function examOk(a) {
-      if (a + 1 >= avail.length) return false;
-      return examDays.indexOf(weekday(avail[a])) >= 0 && gap(avail[a], avail[a + 1]) === 1 && beforeBreak(a) >= minBefore;
+      if (a + examLen > avail.length) return false;
+      if (examLen > 1 && gap(avail[a], avail[a + 1]) !== 1) return false;   // a two-day exam's second day is the next calendar day
+      return examDays.indexOf(weekday(avail[a])) >= 0 && beforeBreak(a) >= minBefore;
     }
     var placed = {}, dropped = [], a = 0, ranOut = false;
     var limit = (opts.limit === undefined || opts.limit === null) ? null : opts.limit;

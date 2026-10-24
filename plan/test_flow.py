@@ -37,8 +37,9 @@ def school_days(first, last, holidays=()):
     return out
 
 
-def small(holidays=(), min_before=0, breaks=()):
-    """Two short units: three lessons, a review, a two-day test, a flex day; then two lessons and a test."""
+def small(holidays=(), min_before=0, breaks=(), exam_days=2):
+    """Two short units: three lessons, a review, a two-day test, a flex day; then two lessons and a test.
+    exam_days=1: the same with one-day tests (A7 since 24 Oct 2026) — no X2 items, rules.exam.days = 1."""
     items = [{"kind": "lesson", "code": f"1.0{n}", "title": f"Lesson {n}", "unit": 1} for n in (1, 2, 3)]
     items += [{"kind": "review", "code": "1.R", "title": "Review", "unit": 1, "examIn": 1},
               {"kind": "exam", "code": "1.X1", "title": "Test day 1", "unit": 1, "examIn": 0},
@@ -48,8 +49,10 @@ def small(holidays=(), min_before=0, breaks=()):
               {"kind": "lesson", "code": "2.02", "title": "Lesson 5", "unit": 2},
               {"kind": "exam", "code": "2.X1", "title": "Test day 1", "unit": 2, "examIn": 0},
               {"kind": "exam", "code": "2.X2", "title": "Test day 2", "unit": 2}]
+    if exam_days == 1:
+        items = [it for it in items if not it["code"].endswith("X2")]
     f = {"days": school_days("2026-09-07", "2026-10-30", holidays), "breaks": list(breaks),
-         "rules": {"exam": {"weekdays": [0, 3], "minBeforeBreak": min_before},
+         "rules": {"exam": {"weekdays": [0, 3], "minBeforeBreak": min_before, "days": exam_days},
                    "filler": {"unit": "next", "entry": {"kind": "spiral", "code": "spiral", "title": "Spiral", "unit": None}}},
          "tail": [{"before": "2026-10-19", "count": True, "code": "R{n}", "title": "Review {n}: {t}", "titles": ["a", "b"], "titleRest": "mixed",
                    "entry": {"kind": "pm3", "unit": None}},
@@ -77,7 +80,7 @@ def invariants(f, res, name, start_index=0):
     check(sorted(idx + res["dropped"] + res["left"]) == want, f"{name}: an item neither laid, dropped nor left")
     by = {r["index"]: n for n, r in enumerate(rows) if r["src"] == "item"}
     teach = [r["date"] for r in rows if r["src"] != "blocked"]
-    exam_days = f["rules"]["exam"].get("weekdays", [0, 3])
+    exam_days, exam_len = f["rules"]["exam"].get("weekdays", [0, 3]), f["rules"]["exam"].get("days", 2)
     for k, it in enumerate(items):
         if k not in by:
             continue
@@ -86,6 +89,8 @@ def invariants(f, res, name, start_index=0):
         if it.get("examIn") == 0 and not it.get("free") and not partner_gone:
             nxt = teach[teach.index(d) + 1] if teach.index(d) + 1 < len(teach) else None
             check(dt.date.fromisoformat(d).weekday() in exam_days, f"{name}: {it['code']} starts on {d}, not a test day")
+            if exam_len == 1:
+                continue                     # a one-day exam (A7): nothing follows it by rule
             check(nxt and (dt.date.fromisoformat(nxt) - dt.date.fromisoformat(d)).days == 1, f"{name}: {it['code']} on {d} is not followed by the next calendar day")
             check(k + 1 in by and rows[by[k + 1]]["date"] == nxt, f"{name}: {it['code']}'s second day is not the next teaching day")
         if it.get("examIn") == 1 and not it.get("free") and not partner_gone:
@@ -144,6 +149,20 @@ check([f5["items"][k]["code"] for k in r5["left"]] == ["2.02", "2.X1", "2.X2"], 
 # limit
 r6 = flow.lay(f, limit=2)
 check(len([r for r in r6["rows"] if r["src"] != "blocked"]) == 2 and not r6["left"], "small: limit")
+
+# one-day tests (A7, 24 Oct 2026: "Move to all 1 day tests"): the test is still a Monday or a Thursday, nothing has to follow it
+f7 = small(exam_days=1); r7 = flow.lay(f7); a7 = at(f7); invariants(f7, r7, "one-day")
+check(a7["1.X1"] == "2026-09-14" and a7["flex5"] == "2026-09-15" and "1.X2" not in a7, f"one-day: the test is Monday and the flex day follows at once — got {a7}")
+f8 = small(holidays=["2026-09-18"], exam_days=1); a8 = at(f8); invariants(f8, flow.lay(f8), "one-day, Friday off")
+f8b = small(holidays=["2026-09-18"]); a8b = at(f8b)
+check(a8b["1.X1"] == "2026-09-14", f"two-day: Friday off keeps the test to Monday — got {a8b}")
+# with two lost days a two-day test cannot sit on Thursday 17 before the Friday holiday; a one-day one can
+f9 = small(holidays=["2026-09-18"], exam_days=1); r9 = flow.lay(f9, blocked={"2026-09-08": {"kind": "off", "code": None, "title": "x", "meets": False}, "2026-09-09": {"kind": "off", "code": None, "title": "x", "meets": False}})
+a9 = {r["entry"]["code"]: r["date"] for r in r9["rows"] if r["src"] == "item"}
+check(a9["1.X1"] == "2026-09-17", f"one-day: a Thursday before a Friday off is a fine test day — got {a9}")
+f9b = small(holidays=["2026-09-18"]); r9b = flow.lay(f9b, blocked={"2026-09-08": {"kind": "off", "code": None, "title": "x", "meets": False}, "2026-09-09": {"kind": "off", "code": None, "title": "x", "meets": False}})
+a9b = {r["entry"]["code"]: r["date"] for r in r9b["rows"] if r["src"] == "item"}
+check(a9b["1.X1"] == "2026-09-21", f"two-day: the same loss sends the test to the Monday after — got {a9b}")
 
 REAL = {c: SPINE["flow"][c] for c in ("acc", "on")}
 rng = random.Random(20261004)
@@ -257,8 +276,9 @@ for c, F in REAL.items():
 check(n_ok > 100 and n_refused > 5, f"logs: {n_ok} honoured, {n_refused} refused — the generator is not exercising both")
 
 # ---- 3. the JavaScript engine -------------------------------------------------------------------------
-for name, F2, kw in (("small", small(), {}), ("small-off", f2, {}), ("small-break", f4, {}), ("small-short", f5, {}), ("small-limit", f, {"limit": 2})):
-    CASES.append({"flow": F2, "blocked": {}, "start": None, "limit": kw.get("limit"), "expect": flow.project(flow.lay(F2, **kw)), "name": name})
+for name, F2, kw in (("small", small(), {}), ("small-off", f2, {}), ("small-break", f4, {}), ("small-short", f5, {}), ("small-limit", f, {"limit": 2}), ("one-day", f7, {}), ("one-day-off", f9, {})):
+    bl = {"2026-09-08": {"kind": "off", "code": None, "title": "x", "meets": False}, "2026-09-09": {"kind": "off", "code": None, "title": "x", "meets": False}} if name == "one-day-off" else {}
+    CASES.append({"flow": F2, "blocked": bl, "start": None, "limit": kw.get("limit"), "expect": flow.project(flow.lay(F2, blocked=bl, **kw)), "name": name})
 print(f"flow.py: {RAN[0]} checks, {len(FAILS)} failed")
 for x in FAILS[:20]:
     print("  FAIL", x)

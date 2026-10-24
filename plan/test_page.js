@@ -29,8 +29,9 @@ for (const c of ['on', 'acc']) {
     } else if (s) check(r.x.length === 0, `${c} ${r.date}: the page lists IXL the spine does not`);
   }
   check(days === DATA.courses[c].flow.days.length && dues > 30, `${c}: ${days} days and ${dues} assignments compared`);
-  // the tests: one per unit, both days, in order
-  check(v.exams.length >= 9 && v.exams.every(x => x.d2 && Flow.nextDay(DATA.courses[c].flow, x.d1) === x.d2), `${c}: every test has its two days`);
+  // the tests: one per unit, in order; M7's have two days, A7's one (ruling 51, 24 Oct 2026: rules.exam.days = 1)
+  const oneDay = (DATA.courses[c].flow.rules.exam.days || 2) === 1;
+  check(v.exams.length >= 9 && v.exams.every(x => oneDay ? !x.d2 : (x.d2 && Flow.nextDay(DATA.courses[c].flow, x.d1) === x.d2)), `${c}: every test has its ${oneDay ? "one day" : "two days"}`);
   check(v.next && v.next.date === '2026-10-05' && v.behind === 2, `${c}: Monday 5 October is the next lesson, two school days behind — got ${v.next && v.next.code} on ${v.next && v.next.date}, behind ${v.behind}`);
   // a review day logged for Tuesday: everything after it moves, and the page says one day is pending
   const tue = '2026-10-06', was = v.rows.find(r => r.date === tue);
