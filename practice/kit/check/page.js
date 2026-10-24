@@ -82,6 +82,18 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await p.click('[data-all="' + T[0].id + '"]'); if (!/^st/.test(await active(p))) fail('Show me how: focus is ' + await active(p));
   /* 4. Try another: focus in the new question */
   await p.click('[data-another="' + T[0].id + '"]'); { const a = await active(p); if (!/^a.*x1|q.*x1/.test(a) && !/x1/.test(a)) fail('Try another: focus is ' + a); }
+  /* 4b. Try another after a choice question got right on a later try: the new one's choices can be ticked (23 Oct 2026:
+     a select-all got right on the second try opened its "another" locked — the right answer's lock reached into the box) */
+  { const C = itemsOf(seed).find(x => x.kind !== 'text'); if (!C) fail('no choice question to test Try another on');
+    else { const wrong = C.kind === 'mc' ? [(C.x.correct + 1) % C.x.opts.length] : [C.x.opts.findIndex((_, k) => !C.x.correct.includes(k))];
+      for (const k of wrong) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [C.id, k]);
+      await check(p, C.id); for (const k of wrong) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [C.id, k]);
+      await answer(p, C); await check(p, C.id);
+      const fb = await p.$eval('#fb' + C.id, e => e.innerText); if (!/Correct/.test(fb)) fail('choice question ' + C.id + ' not right after the key: ' + fb.slice(0, 60));
+      await p.click('[data-another="' + C.id + '"]');
+      const locked = await p.$$eval('input[name="q' + C.id + 'x1"]', xs => xs.filter(x => x.disabled).length); if (locked) fail('Try another on ' + C.id + ': ' + locked + ' of the new choices are disabled');
+      await p.click('#ch' + C.id + 'x1A'); const on = await p.$eval('input[name="q' + C.id + 'x1"][value="0"]', x => x.checked); if (!on) fail('Try another on ' + C.id + ': the new choice did not tick');
+      const still = await p.$$eval('input[name="q' + C.id + '"]', xs => xs.filter(x => !x.disabled).length); if (still) fail('the right answer on ' + C.id + ' no longer locks its own choices'); } }
   /* 5. Hint takes focus into the walkthrough; Close gives it back to Hint */
   await p.click('[data-walk="' + T[1].id + '"]'); { const a = await active(p); if (!/wopt|^wn/.test(a)) fail('Hint: focus is ' + a); }
   const head = await p.$eval('#wl' + T[1].id + ' .wkhead b', e => e.textContent); if (!/^Hint · step 1 of \d+$/.test(head)) fail('Hint heading "' + head + '"');

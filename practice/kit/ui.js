@@ -314,7 +314,9 @@ function paintItem(it){
   paintChoices(it, R.v ? R : null);
   var input = $('a' + it.id); if (input){ input.readOnly = R.v === 'right'; if (R.v === 'right' && keys.target === input) hideKeys(); }
   var btn = host.querySelector('[data-check="' + it.id + '"]'); if (btn) btn.disabled = R.v === 'right';
-  if (it.type !== 'text') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ x.disabled = R.v === 'right'; });
+  /* a right answer locks this question's own choices — not the "Try another" mounted inside its box (23 Oct 2026: a
+     student who got a select-all right on her second try asked for another; it opened locked, and she could not touch it) */
+  if (it.type !== 'text') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
 }
 function paintChoices(it, R){
   if (it.type === 'text') return;
