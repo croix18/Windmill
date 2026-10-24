@@ -4,6 +4,39 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (24 Oct 2026) — read this first
+
+**The ChatGPT review of the A7 Unit 4 page** (Windmill `0422bd1`, `1c87b38`, `1584b67`; mrshaffer-site `9e21952`; A7 and M7
+pushed after; the Sheets plan: https://claude.ai/artifact/AcVWX1swHECuYLDHVtmi5T). Croix, 8:52 am: *"Let's take a look at the
+practice tests, I got chatgpt to review some things."* — a spec in three priorities; he chose all three. Also that morning:
+*"Drop the Portuguese. You don't have to change it retroactively but you don't need it going forward."* (kit README step 8: no
+`"second"` on a new unit; A7 U3, A7 U4, M7 U4 keep theirs).
+- **P0, done — the test's numbers were on the student page.** A7 U4 and M7 U4 carried Form A's and Form B's numbers,
+  labelled, as their exclusion list (`const TEST`), readable in the page source; the A7 test is Monday 26 Oct. The numbers
+  live in each unit's `test_forms.js` now, which nothing ships: the kit's `build.py` refuses a page that defines `TEST_FORMS`
+  or holds a line of that file. A7's `u4_check.js` loads it for the `onTest` flag (the engine no longer redraws on it — a check
+  must generate what the page generates); `verify.py` counts parts whose printed numbers are a test part's and fails above
+  2 % (0.7 %: 240 of 34,800; a third of sets hold one such part of 29 — Part 3's small spaces). M7's `m7_check.js` counts from
+  its own FORMS, cap 5 % (4.4 %: the circle families keep the test's sizes on purpose; that test is past). `contentVersion`
+  bumped (A7 U4 → 5, M7 U4 → 4): sets that used to draw again are different. Told to Croix with the numbers; offered to put
+  the exclusion back on A7 U4 through Monday if he wants it.
+- **P1, done — the point comes from one on your own.** `practice/kit/patches_p1.py` is the record (old → new by function).
+  `R.earned` = right on the first check with no Hint and no Show me how, on the question or on a "Try another" (practice
+  mode only; `B.earnedBy`); `R.first`/`R.helped` are the original first check, never rewritten; `earnedOf()` gives older
+  saved sets `earned` from `first && !helped`. One miss rule, `streakStep()` + a persistent `streaks` store: two in a row
+  clear, anything else adds and resets; a blank at Finish is `R.skipped` and a miss. "Try another" shows whenever the point is
+  owed (primary) and on an "another" after any check. Wording: "✓ Correct" + bulb + "One on your own earns the point."; the base
+  card "point earned" once a fresh one did it; the bar "N earned 💡k"; the end panel leads with "points earned on your own"
+  and keeps "Right on the first try: F / N" beneath; "Every point earned." Test mode untouched. `check/page.js` 9b walks the
+  spec's acceptance tests 1–4, 6, 9, 10; 4b (23 Oct) the locked "another". Portuguese entries added for the new lines so the
+  three bilingual units still pass part C.
+- **P2, a plan, not a build:** the doc above. Route A (an Apps Script web app serving the page, embedded by URL) is the only
+  secure one; four prerequisites first (district approval of identifiable records, a school account, the Chromebook identity
+  test, deployment settings); one unit, analytics only, then the rest. Nothing changes until each go/no-go is met.
+- **Published:** all six pages (student A7 U4 Version 14, A7 U3 25, M7 U4 17; teacher copies 9, 5, 6), the site, Google
+  Sites files sent (twice today — the second set is the one to use). Earlier today: the locked "Try another" (23 Oct evening
+  section) and Cadence 29.16.
+
 ## Where things stand (23 Oct 2026, evening) — read this first
 
 **"Try another" after a choice question got right opened locked** (Windmill `a69d5e5`, `9d9a20d`; mrshaffer-site `c3363c0`;
@@ -1374,6 +1407,8 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (9:20 pm): Croix: "Can you publish the teachers copies instead to the website..." → mrshaffer-site 7982ee0: teacher/m7, teacher/a7 built by practice.mjs into an unlisted, noindex folder (address in the site's README). Earlier: "can I get a copy a7 please unit 4 teacher addition" → sent the All Teacher Editions PDF (bookmarks renamed), then he meant the practice test's teacher copy.
 - 22 Oct (late): Croix: "Is there a way I can add in that variation factor? …" → the kit's variety check (practice/kit/check/variety.js, floor 100 versions a part); A7 U3, A7 U4, M7 U4 widened and republished. Windmill 8d91d6c, ce249a3; A7 6d502a2, 8922f29; M7 7db536d.
 - 23 Oct (7:17 am): Croix: "Can you get rid of the still a point comment. And also the with help comment…" → a small gray bulb marks a Hint-solved question; no words about help. Windmill c9cf1ae; A7 5d5e582; M7 5f13b7e; site 40f16dc, 7173355, 2cfae15.
+- 24 Oct (8:52 am): Croix: "Let's take a look at the practice tests, I got chatgpt to review some things." → P0 the test numbers off the pages, P1 the point from one on your own, P2 the Sheets plan (doc); "Drop the Portuguese … going forward." Windmill 0422bd1, 1c87b38, 1584b67; site 9e21952.
+- 24 Oct (7:18 am): Croix: "This standard seems like it disproportionately draws fractions…" → Cadence 29.16: MA.7.AR.1.1 draws int/dec/frac a third each (fc26d3a; site 5e9cb39).
 - 23 Oct (8:01 pm): Croix: "The a7 unit 4 practice failed today…" → the right answer's lock reached the Try another inside its box (choice questions only); kit a69d5e5, 9d9a20d; all three units and teacher copies rebuilt and republished; site c3363c0.
 - 23 Oct (6:59 pm): Croix: "Today was an off day for periods 3, 4, and 5… M7 is getting pushed back a day…" → ruling 50, 9.06+07 one day Thu 29 Oct (his choice of four); A7 exam stays Mon 26, 4.07+08 untaught; kit IXL rules 5–6. Windmill 0f5a85d, ec508e0, 300c73b; A7 637bd1c; M7 7b91732, 1ed29d8; site 0368ec2; M7 Schedule doc rev 35; phone page V7.
 - 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
