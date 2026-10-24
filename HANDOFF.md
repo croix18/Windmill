@@ -27,6 +27,30 @@ section and I can keep teachers editions and tests, and tools like tally and geo
   `/tally`, `/cadence`, `/geopardy`, `/m7`). `tools/test_site.mjs`: the wall (tampered/expired cookies, open redirects),
   the moved addresses, every link on every page, every lesson day with slides linked. Deploy succeeded; the live site is
   not reachable from this workspace (the proxy), so the live wall is unverified until Croix opens /teacher/.
+- **Ruling 51 (4:21 and 4:45 pm): every A7 unit test is one period, on any day but a Wednesday; the gained days are PM3
+  review.** Windmill `3a9162f` + `182f5d8`, A7 `f897266`, M7 `5eb5197` (rulebook note). `rules.exam.days` in flow.py/.js
+  (default 2; A7 sets 1, `weekdays` `[0,1,3,4]`); A7's plan has one X row per unit (`5.X`); a unit's first lesson carries
+  `need` = the unit's length so the whole unit sits on one side of a long break (ruling 48; `straddles()` reads a unit from
+  its first LESSON, so a thread before a break is its own two days); the engine is told the three long breaks. The log pins
+  13–14 Oct as spiral days and 3.X on 15 Oct. Ten PM3 review days, content ends Thu 15 Apr, 5 of 6 flex days left. Test
+  dates: 5.X Thu 5 Nov · 6.X Tue 17 Nov · 7.X Mon 7 Dec · 8/9.X Fri 15 Jan · 10.X Mon 1 Feb · 11.X Fri 12 Feb · 12.X Thu
+  25 Feb · 13.X Tue 9 Mar · 14.X Thu 18 Mar · 15/16.X Mon 12 Apr · 17.X Thu 15 Apr. A7's master_sheet/check read `N.X`;
+  START HERE wording follows the exam length (install_unit.py); the plan page pairs a second day only for a two-day course.
+  M7 is untouched (two days, Mon/Thu).
+- **Every unit of both courses is on the site; every app at its latest** (site `6cb9867`, 5:05 pm: "Fill in the latest
+  versions of all my made content. Make sure it's well organized. Make sure each application is pushing the latest version
+  of itself."). `kit/publish_web.py` now publishes each package to `<site>/units/<course>/unit-N/` (PDF, pptx, md; a docx
+  with no PDF beside it converted by LibreOffice; `unit.json`; every unit with a package, built or not). The site's
+  `tools/units.mjs` reads a package; `build.mjs` makes `/<course>/unit-N/` for students (practice, review, handouts,
+  each lesson's slides + independent set — the build and `test_site.mjs` E refuse a key, test or teacher document outside
+  /teacher/) and `/teacher/<course>/unit-N/` (everything by section; START HERE and the Reference notes rendered from
+  Markdown; the practice page's teacher copy at `…/practice/`). `schedule.py` lists the units on the course pages and
+  labels a one-day test "Unit 5 Test". Tally on the site had fallen behind its repo — `sync.py` keeps an app's own CSP
+  when it has one, and publishes Scrub at /teacher/tally/scrub/. **The publish step is now:** course checks →
+  `python3 build/publish_web.py --site ../mrshaffer-site` → site `schedule.py` → `build.mjs && test_site.mjs` → push.
+- **Two pre-existing failures in `tools/check.sh` here, not from today** (both fail with today's changes stashed):
+  `drive/test_windyhill.js` (section I, `con[0]` undefined — the unit console's name) and the kit's deckkit "steps" test
+  (one of 174). Every other check passes.
 - **Steward is the public board, Deckhand is behind the wall** (site `fc5c756`, 11:13 am: "switch deckhand for steward on
   the public page. Update steward with anything necessary. Keep the coolest stuff for just me"): the home page's door is
   Steward (`/steward/`); Deckhand sits at `/teacher/deckhand/` (first tile on the teacher page; `/deckhand/` redirects; the
