@@ -4,6 +4,19 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, 5 pm: ruling 55 — every unit gets a practice page) — read this first
+
+**Ruling 55** (Croix, 4:52 pm, told M7 Unit 9 has only its printed practice test: *"Yes I still want the interactive practice
+page on all the units regardless of review day or not."*; 5:00 pm: *"Skip past units for now"*). Every unit of both courses
+has an interactive practice page and teacher copy, review day or not; a unit built before ruling 49 (printed Forms A/B) gets
+one too — practice for its forms, never their numbers (`test_forms.js`), never a lesson's shown numbers (ruling 43). Each page
+is reviewed by fresh readers before it is published. HOUSE STYLE 13b(xxvii) in both courses (A7 `b7285c9f`, M7 `5a3c9d4`);
+the build brief's step 6 is never skipped.
+- **Order:** M7 Unit 9 (test Mon–Tue 2–3 Nov; up before Fri 30 Oct) — **this session is building it** (`m7/practice/u9`);
+  then A7 Unit 5 (Thu 5 Nov), M7 Unit 5 (21–22 Jan), then each unit as it is built. M7 Units 2–3 and A7 Units 1–2: skipped
+  for now. Pages today: M7 Units 4, 10 (8 held with its unit); A7 Units 3, 4, 6.
+- Croix also has a download of every test date (both courses, from the spine as of 25 Oct): an .xlsx sent in this session.
+
 ## Where things stand (25 Oct 2026, 4 pm: A7 Unit 6 checked after its fixes; the site up to date) — read this first
 
 **Everything on the site is current** (Croix, 3:11 pm: *"Is everything else pushed to the site and updated?"*): every
@@ -1670,3 +1683,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (11:14 am – 1 pm): Croix: "Take them down until a review chat goes over them. Then put them back up." (A7 Unit 6, published 10:35 by the A7 chat) → site 26d4820 down, hold.json (1da4c03); 11:28: "can you get a logical common sense title and numbering heirarchy across both courses" → ruling 54 (kit 9aac4a9; Lesson Plan and print fixes ee0544b, 74dbaab, 95c6fb0); A7 00cdddf, M7 dc90925, site 85c478c; A7 Unit 4's forms re-sent.
 - 25 Oct (1–3 pm): the second review of A7 Unit 6 closes Croix's 11:14 "Then put them back up." → readers on Claude Opus 5.5 (Fable refused for rate); ruling 43 on the test (lessons show 3-4-5 and 6-8-10 only; the page avoids every shown number, u6_check enforces it); a leg in a story on the test; Hints and option order no longer give keys; lessons 6.01–6.07 and Thread B fixed (A7 audit §8); kit d4d2048, 71f5138; A7 5200cc3b, 27b9603b; site 782f69d (Unit 6 back up; M7 Unit 8 still held).
 - 25 Oct (3:11–4 pm): Croix: "Is everything else pushed to the site and updated?" → both courses and every app current on the site but Tally (synced, 7e135ab); a fourth reader over the second review's fixes to A7 Unit 6 found 8 things (a warm-up that was the Review's Q11, the Reference Sheet's 9-12-15, 6.04 Example 2 on board 1's numbers, the kite's words, three repeats inside the lessons, two slips), all fixed; the page content version 4 (ASKED); A7 8ca33dce; site aa603e2.
+- 25 Oct (4:29–5 pm): Croix: "Can I get a download of all test dates as they currently stand." → an .xlsx from the spine (24 unit tests, both courses; state testing and catch-up days), checked against both scopes. 4:52 pm: "Yes I still want the interactive practice page on all the units regardless of review day or not."; 5:00: "Skip past units for now" → ruling 55 (A7 b7285c9f, M7 5a3c9d4, brief); M7 Unit 9's page begun.

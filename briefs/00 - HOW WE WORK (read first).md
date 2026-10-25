@@ -125,6 +125,9 @@ The order, which the brief repeats with your unit's particulars:
 - **Ruling 41: no HTML console; a deck is its `Slides.pptx`.** Anything about "the console" is history.
 - **Ruling 43: no practice item repeats what the lesson showed. Ruling 44: words and picture agree.** Both are gates; read them in HOUSE STYLE.
 - **No Portuguese on a new practice page** (24 Oct): no `"second"` in `unit.json`, no `pt.js`.
+- **Ruling 55 (25 Oct): every unit has an interactive practice page, review day or not** (Croix: "Yes I still want the
+  interactive practice page on all the units regardless of review day or not."). Step 6 is never skipped; a unit built before
+  ruling 49, with printed forms, gets a page too (practice for its forms, never their numbers). HOUSE STYLE 13b(xxvii).
 - **The kit changed on 24 Oct** to allow the practice-only assessment. Your clone has it. Do not edit anything under
   `build/lib/`, `build/checks.py`, the drivers, `practice/kit/` — `kitcheck` refuses a changed copy. If the kit is wrong, say so to Croix.
 
