@@ -4,6 +4,31 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, afternoon) — read this first
+
+**Three kit defects found building A7 Unit 6 are fixed** (Windmill `c9c3e8a`). Croix, after the list: *"Fix it. I give you
+permission."*
+- **`deckkit` `ixl()`:** a skill name that wraps takes the rows it wraps to. A fixed 0.36-in row printed a long name's second
+  line over the next skill (A7 6.T1 slide 35; `checks.py` overlap, so Unit 6 could not install). Two kit tests; the old code
+  fails them.
+- **The printed test (`practice/kit/ui.js`):** the ruling-49 test and the make-ups print with the paper's shape. **No set
+  number on the student's sheet** — the student page opens any set with its worked answers (`#set-N`), so the number was the
+  answer key (the M7 review's open item this morning). Points on the head, on each section and on every part; the scoring and
+  follow-through lines once each; work space and no "Answer:" line (house rule 2). The key carries the set number and a score
+  tracker by benchmark, kept whole on one page. `check/page.js` checks that shape, and no longer reads "&lt;" in a choice as
+  four characters. Practice kit README, "The printed test".
+- **Vendored and rebuilt:** A7 (`459c3e62`): Unit 6 installed at 0 findings, its practice page and teacher copy built. M7
+  tried in a scratch worktree of `decbbbc`, not pushed: Unit 10 rebuilt and installed at 0; its page and teacher copy pass,
+  and so do A7 Units 3–4 and M7 Unit 4. **M7 must vendor (`python3 tools/vendor_windmill.py`, then `python3
+  ../Windmill/tools/practice_kit.py --vendor m7/practice/kit`) and rebuild its Unit 10 teacher copy (`run.py`) before the
+  19 Nov test is printed**; its `unit.js` needs nothing (its `notesPrint` already carries the scoring and two-period lines,
+  and the kit prints each line once). Then the site republishes the teacher copy.
+- **Still open in the kit:** the unit test paper (`unitbuild.py`) and the fixed-form teacher copy (`teacher_gen.py`,
+  `teacher.js`) print "two class periods" and the two-period line on every test, A7's too (ruling 51: one period) — A7
+  Unit 4 (Mon 26 Oct) and Unit 5 (Thu 5 Nov) papers say it; `teacher.js`'s fixed-form paper still has "Answer:" lines;
+  plankit's "Expand once per law" in every Lesson Plan; STIX lettering on Lexend papers (ruling 46); the core Hint can give a
+  division's answer away; publish_web.py and unreviewed units (the M7 review's second item).
+
 ## Where things stand (24 Oct 2026, midday) — read this first
 
 **The site is course-first, each day opens its slides, and the teacher's things are behind a password** (mrshaffer-site
@@ -1503,3 +1528,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 23 Oct (6:59 pm): Croix: "Today was an off day for periods 3, 4, and 5… M7 is getting pushed back a day…" → ruling 50, 9.06+07 one day Thu 29 Oct (his choice of four); A7 exam stays Mon 26, 4.07+08 untaught; kit IXL rules 5–6. Windmill 0f5a85d, ec508e0, 300c73b; A7 637bd1c; M7 7b91732, 1ed29d8; site 0368ec2; M7 Schedule doc rev 35; phone page V7.
 - 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
 - 25 Oct: Croix: "M7 stopped and is waiting for review." → the Fable pass on M7 Unit 10 (briefs/REVIEW AND PUBLISH): clean rebuild the same, kit checks pass; three fresh readers (Barton, critic, FAST — the FAST reader cut off by the Fable limit and re-run on Opus 5.5, as were the fixes). No wrong key. Fixed: Q7 mathematical context only (AR.2.1; six of eight contexts were stories), Q6 as x/d in half the sets, Q17's duplicate choice, Q15's missing coefficient, Q14's "the bill was", Q4 ±1, Q9 "exact", Q11/Q15 route by the numbers, Q7(b) feedback, no deck's own Q5/Q7 (contentVersion 3); 10.07 board 7 a route diagnostic; the review's Example 2; FAST stems; layout. Audit §8 "The second review". M7 4120cac (rebased over the build chat's Unit 8 8.01–8.02), site fe77c94 (deployed). OPEN for Croix: the 10.02–10.04 inequality stories (AR.2.1 vs the IXL word problems); Q16 percent before Unit 7. OPEN in the kit, before the 19 Nov test is printed: ui.js prints "Set N" on the student's test page (a student can open the set between the test's two days) — put it on the key only; publish_web.py publishes every unit with a package, so an unreviewed unit (M7 Unit 8) reaches the site's units/ — held back by hand this time.
+- 25 Oct (afternoon): Croix: "Fix it. I give you permission" (the A7 build chat's list of three kit defects) → deckkit ixl() gives a wrapping skill name its rows; the printed test with the paper's shape and no set number on the student's sheet (the M7 review's first open item); page.js decodes "&lt;". Windmill c9c3e8a; A7 459c3e62 (Unit 6 installed, its page and teacher copy built); M7 tried in a scratch worktree, not pushed — it vendors and rebuilds its Unit 10 teacher copy before the 19 Nov test.
