@@ -286,7 +286,8 @@ body.printing{background:#e9ecf1}
 .pname{display:flex;gap:8px;align-items:flex-end;margin:14px 0 6px;font:14px/1.2 var(--ui)} .pname .pline{flex:1 1 auto;border-bottom:1px solid #000;height:1.3em} .pname .pline.short{flex:0 0 7em}
 .pnotes{font:13.5px/1.4 var(--ui);margin:8px 0 0} .pnotes .pinote{display:block}
 .psec{font:700 16px/1.3 var(--ui);border-bottom:1.5px solid #000;padding-bottom:3px;margin:20px 0 12px}
-.pq{margin:0 0 18px} .pqh{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid} .ppart{break-inside:avoid;page-break-inside:avoid}
+.pq{margin:0 0 18px;break-inside:avoid;page-break-inside:avoid}   /* ruling 8: a question is never split across a page — the paper is the price (A7 Unit 6's printed Q11 split, 25 Oct 2026) */
+.pqh{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid} .ppart{break-inside:avoid;page-break-inside:avoid}
 .pq .qfig{margin-top:8px}
 .ppart{margin:8px 0 0 var(--i1)} .ppart .line{margin-bottom:4px}
 .pans{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;margin:8px 0 0 var(--i2);font:15px/1.3 var(--ui)}

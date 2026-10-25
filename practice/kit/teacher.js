@@ -36,7 +36,7 @@
   function head(f, key){
     var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : ''].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test, which says nothing about its length (Croix, 25 Oct 2026: "I don't need that text at all") */
     return '<div class="phead"><div class="pt1 ptest">' + esc(T.course + ' Unit ' + T.unit + ' Test') + '</div><div class="pt2">' + esc(T.title) + ' · ' + esc(sub) + '</div>' +
-      (key ? '' : '<div class="pname">Name:<span class="pline"></span>Date:<span class="pline short"></span></div>') + '</div>';
+      (key ? '' : '<div class="pname">Name:<span class="pline"></span>Date:<span class="pline short"></span>Period:<span class="pline short"></span></div>') + '</div>';   /* the paper's Name, Date and Period (ruling 54) */
   }
   function work(inches){ return '<div class="pwork" style="height:' + (Math.max(0.4, +inches || 0.6) * 0.9).toFixed(2) + 'in"></div>'; }
   function choices(it){

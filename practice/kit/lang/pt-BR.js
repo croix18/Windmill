@@ -156,6 +156,7 @@ var T = {
   'If nothing happens, use your browser’s Print (Ctrl + P).': 'Se nada acontecer, use o Imprimir do navegador (Ctrl + P).',
   'Name:': 'Nome:',
   'Date:': 'Data:',
+  'Period:': 'Turma:',
   'Answer:': 'Resposta:',
   'Answer key': 'Gabarito',
   'Results': 'Resultados',

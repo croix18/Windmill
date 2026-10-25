@@ -664,7 +664,7 @@ function pq(d, qn){
 }
 function printHead(title){
   return '<div class="phead"><div class="pt1"><span class="bt">' + esc(U.title) + '</span></div><div class="pt2"><span class="bt">' + title + '</span></div>' +
-    '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span></div></div>';
+    '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span><span class="bt">Period:</span><span class="pline short"></span></div></div>';   /* the paper's Name, Date and Period (ruling 54) */
 }
 function setLine(){ return 'Set ' + seed + ' · ' + esc(SCOPES[scope]); }
 function worksheetHtml(){
@@ -756,7 +756,7 @@ function testFormHtml(label, form){
   var when = T.two_day ? 'two class periods' : '';
   h.push('<div class="phead"><div class="pt1 ptest"><span class="bt">' + esc(U.title).replace(/\s*Practice Test\b/i, label === 'Test' ? ' Test' : ' ' + label + ' Test') + '</span></div>' +
     '<div class="pt2"><span class="bt">' + [plainText(U.h1 || ''), 'Form ' + form, total + ' points', when].filter(Boolean).map(esc).join(' · ') + '</span></div>' +
-    '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span></div></div>');
+    '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span><span class="bt">Period:</span><span class="pline short"></span></div></div>');
   /* each of the paper's lines once: the teacher copy's ("Show your work…", the π line), then the unit's print notes; a unit
      that prints the scoring lines itself (M7 Unit 10's notesPrint) does not get them twice, and the follow-through line
      prints under its sections, as on the paper (teacher.js), not again here */
