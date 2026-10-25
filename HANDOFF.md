@@ -9,7 +9,8 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 **IXL is done with each lesson and due by the unit test — ruling 53.** Croix, 9:18 am: *"fix the ixl due dates across the
 board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit
 assessment."* A run of lessons with the same skills is one assignment, done as it is taught and **due on the first day of
-the next unit test**; a thread day's skills are due by the next unit test (A7 Thread B, 18–19 Nov → the Unit 11 test, Fri 11 Dec);
+the next unit test**; a thread day's skills are due by the next unit test (A7 Thread B, 18–19 Nov → the Unit 11 test, Fri 11 Dec — Croix,
+asked, 10:16 am: *"Leave them due at the test."*);
 with no test after a run, the next class. (Before: the first class day after the run.) Both HOUSE STYLEs 13b(xxv).
 - **Calendars:** M7 `tools/mkscope.py` (`0d00445`), A7 `tools/scope_calendar.py` (`3976f039`, `a8ff30af`). Both master
   sheets' Today field is **"IXL due today"** — nothing, one assignment's skills, or on a test day every skill of the unit
