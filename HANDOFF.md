@@ -14,7 +14,8 @@ audit §8, "The second review".
   hypotenuse, and the lessons had shown all four. The lessons now show 3-4-5 and 6-8-10 only; the page's 4(a) is 5-12-13 or
   9-12-15, and 4(b), 5, 7 and question 2 avoid every number a warm-up, notes slide, example or Your Turn showed — the
   page's `u6_check.js` enforces it (`engine.js`: `SHOWN_*`). **The same rule applies to every unit's page**: a test drawn
-  from the page must not re-ask what a lesson showed. M7's pages have no such check yet.
+  from the page must not re-ask what a lesson showed. M7's Unit 8 and 10 pages already keep off their decks' own numbers
+  (their READMEs); M7 Unit 4's and A7 Units 3–5's pages do not say that they do — unchecked here.
 - **Kit:** `d4d2048` (a minus after a comma is a sign in mathimg; the practice page passes its mode, so "Like the real test"
   credits follow-through), `95c6fb0` (a printed question never split), `74dbaab`, `ee0544b`, and `71f5138` (every Score
   Tracker kept whole; `build_paper`, a unit with no forms, names its sections under ruling 54 too). Kit tests 183/184 and
