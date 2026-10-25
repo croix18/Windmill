@@ -4,6 +4,34 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, 7 pm: two pages under way, everything backed up) — read this first
+
+**Croix, 7:02 pm:** *"Finish the unit you are working on but don't move on to anew one"*; **7:03 pm:** *"Make sure everything
+is backed up to GitHub so we don't lose anything if we run out of usage limit."* Every repository is pushed (A7 `3785885`,
+M7 `eaa805d`, this file); nothing of the work lives only in a session. The two pages under way are finished, then nothing new:
+**M7 Unit 5's page (next in ruling 55's order) waits for his word.**
+- **M7 Unit 9's page** (`m7/practice/u9`; test Mon–Tue 2–3 Nov; up before Fri 30 Oct): built and checked at 5:58 pm, then
+  reviewed by three fresh readers (Opus; Fable refused for rate) — no wrong key; 6 blockers, 12 majors and about 25 minors in
+  the coaching, the marking and the help, all in **`m7/practice/u9/REVIEW.md`** with the readers' scripts (`review/`).
+  **The fixes are in progress; the committed page is mid-fix and must not be published.** Next: finish every REVIEW.md item
+  (mark each fixed or not taken), `python3 m7/practice/kit/check/run.py u9` and `u9/teacher`, a fresh reader over just the
+  changes (A7 Unit 6 showed a review's fixes need their own check), then publish (M7 `publish_web.py --site ../mrshaffer-site
+  u9`; delete the held Unit 8's files it writes) and send Croix `M7 Unit 9 Practice Test.html` for his Google Site.
+- **A7 Unit 5's page** (`a7/practice/u5`; test Thu 5 Nov): built, every check passed (36 of 36 planted errors; `verify.py`
+  reads what the lessons showed from the lesson specs themselves — the M7 Unit 9 review's point that the check must not trust
+  the engine's own list), teacher copy built. **Held for its review by leaving out its two download files** (the files
+  `publish_web.py` copies; `hold.json` holds whole units, and Unit 5's lessons are live). Next: three fresh readers, fix,
+  `run.py u5` and `u5/teacher` (they write the download files), publish, send the embed.
+- **For Croix, about the printed tests** (found by the readers and the page checks; nothing changed): A7 Unit 5 — Form A Q14's
+  answer is on the unit's reference sheet (20 ft² = 1.86 m²); Form A Q1 (4 → 10 cm) and Form B Q1 (6 → 9) are 5.01's Example 1
+  and Notes I; Form A 6(a) is 5.04 Example 1's wall; Form A Q17 works 5.10 Notes III's 2.5 × 1½ = 3¾. M7 Unit 9 — Form A Q15
+  is 9.08 Example 1's Your Turn with its letter changed; Form A Q2 is 9.02 board 5; the paper practice test's Q1 is 9.01 Notes I.
+- **Kit issues the M7 Unit 9 readers found** (for a kit pass, not yet made): "Worksheet + answer key" prints 8 Letter pages,
+  the last holding one or two key rows; a fresh one's earned point leaves the original ✗ and listed "Not right yet" at Finish;
+  the set box resets "set 300", "0", "abc" silently; `hint.mul` with a factor 1 states its product ("1 × 4 = 4."); the results
+  table wraps "14 / 14" on a phone; Check and Hint touch on choice questions.
+- `tools/test_dates.py` makes the test-dates workbook Croix asked for at 4:29 pm.
+
 ## Where things stand (25 Oct 2026, 5 pm: ruling 55 — every unit gets a practice page) — read this first
 
 **Ruling 55** (Croix, 4:52 pm, told M7 Unit 9 has only its printed practice test: *"Yes I still want the interactive practice
@@ -1684,3 +1712,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (1–3 pm): the second review of A7 Unit 6 closes Croix's 11:14 "Then put them back up." → readers on Claude Opus 5.5 (Fable refused for rate); ruling 43 on the test (lessons show 3-4-5 and 6-8-10 only; the page avoids every shown number, u6_check enforces it); a leg in a story on the test; Hints and option order no longer give keys; lessons 6.01–6.07 and Thread B fixed (A7 audit §8); kit d4d2048, 71f5138; A7 5200cc3b, 27b9603b; site 782f69d (Unit 6 back up; M7 Unit 8 still held).
 - 25 Oct (3:11–4 pm): Croix: "Is everything else pushed to the site and updated?" → both courses and every app current on the site but Tally (synced, 7e135ab); a fourth reader over the second review's fixes to A7 Unit 6 found 8 things (a warm-up that was the Review's Q11, the Reference Sheet's 9-12-15, 6.04 Example 2 on board 1's numbers, the kite's words, three repeats inside the lessons, two slips), all fixed; the page content version 4 (ASKED); A7 8ca33dce; site aa603e2.
 - 25 Oct (4:29–5 pm): Croix: "Can I get a download of all test dates as they currently stand." → an .xlsx from the spine (24 unit tests, both courses; state testing and catch-up days), checked against both scopes. 4:52 pm: "Yes I still want the interactive practice page on all the units regardless of review day or not."; 5:00: "Skip past units for now" → ruling 55 (A7 b7285c9f, M7 5a3c9d4, brief); M7 Unit 9's page begun.
+- 25 Oct (7:02–7:03 pm): Croix: "Finish the unit you are working on but don't move on to anew one" and "Make sure everything is backed up to GitHub so we don't lose anything if we run out of usage limit." → M7 Unit 9's page and its review (REVIEW.md, the readers' scripts) pushed mid-fix (M7 eaa805d); A7 Unit 5's page, checked, held for its review (A7 3785885); this HANDOFF; tools/test_dates.py. M7 Unit 5's page waits for his word.
