@@ -283,7 +283,7 @@ def _plan_labels(L, deck_path, outdir):
     # drifted from its own slide — 4 Oct)
     due = L.get("ixl_due") or ixlplan.due_line(L)                    # ruling 53: due by the unit's test
     P.label("Homework", f"IXL: {'; '.join(L['ixl'])} — SmartScore {C.IXL_SMARTSCORE} on each. {due} "
-                        f"Whatever is not finished in the last five minutes is tonight's work.")
+                        f"Started in the last five minutes; what is not finished is done before then.")
 
     name = names.lesson(L, "Lesson Plan", "docx")
     path = os.path.join(outdir, name)
@@ -296,7 +296,7 @@ def _moves(b):
     k = b["kind"]
     return {
         "title": ("Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Settle, copy the target."),
-        "warmup": ("Two minutes silent, then reveal; one sentence of reteach per question at most.",
+        "warmup": ("Silent, then reveal; one sentence of reteach per question at most.",
                    "Four retrieval questions from memory, on their own, no notes."),
         "vocab": ("Read each new word and its meaning once; the notes use them next.", "Copy the words."),
         "notes": ("Teach from the front; the off-slide sentence is said, not shown.",

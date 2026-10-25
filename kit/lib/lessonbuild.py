@@ -665,7 +665,9 @@ def _fill_deck(D, L):
     wu = L["warmup"]
     # (the second argument of section() is the slide's label in the Teacher's Edition; it is not drawn —
     #  deckkit._new. A slide that reads from the top — warm-up, notes — starts straight under the rules.)
-    D.section("Warm-Up", "On your own. Four minutes. No notes.", 4, L.get("warmup_note", "Spaced retrieval. Two minutes silent, then reveal. One sentence of reteach per question at most."), "warmup")
+    # no minute count in the words: the sequence gives the warm-up's minutes, and "Four minutes" beside "Two minutes silent"
+    # beside a plan's "(5)" told a teacher three things (A7 Unit 6's second review, 25 Oct 2026)
+    D.section("Warm-Up", "On your own. No notes.", 4, L.get("warmup_note", "Spaced retrieval. Silent, then reveal. One sentence of reteach per question at most."), "warmup")
     D.no_band(); D.cursor = TOP
     for i, q in enumerate(wu):
         D.math_row(f"{i + 1}.   " + q["stem"], surface="slide", gap=0.22, size=23, align="left", x=LM + 1.2)
