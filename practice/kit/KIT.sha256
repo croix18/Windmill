@@ -1,7 +1,7 @@
 # The practice-test kit, file by file (sha256). Written by Windmill's tools/practice_kit.py; never by hand.
 9807a27c6653d6cfb070aa8b9a71eb3eade11d470e829ff0856009f18a7636e3  core.js
 9b9f6afd773159a901f34f76dcffe706895f13e00717ff6467ffba90102977c1  bilingual.js
-e0a0564cf70631eeb177252963b55a77232645ef1b191e946f8790c37dc48db1  ui.js
+e4fbe5190b088c4c2670991d0dc4f0d11727fe0dcf88dae07888bef8cf5c8319  ui.js
 de9c43e6c6fd681ba5a5ac99436e5f23957b4151dad1707d49777b47f2b75fb8  tex.js
 03e547ba48d1fc6b8693b70e848e68dd8895dca5e2d4f9c26494a43dbacfa68e  teacher.js
 bafe0f59878b8374e552524e4c540bbadbf78978d0791033a51093d1a1cc364c  teacher_gen.py

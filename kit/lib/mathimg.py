@@ -370,6 +370,9 @@ def m(latex, surface="doc", color="1A1A1A", slots=False):
         latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
     else:
         slots = False
+    # a minus after a comma is a sign, not a subtraction: mathtext spaced the second coordinate's minus as a binary operator,
+    # "(−6, − 2)" (the A7 Unit 6 second review, 25 Oct 2026); in braces it sits tight, as the first one does
+    latex = re.sub(r",(\s*)-(?=\s*[\d.\\a-zA-Z({])", r",\1{-}", latex)
     named = slots and slotmark.has(latex)
     if not named:
         latex = slotmark.strip(latex)

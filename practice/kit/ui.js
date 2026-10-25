@@ -211,7 +211,9 @@ function another(baseId){
 function byIdBase(id){ for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
 function byId(id){ return byIdBase(id) || EX[id] || null; }
 function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a && a.length) : a != null && String(a).trim() !== ''; }
-function ctxOf(it){ return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, aShown: it.aShown} : {aShown: it.aShown}; }
+/* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
+   printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
+function ctxOf(it){ return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, aShown: it.aShown, mode: S.mode} : {aShown: it.aShown, mode: S.mode}; }
 function judgeAns(it, a, tries){
   if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
   try {

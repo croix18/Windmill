@@ -357,6 +357,11 @@ ok("math: words inside an expression are left as written (the l of 'ml' is a let
    _mi.lexend_tex(r"250\text{ ml} \leq \left(l\right) \ldots") == r"250\text{ ml} \leq \left(\ell \right) \ldots")
 ok("math: a slot mark survives the slide face", slotmark.strip(_mi.lexend_tex(r"\sA{l}^{\sB{2}} \cdot \pi")) == "\\ell ^{2} \\hspace{0.2}\u2219\\hspace{0.2} \\mathtt{\\pi}")
 _mi_figs = (_mi.FIGS, _mi.INDEX); _mi.FIGS = tempfile.mkdtemp(prefix="kitmath"); _mi.INDEX = os.path.join(_mi.FIGS, "index.json")
+# a minus after a comma is a sign (the A7 Unit 6 second review, 25 Oct 2026: "(−6, − 2)"): the pair renders as wide as with the
+# minus braced by hand, and narrower than the binary minus the old code drew
+_w_pair = _mi.m(r"(-6, -2)", "slide")[1]; _w_braced = _mi.m(r"(-6, {-}2)", "slide")[1]
+_w_binary = _mi._PARSER.parse("$(-6, -2)$", dpi=_mi.DPI, prop=_mi._prop(*_mi.slide_form("(-6, -2)", _mi.SIZES["slide"])[1:])).width / _mi.DPI
+ok("math: a minus after a comma sits tight, as a sign (a point's second coordinate)", abs(_w_pair - _w_braced) < 1e-6 and _w_pair < _w_binary - 0.01, f"{_w_pair:.3f} {_w_braced:.3f} {_w_binary:.3f}")
 _pa = _mi.m(r"6.02 \times 10^{-3}", "slide")[0]
 _keep = _mi.SLIDE_FACE; _mi.SLIDE_FACE = ""
 _pb = _mi.m(r"6.02 \times 10^{-3}", "slide")[0]
