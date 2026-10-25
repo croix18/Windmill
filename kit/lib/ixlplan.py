@@ -83,6 +83,32 @@ def days_for(code, S=None, plan_code=None):
     return out
 
 
+def due_line(L):
+    """The IXL slide's and plan's due line. Ruling 53 (Croix, 25 Oct 2026): "The students should be doing the ixls as we
+    do the corresponding lessons, however they are due by the unit assessment." The plan makes a lesson's skills due on
+    the first day of the next unit test after it (the course's scope tool; the spine carries the date) — so the line
+    names that test: "Due by the Unit 10 test." No date: a slide outlives a moved test, and the due-date sheet, the
+    website and the phone page carry the date and move with the plan. "Due by the unit test." when the plan cannot
+    say which (no spine, a lesson the plan does not know, no test after it)."""
+    S = spine()
+    if not S:
+        return "Due by the unit test."
+    code, pc = L.get("code"), L.get("plan_code")
+    for day in sorted(S["days"]):
+        o = (S["days"][day] or {}).get(C.COURSE_KEY)
+        c = o and o.get("code")
+        if not (c and (c in (code, pc) or code in members(c))):
+            continue
+        due = next((i["due"] for i in o.get("ixl", []) if i.get("due")), None)
+        if not due:
+            continue
+        t = (S["days"].get(due) or {}).get(C.COURSE_KEY) or {}
+        if t.get("kind") == "exam" and t.get("unit") not in (None, ""):
+            return f"Due by the Unit {t['unit']} test."
+        break
+    return "Due by the unit test."
+
+
 def plan_for(code, S=None, plan_code=None):
     """{(name, code)} the plan lists for a lesson's days."""
     out = set()

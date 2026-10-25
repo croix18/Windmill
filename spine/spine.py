@@ -192,8 +192,8 @@ def a7_days(a7, known):
         e = {"kind": A7_KIND[kind], "code": code, "title": title, "unit": unit or None,
              "benchmarks": expand_benchmarks(bm, 8 if bm.startswith("8") else 7, known)}
         sk = SC.ixl(code)
-        # ruling 28: lessons in a row with the same skills are one assignment, due the first day
-        # the class meets after the last of them — scope_calendar's own run_end() and due()
+        # ruling 28: lessons in a row with the same skills are one assignment; ruling 53: due by the
+        # unit's exam — scope_calendar's own run_end() and due()
         due = SC.due(i)
         e["ixl"] = [{"name": n, "code": c, "due": due.isoformat() if due else None} for n, c in sk]
         days[d] = e

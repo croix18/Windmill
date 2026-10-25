@@ -303,7 +303,7 @@ class HtmlDeck:
         for ln in lines:
             self.text(ln, 24)
 
-    def ixl(self, skills, minutes=5, due="Due at the start of the next class."):
+    def ixl(self, skills, minutes=5, due="Due by the unit test."):
         ss = C.IXL_SMARTSCORE
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
         self.numbered(["Open IXL and start today's skills.",

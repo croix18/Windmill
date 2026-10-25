@@ -13,6 +13,7 @@ from docx.oxml.ns import qn
 from .dockit import Doc, INK, GRAY, RED, VOCAB
 from . import tekit
 from . import names
+from . import ixlplan
 from .profile import C
 from .lessonbuild import MTR_TEXT, REVOTE, board_text, differentiation_rows, _plain, _label
 
@@ -146,7 +147,7 @@ def _plan_sections(L, deck_path, outdir):
     doc.para("**Materials.**  " + T.get("materials", "Whiteboards and markers."), size=10.5, before=0, after=3, container=blk)
     doc.para("**Practice.**  The six-question independent set is worked silently in class; whatever is not finished goes home. "
              + f"IXL, all skills required to a SmartScore of {C.IXL_SMARTSCORE}, "
-             + (L["ixl_due"].rstrip(".")[0].lower() + L["ixl_due"].rstrip(".")[1:] if L.get("ixl_due") else "due at the start of the next class")
+             + (lambda t: t[0].lower() + t[1:])((L.get("ixl_due") or ixlplan.due_line(L)).rstrip("."))
              + ": " + "; ".join(L["ixl"]) + ".", size=10.5, before=0, after=4, container=blk)
     doc.spacer(1)
 
@@ -277,7 +278,7 @@ def _plan_labels(L, deck_path, outdir):
                                             "everything and are printed on nothing."))
     # derived from the lesson's IXL list and due line, never typed twice (4.06's typed copy had
     # drifted from its own slide — 4 Oct)
-    due = L.get("ixl_due") or "Due at the start of the next class."
+    due = L.get("ixl_due") or ixlplan.due_line(L)                    # ruling 53: due by the unit's test
     P.label("Homework", f"IXL: {'; '.join(L['ixl'])} — SmartScore {C.IXL_SMARTSCORE} on each. {due} "
                         f"Whatever is not finished in the last five minutes is tonight's work.")
 

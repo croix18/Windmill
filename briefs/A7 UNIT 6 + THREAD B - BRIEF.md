@@ -70,8 +70,8 @@ need him for. Then start building. Do not wait.
 ## 2. The plan — copy these, do not retype them
 
 Dates are the plan's as laid on 24 Oct 2026 (`a7/reference/A7 Scope and Sequence 2026-27.md`; `tools/scope_calendar.py` is the
-source). The IXL skills and codes are the plan's: **the build refuses any other** (ruling 28). The IXL due date is the next class
-day (ruling 28; the sheet is `a7/reference/A7 IXL Due Dates 2026-27.md`). SmartScore 67.
+source). The IXL skills and codes are the plan's: **the build refuses any other** (ruling 28). The IXL due date is the unit test (ruling 53, 25 Oct; it was the next class
+day under ruling 28; the sheet is `a7/reference/A7 IXL Due Dates 2026-27.md`). SmartScore 67.
 
 | Day | Spec | `code` | `lesson_no` | Title | Benchmark | IXL — exactly these |
 |---|---|---|---|---|---|---|

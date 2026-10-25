@@ -869,9 +869,9 @@ class Deck:
             self.text(ln, 24)
             self.cursor += 0.12
 
-    def ixl(self, skills, minutes=5, due="Due at the start of the next class."):
-        """Ruling 28. `due` is the third line; a lesson whose skills continue into the next lesson
-        passes its own (one assignment covering the run, due after its last lesson)."""
+    def ixl(self, skills, minutes=5, due="Due by the unit test."):
+        """Ruling 28; ruling 53 (25 Oct 2026): done as the lessons go, due by the unit's test. `due` is the
+        third line — lessonbuild passes the plan's ("Due by the Unit 10 test.", ixlplan.due_line) or the spec's own."""
         ss = C.IXL_SMARTSCORE
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
         rows = ["Open IXL and start today's skills.",

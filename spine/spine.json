@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-24T22:02:51-04:00",
+ "generatedAt": "2026-10-25T09:26:51-04:00",
  "sources": {
-  "a7": "775b2c59",
-  "m7": "007d719",
+  "a7": "28e8a92c",
+  "m7": "4120cac",
   "deckhand": "b37ba97"
  },
  "year": {
@@ -4165,22 +4165,22 @@
      {
       "name": "Evaluate powers",
       "code": "SZQ",
-      "due": "2026-09-24"
+      "due": "2026-10-15"
      },
      {
       "name": "Multiplication with exponents",
       "code": "5SK",
-      "due": "2026-09-24"
+      "due": "2026-10-15"
      },
      {
       "name": "Power rule",
       "code": "8DA",
-      "due": "2026-09-24"
+      "due": "2026-10-15"
      },
      {
       "name": "Understanding exponents",
       "code": "BFA",
-      "due": "2026-09-24"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4243,17 +4243,17 @@
      {
       "name": "Powers with negative bases",
       "code": "WFW",
-      "due": "2026-09-25"
+      "due": "2026-10-15"
      },
      {
       "name": "Division with exponents",
       "code": "XNC",
-      "due": "2026-09-25"
+      "due": "2026-10-15"
      },
      {
       "name": "Identify equivalent expressions involving whole-number exponents",
       "code": "KBE",
-      "due": "2026-09-25"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4316,7 +4316,7 @@
      {
       "name": "Evaluate expressions using properties of exponents",
       "code": "ZE9",
-      "due": "2026-09-28"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4378,12 +4378,12 @@
      {
       "name": "Understanding negative exponents",
       "code": "YBB",
-      "due": "2026-09-29"
+      "due": "2026-10-15"
      },
      {
       "name": "Evaluate powers with negative exponents",
       "code": "WGS",
-      "due": "2026-09-29"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4399,17 +4399,17 @@
      {
       "name": "Area of a parallelogram",
       "code": "P6T",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      },
      {
       "name": "Area of a trapezoid",
       "code": "JYV",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      },
      {
       "name": "Area of rhombuses",
       "code": "DPB",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -4463,7 +4463,7 @@
      {
       "name": "Identify equivalent expressions involving exponents I",
       "code": "VLM",
-      "due": "2026-09-30"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4479,17 +4479,17 @@
      {
       "name": "Area of a parallelogram",
       "code": "P6T",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      },
      {
       "name": "Area of a trapezoid",
       "code": "JYV",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      },
      {
       "name": "Area of rhombuses",
       "code": "DPB",
-      "due": "2026-09-30"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -4543,12 +4543,12 @@
      {
       "name": "Evaluate expressions using properties of exponents",
       "code": "6T7",
-      "due": "2026-10-01"
+      "due": "2026-10-15"
      },
      {
       "name": "Identify equivalent expressions involving exponents II",
       "code": "QDM",
-      "due": "2026-10-01"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4720,17 +4720,17 @@
      {
       "name": "Multiply powers: variable bases",
       "code": "TR9",
-      "due": "2026-10-06"
+      "due": "2026-10-15"
      },
      {
       "name": "Powers of a power: variable bases",
       "code": "2CU",
-      "due": "2026-10-06"
+      "due": "2026-10-15"
      },
      {
       "name": "Divide monomials with positive exponents",
       "code": "C8L",
-      "due": "2026-10-06"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4746,12 +4746,12 @@
      {
       "name": "Area of compound figures with triangles",
       "code": "MRG",
-      "due": "2026-10-06"
+      "due": "2026-10-19"
      },
      {
       "name": "Area of compound figures made of rectangles",
       "code": "NBA",
-      "due": "2026-10-06"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -4805,12 +4805,12 @@
      {
       "name": "Variables with negative exponents",
       "code": "2NL",
-      "due": "2026-10-07"
+      "due": "2026-10-15"
      },
      {
       "name": "Multiply and divide powers: variable bases",
       "code": "85P",
-      "due": "2026-10-07"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4826,12 +4826,12 @@
      {
       "name": "Center, radius, and diameter of a circle",
       "code": "7RY",
-      "due": "2026-10-09"
+      "due": "2026-10-19"
      },
      {
       "name": "Circumference of circles",
       "code": "9FM",
-      "due": "2026-10-09"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -4885,17 +4885,17 @@
      {
       "name": "Convert between standard and scientific notation: large numbers",
       "code": "2AL",
-      "due": "2026-10-09"
+      "due": "2026-10-15"
      },
      {
       "name": "Compare large numbers",
       "code": "WEZ",
-      "due": "2026-10-09"
+      "due": "2026-10-15"
      },
      {
       "name": "Powers of ten",
       "code": "LJQ",
-      "due": "2026-10-09"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -4911,12 +4911,12 @@
      {
       "name": "Center, radius, and diameter of a circle",
       "code": "7RY",
-      "due": "2026-10-09"
+      "due": "2026-10-19"
      },
      {
       "name": "Circumference of circles",
       "code": "9FM",
-      "due": "2026-10-09"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -5026,17 +5026,17 @@
      {
       "name": "Convert between standard and scientific notation: small numbers",
       "code": "85M",
-      "due": "2026-10-13"
+      "due": "2026-10-15"
      },
      {
       "name": "Compare small numbers",
       "code": "KDR",
-      "due": "2026-10-13"
+      "due": "2026-10-15"
      },
      {
       "name": "Powers of ten with negative exponents",
       "code": "SKD",
-      "due": "2026-10-13"
+      "due": "2026-10-15"
      }
     ]
    },
@@ -5052,7 +5052,7 @@
      {
       "name": "Find the radius or diameter of a circle given the circumference",
       "code": "2CM",
-      "due": "2026-10-13"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -5209,7 +5209,7 @@
      {
       "name": "Area of circles",
       "code": "YA8",
-      "due": "2026-10-15"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -5272,7 +5272,7 @@
      {
       "name": "Circles: word problems",
       "code": "P56",
-      "due": "2026-10-16"
+      "due": "2026-10-19"
      }
     ]
    }
@@ -5326,7 +5326,7 @@
      {
       "name": "Add and subtract numbers written in scientific notation",
       "code": "HUR",
-      "due": "2026-10-19"
+      "due": "2026-10-26"
      }
     ]
    },
@@ -5388,12 +5388,12 @@
      {
       "name": "Multiply numbers written in scientific notation",
       "code": "YZU",
-      "due": "2026-10-20"
+      "due": "2026-10-26"
      },
      {
       "name": "Divide numbers written in scientific notation",
       "code": "SGT",
-      "due": "2026-10-20"
+      "due": "2026-10-26"
      }
     ]
    },
@@ -5455,7 +5455,7 @@
      {
       "name": "Add, subtract, multiply, and divide numbers written in scientific notation: word problems",
       "code": "D5S",
-      "due": "2026-10-21"
+      "due": "2026-10-26"
      }
     ]
    },
@@ -5517,7 +5517,7 @@
      {
       "name": "Evaluate radical expressions",
       "code": "D8J",
-      "due": "2026-10-23"
+      "due": "2026-10-26"
      }
     ]
    },
@@ -5533,17 +5533,17 @@
      {
       "name": "Simplify expressions by combining like terms: with algebra tiles",
       "code": "PCU",
-      "due": "2026-10-22"
+      "due": "2026-11-02"
      },
      {
       "name": "Simplify expressions by combining like terms",
       "code": "JJG",
-      "due": "2026-10-22"
+      "due": "2026-11-02"
      },
      {
       "name": "Identify terms and coefficients",
       "code": "E7H",
-      "due": "2026-10-22"
+      "due": "2026-11-02"
      }
     ]
    }
@@ -5597,7 +5597,7 @@
      {
       "name": "Evaluate radical expressions",
       "code": "D8J",
-      "due": "2026-10-23"
+      "due": "2026-10-26"
      }
     ]
    },
@@ -5721,7 +5721,7 @@
      {
       "name": "Add linear expressions",
       "code": "RPY",
-      "due": "2026-10-27"
+      "due": "2026-11-02"
      }
     ]
    }
@@ -5775,7 +5775,7 @@
      {
       "name": "Scale drawings: find the scale factor, missing side, or missing angle",
       "code": "WEA",
-      "due": "2026-10-28"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -5791,12 +5791,12 @@
      {
       "name": "Subtract linear expressions",
       "code": "KCX",
-      "due": "2026-10-28"
+      "due": "2026-11-02"
      },
      {
       "name": "Add and subtract linear expressions",
       "code": "6BT",
-      "due": "2026-10-28"
+      "due": "2026-11-02"
      }
     ]
    }
@@ -5850,12 +5850,12 @@
      {
       "name": "Perimeter and area: changes in scale",
       "code": "ZC6",
-      "due": "2026-10-29"
+      "due": "2026-11-05"
      },
      {
       "name": "Scale drawings: find the scale factor or missing side",
       "code": "XHM",
-      "due": "2026-10-29"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -5919,12 +5919,12 @@
      {
       "name": "Scale drawings: word problems",
       "code": "84H",
-      "due": "2026-10-30"
+      "due": "2026-11-05"
      },
      {
       "name": "Scale drawings: scale factor word problems",
       "code": "KCM",
-      "due": "2026-10-30"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -5940,12 +5940,12 @@
      {
       "name": "Identify properties of addition and multiplication",
       "code": "JC2",
-      "due": "2026-10-30"
+      "due": "2026-11-02"
      },
      {
       "name": "Evaluate linear expressions",
       "code": "UG6",
-      "due": "2026-10-30"
+      "due": "2026-11-02"
      }
     ]
    }
@@ -5999,17 +5999,17 @@
      {
       "name": "Convert between customary and metric systems",
       "code": "E8Z",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      },
      {
       "name": "Compare and convert customary units",
       "code": "4B8",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      },
      {
       "name": "Compare and convert metric units",
       "code": "HW2",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -6099,17 +6099,17 @@
      {
       "name": "Convert between customary and metric systems",
       "code": "E8Z",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      },
      {
       "name": "Compare and convert customary units",
       "code": "4B8",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      },
      {
       "name": "Compare and convert metric units",
       "code": "HW2",
-      "due": "2026-11-03"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -6172,12 +6172,12 @@
      {
       "name": "Compare rates: word problems",
       "code": "VVS",
-      "due": "2026-11-04"
+      "due": "2026-11-05"
      },
      {
       "name": "Multi-step problems with customary or metric unit conversions",
       "code": "UCT",
-      "due": "2026-11-04"
+      "due": "2026-11-05"
      }
     ]
    },
@@ -6247,17 +6247,17 @@
      {
       "name": "Solutions to inequalities",
       "code": "8BA",
-      "due": "2026-11-05"
+      "due": "2026-11-19"
      },
      {
       "name": "Graph inequalities on number lines",
       "code": "VLU",
-      "due": "2026-11-05"
+      "due": "2026-11-19"
      },
      {
       "name": "Write inequalities from number lines",
       "code": "JNL",
-      "due": "2026-11-05"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6319,17 +6319,17 @@
      {
       "name": "Solve one-step addition and subtraction inequalities",
       "code": "7MP",
-      "due": "2026-11-06"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve and graph one-step addition and subtraction inequalities",
       "code": "9WP",
-      "due": "2026-11-06"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve one-step addition and subtraction inequalities: word problems",
       "code": "9GC",
-      "due": "2026-11-06"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6383,12 +6383,12 @@
      {
       "name": "Triangle inequality",
       "code": "2N5",
-      "due": "2026-11-09"
+      "due": "2026-11-17"
      },
      {
       "name": "Converse of the Pythagorean theorem: is it a right triangle?",
       "code": "EQZ",
-      "due": "2026-11-09"
+      "due": "2026-11-17"
      }
     ]
    },
@@ -6452,7 +6452,7 @@
      {
       "name": "Pythagorean theorem: find the missing leg or hypotenuse length",
       "code": "MTM",
-      "due": "2026-11-10"
+      "due": "2026-11-17"
      }
     ]
    },
@@ -6468,27 +6468,27 @@
      {
       "name": "Solve one-step multiplication and division inequalities",
       "code": "E9Q",
-      "due": "2026-11-10"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve and graph one-step multiplication and division inequalities",
       "code": "PFK",
-      "due": "2026-11-10"
+      "due": "2026-11-19"
      },
      {
       "name": "One-step multiplication and division inequalities: word problems",
       "code": "JDA",
-      "due": "2026-11-10"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve one-step inequalities",
       "code": "QWH",
-      "due": "2026-11-10"
+      "due": "2026-11-19"
      },
      {
       "name": "Graph solutions to one-step inequalities",
       "code": "TFK",
-      "due": "2026-11-10"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6544,7 +6544,7 @@
      {
       "name": "Pythagorean theorem: word problems",
       "code": "87U",
-      "due": "2026-11-12"
+      "due": "2026-11-17"
      }
     ]
    },
@@ -6560,17 +6560,17 @@
      {
       "name": "Solve two-step equations: complete the solution",
       "code": "X2L",
-      "due": "2026-11-12"
+      "due": "2026-11-19"
      },
      {
       "name": "Which x satisfies an equation?",
       "code": "DJS",
-      "due": "2026-11-12"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve two-step equations using algebra tiles",
       "code": "R9E",
-      "due": "2026-11-12"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6663,12 +6663,12 @@
      {
       "name": "Find the distance between two points on a horizontal or vertical line",
       "code": "L9V",
-      "due": "2026-11-13"
+      "due": "2026-11-17"
      },
      {
       "name": "Find the distance between two points",
       "code": "ZBP",
-      "due": "2026-11-13"
+      "due": "2026-11-17"
      }
     ]
    },
@@ -6684,12 +6684,12 @@
      {
       "name": "Solve two-step equations without parentheses",
       "code": "CMX",
-      "due": "2026-11-13"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve equations of the form px + q = r with fractions",
       "code": "Y6Q",
-      "due": "2026-11-13"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6745,7 +6745,7 @@
      {
       "name": "Pythagorean theorem: find the perimeter",
       "code": "VGE",
-      "due": "2026-11-16"
+      "due": "2026-11-17"
      }
     ]
    },
@@ -6761,22 +6761,22 @@
      {
       "name": "Solve two-step equations with parentheses",
       "code": "NSH",
-      "due": "2026-11-16"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve equations of the form p(x + q) = r with fractions",
       "code": "A8D",
-      "due": "2026-11-16"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve two-step equations with integers",
       "code": "QEB",
-      "due": "2026-11-16"
+      "due": "2026-11-19"
      },
      {
       "name": "Solve equations involving like terms",
       "code": "VSW",
-      "due": "2026-11-16"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6856,7 +6856,7 @@
      {
       "name": "Choose two-step equations: word problems",
       "code": "8NH",
-      "due": "2026-11-17"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6918,7 +6918,7 @@
      {
       "name": "Solve two-step equations: word problems",
       "code": "D2Y",
-      "due": "2026-11-18"
+      "due": "2026-11-19"
      }
     ]
    }
@@ -6974,17 +6974,17 @@
      {
       "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
       "code": "HGV",
-      "due": "2026-11-19"
+      "due": "2026-12-11"
      },
      {
       "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
       "code": "R2B",
-      "due": "2026-11-19"
+      "due": "2026-12-11"
      },
      {
       "name": "Write and solve equations using angle relationships",
       "code": "DBV",
-      "due": "2026-11-19"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7048,17 +7048,17 @@
      {
       "name": "Find missing angles in triangles",
       "code": "JFJ",
-      "due": "2026-11-20"
+      "due": "2026-12-11"
      },
      {
       "name": "Exterior Angle Theorem",
       "code": "FMP",
-      "due": "2026-11-20"
+      "due": "2026-12-11"
      },
      {
       "name": "Triangle Angle-Sum Theorem",
       "code": "6Q6",
-      "due": "2026-11-20"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7371,17 +7371,17 @@
      {
       "name": "Solve equations involving like terms",
       "code": "Q2B",
-      "due": "2026-12-02"
+      "due": "2026-12-11"
      },
      {
       "name": "Solve equations using the distributive property",
       "code": "QWE",
-      "due": "2026-12-02"
+      "due": "2026-12-11"
      },
      {
       "name": "Solve two-step equations: word problems",
       "code": "8CZ",
-      "due": "2026-12-02"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7397,22 +7397,22 @@
      {
       "name": "Evaluate powers",
       "code": "SZQ",
-      "due": "2026-12-02"
+      "due": "2026-12-10"
      },
      {
       "name": "Multiplication with exponents",
       "code": "5SK",
-      "due": "2026-12-02"
+      "due": "2026-12-10"
      },
      {
       "name": "Power rule",
       "code": "8DA",
-      "due": "2026-12-02"
+      "due": "2026-12-10"
      },
      {
       "name": "Understanding exponents",
       "code": "BFA",
-      "due": "2026-12-02"
+      "due": "2026-12-10"
      }
     ]
    }
@@ -7520,7 +7520,7 @@
      {
       "name": "Solve equations with variables on both sides",
       "code": "ZYL",
-      "due": "2026-12-03"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7536,17 +7536,17 @@
      {
       "name": "Powers with negative bases",
       "code": "WFW",
-      "due": "2026-12-03"
+      "due": "2026-12-10"
      },
      {
       "name": "Division with exponents",
       "code": "XNC",
-      "due": "2026-12-03"
+      "due": "2026-12-10"
      },
      {
       "name": "Identify equivalent expressions involving whole-number exponents",
       "code": "KBE",
-      "due": "2026-12-03"
+      "due": "2026-12-10"
      }
     ]
    }
@@ -7600,12 +7600,12 @@
      {
       "name": "Find the number of solutions",
       "code": "XDE",
-      "due": "2026-12-04"
+      "due": "2026-12-11"
      },
      {
       "name": "Create equations with no solutions or infinitely many solutions",
       "code": "7TY",
-      "due": "2026-12-04"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7621,7 +7621,7 @@
      {
       "name": "Evaluate expressions using properties of exponents",
       "code": "ZE9",
-      "due": "2026-12-04"
+      "due": "2026-12-10"
      }
     ]
    }
@@ -7675,17 +7675,17 @@
      {
       "name": "Solve multi-step equations",
       "code": "55K",
-      "due": "2026-12-07"
+      "due": "2026-12-11"
      },
      {
       "name": "Solve multi-step equations: complete the solution",
       "code": "PGH",
-      "due": "2026-12-07"
+      "due": "2026-12-11"
      },
      {
       "name": "Solve equations: mixed review",
       "code": "HZZ",
-      "due": "2026-12-07"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7701,7 +7701,7 @@
      {
       "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
       "code": "2XW",
-      "due": "2026-12-07"
+      "due": "2026-12-10"
      }
     ]
    }
@@ -7756,17 +7756,17 @@
      {
       "name": "Is (x, y) a solution to the system of equations?",
       "code": "N46",
-      "due": "2026-12-09"
+      "due": "2026-12-11"
      },
      {
       "name": "Find the number of solutions to a system of equations by graphing",
       "code": "AGZ",
-      "due": "2026-12-09"
+      "due": "2026-12-11"
      },
      {
       "name": "Solve a system of equations in slope-intercept form",
       "code": "9Z8",
-      "due": "2026-12-09"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -7782,22 +7782,22 @@
      {
       "name": "Evaluate numerical expressions involving rational numbers",
       "code": "KG2",
-      "due": "2026-12-09"
+      "due": "2026-12-10"
      },
      {
       "name": "Evaluate numerical expressions involving decimals",
       "code": "FNM",
-      "due": "2026-12-09"
+      "due": "2026-12-10"
      },
      {
       "name": "Evaluate numerical expressions involving fractions",
       "code": "XXQ",
-      "due": "2026-12-09"
+      "due": "2026-12-10"
      },
      {
       "name": "Evaluate numerical expressions involving exponents",
       "code": "D7P",
-      "due": "2026-12-09"
+      "due": "2026-12-10"
      }
     ]
    }
@@ -7905,12 +7905,12 @@
      {
       "name": "Solve a system of equations by graphing",
       "code": "C8X",
-      "due": "2026-12-10"
+      "due": "2026-12-11"
      },
      {
       "name": "Write a system of equations given a graph",
       "code": "TS7",
-      "due": "2026-12-10"
+      "due": "2026-12-11"
      }
     ]
    },
@@ -8853,7 +8853,7 @@
      {
       "name": "Graph a proportional relationship: word problems",
       "code": "FJW",
-      "due": "2027-01-07"
+      "due": "2027-01-14"
      }
     ]
    },
@@ -8869,12 +8869,12 @@
      {
       "name": "Populations and samples",
       "code": "YHZ",
-      "due": "2027-01-07"
+      "due": "2027-01-21"
      },
      {
       "name": "Identify representative and random samples",
       "code": "B9Z",
-      "due": "2027-01-07"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -8928,17 +8928,17 @@
      {
       "name": "Interpret graphs of proportional relationships",
       "code": "RMH",
-      "due": "2027-01-08"
+      "due": "2027-01-14"
      },
      {
       "name": "Find the constant of proportionality from a table",
       "code": "LKZ",
-      "due": "2027-01-08"
+      "due": "2027-01-14"
      },
      {
       "name": "Find the constant of proportionality from a graph",
       "code": "ZUT",
-      "due": "2027-01-08"
+      "due": "2027-01-14"
      }
     ]
    },
@@ -9003,12 +9003,12 @@
      {
       "name": "Identify proportional relationships by graphing",
       "code": "AAN",
-      "due": "2027-01-11"
+      "due": "2027-01-14"
      },
      {
       "name": "Identify proportional relationships in tables and graphs",
       "code": "VZK",
-      "due": "2027-01-11"
+      "due": "2027-01-14"
      }
     ]
    },
@@ -9024,12 +9024,12 @@
      {
       "name": "Make an estimate from sample data",
       "code": "FMC",
-      "due": "2027-01-12"
+      "due": "2027-01-21"
      },
      {
       "name": "Use collected data to make predictions",
       "code": "EXS",
-      "due": "2027-01-12"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9083,17 +9083,17 @@
      {
       "name": "Write equations for proportional relationships from tables",
       "code": "6GU",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      },
      {
       "name": "Write equations for proportional relationships from graphs",
       "code": "JKH",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      },
      {
       "name": "Write and solve equations for proportional relationships",
       "code": "VKK",
-      "due": "2027-01-12"
+      "due": "2027-01-14"
      }
     ]
    },
@@ -9109,12 +9109,12 @@
      {
       "name": "Make an estimate from sample data",
       "code": "FMC",
-      "due": "2027-01-12"
+      "due": "2027-01-21"
      },
      {
       "name": "Use collected data to make predictions",
       "code": "EXS",
-      "due": "2027-01-12"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9168,7 +9168,7 @@
      {
       "name": "Compare proportional relationships represented in different ways",
       "code": "5A9",
-      "due": "2027-01-13"
+      "due": "2027-01-14"
      }
     ]
    },
@@ -9184,7 +9184,7 @@
      {
       "name": "Perimeter and area: changes in scale",
       "code": "ZC6",
-      "due": "2027-01-14"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9246,7 +9246,7 @@
      {
       "name": "Perimeter and area: changes in scale",
       "code": "ZC6",
-      "due": "2027-01-14"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9308,7 +9308,7 @@
      {
       "name": "Scale drawings: find the scaled length",
       "code": "9VH",
-      "due": "2027-01-15"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9362,27 +9362,27 @@
      {
       "name": "Find the constant of proportionality from a table",
       "code": "ZCK",
-      "due": "2027-01-19"
+      "due": "2027-01-28"
      },
      {
       "name": "Identify proportional relationships by graphing",
       "code": "RXD",
-      "due": "2027-01-19"
+      "due": "2027-01-28"
      },
      {
       "name": "Identify proportional relationships",
       "code": "Z64",
-      "due": "2027-01-19"
+      "due": "2027-01-28"
      },
      {
       "name": "Write equations for proportional relationships from tables and graphs",
       "code": "VXM",
-      "due": "2027-01-19"
+      "due": "2027-01-28"
      },
      {
       "name": "Interpret graphs of proportional relationships",
       "code": "Q96",
-      "due": "2027-01-19"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9398,7 +9398,7 @@
      {
       "name": "Scale drawings: find the scale factor or missing side",
       "code": "XHM",
-      "due": "2027-01-20"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9491,17 +9491,17 @@
      {
       "name": "Find the slope from two points",
       "code": "ZAC",
-      "due": "2027-01-20"
+      "due": "2027-01-28"
      },
      {
       "name": "Find the slope from a table",
       "code": "GSB",
-      "due": "2027-01-20"
+      "due": "2027-01-28"
      },
      {
       "name": "Find the slope from a graph",
       "code": "Q94",
-      "due": "2027-01-20"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9517,7 +9517,7 @@
      {
       "name": "Scale drawings: find the scale factor or missing side",
       "code": "XHM",
-      "due": "2027-01-20"
+      "due": "2027-01-21"
      }
     ]
    }
@@ -9572,12 +9572,12 @@
      {
       "name": "Rate of change of a linear function: graphs",
       "code": "ZPF",
-      "due": "2027-01-21"
+      "due": "2027-01-28"
      },
      {
       "name": "Rate of change of a linear function: tables",
       "code": "8FE",
-      "due": "2027-01-21"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9652,27 +9652,27 @@
      {
       "name": "Slope-intercept form: find the slope and y-intercept",
       "code": "U55",
-      "due": "2027-01-22"
+      "due": "2027-01-28"
      },
      {
       "name": "Graph a line using slope",
       "code": "FSV",
-      "due": "2027-01-22"
+      "due": "2027-01-28"
      },
      {
       "name": "Graph a line from an equation in slope-intercept form",
       "code": "W5E",
-      "due": "2027-01-22"
+      "due": "2027-01-28"
      },
      {
       "name": "Write a linear equation from a slope and y-intercept",
       "code": "WHP",
-      "due": "2027-01-22"
+      "due": "2027-01-28"
      },
      {
       "name": "Compare linear functions: tables, graphs, and equations",
       "code": "N7D",
-      "due": "2027-01-22"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9734,22 +9734,22 @@
      {
       "name": "Complete a table and graph a linear function",
       "code": "DC2",
-      "due": "2027-01-25"
+      "due": "2027-01-28"
      },
      {
       "name": "Complete a table and make a graph: word problems",
       "code": "T7R",
-      "due": "2027-01-25"
+      "due": "2027-01-28"
      },
      {
       "name": "Complete a table for a linear function",
       "code": "D9B",
-      "due": "2027-01-25"
+      "due": "2027-01-28"
      },
      {
       "name": "Graph a line from an equation in standard form",
       "code": "7MZ",
-      "due": "2027-01-25"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9811,12 +9811,12 @@
      {
       "name": "Interpret the slope and y-intercept of a linear function",
       "code": "H5B",
-      "due": "2027-01-26"
+      "due": "2027-01-28"
      },
      {
       "name": "Interpret points on the graph of a linear function",
       "code": "9E8",
-      "due": "2027-01-26"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9832,7 +9832,7 @@
      {
       "name": "Use fractions to find the measure of an angle",
       "code": "V76",
-      "due": "2027-01-26"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -9886,22 +9886,22 @@
      {
       "name": "Write a linear equation from a graph",
       "code": "WHM",
-      "due": "2027-01-27"
+      "due": "2027-01-28"
      },
      {
       "name": "Write a linear function from a table",
       "code": "UYY",
-      "due": "2027-01-27"
+      "due": "2027-01-28"
      },
      {
       "name": "Write a linear equation from a slope and a point",
       "code": "VKP",
-      "due": "2027-01-27"
+      "due": "2027-01-28"
      },
      {
       "name": "Write a linear equation from two points",
       "code": "2R9",
-      "due": "2027-01-27"
+      "due": "2027-01-28"
      }
     ]
    },
@@ -9982,7 +9982,7 @@
      {
       "name": "Circle graphs and central angles",
       "code": "KXS",
-      "due": "2027-01-28"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10044,7 +10044,7 @@
      {
       "name": "Interpret circle graphs",
       "code": "WNJ",
-      "due": "2027-01-29"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10106,17 +10106,17 @@
      {
       "name": "Markups and sales",
       "code": "N2V",
-      "due": "2027-02-01"
+      "due": "2027-02-09"
      },
      {
       "name": "Sale prices: find the original price",
       "code": "BDA",
-      "due": "2027-02-01"
+      "due": "2027-02-09"
      },
      {
       "name": "Which is the better coupon?",
       "code": "QT6",
-      "due": "2027-02-01"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10170,12 +10170,12 @@
      {
       "name": "Relations: convert between mappings, tables, graphs, and ordered pairs",
       "code": "LQJ",
-      "due": "2027-02-02"
+      "due": "2027-02-09"
      },
      {
       "name": "Domain and range of relations",
       "code": "T7P",
-      "due": "2027-02-02"
+      "due": "2027-02-09"
      }
     ]
    },
@@ -10191,12 +10191,12 @@
      {
       "name": "Tax, tip, and more: word problems",
       "code": "24Z",
-      "due": "2027-02-02"
+      "due": "2027-02-09"
      },
      {
       "name": "Find the percent: tax, discount, and more",
       "code": "PBM",
-      "due": "2027-02-02"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10250,17 +10250,17 @@
      {
       "name": "Identify functions",
       "code": "JT2",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      },
      {
       "name": "Identify functions: graphs",
       "code": "AEB",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      },
      {
       "name": "Identify independent and dependent variables",
       "code": "FSF",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      }
     ]
    },
@@ -10276,17 +10276,17 @@
      {
       "name": "Multi-step problems with percents",
       "code": "ZHX",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      },
      {
       "name": "Solve percent equations: word problems",
       "code": "JS6",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      },
      {
       "name": "Estimate tips",
       "code": "Y5R",
-      "due": "2027-02-03"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10340,7 +10340,7 @@
      {
       "name": "Identify graphs: word problems",
       "code": "HWC",
-      "due": "2027-02-05"
+      "due": "2027-02-09"
      }
     ]
    },
@@ -10356,7 +10356,7 @@
      {
       "name": "Simple interest",
       "code": "E7Y",
-      "due": "2027-02-04"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10410,7 +10410,7 @@
      {
       "name": "Identify graphs: word problems",
       "code": "HWC",
-      "due": "2027-02-05"
+      "due": "2027-02-09"
      }
     ]
    },
@@ -10426,12 +10426,12 @@
      {
       "name": "Percent of change",
       "code": "BL7",
-      "due": "2027-02-05"
+      "due": "2027-02-09"
      },
      {
       "name": "Percent of change: find the original amount word problems",
       "code": "RCM",
-      "due": "2027-02-05"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10485,17 +10485,17 @@
      {
       "name": "Complete a function table from an equation",
       "code": "ESE",
-      "due": "2027-02-08"
+      "due": "2027-02-09"
      },
      {
       "name": "Complete a table for a function graph",
       "code": "7EK",
-      "due": "2027-02-08"
+      "due": "2027-02-09"
      },
      {
       "name": "Find values using function graphs",
       "code": "7N2",
-      "due": "2027-02-08"
+      "due": "2027-02-09"
      }
     ]
    },
@@ -10511,7 +10511,7 @@
      {
       "name": "Percent error: word problems",
       "code": "6UY",
-      "due": "2027-02-08"
+      "due": "2027-02-09"
      }
     ]
    }
@@ -10741,17 +10741,17 @@
      {
       "name": "Center, radius, and diameter of a circle",
       "code": "7RY",
-      "due": "2027-02-12"
+      "due": "2027-02-18"
      },
      {
       "name": "Circumference of circles",
       "code": "9FM",
-      "due": "2027-02-12"
+      "due": "2027-02-18"
      },
      {
       "name": "Find the radius or diameter of a circle given the circumference",
       "code": "2CM",
-      "due": "2027-02-12"
+      "due": "2027-02-18"
      }
     ]
    },
@@ -10767,7 +10767,7 @@
      {
       "name": "Graph a proportional relationship: word problems",
       "code": "FJW",
-      "due": "2027-02-12"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -10821,12 +10821,12 @@
      {
       "name": "Area of circles",
       "code": "YA8",
-      "due": "2027-02-16"
+      "due": "2027-02-18"
      },
      {
       "name": "Circles: word problems",
       "code": "P56",
-      "due": "2027-02-16"
+      "due": "2027-02-18"
      }
     ]
    },
@@ -10842,17 +10842,17 @@
      {
       "name": "Interpret graphs of proportional relationships",
       "code": "RMH",
-      "due": "2027-02-16"
+      "due": "2027-02-25"
      },
      {
       "name": "Find the constant of proportionality from a table",
       "code": "LKZ",
-      "due": "2027-02-16"
+      "due": "2027-02-25"
      },
      {
       "name": "Find the constant of proportionality from a graph",
       "code": "ZUT",
-      "due": "2027-02-16"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -10946,17 +10946,17 @@
      {
       "name": "Nets of three-dimensional figures",
       "code": "3R2",
-      "due": "2027-02-17"
+      "due": "2027-02-18"
      },
      {
       "name": "Surface area of cylinders",
       "code": "CYQ",
-      "due": "2027-02-17"
+      "due": "2027-02-18"
      },
      {
       "name": "Lateral area of cylinders",
       "code": "C8K",
-      "due": "2027-02-17"
+      "due": "2027-02-18"
      }
     ]
    },
@@ -10972,7 +10972,7 @@
      {
       "name": "Identify proportional relationships by graphing",
       "code": "AAN",
-      "due": "2027-02-17"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -11042,7 +11042,7 @@
      {
       "name": "Identify proportional relationships in tables and graphs",
       "code": "VZK",
-      "due": "2027-02-18"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -11104,17 +11104,17 @@
      {
       "name": "Write equations for proportional relationships from tables",
       "code": "6GU",
-      "due": "2027-02-19"
+      "due": "2027-02-25"
      },
      {
       "name": "Write equations for proportional relationships from graphs",
       "code": "JKH",
-      "due": "2027-02-19"
+      "due": "2027-02-25"
      },
      {
       "name": "Write and solve equations for proportional relationships",
       "code": "VKK",
-      "due": "2027-02-19"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -11224,37 +11224,37 @@
      {
       "name": "Choose the best type of graph",
       "code": "VP6",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Create dot plots",
       "code": "22B",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Create stem-and-leaf plots",
       "code": "8AP",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Create histograms",
       "code": "LGG",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Box plots",
       "code": "SKN",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Create and interpret dot plots with fractions",
       "code": "SHS",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      },
      {
       "name": "Create bar graphs",
       "code": "E76",
-      "due": "2027-02-23"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11270,7 +11270,7 @@
      {
       "name": "Compare proportional relationships represented in different ways",
       "code": "5A9",
-      "due": "2027-02-23"
+      "due": "2027-02-25"
      }
     ]
    }
@@ -11324,12 +11324,12 @@
      {
       "name": "Create line graphs",
       "code": "ERM",
-      "due": "2027-02-24"
+      "due": "2027-03-01"
      },
      {
       "name": "Interpret line graphs",
       "code": "TGQ",
-      "due": "2027-02-24"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11392,17 +11392,17 @@
      {
       "name": "Create scatter plots",
       "code": "AVL",
-      "due": "2027-02-25"
+      "due": "2027-03-01"
      },
      {
       "name": "Describe scatter plots",
       "code": "CG8",
-      "due": "2027-02-25"
+      "due": "2027-03-01"
      },
      {
       "name": "Describe associations between two variables using scatter plots",
       "code": "9ER",
-      "due": "2027-02-25"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11465,17 +11465,17 @@
      {
       "name": "Outliers in scatter plots",
       "code": "RP8",
-      "due": "2027-02-26"
+      "due": "2027-03-01"
      },
      {
       "name": "Identify lines of best fit",
       "code": "BG7",
-      "due": "2027-02-26"
+      "due": "2027-03-01"
      },
      {
       "name": "Make predictions with scatter plots",
       "code": "CM7",
-      "due": "2027-02-26"
+      "due": "2027-03-01"
      }
     ]
    },
@@ -11661,12 +11661,12 @@
      {
       "name": "Compound events: find the number of outcomes",
       "code": "P5R",
-      "due": "2027-03-03"
+      "due": "2027-03-11"
      },
      {
       "name": "Samples spaces for repeated events",
       "code": "AGW",
-      "due": "2027-03-03"
+      "due": "2027-03-11"
      }
     ]
    },
@@ -11730,17 +11730,17 @@
      {
       "name": "Probability of repeated experiments",
       "code": "BDZ",
-      "due": "2027-03-04"
+      "due": "2027-03-11"
      },
      {
       "name": "Probability of simple events",
       "code": "5ZY",
-      "due": "2027-03-04"
+      "due": "2027-03-11"
      },
      {
       "name": "Experimental probability",
       "code": "FRL",
-      "due": "2027-03-04"
+      "due": "2027-03-11"
      }
     ]
    },
@@ -11756,7 +11756,7 @@
      {
       "name": "Convert between customary and metric systems",
       "code": "E8Z",
-      "due": "2027-03-04"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -11812,27 +11812,27 @@
      {
       "name": "Multiply powers: variable bases",
       "code": "TR9",
-      "due": "2027-03-08"
+      "due": "2027-03-11"
      },
      {
       "name": "Powers of a power: variable bases",
       "code": "2CU",
-      "due": "2027-03-08"
+      "due": "2027-03-11"
      },
      {
       "name": "Divide monomials with positive exponents",
       "code": "C8L",
-      "due": "2027-03-08"
+      "due": "2027-03-11"
      },
      {
       "name": "Variables with negative exponents",
       "code": "2NL",
-      "due": "2027-03-08"
+      "due": "2027-03-11"
      },
      {
       "name": "Multiply and divide powers: variable bases",
       "code": "85P",
-      "due": "2027-03-08"
+      "due": "2027-03-11"
      }
     ]
    },
@@ -11848,12 +11848,12 @@
      {
       "name": "Compare and convert customary units",
       "code": "4B8",
-      "due": "2027-03-09"
+      "due": "2027-03-18"
      },
      {
       "name": "Compare and convert metric units",
       "code": "HW2",
-      "due": "2027-03-09"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -11946,12 +11946,12 @@
      {
       "name": "Multiply using the distributive property: area models",
       "code": "8P3",
-      "due": "2027-03-09"
+      "due": "2027-03-11"
      },
      {
       "name": "Multiply linear expressions with rational coefficients",
       "code": "9B9",
-      "due": "2027-03-09"
+      "due": "2027-03-11"
      }
     ]
    },
@@ -11967,12 +11967,12 @@
      {
       "name": "Compare and convert customary units",
       "code": "4B8",
-      "due": "2027-03-09"
+      "due": "2027-03-18"
      },
      {
       "name": "Compare and convert metric units",
       "code": "HW2",
-      "due": "2027-03-09"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -12026,12 +12026,12 @@
      {
       "name": "Common monomial factors",
       "code": "K8S",
-      "due": "2027-03-10"
+      "due": "2027-03-11"
      },
      {
       "name": "Factor out a monomial",
       "code": "BFZ",
-      "due": "2027-03-10"
+      "due": "2027-03-11"
      }
     ]
    },
@@ -12103,12 +12103,12 @@
      {
       "name": "Solve proportions",
       "code": "TDA",
-      "due": "2027-03-11"
+      "due": "2027-03-18"
      },
      {
       "name": "Solve proportions: word problems",
       "code": "WB7",
-      "due": "2027-03-11"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -12170,17 +12170,17 @@
      {
       "name": "Estimate population size using proportions",
       "code": "3C9",
-      "due": "2027-03-12"
+      "due": "2027-03-18"
      },
      {
       "name": "Do the ratios form a proportion?",
       "code": "MJQ",
-      "due": "2027-03-12"
+      "due": "2027-03-18"
      },
      {
       "name": "Do the ratios form a proportion: word problems",
       "code": "SHV",
-      "due": "2027-03-12"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -12242,12 +12242,12 @@
      {
       "name": "Compare rates: word problems",
       "code": "VVS",
-      "due": "2027-03-16"
+      "due": "2027-03-18"
      },
      {
       "name": "Multi-step problems with customary or metric unit conversions",
       "code": "UCT",
-      "due": "2027-03-16"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -12309,12 +12309,12 @@
      {
       "name": "Compare rates: word problems",
       "code": "VVS",
-      "due": "2027-03-16"
+      "due": "2027-03-18"
      },
      {
       "name": "Multi-step problems with customary or metric unit conversions",
       "code": "UCT",
-      "due": "2027-03-16"
+      "due": "2027-03-18"
      }
     ]
    }
@@ -12781,12 +12781,12 @@
      {
       "name": "Describe how a figure moves",
       "code": "WER",
-      "due": "2027-03-30"
+      "due": "2027-04-12"
      },
      {
       "name": "Congruence statements and corresponding parts",
       "code": "LPP",
-      "due": "2027-03-30"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -12802,7 +12802,7 @@
      {
       "name": "Nets of three-dimensional figures",
       "code": "3R2",
-      "due": "2027-03-30"
+      "due": "2027-04-08"
      }
     ]
    }
@@ -12856,27 +12856,27 @@
      {
       "name": "Identify reflections and rotations",
       "code": "S8S",
-      "due": "2027-03-31"
+      "due": "2027-04-12"
      },
      {
       "name": "Rotate polygons about a point",
       "code": "A5K",
-      "due": "2027-03-31"
+      "due": "2027-04-12"
      },
      {
       "name": "Identify translations",
       "code": "HJ9",
-      "due": "2027-03-31"
+      "due": "2027-04-12"
      },
      {
       "name": "Translations: graph the image",
       "code": "XUS",
-      "due": "2027-03-31"
+      "due": "2027-04-12"
      },
      {
       "name": "Translations: find the coordinates",
       "code": "RUP",
-      "due": "2027-03-31"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -12893,12 +12893,12 @@
      {
       "name": "Surface area of cylinders",
       "code": "CYQ",
-      "due": "2027-04-01"
+      "due": "2027-04-08"
      },
      {
       "name": "Lateral area of cylinders",
       "code": "C8K",
-      "due": "2027-04-01"
+      "due": "2027-04-08"
      }
     ]
    }
@@ -12952,17 +12952,17 @@
      {
       "name": "Identify translations",
       "code": "HJ9",
-      "due": "2027-04-01"
+      "due": "2027-04-12"
      },
      {
       "name": "Translations: graph the image",
       "code": "XUS",
-      "due": "2027-04-01"
+      "due": "2027-04-12"
      },
      {
       "name": "Translations: find the coordinates",
       "code": "RUP",
-      "due": "2027-04-01"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -12978,12 +12978,12 @@
      {
       "name": "Surface area of cylinders",
       "code": "CYQ",
-      "due": "2027-04-01"
+      "due": "2027-04-08"
      },
      {
       "name": "Lateral area of cylinders",
       "code": "C8K",
-      "due": "2027-04-01"
+      "due": "2027-04-08"
      }
     ]
    }
@@ -13037,12 +13037,12 @@
      {
       "name": "Reflections: graph the image",
       "code": "QLJ",
-      "due": "2027-04-02"
+      "due": "2027-04-12"
      },
      {
       "name": "Reflections: find the coordinates",
       "code": "AQ8",
-      "due": "2027-04-02"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13106,12 +13106,12 @@
      {
       "name": "Rotations: graph the image",
       "code": "AC9",
-      "due": "2027-04-05"
+      "due": "2027-04-12"
      },
      {
       "name": "Rotations: find the coordinates",
       "code": "HHS",
-      "due": "2027-04-05"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13127,7 +13127,7 @@
      {
       "name": "Volume of cylinders",
       "code": "FHC",
-      "due": "2027-04-06"
+      "due": "2027-04-08"
      }
     ]
    }
@@ -13182,12 +13182,12 @@
      {
       "name": "Describe transformations",
       "code": "VAY",
-      "due": "2027-04-06"
+      "due": "2027-04-12"
      },
      {
       "name": "Determine if two figures are congruent: justify your answer",
       "code": "HJU",
-      "due": "2027-04-06"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13203,7 +13203,7 @@
      {
       "name": "Volume of cylinders",
       "code": "FHC",
-      "due": "2027-04-06"
+      "due": "2027-04-08"
      }
     ]
    }
@@ -13257,17 +13257,17 @@
      {
       "name": "Classify dilations",
       "code": "JTS",
-      "due": "2027-04-07"
+      "due": "2027-04-12"
      },
      {
       "name": "Scaled polygons",
       "code": "9ZA",
-      "due": "2027-04-07"
+      "due": "2027-04-12"
      },
      {
       "name": "Dilations: find the scale factor",
       "code": "8NK",
-      "due": "2027-04-07"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13329,22 +13329,22 @@
      {
       "name": "Dilations: graph the image",
       "code": "9T4",
-      "due": "2027-04-08"
+      "due": "2027-04-12"
      },
      {
       "name": "Dilations: find the coordinates",
       "code": "UV9",
-      "due": "2027-04-08"
+      "due": "2027-04-12"
      },
      {
       "name": "Similar and congruent figures",
       "code": "U85",
-      "due": "2027-04-08"
+      "due": "2027-04-12"
      },
      {
       "name": "Determine if two figures are similar: justify your answer",
       "code": "CWB",
-      "due": "2027-04-08"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13407,32 +13407,32 @@
      {
       "name": "Identify complementary, supplementary, vertical, adjacent, and congruent angles",
       "code": "HGV",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      },
      {
       "name": "Find measures of complementary, supplementary, vertical, and adjacent angles",
       "code": "R2B",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      },
      {
       "name": "Write and solve equations using angle relationships",
       "code": "DBV",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      },
      {
       "name": "Find missing angles in triangles",
       "code": "JFJ",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      },
      {
       "name": "Exterior Angle Theorem",
       "code": "FMP",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      },
      {
       "name": "Triangle Angle-Sum Theorem",
       "code": "6Q6",
-      "due": "2027-04-09"
+      "due": "2027-04-12"
      }
     ]
    },
@@ -13564,27 +13564,27 @@
      {
       "name": "Interpret stem-and-leaf plots",
       "code": "BCT",
-      "due": "2027-04-13"
+      "due": "2027-04-27"
      },
      {
       "name": "Identify an outlier and describe the effect of removing it",
       "code": "QZU",
-      "due": "2027-04-13"
+      "due": "2027-04-27"
      },
      {
       "name": "Calculate mean, median, mode, and range",
       "code": "U2A",
-      "due": "2027-04-13"
+      "due": "2027-04-27"
      },
      {
       "name": "Calculate quartiles and interquartile range",
       "code": "NZN",
-      "due": "2027-04-13"
+      "due": "2027-04-27"
      },
      {
       "name": "Interpret charts and graphs to find mean, median, mode, and range",
       "code": "CYK",
-      "due": "2027-04-13"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -13639,27 +13639,27 @@
      {
       "name": "Compound events: find the number of outcomes",
       "code": "P5R",
-      "due": "2027-04-14"
+      "due": "2027-04-15"
      },
      {
       "name": "Samples spaces for repeated events",
       "code": "AGW",
-      "due": "2027-04-14"
+      "due": "2027-04-15"
      },
      {
       "name": "Probability of repeated experiments",
       "code": "BDZ",
-      "due": "2027-04-14"
+      "due": "2027-04-15"
      },
      {
       "name": "Probability of simple events",
       "code": "5ZY",
-      "due": "2027-04-14"
+      "due": "2027-04-15"
      },
      {
       "name": "Experimental probability",
       "code": "FRL",
-      "due": "2027-04-14"
+      "due": "2027-04-15"
      }
     ]
    },
@@ -13675,7 +13675,7 @@
      {
       "name": "Describe distributions in dot plots",
       "code": "ZX7",
-      "due": "2027-04-15"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -13750,7 +13750,7 @@
      {
       "name": "Describe distributions in dot plots",
       "code": "ZX7",
-      "due": "2027-04-15"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -13812,7 +13812,7 @@
      {
       "name": "Compare populations using measures of center and spread",
       "code": "JQW",
-      "due": "2027-04-21"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -13913,7 +13913,7 @@
      {
       "name": "Compare populations using measures of center and spread",
       "code": "JQW",
-      "due": "2027-04-21"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -13975,7 +13975,7 @@
      {
       "name": "Compare populations using measures of center and spread",
       "code": "JQW",
-      "due": "2027-04-21"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -14037,7 +14037,7 @@
      {
       "name": "Choose the best type of graph",
       "code": "VP6",
-      "due": "2027-04-22"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -14099,27 +14099,27 @@
      {
       "name": "Create dot plots",
       "code": "22B",
-      "due": "2027-04-23"
+      "due": "2027-04-27"
      },
      {
       "name": "Create stem-and-leaf plots",
       "code": "8AP",
-      "due": "2027-04-23"
+      "due": "2027-04-27"
      },
      {
       "name": "Create histograms",
       "code": "LGG",
-      "due": "2027-04-23"
+      "due": "2027-04-27"
      },
      {
       "name": "Box plots",
       "code": "SKN",
-      "due": "2027-04-23"
+      "due": "2027-04-27"
      },
      {
       "name": "Create and interpret dot plots with fractions",
       "code": "SHS",
-      "due": "2027-04-23"
+      "due": "2027-04-27"
      }
     ]
    }
@@ -14181,7 +14181,7 @@
      {
       "name": "Create bar graphs",
       "code": "E76",
-      "due": "2027-04-26"
+      "due": "2027-04-27"
      }
     ]
    }

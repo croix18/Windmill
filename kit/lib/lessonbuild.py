@@ -22,6 +22,7 @@ from .htmlkit import HtmlDeck
 from . import tekit
 from . import slotmark
 from . import names
+from . import ixlplan
 from .tekit import TE
 from .profile import C
 
@@ -811,7 +812,7 @@ def _fill_deck(D, L):
     if C.CLOSE:
         D.close(T["close"], 1, T.get("close_note", "Say it, then have the room say it back." +
                                      ("" if (L.get("no_set") or C.SET == "handout") else " Collect the set on the way out.")))
-    D.ixl(L["ixl"], IXL_MIN, **({"due": L["ixl_due"]} if L.get("ixl_due") else {}))
+    D.ixl(L["ixl"], IXL_MIN, due=L.get("ixl_due") or ixlplan.due_line(L))      # ruling 53: due by the unit's test
 
 
 IXL_MIN = C.IXL_MIN

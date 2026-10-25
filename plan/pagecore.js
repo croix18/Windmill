@@ -48,14 +48,16 @@
         meets: !(r.src === 'blocked' && e.meets === false), unrecorded: !!e.unrecorded,
         b: d.b || [], x: d.x || [], due: null, logged: !out.error && has(byDate, r.date) ? byDate[r.date] : null };
     });
-    // IXL: lessons in a row with the same skills are one assignment, due the first day the class meets after the last of them
+    // IXL: lessons in a row with the same skills are one assignment. Ruling 53 (Croix, 25 Oct 2026): done as the lessons go,
+    // due by the unit's test — the first exam day after the run; with no exam after it, the first day the class meets
     var seq = rows.filter(function (r) { return r.src !== 'blocked'; });
     seq.forEach(function (r, i) {
       if (!r.x.length) return;
       var end = i;
       while (end + 1 < seq.length && codes(seq[end + 1].x) === codes(r.x)) end++;
-      var after = rows.indexOf(seq[end]) + 1;
-      for (var j = after; j < rows.length; j++) if (rows[j].meets && rows[j].code !== 'PM3') { r.due = rows[j].date; break; }
+      var after = rows.indexOf(seq[end]) + 1, j;
+      for (j = after; j < rows.length; j++) if (rows[j].exam) { r.due = rows[j].date; break; }
+      if (!r.due) for (j = after; j < rows.length; j++) if (rows[j].meets && rows[j].code !== 'PM3') { r.due = rows[j].date; break; }
     });
     out.rows = rows;
     out.next = rows.filter(function (r) { return r.date >= today && r.deck; })[0] || null;
