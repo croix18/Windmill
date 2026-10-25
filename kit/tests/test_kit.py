@@ -769,8 +769,8 @@ with tempfile.TemporaryDirectory() as tmp:
     _t51 = _doc_text(_ub51.build_form(_U51, tmp, key=False, form="A"))
     _k51 = _doc_text(_ub51.build_form(_U51, tmp, key=True, form="A"))
 _two = C.EXAM_PERIODS == 2      # the kit's own test folder has no plan, so the profile's EXAM_PERIODS decides here
-ok("the test's length on the paper and its key: 'two class periods' and the continue-tomorrow line only when the test runs two periods, 'one class period' otherwise",
-   all(("two class periods" in t) == _two and ("one class period" in t) == (not _two) and ("Stop when the period ends" in t) == _two for t in (_t51, _k51)),
+ok("the test's length on the paper and its key: 'two class periods' and the continue-tomorrow line only when the test runs two periods; a one-period paper says nothing about its length",
+   all(("two class periods" in t) == _two and "one class period" not in t and "one period" not in t and ("Stop when the period ends" in t) == _two for t in (_t51, _k51)),
    _t51[:240])
 
 # ---- ruling 46 for figures (25 Oct 2026): a Lexend paper letters its figures in Lexend, the slide's face; a page in the

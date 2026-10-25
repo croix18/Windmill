@@ -34,7 +34,7 @@
   }
   function formWord(f){ return f === 'test' ? '' : 'Form ' + f; }
   function head(f, key){
-    var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : 'one class period'].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test */
+    var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : ''].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test, which says nothing about its length (Croix, 25 Oct 2026: "I don't need that text at all") */
     return '<div class="phead"><div class="pt1 ptest">' + esc(T.course + ' Unit ' + T.unit + ' Test') + '</div><div class="pt2">' + esc(T.title) + ' · ' + esc(sub) + '</div>' +
       (key ? '' : '<div class="pname">Name:<span class="pline"></span>Date:<span class="pline short"></span></div>') + '</div>';
   }

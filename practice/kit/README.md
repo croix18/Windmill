@@ -211,7 +211,8 @@ the two-period line when the test runs two periods, "Show your work…" (+ the �
 part (no answer line — house rule 2, as the paper, 25 Oct 2026), the key with notes, transfer flags and the score tracker.
 **The test's length (25 Oct 2026):** `teacher_gen.py` reads it as the build kit's paper does — the plan's test days for the
 unit (`<build>/assets/windmill/spine.js`), else the course's `EXAM_PERIODS` — and writes `two_day` empty for a one-period
-test (ruling 51: every A7 test is one period), so the head says "one class period" and no continue-tomorrow line prints.
+test (ruling 51: every A7 test is one period), so nothing on the paper speaks of its length — no "one class period"
+(Croix, 25 Oct 2026: "I don't need that text at all") and no continue-tomorrow line.
 `check/teacher_check.js` is Rule 0 for the printout (the period line both ways, no answer line). The bar and the paper are `translate="no"`.
 The bar tells the teacher that students use the student page, on the class website or Google Sites; on the website a
 teacher copy sits behind the teacher password (`/teacher/<course>/unit-N/practice/`).

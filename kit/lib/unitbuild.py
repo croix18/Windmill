@@ -50,7 +50,8 @@ def exam_periods(U, build_dir=None):
     """How many class periods the unit's test runs: the test days the plan gives the unit (the spine the console reads,
     packkit.calendar — the same days START HERE prints), else the course's EXAM_PERIODS. Ruling 27 made a test one paper
     over two periods; ruling 51 (23 Oct 2026) made every A7 test one period, and its papers kept printing "two class
-    periods" and the line telling a class to continue the next day (found 25 Oct on A7 Units 4 and 5)."""
+    periods" and the line telling a class to continue the next day (found 25 Oct on A7 Units 4 and 5). A one-period paper
+    prints nothing about its length (Croix, 25 Oct: "I don't need that text at all")."""
     days = packkit.calendar(U["unit"], build_dir or os.path.dirname(COURSE_FILE))[2]
     return min(len(days), 2) if days else int(getattr(C, "EXAM_PERIODS", 2))
 
@@ -263,7 +264,7 @@ def build_paper(U, outdir, key):
     assert len(transfer) == need, f"ruling 18: {len(transfer)} transfer items, need exactly {need} (questions {transfer})"
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}  ·  Assessment"
     two = exam_periods(U) == 2
-    sub = f"{total} points" + (("  ·  two periods; students continue the same paper" if two else "  ·  one period") if key else "")
+    sub = f"{total} points" + ("  ·  two periods; students continue the same paper" if key and two else "")
     doc = Doc(eyebrow, U["title"], sub, key=key, font=getattr(C, "PAPER_FONT", None))
     doc.instruction("Show your work. Circle your final answer.")
     if two:
@@ -432,7 +433,8 @@ def build_form(U, outdir, key, form="test", student=False):
     what = "Assessment" if is_test else "Practice Test"
     eyebrow = f"{COURSE}  \u00b7  Unit {U['unit']}  \u00b7  {what}"
     two = is_test and exam_periods(U) == 2
-    sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + (("  \u00b7  two class periods" if two else "  \u00b7  one class period") if is_test else "")
+    # a one-period test says nothing about its length (Croix, 25 Oct 2026, of "one class period": "I don't need that text at all")
+    sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + ("  \u00b7  two class periods" if two else "")
     doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student, font=getattr(C, "PAPER_FONT", None),
               banner="WORKED ANSWERS" if student else "ANSWER KEY")
     if two:

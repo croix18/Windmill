@@ -285,8 +285,9 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
   through, with no Day 1 / Day 2 division anywhere** (ruling 27). The paper's head says how many
   class periods the test runs — the plan's test days for the unit, else the course's `EXAM_PERIODS`
   (`unitbuild.exam_periods`; ruling 51, 23 Oct 2026: every A7 test is one period). A two-period
-  paper's front line says students continue from where they stopped; a one-period paper has no
-  such line. The student line for follow-through credit (ruling 19) sits under it. Every lettered part is one point; every
+  paper's head says "two class periods" and its front line says students continue from where they
+  stopped; a one-period paper says nothing about its length (Croix, 25 Oct: "I don't need that text
+  at all"). The student line for follow-through credit (ruling 19) sits under it. Every lettered part is one point; every
   single-part item is one point. `total` and `tracker` (benchmark → points) are asserted against
   the items at build time; `tracker_order` fixes the Score Tracker's row order.
 - **Exactly two items carry `transfer=True`** (ruling 18) and the build refuses any other count —

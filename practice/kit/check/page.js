@@ -349,7 +349,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
         headPts: forms.map(f => (/(\d+) points/.exec(f.querySelector('.pt2').textContent) || [])[1]),
         lines: forms.map(f => Array.from(f.querySelectorAll('.pnotes .pinote')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
         ft: forms.map(f => Array.from(f.querySelectorAll('.pft')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
-        period: forms.map(f => /two class periods|Stop when the period ends/.test(f.textContent)), oneDay: !!(window.TEACHER_TEST && !window.TEACHER_TEST.two_day),
+        period: forms.map(f => /class periods?|Stop when the period ends/.test(f.textContent)), oneDay: !!(window.TEACHER_TEST && !window.TEACHER_TEST.two_day),
         tracker: keys.map(k => { const t = k.querySelector('table.ptrack'); if (!t) return null; const rows = Array.from(t.querySelectorAll('tbody tr')); return { n: rows.length, total: rows.length ? parseInt(rows[rows.length - 1].cells[2].textContent, 10) : NaN }; }) };
     };
     const shapeFails = (mk, word) => {
@@ -359,7 +359,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       mk.ptLabels.forEach((x, k) => { if (x !== nParts[k]) fail(word + ': form ' + 'ABCDE'[k] + ' shows ' + x + ' point labels for ' + nParts[k] + ' parts'); });
       mk.secPts.forEach((x, k) => { const sum = x.reduce((a, b) => a + b, 0); if (sum !== nParts[k] || x.some(v => !(v >= 1))) fail(word + ': form ' + 'ABCDE'[k] + ' sections are worth ' + x.join(' + ') + ' for ' + nParts[k] + ' parts'); });
       mk.headPts.forEach((x, k) => { if (+x !== nParts[k]) fail(word + ': form ' + 'ABCDE'[k] + ' is headed ' + x + ' points for ' + nParts[k] + ' parts'); });
-      if (mk.oneDay) mk.period.forEach((x, k) => { if (x) fail(word + ': form ' + 'ABCDE'[k] + ' of a one-period test (ruling 51) prints the two-period line'); });
+      if (mk.oneDay) mk.period.forEach((x, k) => { if (x) fail(word + ': form ' + 'ABCDE'[k] + ' of a one-period test (ruling 51) prints a line about its length'); });
       mk.lines.forEach((ls, k) => { ls.forEach((x, i) => { if (ls.indexOf(x) !== i || mk.ft[k].indexOf(x) >= 0) fail(word + ': form ' + 'ABCDE'[k] + ' prints "' + x.slice(0, 60) + '…" twice'); }); });
       mk.tracker.forEach((t, k) => { if (!t || t.total !== nParts[k]) fail(word + ': key ' + 'ABCDE'[k] + ' has ' + (t ? 'a score tracker totalling ' + t.total : 'no score tracker') + ' for ' + nParts[k] + ' parts'); });
     };

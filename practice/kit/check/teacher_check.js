@@ -43,8 +43,7 @@ else Object.keys(T.forms).forEach(f => {
     if (letters.join('') !== it.correct.map(c => 'ABCDEFGH'[c]).join('')) fail(W + 'key row ' + qn + ' letters ' + letters.join('') + ' but correct is ' + it.correct); } }));
   if (!/Name:/.test(test) || !/Date:/.test(test)) fail(W + 'no name/date line');
   if (T.two_day && !test.includes(T.two_day)) fail(W + 'the two-period line is missing');
-  if (!T.two_day && /two class periods|Stop when the period ends/.test(test)) fail(W + 'a one-period test (ruling 51) prints the two-period line');
-  if (!T.two_day && !/one class period/.test(test)) fail(W + 'a one-period test does not say so on its head');
+  if (!T.two_day && /class periods?|Stop when the period ends/.test(test)) fail(W + 'a one-period test (ruling 51) prints a line about its length (Croix, 25 Oct 2026: none at all)');
   if (/class="pans"|Answer:/.test(test)) fail(W + 'the printed test has an answer line (house rule 2: work space, no answer line)');
   if (test.includes('TRANSFER')) fail(W + 'the transfer flag leaked onto the student paper');
   const nTr = T.forms[f].reduce((a, s) => a + s.items.filter(it => it.transfer).length, 0);
