@@ -27,6 +27,15 @@ section and I can keep teachers editions and tests, and tools like tally and geo
   `/tally`, `/cadence`, `/geopardy`, `/m7`). `tools/test_site.mjs`: the wall (tampered/expired cookies, open redirects),
   the moved addresses, every link on every page, every lesson day with slides linked. Deploy succeeded; the live site is
   not reachable from this workspace (the proxy), so the live wall is unverified until Croix opens /teacher/.
+- **Ruling 52 (10 pm): the year follows the district's essential benchmarks (EBA, once a quarter, around the PM dates).**
+  Windmill `76603eb`; A7 `d00913e`; M7 `b47715b`; site deployed; the year-plan artifact (*Windy Hill Year Plan*,
+  https://claude.ai/artifact/6rUZrahqdYjdqoqQfYCTFu) shows the chosen plan beside the paths weighed. A7: after Unit 6 + Thread B,
+  **Unit 11 in December** (test Fri 11 Dec; systems from tables), then 7 → 10 → 12 → **Units 8–9 as four days** (8.08–09 not
+  taught) → 13 → T-C → 14 → 15/16 → 17; content ends 15 Apr, six spiral days before spring break. M7: Unit 8 in December, then
+  **5 → 7 → 11 → 6 → 12 → 13**. Nothing is cut (FAST tests everything). Essentials taught early are spiralled in bellwork the
+  week before each EBA; the EBA dates are unknown. **Both build chats were already pushing** (M7 Unit 10 through its unit.py;
+  A7 Unit 6 at 6.06) — the ruling-52 commits were rebased onto their heads; HOW WE WORK now tells them how to pull --rebase when
+  the remote moves. Next builds: M7 Unit 8 and A7 Unit 11, due 23 Nov (the briefs say so).
 - **Ruling 49 is in the toolchain; two build chats are briefed** (evening; Windmill `aaa42d6`, `197b9cc`, `7542cae`; M7
   `eadd2cc`, `007d719`; A7 `dcfa28d`, `775b2c5`). Croix: *"I would like to have two other chats focus on building those. One
   for each class … opus 5.5 … I need you to do a ton of heavy lifting in the beginning … You're the brain and they are the

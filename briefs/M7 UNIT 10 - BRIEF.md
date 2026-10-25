@@ -203,6 +203,12 @@ Put their findings and what you did in the audit's §8; fix; rebuild (`build_all
   (hash), the review pass, kit or toolchain notes, judgment calls, what is open.
 - Your last message to Croix (HOW WE WORK, "When you are done"). Name the commit. Then stop — the review session publishes.
 
+## What comes next (ruling 52, 24 Oct evening)
+
+After Unit 10: **Unit 8 Evaluating Numeric Expressions** (MA.7.NSO.1.1, MA.7.NSO.2.1; Mon 30 Nov – Mon 7 Dec, review Wed 9 Dec,
+test Thu–Fri 10–11 Dec; five lessons, 8.05+06 one day), **due 23 Nov**. Same procedure, same shape (`u8/`). Read the scope for
+its rows and IXL codes. The year's order from January is 5 → 7 → 11 → 6 → 12 → 13.
+
 ## If something blocks you
 
 - A Math Nation page is missing or unreadable → say which, build from the benchmark and the audit, note it in §6.

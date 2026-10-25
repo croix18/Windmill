@@ -203,6 +203,15 @@ FAST item shapes). Findings and fixes in the audit's §8; rebuild (`build_all.py
   pass, toolchain notes, judgment calls, what is open. Push.
 - Your last message to Croix (HOW WE WORK, "When you are done"). Name the commit. Then stop — the review session publishes.
 
+## What comes next (ruling 52, 24 Oct evening)
+
+After Unit 6 and Thread B: **Unit 11 Solving Equations and Systems** (MA.8.AR.2.1, MA.8.AR.4.1–4.3; Mon 30 Nov – Thu 10 Dec, the
+one-period test Fri 11 Dec; seven days: 11.01, 11.02, 11.03, 11.04, 11.05+06, 11.07, 11.08), **due 23 Nov**. It comes before Unit
+10, so systems by graphing (11.07–08) are taught by graphing each equation from a table of values — no slope-intercept form yet;
+Unit 10 sharpens it in January. Its equations are the district's Q2 essential benchmark, which is why it moved. Same procedure,
+same shape (`u11/`); the scope has its rows and IXL codes. Then, in January order: Unit 7, Unit 10, Unit 12, Units 8–9 as one
+four-day unit, Unit 13.
+
 ## If something blocks you
 
 - A Math Nation page is missing or unreadable → say which, build from the benchmark and the audit, note it in §6.

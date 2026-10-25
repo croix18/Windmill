@@ -66,6 +66,12 @@ one and prints `pushed: <hash>` or `PUSH FAILED`. Trust that line, not git's own
 export CLAUDE_MODEL_NAME="Claude Opus 5.5"      # the co-author trailer names the model that did the work
 ```
 
+**The head engineer pushes to the same repositories** (plan changes, the kit). If `push.sh` says `PUSH FAILED: remote … local …`,
+the remote moved under you: `B=$(printf 'x-access-token:%s' "$(cat .github-token)" | base64 -w0); git -c
+"http.https://github.com/.extraheader=Authorization: Basic $B" pull --rebase origin main`, then `python3 tools/vendor_windmill.py`,
+rerun the master sheet steps, and push again. A conflict on the master sheet `.xlsx` is resolved by taking theirs
+(`git checkout --theirs -- "<the xlsx>"`, `git add`, `git rebase --continue`) and regenerating it. Never force-push.
+
 **Nothing exists until it is pushed.** Push after every lesson. A build that is not pushed did not happen (a container was
 reclaimed once with a week of work in it).
 
