@@ -4,6 +4,35 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, noon: the A7 build chat's list) — read this first
+
+**The A7 build chat's open list is closed.** Croix, 9:15 am: *"Fix the kit, fix units 4 and 5. When you have satisfied
+those tasks, finish anything else you need. Don't move on yet to unit 11."* 9:36: *"Yes please see to each one of those
+issues. I give you permission to edit and to make fixes on the website."*
+- **Kit `7611a99`:** a test paper says how long its test is — `unitbuild.exam_periods(U)`: the plan's test days for the
+  unit (the spine START HERE reads), else the course's new `EXAM_PERIODS` (default 2, ruling 27; A7 sets 1, ruling 51). A
+  one-period paper reads "one class period" and has no continue-tomorrow line; M7's papers are unchanged. `teacher_gen.py`
+  reads the length the same way (M7's `test.js` files are unchanged); `teacher.js`'s printed paper follows and has no
+  "Answer:" lines (house rule 2 in both courses). `plankit`'s Notes row no longer says "Expand once per law".
+- **Kit `02de689`:** figures on a Lexend paper are lettered in Lexend (the slide face; dockit), as its mathematics already
+  was (ruling 46); `core.js` `hint.div` never states its answer — the old one said "45 − 30 = 15 is left" for 45 ÷ 3 and
+  "125 − 100 = 25 is left" for 125 ÷ 5 (`check/hints.js` reads 400,000 such hints; `run.py` runs it first; M7 Units 4 and
+  10 use these hints); the teacher bar says students use the student page "on the class website or Google Sites".
+- **A7 `a7302000`:** Units 4, 5 and 6 rebuilt on `02de689` (with ruling 53) and installed at 0 findings; Unit 6 names
+  similar triangles by their corners (6.07 Notes II, board 2, independent question 2; the practice paper's Q12, the
+  Review, the Reference Sheet; half the page's Q12 sets, content version 2 — the FAST reader's note); the practice pages
+  and teacher copies of Units 3, 4 and 6 rebuilt; the stray kit copy at the top of `a7/` removed. **Unit 3's package was
+  not rebuilt:** today's kit counts a vocabulary minute, so 3.01's whiteboard round would be 9 minutes (floor 10) — a
+  rebuild means re-timing taught lessons; its make-ups print from the teacher copy.
+- **Site `08741ba`, deployed (Workers Builds: success):** A7 published from `a7302000` — Units 4–6 (Unit 6 and Thread B
+  for the first time: the unit page, eight web decks, the practice page, the teacher copy), the pages and teacher copies of
+  Units 3, 4 and 6, every A7 web deck on ruling 53's IXL line; the A7 course page regenerated (M7's page unchanged).
+- **M7 should vendor `02de689`** (`tools/vendor_windmill.py`, then `practice_kit.py --vendor m7/practice/kit`). Tried in a
+  scratch copy of M7 `bd1a610`, not pushed: Units 4 and 10 pages and teacher copies pass every check (13 of 13 plants
+  each), and every M7 paper figure (27) draws in the Lexend face with no struck label. Its next rebuilds letter paper
+  figures in Lexend and its teacher copies print no "Answer:" lines.
+- **Still open:** `publish_web.py` and unreviewed units (M7's); the stray kit copy at the top of `m7/`.
+
 ## Where things stand (25 Oct 2026, 10 am: ruling 53) — read this first
 
 **IXL is done with each lesson and due by the unit test — ruling 53.** Croix, 9:18 am: *"fix the ixl due dates across the
@@ -1563,3 +1592,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct: Croix: "M7 stopped and is waiting for review." → the Fable pass on M7 Unit 10 (briefs/REVIEW AND PUBLISH): clean rebuild the same, kit checks pass; three fresh readers (Barton, critic, FAST — the FAST reader cut off by the Fable limit and re-run on Opus 5.5, as were the fixes). No wrong key. Fixed: Q7 mathematical context only (AR.2.1; six of eight contexts were stories), Q6 as x/d in half the sets, Q17's duplicate choice, Q15's missing coefficient, Q14's "the bill was", Q4 ±1, Q9 "exact", Q11/Q15 route by the numbers, Q7(b) feedback, no deck's own Q5/Q7 (contentVersion 3); 10.07 board 7 a route diagnostic; the review's Example 2; FAST stems; layout. Audit §8 "The second review". M7 4120cac (rebased over the build chat's Unit 8 8.01–8.02), site fe77c94 (deployed). OPEN for Croix: the 10.02–10.04 inequality stories (AR.2.1 vs the IXL word problems); Q16 percent before Unit 7. OPEN in the kit, before the 19 Nov test is printed: ui.js prints "Set N" on the student's test page (a student can open the set between the test's two days) — put it on the key only; publish_web.py publishes every unit with a package, so an unreviewed unit (M7 Unit 8) reaches the site's units/ — held back by hand this time.
 - 25 Oct (afternoon): Croix: "Fix it. I give you permission" (the A7 build chat's list of three kit defects) → deckkit ixl() gives a wrapping skill name its rows; the printed test with the paper's shape and no set number on the student's sheet (the M7 review's first open item); page.js decodes "&lt;". Windmill c9c3e8a; A7 459c3e62 (Unit 6 installed, its page and teacher copy built); M7 tried in a scratch worktree, not pushed — it vendors and rebuilds its Unit 10 teacher copy before the 19 Nov test.
 - 25 Oct (9:18 am): Croix: "A little bit of exposure to stories is ok. Follow the learning plan. Also, fix the ixl due dates across the board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit assessment." → the M7 Unit 10 stories stay (Q7 mathematical, Q16 per AR.2.2 LT6); ruling 53: IXL done with each lesson, due by the unit test's first day (a thread day by the next test; with no test after, the next class). M7 0d00445 (mkscope, master sheet "IXL due today", Units 9–10 rebuilt, Unit 10 page and teacher copy on the vendored kit), A7 3976f039 + a8ff30af (scope_calendar, master sheet, spec lines; not rebuilt), Windmill fbac773 (spine, phone page v8, the kit's due_line), M7 Schedule doc rev 41, site 09922db (deployed; Unit 8 held back).
+- 25 Oct (9:15–11:45 am): Croix: "Fix the kit, fix units 4 and 5 … Don't move on yet to unit 11", then "Yes please see to each one of those issues. I give you permission to edit and to make fixes on the website." → kit 7611a99 (the test's length on the papers; no Answer: lines on the teacher copy's paper; plankit's Notes row) and 02de689 (Lexend figures on Lexend papers; hint.div never states its answer; the teacher bar); A7 a7302000 (Units 4–6 reinstalled, Unit 6's named triangles, pages rebuilt, the stray kit copy removed; Unit 3 not rebuilt); site 08741ba deployed; M7 to vendor.
