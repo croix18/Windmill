@@ -82,14 +82,16 @@ def _plan_sections(L, deck_path, outdir):
         if b["kind"] == "title":
             t, s_ = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Copy the target."
         elif b["kind"] == "warmup":
-            t, s_ = "Two minutes silent, then reveal. One sentence of reteach per question at most.", "Four retrieval questions, alone, no notes."
+            # silent for the minutes the row gives (the Teacher's Edition says how many); a plan that said "two minutes"
+            # beside a Teacher's Edition that said four (the A7 Unit 6 second review, 25 Oct 2026)
+            t, s_ = "Silent, then reveal. One sentence of reteach per question at most.", "Four retrieval questions, alone, no notes."
             if any(x["kind"] == "vocab" for x in b["subs"]):
                 t += " Then the new words, read once."; s_ += " Then copy the new words."
         elif b["kind"] == "vocab":
             t, s_ = "Read each new word and its meaning once; the notes use them next.", "Copy the words."
         elif b["kind"] == "notes":
             # "Expand once per law" was the exponents unit's move, printed in every unit's plan (A7 Unit 6, 25 Oct 2026)
-            t, s_ = "Teach from the front; say the OFF line out loud.", "Copy the notes; answer the checks aloud."
+            t, s_ = "Teach from the front; say the off-slide sentence out loud.", "Copy the notes; answer the checks aloud."
         elif b["kind"] == "example":
             t, s_ = "Work the example; name the wrong boards before they appear.", "Watch, then work the Your Turn alone."
         elif b["kind"] == "yourturn":
@@ -99,7 +101,8 @@ def _plan_sections(L, deck_path, outdir):
         elif b["kind"] == "independent":
             t, s_ = "Silent. Circulate and mark what you see; do not teach.", "Six questions, written, alone."
         else:
-            t, s_ = "Assign the day's IXL skills.", "Start the skills; finish tonight."
+            # ruling 53: the skills are started with the lesson and due by the unit's test — not "finish tonight"
+            t, s_ = "Assign the day's IXL skills.", "Start the skills; " + (lambda x: x[0].lower() + x[1:])((L.get("ixl_due") or ixlplan.due_line(L)).rstrip(".")) + "."
         seq.append([seg, f"{mins}", t, s_])
     seq.append([{"text": "Total", "bold": True}, {"text": str(tekit.PERIOD), "bold": True}, "", ""])
     doc.table([2300, 620, 3300, 3140], seq, header=True, size=9.5)
@@ -107,7 +110,7 @@ def _plan_sections(L, deck_path, outdir):
     # 6 -------------------------------------------------- gradual release
     blk = doc.block()
     doc.section("6.  Gradual Release", container=blk)
-    doc.para("**I do.**  The Notes slides and the worked half of each Example: the teacher writes, the class copies, and the OFF line is said out loud rather than printed.", size=10.5, before=2, after=3, container=blk)
+    doc.para("**I do.**  The Notes slides and the worked half of each Example: the teacher writes, the class copies, and the off-slide sentence is said out loud rather than printed.", size=10.5, before=2, after=3, container=blk)
     doc.para("**We do.**  Each Example's Your Turn: the same steps on the student's own numbers, revealed and named a minute later.", size=10.5, before=0, after=3, container=blk)
     doc.para(f"**You do.**  The nine-question whiteboard round ({wb_min} minutes) and then the six-question independent set, silent and written.", size=10.5, before=0, after=4, container=blk)
     doc.spacer(1)
