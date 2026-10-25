@@ -172,8 +172,9 @@ marks right, results match, only the printout on paper, Close restores the page,
 ## Make-up tests (18 Oct 2026)
 Croix: *"I want the print function to be able to just print tests or make ups directly from here… I'll need it to print the
 answer key too."* Print → **Make-up tests** → how many forms (1–5). Each form is a different set of the whole unit (the
-current set is Form A), headed "<unit> Test" / "Make-up · Form A · Set 4821" with a name and date line; every form's answer
-key follows on its own page, "Answer key — Form A · Set 4821", so the keys stay with the teacher. The forms are drawn with
+current set is Form A), headed "<unit> Test" / "Make-up · Form A · 18 points" with a name and date line; every form's answer
+key follows on its own page, "Answer key — Form A" over "Set 4821 · Whole test", so the keys stay with the teacher (the set
+number is on the key only since 25 Oct — see "The printed test" below). The forms are drawn with
 `withSet()` (the page's own data drawn from another set, then put back) and the usual worksheet and key builders, so a form
 is exactly what a student would see on screen for that set number — a student can also be sent to `#set-4821` to practise
 the same form. page.js part D checks three forms: three different sets, one name line each, every key row recomputed from
@@ -211,3 +212,26 @@ Never for Google Sites; each teacher page is its own private artifact. A unit wi
 "the test". A check's variables (a, b, m, n, x, y, …) are sympy symbols declared positive, exactly as the build kit's gate
 declares them, so a check passes in `teacher_gen.py` exactly when it passes in the build (21 Oct 2026, for A7 Unit 3's
 variable bases — the first teacher copy of a test with algebra in it).
+
+## The printed test: a random set on paper (25 Oct 2026)
+Since ruling 49 the unit test is the teacher copy's bar → *1–5 forms*, each form a random set of the page. Building A7 Unit 6
+showed that print was the make-up worksheet with a test's name on it, so Croix said *"Fix it. I give you permission"* to
+this list: the student's sheet printed "Set N", and the student page opens any set with its worked answers (`#set-N`), so
+the number on a test paper was its answer key; and it had no points, no follow-through line, no score tracker, and
+"Answer:" labels (house rule 2: no answer lines, leave work space). Now every printed form — the ruling-49 test and the
+make-ups — has the paper's shape (`ui.js` `testFormHtml`, `testKeyHtml`, `pqTest`):
+- **The student's sheet:** "<unit> Test" (the title's "Practice Test" made "Test") over "Test · Form A · 18 points", name and
+  date; the teacher copy's notes ("Show your work…", the π line) then the unit's print notes, each line once (M7 Unit 10's
+  `notesPrint` already carries the scoring lines and, on a teacher page, the two-period line); each section with its points;
+  the follow-through line under a section that has parts (`TEACHER_TEST.follow_through_student`), not again in the notes;
+  "1 pt" on every part; work space under every typed part, choice boxes for a choice; **no set number anywhere and no
+  answer line.**
+- **The key, on its own page:** "Answer key — Form A", then "Set 4821 · Whole test" (the only place the number prints), the
+  key's follow-through note (`follow_through_key`), a row per part, and the **score tracker** — by benchmark when the spec's
+  `tracker` agrees with the page's points section by section (`tracker_order`), by section otherwise; questions, possible,
+  earned, the total. The tracker never splits across a page.
+`check/page.js` part D checks the shape on the make-ups and on the ruling-49 test: no "Set N" on a student sheet, no answer
+line, no line printed twice, a point label per part, section points and the head's points equal to the parts, the
+tracker's total equal to the parts; on the make-ups (the same builder) every key row is recomputed from its form's set.
+The same commit fixed `page.js` reading "&lt;" in a choice as four characters (its text is now decoded the way a browser
+shows it).

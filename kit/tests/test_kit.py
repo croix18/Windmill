@@ -737,6 +737,17 @@ ok("figures: an Example with a figure starts higher only when its lines and its 
    and lb.TOP <= lb._example_top(["A line of the problem."] * 4, dict(kind="shapes", fs=22, pt=18, reserve=0.9, **{"in": 3.4}, shapes=[
        dict(t="poly", pts=[(0, 0), (10, 0), (10, 10), (0, 10)])])) < 1.9)
 
+# ---- the IXL slide (A7 6.T1, 25 Oct 2026): a skill name that wraps is given the rows it wraps to — a fixed 0.36-in row printed
+# the second line of a long IXL title over the next skill, and checks.py's overlap found it on the built deck
+_ixl = ["Identify complementary, supplementary, vertical, adjacent, and congruent angles (HGV)",
+        "Find measures of complementary, supplementary, vertical, and adjacent angles (R2B)", "Area of circles (ZC6)"]
+_DI = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); _DI.ixl(_ixl)
+_rows = sorted((sh.top / 914400, sh.height / 914400, sh.text_frame.text) for sh in _DI.s.shapes
+               if sh.has_text_frame and any(sh.text_frame.text.strip() == x for x in _ixl))
+ok("IXL: a skill name that wraps is given two rows", len(_rows) == 3 and _rows[0][1] >= 0.72 - 1e-3 and _rows[1][1] >= 0.72 - 1e-3, str(_rows))
+ok("IXL: a name that fits keeps its one 0.36-in row, and each skill starts where the one above it ends",
+   len(_rows) == 3 and abs(_rows[2][1] - 0.36) < 1e-3 and all(abs(a[0] + a[1] - b[0]) < 1e-3 for a, b in zip(_rows, _rows[1:])), str(_rows))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

@@ -295,7 +295,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   }
   /* D. print: the worksheet is this set (the same stems, every part has its blank or its choices), the key is the key the
      page marks with, the results are this student's, only the printout goes to paper, Close gives the page back. */
-  { const seedP = 793, ip = itemsOf(seedP), V = U.view, txt = h => String(h).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  { const seedP = 793, ip = itemsOf(seedP), V = U.view, ENT = { nbsp: ' ', lt: '<', gt: '>', quot: '"', apos: "'", amp: '&' };
+    /* a choice's words as the page shows them: tags out, entities decoded (A7 Unit 6, 25 Oct 2026: "4 &lt; x &lt; 14" is
+       "4 < x < 14" on paper, and the check failed a correct key) */
+    const txt = h => String(h).replace(/<[^>]*>/g, '').replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => e[0] === '#' ? String.fromCodePoint(e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : +e.slice(1)) : (ENT[e.toLowerCase()] ?? m)).replace(/\s+/g, ' ').trim();
     await fresh(p, seedP);
     const screenStems = await p.$$eval('.sheet .stem .st', es => es.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
     await p.click('#bPrint'); if (!(await p.isVisible('[data-print="wk"]'))) fail('print: no choice after Print');
@@ -330,19 +333,41 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (!(await p.isVisible('[data-print="mk3"]'))) fail('print: no form count after Make-up tests');
     const before = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent }));
     await p.click('[data-print="mk3"]'); await p.waitForTimeout(150);
-    const mk = await p.evaluate(() => {
+    /* a printed test form (a make-up, or a ruling-49 test) has the paper's shape and no set number: the student page opens any
+       set with its worked answers, so the number is on the teacher's key only (A7 Unit 6's review, 25 Oct 2026) */
+    const formShape = () => {
       const forms = Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform)')), keys = Array.from(document.querySelectorAll('#printview .pform.pkeyform'));
       return { nf: forms.length, nk: keys.length,
         heads: forms.map(f => f.querySelector('.pt2').textContent.trim()), titles: forms.map(f => f.querySelector('.pt1').textContent.trim()), khead: keys.map(k => k.querySelector('.psec').textContent.trim() + ' ' + k.querySelector('.pmeta').textContent.trim()),
         stems: forms.map(f => Array.from(f.querySelectorAll('.pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
-        keyrows: keys.map(k => Array.from(k.querySelectorAll('tr')).map(r => r.cells[1].textContent.replace(/\s+/g, ' ').trim())),
-        names: forms.map(f => f.querySelectorAll('.pname').length) };
-    });
+        keyrows: keys.map(k => Array.from(k.querySelectorAll('table.pkrows tr')).map(r => r.cells[1].textContent.replace(/\s+/g, ' ').trim())),
+        names: forms.map(f => f.querySelectorAll('.pname').length),
+        sets: forms.map(f => (/\bSet \d/.exec(f.textContent) || [''])[0]),
+        answerLines: forms.map(f => f.querySelectorAll('.pans, .pblank').length + (/Answer:/.test(f.textContent) ? 1 : 0)),
+        ptLabels: forms.map(f => f.querySelectorAll('.pt').length),
+        secPts: forms.map(f => Array.from(f.querySelectorAll('.psec .ppts')).map(e => parseInt(e.textContent, 10))),
+        headPts: forms.map(f => (/(\d+) points/.exec(f.querySelector('.pt2').textContent) || [])[1]),
+        lines: forms.map(f => Array.from(f.querySelectorAll('.pnotes .pinote')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
+        ft: forms.map(f => Array.from(f.querySelectorAll('.pft')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
+        tracker: keys.map(k => { const t = k.querySelector('table.ptrack'); if (!t) return null; const rows = Array.from(t.querySelectorAll('tbody tr')); return { n: rows.length, total: rows.length ? parseInt(rows[rows.length - 1].cells[2].textContent, 10) : NaN }; }) };
+    };
+    const shapeFails = (mk, word) => {
+      const nParts = mk.keyrows.map(r => r.length);
+      mk.sets.forEach((x, k) => { if (x) fail(word + ': form ' + 'ABCDE'[k] + ' shows its set number ("' + x + '") on the student sheet'); });
+      mk.answerLines.forEach((x, k) => { if (x) fail(word + ': form ' + 'ABCDE'[k] + ' prints an answer line (house rule 2: work space, no answer line)'); });
+      mk.ptLabels.forEach((x, k) => { if (x !== nParts[k]) fail(word + ': form ' + 'ABCDE'[k] + ' shows ' + x + ' point labels for ' + nParts[k] + ' parts'); });
+      mk.secPts.forEach((x, k) => { const sum = x.reduce((a, b) => a + b, 0); if (sum !== nParts[k] || x.some(v => !(v >= 1))) fail(word + ': form ' + 'ABCDE'[k] + ' sections are worth ' + x.join(' + ') + ' for ' + nParts[k] + ' parts'); });
+      mk.headPts.forEach((x, k) => { if (+x !== nParts[k]) fail(word + ': form ' + 'ABCDE'[k] + ' is headed ' + x + ' points for ' + nParts[k] + ' parts'); });
+      mk.lines.forEach((ls, k) => { ls.forEach((x, i) => { if (ls.indexOf(x) !== i || mk.ft[k].indexOf(x) >= 0) fail(word + ': form ' + 'ABCDE'[k] + ' prints "' + x.slice(0, 60) + '…" twice'); }); });
+      mk.tracker.forEach((t, k) => { if (!t || t.total !== nParts[k]) fail(word + ': key ' + 'ABCDE'[k] + ' has ' + (t ? 'a score tracker totalling ' + t.total : 'no score tracker') + ' for ' + nParts[k] + ' parts'); });
+    };
+    const mk = await p.evaluate(formShape);
     if (mk.nf !== 3 || mk.nk !== 3) fail('make-up: ' + mk.nf + ' forms / ' + mk.nk + ' keys for 3');
     if (mk.names.some(n => n !== 1)) fail('make-up: a form without a name line');
-    const seeds = mk.heads.map(h => (/Set (\d+)/.exec(h) || [])[1]);
-    if (new Set(seeds).size !== 3 || seeds.some(x => !x)) fail('make-up: the forms are not three different sets: ' + mk.heads.join(' | '));
-    mk.heads.forEach((h, k) => { if (!h.startsWith('Make-up · Form ' + 'ABC'[k] + ' · Set ')) fail('make-up: head "' + h + '" for form ' + 'ABC'[k]);
+    shapeFails(mk, 'make-up');
+    const seeds = mk.khead.map(h => (/Set (\d+)/.exec(h) || [])[1]);
+    if (new Set(seeds).size !== 3 || seeds.some(x => !x)) fail('make-up: the forms are not three different sets: ' + mk.khead.join(' | '));
+    mk.heads.forEach((h, k) => { if (!h.startsWith('Make-up · Form ' + 'ABC'[k] + ' · ')) fail('make-up: head "' + h + '" for form ' + 'ABC'[k]);
       const t1 = mk.titles[k]; if (/Practice Test/i.test(t1) || !/Test/.test(t1)) fail('make-up: the form is titled "' + t1 + '"'); if (!mk.khead[k].startsWith('Answer key — Form ' + 'ABC'[k]) || !mk.khead[k].includes('Set ' + seeds[k])) fail('make-up: key head "' + mk.khead[k] + '" for form ' + 'ABC'[k] + ' set ' + seeds[k]); });
     if (JSON.stringify(mk.stems[0]) === JSON.stringify(mk.stems[1])) fail('make-up: forms A and B have the same questions');
     for (let k = 0; k < 3; k++){                         /* every key row recomputed from that form's set */
@@ -358,15 +383,17 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const after = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent}));
     if (after.h !== before.h || after.n !== before.n || after.first !== before.first) fail('make-up: the page changed after printing make-ups');
     /* ruling 49 (22 Oct 2026): a teacher copy of a unit with no fixed forms has a bar that prints THE TEST as n random sets,
-       headed "Test · Form A · Set N" (never "Make-up", never "Practice Test"), each key on its own page */
+       headed "Test · Form A" (never "Make-up", never "Practice Test"; the set number on the key only, 25 Oct 2026), each key
+       on its own page */
     const random = await p.evaluate(() => !!(window.TEACHER_TEST && window.TEACHER_TEST.random));
     if (random) {
       if (!(await p.isVisible('.teacherbar [data-tforms="2"]'))) fail('ruling 49: the teacher bar has no "2 forms" button');
       await p.click('.teacherbar [data-tforms="2"]'); await p.waitForTimeout(150);
-      const rt = await p.evaluate(() => ({ heads: Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .pt2')).map(e => e.textContent.trim()),
-        titles: Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .pt1')).map(e => e.textContent.trim()), nk: document.querySelectorAll('#printview .pform.pkeyform').length }));
+      const rt = await p.evaluate(formShape);
       if (rt.heads.length !== 2 || rt.nk !== 2) fail('ruling 49: ' + rt.heads.length + ' forms / ' + rt.nk + ' keys for 2');
-      rt.heads.forEach((h, k) => { if (!h.startsWith('Test · Form ' + 'AB'[k] + ' · Set ')) fail('ruling 49: a test form is headed "' + h + '"'); });
+      shapeFails(rt, 'ruling 49');
+      rt.heads.forEach((h, k) => { if (!h.startsWith('Test · Form ' + 'AB'[k] + ' · ')) fail('ruling 49: a test form is headed "' + h + '"'); });
+      rt.khead.forEach((h, k) => { if (!h.startsWith('Answer key — Form ' + 'AB'[k]) || !/Set \d+/.test(h)) fail('ruling 49: a key is headed "' + h + '"'); });
       rt.titles.forEach(t => { if (/Practice/i.test(t) || !/Test/.test(t)) fail('ruling 49: a printed test is titled "' + t + '"'); });
       await p.click('#pvClose');
     } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');

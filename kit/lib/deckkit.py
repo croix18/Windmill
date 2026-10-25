@@ -883,8 +883,11 @@ class Deck:
         self._text(LM + 0.2, self.cursor, CW - 0.4, 0.4, "Today's skills — all required", 21, bold=True)
         self.cursor += 0.45
         for s in skills:
-            self._text(LM + 0.6, self.cursor, CW - 1.0, 0.36, s, 19, color=INK)
-            self.cursor += 0.36
+            # a skill whose name wraps takes the rows it wraps to: a fixed 0.36-in row printed a long name's second line
+            # over the next skill (A7 6.T1, 25 Oct 2026 — IXL's titles cannot be shortened, ixlplan holds them)
+            lines = max(1, -(-int(_textw(s, 19) * 100) // int((CW - 1.0 - 0.1) * 100)))
+            self._text(LM + 0.6, self.cursor, CW - 1.0, 0.36 * lines, s, 19, color=INK)
+            self.cursor += 0.36 * lines
 
     # ---------- finish ----------
     def save(self, path, sidecar=True):

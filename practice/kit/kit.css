@@ -369,4 +369,5 @@ input[type=text],textarea,.wnum input{font-size:16px}
 .tpage .katex{font-size:1.05em} .tpage .ptab .katex{font-size:1.12em}
 .tpage .tfig{display:block;margin:8px 0 4px var(--i1);max-width:100%;height:auto}
 .tpage .ptrack td,.tpage .ptrack th{padding:5px 8px}
+.ptrk{break-inside:avoid;page-break-inside:avoid}   /* the score tracker stays whole, with its heading */
 @media print{ .teacherbar{display:none!important} }
