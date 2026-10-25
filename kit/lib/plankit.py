@@ -87,7 +87,8 @@ def _plan_sections(L, deck_path, outdir):
         elif b["kind"] == "vocab":
             t, s_ = "Read each new word and its meaning once; the notes use them next.", "Copy the words."
         elif b["kind"] == "notes":
-            t, s_ = "Teach from the front. Expand once per law; say the OFF line out loud.", "Copy the notes; answer the checks aloud."
+            # "Expand once per law" was the exponents unit's move, printed in every unit's plan (A7 Unit 6, 25 Oct 2026)
+            t, s_ = "Teach from the front; say the OFF line out loud.", "Copy the notes; answer the checks aloud."
         elif b["kind"] == "example":
             t, s_ = "Work the example; name the wrong boards before they appear.", "Watch, then work the Your Turn alone."
         elif b["kind"] == "yourturn":

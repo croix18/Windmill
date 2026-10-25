@@ -206,8 +206,12 @@ must never sit in the student page's source). A `teacher/` folder beside the uni
 assessment from the course's `build/<unit>/unit.py` → `test.js`: every form, stems/answers in TeX, figures as SVG from the
 paper's shape specs; `--check` re-runs every `check` tuple under sympy and refuses a stale test.js), and a `unit.js` shim for
 Node. `kit/teacher.js` adds the bar (Form A/B, Test, Test + key, Key only) and prints the paper with the kit's print classes:
-two-period line, "Show your work…" (+ the π line), follow-through note, work space per part, the key with notes, transfer
-flags and the score tracker. `check/teacher_check.js` is Rule 0 for the printout. The bar and the paper are `translate="no"`.
+the two-period line when the test runs two periods, "Show your work…" (+ the π line), follow-through note, work space per
+part (no answer line — house rule 2, as the paper, 25 Oct 2026), the key with notes, transfer flags and the score tracker.
+**The test's length (25 Oct 2026):** `teacher_gen.py` reads it as the build kit's paper does — the plan's test days for the
+unit (`<build>/assets/windmill/spine.js`), else the course's `EXAM_PERIODS` — and writes `two_day` empty for a one-period
+test (ruling 51: every A7 test is one period), so the head says "one class period" and no continue-tomorrow line prints.
+`check/teacher_check.js` is Rule 0 for the printout (the period line both ways, no answer line). The bar and the paper are `translate="no"`.
 Never for Google Sites; each teacher page is its own private artifact. A unit with one `sections` (no Form A/B) prints as
 "the test". A check's variables (a, b, m, n, x, y, …) are sympy symbols declared positive, exactly as the build kit's gate
 declares them, so a check passes in `teacher_gen.py` exactly when it passes in the build (21 Oct 2026, for A7 Unit 3's

@@ -16,7 +16,8 @@ from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capc
                           balancecheck_lesson, COURSE, PREFIX, _fmt_q, _ev)
 from . import slotmark
 from . import figkit
-from .profile import C
+from . import packkit
+from .profile import C, COURSE_FILE
 
 # Ruling 33 (24 September): a unit test ships as Form A and Form B, plus the practice test — three
 # parallel forms, no number lining up. A spec may give `assessment.forms = {"A": sections,
@@ -43,6 +44,15 @@ FOLLOW_THROUGH = ("If an earlier part is wrong, a later part still earns its poi
 TRANSFER_FLAG = ("TRANSFER ITEM — not on the practice test. Same benchmark, a surface nobody "
                  "rehearsed.")
 CONTINUES, FOLLOW_THROUGH_STUDENT = TWO_DAY_LINE, FOLLOW_THROUGH
+
+
+def exam_periods(U, build_dir=None):
+    """How many class periods the unit's test runs: the test days the plan gives the unit (the spine the console reads,
+    packkit.calendar — the same days START HERE prints), else the course's EXAM_PERIODS. Ruling 27 made a test one paper
+    over two periods; ruling 51 (23 Oct 2026) made every A7 test one period, and its papers kept printing "two class
+    periods" and the line telling a class to continue the next day (found 25 Oct on A7 Units 4 and 5)."""
+    days = packkit.calendar(U["unit"], build_dir or os.path.dirname(COURSE_FILE))[2]
+    return min(len(days), 2) if days else int(getattr(C, "EXAM_PERIODS", 2))
 
 
 def has_forms(A):
@@ -252,10 +262,12 @@ def build_paper(U, outdir, key):
     need = transfer_needed(A)
     assert len(transfer) == need, f"ruling 18: {len(transfer)} transfer items, need exactly {need} (questions {transfer})"
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}  ·  Assessment"
-    sub = f"{total} points" + ("  ·  two periods; students continue the same paper" if key else "")
+    two = exam_periods(U) == 2
+    sub = f"{total} points" + (("  ·  two periods; students continue the same paper" if two else "  ·  one period") if key else "")
     doc = Doc(eyebrow, U["title"], sub, key=key, font=getattr(C, "PAPER_FONT", None))
     doc.instruction("Show your work. Circle your final answer.")
-    doc.para(CONTINUES, size=10, bold=True, before=0, after=3)
+    if two:
+        doc.para(CONTINUES, size=10, bold=True, before=0, after=3)
     doc.para(FOLLOW_THROUGH_STUDENT, size=9.5, italic=True, color=GRAY, before=0, after=8)
     si = 0; n = 0
     for sec in A["sections"]:
@@ -419,10 +431,11 @@ def build_form(U, outdir, key, form="test", student=False):
     label, formword, is_test = form_words(form)
     what = "Assessment" if is_test else "Practice Test"
     eyebrow = f"{COURSE}  \u00b7  Unit {U['unit']}  \u00b7  {what}"
-    sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + ("  \u00b7  two class periods" if is_test else "")
+    two = is_test and exam_periods(U) == 2
+    sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + (("  \u00b7  two class periods" if two else "  \u00b7  one class period") if is_test else "")
     doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student, font=getattr(C, "PAPER_FONT", None),
               banner="WORKED ANSWERS" if student else "ANSWER KEY")
-    if is_test:
+    if two:
         doc.instruction(TWO_DAY_LINE)
     doc.instruction("Show your work. One point for each lettered part." + (("  " + A["pi_line"]) if A.get("pi_line") else ""))
     n = 0

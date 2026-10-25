@@ -748,6 +748,31 @@ ok("IXL: a skill name that wraps is given two rows", len(_rows) == 3 and _rows[0
 ok("IXL: a name that fits keeps its one 0.36-in row, and each skill starts where the one above it ends",
    len(_rows) == 3 and abs(_rows[2][1] - 0.36) < 1e-3 and all(abs(a[0] + a[1] - b[0]) < 1e-3 for a, b in zip(_rows, _rows[1:])), str(_rows))
 
+# ---- the test's length (ruling 27: one paper over two periods; ruling 51, 23 Oct 2026: every A7 test is one period). A7's
+# Unit 4 and Unit 5 papers still printed "two class periods" and the line telling a class to continue the next day (25 Oct)
+from lib import unitbuild as _ub51
+with tempfile.TemporaryDirectory() as tmp:
+    os.makedirs(os.path.join(tmp, "assets", "windmill"))
+    _d51 = {"2026-10-26": {"kind": "exam", "code": "4.X", "unit": 4}, "2026-11-19": {"kind": "exam", "code": "10.X", "unit": 10},
+            "2026-11-20": {"kind": "exam", "code": "10.X", "unit": 10}, "2026-11-18": {"kind": "lesson", "code": "10.09", "unit": 10}}
+    with open(os.path.join(tmp, "assets", "windmill", "spine.js"), "w", encoding="utf-8") as fh:
+        fh.write("window.SPINE = " + json.dumps({"generatedAt": "2026-10-25T00:00:00+00:00", "days": {k: {C.COURSE_KEY: v} for k, v in _d51.items()}}) + ";")
+    ok("the test's length: the plan's test days decide (one day, one period; two days, two), and a unit the plan gives no test day takes the course's EXAM_PERIODS",
+       _ub51.exam_periods({"unit": 4}, tmp) == 1 and _ub51.exam_periods({"unit": 10}, tmp) == 2 and _ub51.exam_periods({"unit": 7}, tmp) == C.EXAM_PERIODS)
+_s51 = lambda: [dict(title="Area", benchmark="MA.7.GR.1.1", points=1, items=[dict(stem="Find $3 \\times 4$.", answer="$12$", check=("val", "3*4", "12"), space=0.5)])]
+_U51 = {"unit": 90, "title": "Area and Circles", "assessment": {"forms": {"A": _s51(), "B": _s51()}, "total": 1,
+        "tracker": {"MA.7.GR.1.1": 1}, "tracker_order": ["MA.7.GR.1.1"]}}
+def _doc_text(p):
+    with zipfile.ZipFile(p) as z:
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", z.read("word/document.xml").decode("utf-8")))
+with tempfile.TemporaryDirectory() as tmp:
+    _t51 = _doc_text(_ub51.build_form(_U51, tmp, key=False, form="A"))
+    _k51 = _doc_text(_ub51.build_form(_U51, tmp, key=True, form="A"))
+_two = C.EXAM_PERIODS == 2      # the kit's own test folder has no plan, so the profile's EXAM_PERIODS decides here
+ok("the test's length on the paper and its key: 'two class periods' and the continue-tomorrow line only when the test runs two periods, 'one class period' otherwise",
+   all(("two class periods" in t) == _two and ("one class period" in t) == (not _two) and ("Stop when the period ends" in t) == _two for t in (_t51, _k51)),
+   _t51[:240])
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

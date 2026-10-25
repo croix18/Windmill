@@ -39,6 +39,9 @@ DEFAULTS = dict(
                                # "labels":   headed paragraphs, the plan Croix approved for M7
     UNITS={},                  # {unit number: its title} — every unit-wide file name is built from it (lib/names.py)
     REVIEW_IN_DECK=False,      # True: uN/review.py is built like a lesson and joins the unit deck
+    EXAM_PERIODS=2,            # how many class periods a unit test runs when the plan gives the unit no test day (ruling
+                               # 27: one paper over two periods). A7 sets 1 (ruling 51). The plan's own test days decide
+                               # first (unitbuild.exam_periods), so the paper and START HERE always agree.
     # ---- the colour code (HOUSE STYLE §2a)
     SLOTS="exponent",          # "exponent": base blue / exponent orange, read off the layout
                                # "named":    only what a spec marks with \sA{} \sB{} \sH{}

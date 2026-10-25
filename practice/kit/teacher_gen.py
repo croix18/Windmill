@@ -97,7 +97,25 @@ def forms_of(A):
     if "forms" in A: return {k: v for k, v in A["forms"].items() if k != "practice"}
     return {"test": A["sections"]}
 
-def extract(U, course):
+def exam_periods(build_dir, unit):
+    """How many class periods the unit test runs — what the build kit's paper prints (kit/lib/unitbuild.py exam_periods):
+    the plan's test days for the unit (the spine vendored at <build>/assets/windmill/spine.js), else the course's
+    EXAM_PERIODS (build/course.py), else 2 (ruling 27). Ruling 51 (23 Oct 2026): every A7 test is one period."""
+    try:
+        P = runpy.run_path(os.path.join(build_dir, "course.py"))
+    except (OSError, SyntaxError):
+        P = {}
+    days = 0
+    try:
+        txt = open(os.path.join(build_dir, "assets", "windmill", "spine.js"), encoding="utf-8").read().strip()
+        S = json.loads(txt[txt.index("=") + 1:].strip().rstrip(";"))
+        key = P.get("COURSE_KEY")
+        days = sum(1 for d in S["days"].values() if ((d or {}).get(key) or {}).get("kind") == "exam" and ((d or {}).get(key) or {}).get("unit") == unit)
+    except (OSError, ValueError, KeyError):
+        pass
+    return min(days, 2) if days else int(P.get("EXAM_PERIODS", 2))
+
+def extract(U, course, periods=2):
     A = U["assessment"]
     def item(it):
         d = {"stem": it["stem"]}
@@ -117,7 +135,9 @@ def extract(U, course):
         forms[fk] = [{"title": sec["title"], "benchmark": sec["benchmark"], "points": A["tracker"][sec["benchmark"]],
                       "items": [item(it) for it in sec["items"] if not it.get("heading") and not it.get("table_only")]} for sec in sections]
     T = {"course": course, "unit": U["unit"], "title": U["title"], "total": A["total"], "tracker": A["tracker"], "tracker_order": A.get("tracker_order", list(A["tracker"])),
-         "forms": forms, "notes": [SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else "")], "two_day": TWO_DAY_LINE, "follow_through_student": FOLLOW_THROUGH,
+         "forms": forms, "notes": [SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else "")],
+         "two_day": TWO_DAY_LINE if periods == 2 else "",     # empty: the test is one period (ruling 51), and the paper says so
+         "follow_through_student": FOLLOW_THROUGH,
          "follow_through_key": A.get("follow_through", ""), "transfer_flag": TRANSFER_FLAG}
     if not forms:                     # ruling 49 (22 Oct 2026): no fixed forms — the unit test is a random set of the practice page
         T["random"] = True
@@ -196,7 +216,7 @@ def main(unit_py, out="test.js", course=None):
     sys.path.insert(0, os.path.dirname(unit_py))
     U = runpy.run_path(unit_py)["U"]
     course = course or os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(unit_py)))).upper()
-    T = extract(U, course)
+    T = extract(U, course, exam_periods(os.path.dirname(os.path.dirname(unit_py)), U["unit"]))
     if "--check" in sys.argv:
         bad = check(U, T, out)
         n = sum(len(it.get("parts") or [it]) for f in T["forms"].values() for s in f for it in s["items"])

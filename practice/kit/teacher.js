@@ -33,27 +33,27 @@
   }
   function formWord(f){ return f === 'test' ? '' : 'Form ' + f; }
   function head(f, key){
-    var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : 'two class periods'].filter(Boolean).join(' · ');
+    var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : 'one class period'].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test */
     return '<div class="phead"><div class="pt1 ptest">' + esc(T.course + ' Unit ' + T.unit + ' Test') + '</div><div class="pt2">' + esc(T.title) + ' · ' + esc(sub) + '</div>' +
       (key ? '' : '<div class="pname">Name:<span class="pline"></span>Date:<span class="pline short"></span></div>') + '</div>';
   }
   function work(inches){ return '<div class="pwork" style="height:' + (Math.max(0.4, +inches || 0.6) * 0.9).toFixed(2) + 'in"></div>'; }
-  function blank(){ return '<div class="pans"><span class="pal">Answer:</span><span class="pblank"></span></div>'; }
   function choices(it){
     return '<div class="pchoices">' + it.choices.map(function(c, k){ return '<div class="pch"><span class="pbox' + (it.multi ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + tex(c) + '</span></div>'; }).join('') + '</div>';
   }
   function testHtml(f){
     var secs = T.forms[f], h = [head(f, false)], qn = 0;
-    h.push('<p class="pnotes"><span class="pinote">' + esc(T.two_day) + '</span>' + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
+    h.push('<p class="pnotes">' + (T.two_day ? '<span class="pinote">' + esc(T.two_day) + '</span>' : '') + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
     secs.forEach(function(sec, si){
       h.push('<h2 class="psec">' + (si + 1) + '.&nbsp; ' + esc(sec.title) + '<span class="ppts">' + sec.points + ' points</span></h2>');
       if (sec.items.some(function(it){ return it.parts; })) h.push('<p class="pft">' + esc(T.follow_through_student) + '</p>');
       sec.items.forEach(function(it){
         qn++;
         var q = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + tex(it.stem) + '</span>' + (it.parts ? '' : '<span class="pt">1 pt</span>') + '</div>' + (it.fig || '') + '</div>';
-        if (it.parts) it.parts.forEach(function(p){ q += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b><span class="st">' + tex(p.stem) + '</span><span class="pt">1 pt</span></div>' + work(p.space) + blank() + '</div>'; });
+        /* work space and no answer line, as the paper (house rule 2; the docx test has none — 25 Oct 2026) */
+        if (it.parts) it.parts.forEach(function(p){ q += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b><span class="st">' + tex(p.stem) + '</span><span class="pt">1 pt</span></div>' + work(p.space) + '</div>'; });
         else if (it.choices) q += '<div class="ppart">' + choices(it) + '</div>';
-        else q += '<div class="ppart">' + work(it.space) + blank() + '</div>';
+        else q += '<div class="ppart">' + work(it.space) + '</div>';
         h.push(q + '</div>');
       });
     });
