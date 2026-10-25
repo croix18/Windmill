@@ -24,9 +24,13 @@ issues. I give you permission to edit and to make fixes on the website."*
   and teacher copies of Units 3, 4 and 6 rebuilt; the stray kit copy at the top of `a7/` removed. **Unit 3's package was
   not rebuilt:** today's kit counts a vocabulary minute, so 3.01's whiteboard round would be 9 minutes (floor 10) — a
   rebuild means re-timing taught lessons; its make-ups print from the teacher copy.
-- **Site `08741ba`, deployed (Workers Builds: success):** A7 published from `a7302000` — Units 4–6 (Unit 6 and Thread B
-  for the first time: the unit page, eight web decks, the practice page, the teacher copy), the pages and teacher copies of
-  Units 3, 4 and 6, every A7 web deck on ruling 53's IXL line; the A7 course page regenerated (M7's page unchanged).
+- **Site `08741ba`, deployed (Workers Builds: success):** A7 published from `a7302000` — Units 4–6, the pages and teacher
+  copies of Units 3, 4 and 6, every A7 web deck on ruling 53's IXL line; the A7 course page regenerated (M7's page
+  unchanged). **Unit 6 and Thread B were taken down at 11:14** (Croix: "Take them down until a review chat goes over them";
+  site `26d4820`, `hold.json` in `1da4c03`) — they wait for the review chat.
+- **11:12 am — Croix, of "one class period": *"I don't need that text at all."*** Kit `ca12f9b`: a one-period test says
+  nothing about its length (papers and the teacher copy's printed test); two-period tests unchanged. A7 `bd16a35e` (Units 4
+  and 5 reinstalled, the teacher copies of Units 3, 4 and 6 rebuilt); site `300fd5b`, deployed, Unit 6 still held.
 - **M7 should vendor `02de689`** (`tools/vendor_windmill.py`, then `practice_kit.py --vendor m7/practice/kit`). Tried in a
   scratch copy of M7 `bd1a610`, not pushed: Units 4 and 10 pages and teacher copies pass every check (13 of 13 plants
   each), and every M7 paper figure (27) draws in the Lexend face with no struck label. Its next rebuilds letter paper
@@ -1593,3 +1597,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (afternoon): Croix: "Fix it. I give you permission" (the A7 build chat's list of three kit defects) → deckkit ixl() gives a wrapping skill name its rows; the printed test with the paper's shape and no set number on the student's sheet (the M7 review's first open item); page.js decodes "&lt;". Windmill c9c3e8a; A7 459c3e62 (Unit 6 installed, its page and teacher copy built); M7 tried in a scratch worktree, not pushed — it vendors and rebuilds its Unit 10 teacher copy before the 19 Nov test.
 - 25 Oct (9:18 am): Croix: "A little bit of exposure to stories is ok. Follow the learning plan. Also, fix the ixl due dates across the board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit assessment." → the M7 Unit 10 stories stay (Q7 mathematical, Q16 per AR.2.2 LT6); ruling 53: IXL done with each lesson, due by the unit test's first day (a thread day by the next test; with no test after, the next class). M7 0d00445 (mkscope, master sheet "IXL due today", Units 9–10 rebuilt, Unit 10 page and teacher copy on the vendored kit), A7 3976f039 + a8ff30af (scope_calendar, master sheet, spec lines; not rebuilt), Windmill fbac773 (spine, phone page v8, the kit's due_line), M7 Schedule doc rev 41, site 09922db (deployed; Unit 8 held back).
 - 25 Oct (9:15–11:45 am): Croix: "Fix the kit, fix units 4 and 5 … Don't move on yet to unit 11", then "Yes please see to each one of those issues. I give you permission to edit and to make fixes on the website." → kit 7611a99 (the test's length on the papers; no Answer: lines on the teacher copy's paper; plankit's Notes row) and 02de689 (Lexend figures on Lexend papers; hint.div never states its answer; the teacher bar); A7 a7302000 (Units 4–6 reinstalled, Unit 6's named triangles, pages rebuilt, the stray kit copy removed; Unit 3 not rebuilt); site 08741ba deployed; M7 to vendor.
+- 25 Oct (11:12 am): Croix: "Can you get rid of one class period. I don't need that text at all." → kit ca12f9b (a one-period test says nothing about its length); A7 bd16a35e, 2f68bf6e (Units 4–5 reinstalled; teacher copies of Units 3, 4, 6); site 300fd5b deployed — Unit 6 and Thread B left held (hold.json) as Croix asked at 11:14.
