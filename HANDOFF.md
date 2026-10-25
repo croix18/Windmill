@@ -37,6 +37,40 @@ issues. I give you permission to edit and to make fixes on the website."*
   figures in Lexend and its teacher copies print no "Answer:" lines.
 - **Still open:** `publish_web.py` and unreviewed units (M7's); the stray kit copy at the top of `m7/`.
 
+## Where things stand (25 Oct 2026, noon: ruling 54; A7 Unit 6 held for its review) — read this first
+
+**Ruling 54 — one title and numbering hierarchy on every page, both courses.** Croix, 11:28 am, of a printed A7 Unit 6 test
+whose section "1. Triangle Inequality and the Converse" sat over question "1.": *"Look at this numbering. It's confusing.
+1.1. can you get a logical common sense title and numbering heirarchy across both courses so we can avoid this."* The title
+says what the page is ("A7 Unit 6 Test"), then the unit's name, the form and the points (and "two class periods" on a
+two-period test — a one-period test says nothing of its length, `ca12f9b`); **a section is named, never numbered** (never
+"1.", "Part 1." or "PART A.") on any page that numbers its questions; questions run 1, 2, 3 … through the page; parts a, b,
+c; choices A–D (E); a lesson is called by its code ("Lessons 6.01–6.02", never "Lessons 1–2"). Both HOUSE STYLEs 13b(xxvi).
+- **Kit:** `unitbuild.py` — the test forms, the single paper and the practice test, keys and worked answers, the review
+  (`lesson_codes()` on its lesson column and how-to note; the reference sheet's lesson column too); `practice/kit/ui.js` —
+  the page's sections on screen and printed, its "only" choices and results by name, the printed test's head as the paper's
+  ("A7 Unit 6 Test" / "Relationships in Triangles · Form A · 18 points"; a make-up "… Make-up Test"); `teacher.js` — the
+  fixed-form paper's sections; `check/page.js` fails a printed section with a number; two kit tests (the old code fails
+  both).
+- **Held for review — the site's `hold.json`.** Croix, 11:14 am, of A7 Unit 6 and Thread B (published at 10:35 by the A7
+  chat before a review chat had gone over them): *"Take them down until a review chat goes over them. Then put them back
+  up."* Taken down (site `26d4820`); `hold.json` lists A7 Unit 6 (+ T-B1, T-B2) and M7 Unit 8: the site's build and course
+  pages leave a held unit out whatever the folders hold, and `test_site.mjs` F fails if any of it reaches `public/` (site
+  `1da4c03`, README "Units held for review"). `publish_web.py` still writes every packaged unit into `units/` — delete a held
+  unit's folder before committing. The review chat takes a unit off the list in the commit that publishes it.
+- **Kit fixes the same hour** (the A7 Unit 6 readers): the Lesson Plan's IXL row says "Start the skills; due by the Unit N
+  test." (it said "finish tonight", against ruling 53), its warm-up row "Silent, then reveal" and the Teacher's Edition's
+  warm-up label "On your own. No notes." (they said two and four minutes beside a sequence of five), "the off-slide
+  sentence" for "the OFF line" (`ee0544b`, `74dbaab`); the printed test never splits a question across a page (ruling 8)
+  and has the paper's Name, Date and Period lines (`95c6fb0`).
+- **Rebuilt on it and published (site `85c478c`, deployed):** A7 `00cdddf` — Units 4 and 5 at 0 findings (Unit 4's Forms A
+  and B sent to Croix again for Mon 26 Oct), the pages and teacher copies of Units 3 and 4; M7 `dc90925` — Units 9 and 10 at
+  0 findings, the pages and teacher copies of Units 4 and 10 (Unit 4's Portuguese table has the named sections), Units 4
+  and 5's web decks on ruling 53's IXL line. **M7 Units 4 and 5's packages are not rebuilt:** under today's kit 4.05, 4.06,
+  5.01 and 5.03's Teacher's Editions run to five pages (ruling 26: four) — cut them first; Unit 5 before 14 Dec.
+- **Next:** A7 Unit 6 and Thread B's second review (this session) — three readers, no wrong key; fixes in progress; then
+  off `hold.json` and back on the site. M7 Unit 8 waits for its review.
+
 ## Where things stand (25 Oct 2026, 10 am: ruling 53) — read this first
 
 **IXL is done with each lesson and due by the unit test — ruling 53.** Croix, 9:18 am: *"fix the ixl due dates across the
@@ -1598,3 +1632,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (9:18 am): Croix: "A little bit of exposure to stories is ok. Follow the learning plan. Also, fix the ixl due dates across the board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit assessment." → the M7 Unit 10 stories stay (Q7 mathematical, Q16 per AR.2.2 LT6); ruling 53: IXL done with each lesson, due by the unit test's first day (a thread day by the next test; with no test after, the next class). M7 0d00445 (mkscope, master sheet "IXL due today", Units 9–10 rebuilt, Unit 10 page and teacher copy on the vendored kit), A7 3976f039 + a8ff30af (scope_calendar, master sheet, spec lines; not rebuilt), Windmill fbac773 (spine, phone page v8, the kit's due_line), M7 Schedule doc rev 41, site 09922db (deployed; Unit 8 held back).
 - 25 Oct (9:15–11:45 am): Croix: "Fix the kit, fix units 4 and 5 … Don't move on yet to unit 11", then "Yes please see to each one of those issues. I give you permission to edit and to make fixes on the website." → kit 7611a99 (the test's length on the papers; no Answer: lines on the teacher copy's paper; plankit's Notes row) and 02de689 (Lexend figures on Lexend papers; hint.div never states its answer; the teacher bar); A7 a7302000 (Units 4–6 reinstalled, Unit 6's named triangles, pages rebuilt, the stray kit copy removed; Unit 3 not rebuilt); site 08741ba deployed; M7 to vendor.
 - 25 Oct (11:12 am): Croix: "Can you get rid of one class period. I don't need that text at all." → kit ca12f9b (a one-period test says nothing about its length); A7 bd16a35e, 2f68bf6e (Units 4–5 reinstalled; teacher copies of Units 3, 4, 6); site 300fd5b deployed — Unit 6 and Thread B left held (hold.json) as Croix asked at 11:14.
+- 25 Oct (11:14 am – 1 pm): Croix: "Take them down until a review chat goes over them. Then put them back up." (A7 Unit 6, published 10:35 by the A7 chat) → site 26d4820 down, hold.json (1da4c03); 11:28: "can you get a logical common sense title and numbering heirarchy across both courses" → ruling 54 (kit 9aac4a9; Lesson Plan and print fixes ee0544b, 74dbaab, 95c6fb0); A7 00cdddf, M7 dc90925, site 85c478c; A7 Unit 4's forms re-sent.
