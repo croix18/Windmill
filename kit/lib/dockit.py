@@ -402,7 +402,10 @@ class Doc:
             self._pts(p, points)
         if fig:                                   # a figure drawn from the item's own numbers
             from . import figkit
-            path, w, h = figkit.draw(fig, fig.get("in", 2.4))
+            # ruling 46: a paper set in Lexend letters its figures in Lexend too, as it sets its mathematics ("lexdoc"):
+            # the slide's face at the slide's scale. They were lettered in STIX on the Lexend papers until 25 Oct 2026; a
+            # figure on a page set in the body face (a bank, a set, a review) stays in STIX.
+            path, w, h = figkit.draw(figkit.slide(fig) if self.font == "Lexend" else fig, fig.get("in", 2.4))
             fp = c.add_paragraph(); fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
             fp.paragraph_format.space_before = Pt(2); fp.paragraph_format.space_after = Pt(4)
             fp.add_run().add_picture(path, width=Inches(w), height=Inches(h))

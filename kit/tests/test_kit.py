@@ -773,6 +773,26 @@ ok("the test's length on the paper and its key: 'two class periods' and the cont
    all(("two class periods" in t) == _two and ("one class period" in t) == (not _two) and ("Stop when the period ends" in t) == _two for t in (_t51, _k51)),
    _t51[:240])
 
+# ---- ruling 46 for figures (25 Oct 2026): a Lexend paper letters its figures in Lexend, the slide's face; a page in the
+# body face keeps STIX. The papers' figures were lettered in STIX beside Lexend text and Lexend mathematics.
+from lib import dockit as _dk46, figkit as _fk46
+_faces46, _draw46 = [], _fk46.draw
+def _spy46(spec, target_in=None):
+    _faces46.append(spec.get("face")); return _draw46(spec, target_in)
+_fk46.draw = _spy46
+try:
+    _fig46 = dict(kind="shapes", fs=14, pt=10, **{"in": 1.8}, shapes=[dict(t="poly", pts=[(0, 0), (4, 0), (0, 3)]),
+              dict(t="text", xy=(2, -0.4), s="4 cm", va="top")])
+    _first46 = []
+    for _font46 in ("Lexend", None):
+        del _faces46[:]
+        _dk46.Doc("E", "T", "S", font=_font46).question("Find the area.", fig=_fig46)
+        _first46.append(_faces46[0] if _faces46 else "nothing drawn")     # the call the page made (a two-pass kind draws again inside)
+finally:
+    _fk46.draw = _draw46
+ok("ruling 46: a figure on a Lexend paper is drawn in the slide's Lexend face; on a page in the body face, in STIX",
+   _first46 == ["slide", None], str(_first46))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

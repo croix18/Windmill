@@ -74,8 +74,14 @@ function hintMul(a, b) {
   const other = which === 0 ? b : a, term = p => which === 0 ? S(p) + ' × ' + S(other) : S(other) + ' × ' + S(p);
   return 'Break it up: ' + S(a) + ' × ' + S(b) + ' = ' + parts.map(term).join(' + ') + ' = ' + parts.map(p => S(qmul(p, other))).join(' + ') + '. Now add.';
 }
-/* a ÷ b: a nearby multiple of b as a stepping stone */
+/* a ÷ b: a nearby multiple of b as a stepping stone — never one that states the quotient. 14.4 ÷ 1.2 began "Start with
+   1.2 × 10 = 12", and 12 is the answer; when the hint would say "= <the answer>" it asks the plain question instead
+   (A7 Unit 6 guarded this in its own coach; in the kit since 25 Oct 2026, check/hints.js) */
 function hintDiv(a, b) {
+  const h = hintDivStep(a, b), q = S(qdiv(a, b)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('= ' + q + '(?![\\d.])').test(h) ? 'Think: ' + S(b) + ' × ? = ' + S(a) + '.' : h;
+}
+function hintDivStep(a, b) {
   const qq = qdiv(a, b);
   if (b.d === 1n && b.n === 2n) {
     let parts = split(a);

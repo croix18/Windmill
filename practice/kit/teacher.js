@@ -5,14 +5,15 @@
    REAL UNIT TEST — window.TEACHER_TEST, written by teacher_gen.py from the course's unit.py — as the paper: Form A / Form B
    (ruling 33) where the unit has them, the test, the test with its key, or the key alone. Stems and answers are TeX,
    drawn by KaTeX (inlined by the build); figures are the paper's own shape specs drawn as SVG. A teacher page carries
-   the answer key in its source, so it is never linked for students — Google Sites gets the student page only. */
+   the answer key in its source, so it is never linked for students — they get the student page (the class website, or
+   Google Sites); on the website a teacher copy is behind the teacher password (/teacher/). */
 (function boot(tries){
   var T = window.TEACHER_TEST; if (!T) return;
   if (T.random){                                          /* ruling 49 (22 Oct 2026): the unit test IS a random set of this page */
     if (!window.PracticePrint){ if ((tries || 0) < 200) setTimeout(function(){ boot((tries || 0) + 1); }, 25); return; }
     var rbar = document.createElement('div'); rbar.className = 'teacherbar'; rbar.setAttribute('translate', 'no'); rbar.setAttribute('role', 'region'); rbar.setAttribute('aria-label', 'Teacher copy');
     rbar.innerHTML = '<div class="tbtxt"><b>Teacher copy.</b> The Unit ' + T.unit + ' test is a random set of this page: every form below is a different set, headed as a test, ' +
-      'with its answer key on its own page. Do not share this link or file with students — the student page is the one on Google Sites.</div>' +
+      'with its answer key on its own page. Do not share this link or file with students — they use the student page, on the class website or Google Sites.</div>' +
       '<div class="tbbtns"><span class="tblab">Print the test:</span>' + [1, 2, 3, 4, 5].map(function(n){ return '<button type="button"' + (n === 1 ? ' class="go"' : '') + ' data-tforms="' + n + '">' + n + (n === 1 ? ' form' : ' forms') + '</button>'; }).join('') + '</div>';
     var rsheet = document.querySelector('.sheet'); if (rsheet) rsheet.insertBefore(rbar, rsheet.firstChild);
     rbar.addEventListener('click', function(e){ var b = e.target.closest('[data-tforms]'); if (b) window.PracticePrint.forms(+b.dataset.tforms, 'Test'); });
@@ -91,7 +92,7 @@
   var bar = document.createElement('div'); bar.className = 'teacherbar'; bar.setAttribute('translate', 'no'); bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Teacher copy');
   var pick = FORMS.length > 1 ? '<label class="tbform">Form <select id="tform" aria-label="Which form">' + FORMS.map(function(f){ return '<option value="' + f + '">' + f + '</option>'; }).join('') + '</select></label>' : '';
   bar.innerHTML = '<div class="tbtxt"><b>Teacher copy.</b> This page holds the real Unit ' + T.unit + ' test' + (FORMS.length > 1 ? ' (Forms ' + FORMS.join(' and ') + ')' : '') + ' and its answer key — do not share this link or file with students. ' +
-    'The student page is the one on Google Sites.</div><div class="tbbtns"><span class="tblab">Print the real test:</span>' + pick +
+    'Students use the student page, on the class website or Google Sites.</div><div class="tbbtns"><span class="tblab">Print the real test:</span>' + pick +
     '<button type="button" class="go" data-tprint="test">Test</button><button type="button" class="go" data-tprint="tk">Test + key</button><button type="button" data-tprint="key">Key only</button></div>';
   var sheet = document.querySelector('.sheet'); if (sheet) sheet.insertBefore(bar, sheet.firstChild);
   bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tprint]'); if (b) show(b.dataset.tprint); });

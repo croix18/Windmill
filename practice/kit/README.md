@@ -77,6 +77,7 @@ in the code; the four reports are in the Windmill HANDOFF.
 | `kit.css` | the sheet: light and dark mode, 44px tap targets, print |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
 | `check/run.py` | `python3 kit/check/run.py <unit>`: the unit's own checks, then the lock, then the browser checks. If all pass it writes `CHECKED` and builds. |
+| `check/hints.js` | the kit's own arithmetic hints (`core.js` `hint.div`, and `hint.mul` by 0.5) never state their answer: 400,000 divisions read for "= the answer" (25 Oct 2026 — "45 ÷ 3: Start with 3 × 10 = 30; 45 − 30 = 15 is left", and 15 is the answer). `run.py` runs it first |
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
@@ -212,7 +213,10 @@ part (no answer line — house rule 2, as the paper, 25 Oct 2026), the key with 
 unit (`<build>/assets/windmill/spine.js`), else the course's `EXAM_PERIODS` — and writes `two_day` empty for a one-period
 test (ruling 51: every A7 test is one period), so the head says "one class period" and no continue-tomorrow line prints.
 `check/teacher_check.js` is Rule 0 for the printout (the period line both ways, no answer line). The bar and the paper are `translate="no"`.
-Never for Google Sites; each teacher page is its own private artifact. A unit with one `sections` (no Form A/B) prints as
+The bar tells the teacher that students use the student page, on the class website or Google Sites; on the website a
+teacher copy sits behind the teacher password (`/teacher/<course>/unit-N/practice/`).
+Never for Google Sites or anywhere a student can open it (22 Oct 2026: the website keeps it behind the teacher
+password). A unit with one `sections` (no Form A/B) prints as
 "the test". A check's variables (a, b, m, n, x, y, …) are sympy symbols declared positive, exactly as the build kit's gate
 declares them, so a check passes in `teacher_gen.py` exactly when it passes in the build (21 Oct 2026, for A7 Unit 3's
 variable bases — the first teacher copy of a test with algebra in it).
