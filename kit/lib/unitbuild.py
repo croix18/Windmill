@@ -9,7 +9,7 @@ Every item goes through the same mathcheck / distractorcheck / capcheck as the l
 point ledger is asserted against the declared total and the per-benchmark Score Tracker; parallel
 forms are checked position for position, and no question may share an answer across forms.
 """
-import os, itertools
+import os, itertools, re
 from . import names
 from .dockit import Doc, GRAY, RED
 from .lessonbuild import (mathcheck_item, _flatten, distractorcheck_lesson, capcheck_lesson, arrowcheck,
@@ -76,8 +76,26 @@ def form_words(form):
 
 
 UNSCORED_NOTE = ("HOW TO USE THIS.   This review covers every learning target from the unit — more than the "
-                 "assessment does. Work it in parts. If you miss two or more in a part, that part is where to "
-                 "spend your study time. The reference sheet has everything you need for each part.")
+                 "assessment does. Work it one section at a time. If you miss two or more in a section, that section is "
+                 "where to spend your study time. The reference sheet has everything you need for each section.")
+
+
+# Ruling 54 (Croix, 25 Oct 2026, of a printed test whose section "1." sat above question "1.": "can you get a logical
+# common sense title and numbering heirarchy across both courses"): a section is named, never numbered, on any page with
+# numbered questions; questions run 1, 2, 3 … through the page; a question's parts are a, b, c; choices are A, B, C, D;
+# a lesson is called by its code. lesson_codes() turns a spec's "Lessons 1–2" / "Lesson 4" into "Lessons 6.01–6.02" /
+# "Lesson 6.04" (book lesson n of unit u is u.0n); "Thread A, days 1–2" and anything else is left as written.
+_LESSON_N = re.compile(r"\b(Lessons?)\s+(\d{1,2})(?:\s*[–-]\s*(\d{1,2}))?\b(?![.\d])")
+
+
+def lesson_codes(U, s):
+    if not s:
+        return s
+    u = U["unit"]
+    def one(m):
+        a, b = int(m.group(2)), m.group(3)
+        return f"{m.group(1)} {u}.{a:02d}" + (f"–{u}.{int(b):02d}" if b else "")
+    return _LESSON_N.sub(one, s)
 
 
 # ---------------------------------------------------------------- checks
@@ -141,7 +159,7 @@ def build_reference(U, outdir):
     for sec in U["reference"]:
         if sec.get("not_sci"):
             pass
-        doc.section(sec["title"], sec.get("right", ""))
+        doc.section(sec["title"], lesson_codes(U, sec.get("right", "")))
         for block in sec["blocks"]:
             if isinstance(block, str):
                 doc.para(block, before=3, after=4)
@@ -169,13 +187,14 @@ def build_review(U, outdir, key):
     doc.instruction("Show your work. Circle your final answer.")
     # a unit whose review leaves out one of its targets says so in its own words, `review_note` (A7 Unit 4, 21 October
     # 2026: significant digits are taught in 4.04 and not assessed, so its review no longer covers every target)
-    doc.para(U.get("review_note") or UNSCORED_NOTE, size=9.5, italic=True, color=GRAY, before=0, after=8)
+    doc.para(lesson_codes(U, U.get("review_note") or UNSCORED_NOTE), size=9.5, italic=True, color=GRAY, before=0, after=8)
     for part in U["review"]:
         n_q = len([i for i in part["items"] if not i.get("heading")])
-        right = f"{part['lessons']}   ·   {n_q} questions"
+        lessons = lesson_codes(U, part["lessons"])
+        right = f"{lessons}   ·   {n_q} questions"
         if key:  # benchmark codes never print on a student page
-            right = f"{part['lessons']}   ·   {part['benchmark']}   ·   {n_q} questions"
-        doc.section(f"PART {part['letter']}.   {part['title']}", right)
+            right = f"{lessons}   ·   {part['benchmark']}   ·   {n_q} questions"
+        doc.section(part["title"], right)                      # ruling 54: named, not "PART A."
         for it in part["items"]:
             if it.get("heading"):
                 doc.heading(it["heading"])
@@ -443,7 +462,7 @@ def build_form(U, outdir, key, form="test", student=False):
     n = 0
     for si, sec in enumerate(sections):
         right = f"{per_sec[si][1]} points" + (f"   {sec['benchmark']}" if key and not student else "")
-        doc.section(f"Part {si + 1}.  {sec['title']}", right)
+        doc.section(sec["title"], right)                       # ruling 54: named, not "Part 1." (question 1 sits under it)
         if any(it.get("parts") for it in sec["items"]):
             # keep=True: the note rides with the section's first question. Without it a page could end
             # on a section's title and this note, its questions all on the next page (A7 U4, M7 U4 and

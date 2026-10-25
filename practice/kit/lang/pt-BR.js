@@ -123,6 +123,7 @@ var T = {
   'Every one on the first try.': 'Todos certos de primeira.',
   'Every one right on the first check.': 'Todos certos na primeira tentativa.',
   'Part': 'Parte',
+  'Section': 'Seção',
   'First try': 'De primeira',
   'Right': 'Certos',
   'Not right yet:': 'Ainda não estão certos:',
@@ -130,6 +131,7 @@ var T = {
   'New whole test': 'Nova prova inteira',
   'Practice my misses (#)': 'Praticar meus erros (#)',
   'Practice Part #': 'Praticar a parte #',
+  'Practice:': 'Praticar:',
 
   /* print */
   'Print': 'Imprimir',

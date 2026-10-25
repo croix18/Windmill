@@ -46,7 +46,7 @@
     var secs = T.forms[f], h = [head(f, false)], qn = 0;
     h.push('<p class="pnotes">' + (T.two_day ? '<span class="pinote">' + esc(T.two_day) + '</span>' : '') + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
     secs.forEach(function(sec, si){
-      h.push('<h2 class="psec">' + (si + 1) + '.&nbsp; ' + esc(sec.title) + '<span class="ppts">' + sec.points + ' points</span></h2>');
+      h.push('<h2 class="psec">' + esc(sec.title) + '<span class="ppts">' + sec.points + ' points</span></h2>');   /* ruling 54: named, never numbered */
       if (sec.items.some(function(it){ return it.parts; })) h.push('<p class="pft">' + esc(T.follow_through_student) + '</p>');
       sec.items.forEach(function(it){
         qn++;

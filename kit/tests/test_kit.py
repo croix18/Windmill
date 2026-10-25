@@ -773,6 +773,19 @@ ok("the test's length on the paper and its key: 'two class periods' and the cont
    all(("two class periods" in t) == _two and "one class period" not in t and "one period" not in t and ("Stop when the period ends" in t) == _two for t in (_t51, _k51)),
    _t51[:240])
 
+# ---- ruling 54 (25 Oct 2026, of a printed test whose section "1." sat over question "1."): a section is named, never
+# numbered, on a page with numbered questions; a lesson is called by its code
+ok("ruling 54: the paper's and the key's sections are named, not 'Part 1.' (question 1 sits under the first)",
+   all(" Area " in t and not re.search(r"\bPart\s+\d+\s*\.", t) for t in (_t51, _k51)), _t51[:240])
+_U54 = {"unit": 90, "title": "Area and Circles", "review": [dict(letter="A", title="The Triangle Inequality", lessons="Lessons 1–2",
+        benchmark="MA.8.GR.1.3", items=[dict(stem="Is 3, 4, 5 a triangle?", answer="yes", space=0.5)])],
+        "review_note": "This review covers Lessons 1–8 and Thread B, days 1–2."}
+with tempfile.TemporaryDirectory() as tmp:
+    _r54 = _doc_text(_ub51.build_review(_U54, tmp, key=False))
+ok("ruling 54: the review's sections are named, not 'PART A.', and its lessons are their codes (Lessons 90.01–90.02), a thread's days as written",
+   "PART A" not in _r54 and "The Triangle Inequality" in _r54 and "Lessons 90.01–90.02" in _r54 and "Lessons 90.01–90.08" in _r54
+   and "Thread B, days 1–2" in _r54 and not re.search(r"Lessons? \d\b", _r54), _r54[:300])
+
 # ---- ruling 46 for figures (25 Oct 2026): a Lexend paper letters its figures in Lexend, the slide's face; a page in the
 # body face keeps STIX. The papers' figures were lettered in STIX beside Lexend text and Lexend mathematics.
 from lib import dockit as _dk46, figkit as _fk46

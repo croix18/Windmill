@@ -369,8 +369,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     shapeFails(mk, 'make-up');
     const seeds = mk.khead.map(h => (/Set (\d+)/.exec(h) || [])[1]);
     if (new Set(seeds).size !== 3 || seeds.some(x => !x)) fail('make-up: the forms are not three different sets: ' + mk.khead.join(' | '));
-    mk.heads.forEach((h, k) => { if (!h.startsWith('Make-up · Form ' + 'ABC'[k] + ' · ')) fail('make-up: head "' + h + '" for form ' + 'ABC'[k]);
-      const t1 = mk.titles[k]; if (/Practice Test/i.test(t1) || !/Test/.test(t1)) fail('make-up: the form is titled "' + t1 + '"'); if (!mk.khead[k].startsWith('Answer key — Form ' + 'ABC'[k]) || !mk.khead[k].includes('Set ' + seeds[k])) fail('make-up: key head "' + mk.khead[k] + '" for form ' + 'ABC'[k] + ' set ' + seeds[k]); });
+    /* ruling 54: the title says what it is, the line under it the unit's name, the form, the points and the time */
+    mk.heads.forEach((h, k) => { if (!h.includes(' · Form ' + 'ABC'[k] + ' · ') || /^(Make-up|Test) ·/.test(h)) fail('make-up: head "' + h + '" for form ' + 'ABC'[k]);
+      const t1 = mk.titles[k]; if (/Practice Test/i.test(t1) || !/Make-up Test$/.test(t1)) fail('make-up: the form is titled "' + t1 + '"'); if (!mk.khead[k].startsWith('Answer key — Form ' + 'ABC'[k]) || !mk.khead[k].includes('Set ' + seeds[k])) fail('make-up: key head "' + mk.khead[k] + '" for form ' + 'ABC'[k] + ' set ' + seeds[k]); });
     if (JSON.stringify(mk.stems[0]) === JSON.stringify(mk.stems[1])) fail('make-up: forms A and B have the same questions');
     for (let k = 0; k < 3; k++){                         /* every key row recomputed from that form's set */
       const want = await p.evaluate(s => { const g = Unit.generate(s), out = []; g.sections.forEach(sec => sec.items.forEach(it => {
@@ -394,9 +395,12 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       const rt = await p.evaluate(formShape);
       if (rt.heads.length !== 2 || rt.nk !== 2) fail('ruling 49: ' + rt.heads.length + ' forms / ' + rt.nk + ' keys for 2');
       shapeFails(rt, 'ruling 49');
-      rt.heads.forEach((h, k) => { if (!h.startsWith('Test · Form ' + 'AB'[k] + ' · ')) fail('ruling 49: a test form is headed "' + h + '"'); });
+      rt.heads.forEach((h, k) => { if (!h.includes(' · Form ' + 'AB'[k] + ' · ') || /^(Make-up|Test) ·/.test(h)) fail('ruling 49: a test form is headed "' + h + '"'); });
       rt.khead.forEach((h, k) => { if (!h.startsWith('Answer key — Form ' + 'AB'[k]) || !/Set \d+/.test(h)) fail('ruling 49: a key is headed "' + h + '"'); });
-      rt.titles.forEach(t => { if (/Practice/i.test(t) || !/Test/.test(t)) fail('ruling 49: a printed test is titled "' + t + '"'); });
+      rt.titles.forEach(t => { if (/Practice|Make-up/i.test(t) || !/ Test$/.test(t)) fail('ruling 49: a printed test is titled "' + t + '"'); });
+      /* ruling 54: a section is named, never numbered — question 1 sat under a section "1." (A7 Unit 6, 25 Oct 2026) */
+      const secs = await p.evaluate(() => Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .psec .bt')).map(e => e.textContent.trim()));
+      secs.forEach(s => { if (/^(\d+|[IVX]+|Part \w+)[.:]/i.test(s)) fail('ruling 54: a printed section is numbered: "' + s + '"'); });
       await p.click('#pvClose');
     } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');
     }

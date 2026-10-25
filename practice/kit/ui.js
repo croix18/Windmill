@@ -25,7 +25,7 @@ try { document.documentElement.lang = 'en'; } catch(e){}
 /* ------------------------------------------------ the unit's sections, scopes and the link */
 var G0 = U.generate(1), NSEC = G0.sections.length;
 var SCOPES = { all: 'Whole test' };
-G0.sections.forEach(function(s, k){ SCOPES['p' + (k + 1)] = 'Part ' + (k + 1) + ' only: ' + s.title; });
+G0.sections.forEach(function(s, k){ SCOPES['p' + (k + 1)] = s.title + ' only'; });   /* ruling 54: a section is named, never numbered */
 SCOPES.miss = 'My misses, with new numbers';
 var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts */
 function fromHash(){ var m = HASH.exec(location.hash || ''); return m && +m[1] >= 1 && (!m[2] || SCOPES[m[2].toLowerCase()]) ? {seed: +m[1], scope: (m[2] || 'all').toLowerCase()} : null; }
@@ -84,7 +84,7 @@ function missRounds(){ return 1; }                        /* [R1-11][closing che
 function build(){
   G = U.generate(seed);
   var out = [];
-  if (scope === 'all') G.sections.forEach(function(sec, si){ out.push({title: (si + 1) + '.&nbsp; ' + esc(sec.title), items: sec.items.map(function(it, ii){ return {it: it, keep: null, si: si, ii: ii}; })}); });
+  if (scope === 'all') G.sections.forEach(function(sec, si){ out.push({title: esc(sec.title), items: sec.items.map(function(it, ii){ return {it: it, keep: null, si: si, ii: ii}; })}); });
   else if (scope === 'miss'){
     var pos = S.pos || [], rounds = missRounds(pos.length) === 1 ? [G] : [G, round2()];
     rounds.forEach(function(R, r){
@@ -97,7 +97,7 @@ function build(){
     });
   } else {
     var k = +scope.slice(1) - 1;
-    [G, round2()].forEach(function(R, r){ out.push({title: (k + 1) + '.&nbsp; ' + esc(R.sections[k].title) + ' — round ' + (r + 1), items: R.sections[k].items.map(function(it, ii){ return {it: it, keep: null, si: k, ii: ii}; })}); });
+    [G, round2()].forEach(function(R, r){ out.push({title: esc(R.sections[k].title) + ' — round ' + (r + 1), items: R.sections[k].items.map(function(it, ii){ return {it: it, keep: null, si: k, ii: ii}; })}); });
   }
   HASHV = K.fnv1a(out.map(function(s){ return s.items.map(function(d){ return partsOf(d.it).map(function(p, pi){ return d.keep && !d.keep[pi] ? '' : U.key(p); }).join(','); }).join(';'); }).join('|') + '#' + U.contentVersion).toString(36);
   return out;
@@ -531,7 +531,7 @@ function paintResult(t){
   var nm = Object.keys(misses()).length, perfect = t.earned === N && N > 0, alone = perfect && t.first === N && !t.helped;
   var btns = perfect ? '<button type="button" class="go" data-new="1" data-scope="all">New whole test</button>'
     : (nm ? '<button type="button" class="go" data-new="1" data-scope="miss">Practice my misses (' + nm + ')</button>' : '') +
-      Object.keys(weak).map(function(k){ return '<button type="button" data-new="1" data-scope="p' + (+k + 1) + '">Practice Part ' + (+k + 1) + '</button>'; }).join('') +
+      Object.keys(weak).map(function(k){ return '<button type="button" data-new="1" data-scope="p' + (+k + 1) + '">Practice: ' + esc(G0.sections[+k].title) + '</button>'; }).join('') +
       '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>';
   var hk = scope + '.' + S.mode, H = hist()[hk] || [], prev = H.filter(function(x){ return !(x.seed === seed && x.at === S.finishedAt); })[0];
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
@@ -542,7 +542,7 @@ function paintResult(t){
     '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points earned on your own') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
     firstLine + runLine + lastLine +
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') +
-    '<div class="tw"><table><thead><tr><th>Part</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<div class="tw"><table><thead><tr><th>Section</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
       '<p class="note"><b>Show me how</b> has the steps; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
     '<div class="btns">' + btns + '</div>';
@@ -695,7 +695,7 @@ function resultsHtml(){
   var h = printHead('Results') + '<p class="pmeta"><span class="bt">' + setLine() + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</span></p>';
   h += '<p class="pscore"><span class="bt"><b>' + t.earned + ' / ' + N + '</b> ' + (test ? 'right' : 'points earned on your own') + '</span>' + (test ? '' : '<span class="bt">' + t.first + ' / ' + N + ' right on the first try' + (t.helped ? ' ' + bulb(t.helped) : '') + '</span>') + '<span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
     (S.done ? '' : '<span class="bt">Not finished yet.</span>') + '</p>';
-  h += '<table class="ptab pres"><thead><tr><th><span class="bt">Part</span></th><th class="r"><span class="bt">' + (test ? 'Right' : 'Earned') + '</span></th></tr></thead><tbody>' +
+  h += '<table class="ptab pres"><thead><tr><th><span class="bt">Section</span></th><th class="r"><span class="bt">' + (test ? 'Right' : 'Earned') + '</span></th></tr></thead><tbody>' +
     DS.map(function(s, k){ return '<tr><td><span class="bt">' + s.title + '</span></td><td class="r">' + (test ? t.bySec[k].got : t.bySec[k].earned) + ' / ' + t.bySec[k].of + '</td></tr>'; }).join('') + '</tbody></table>';
   h += '<table class="ptab pans2"><thead><tr><th>#</th><th><span class="bt">Your answer</span></th><th><span class="bt">Result</span></th><th><span class="bt">Correct answer</span></th></tr></thead><tbody>' +
     ITEMS.map(function(it){ var R = S.res[it.id], ok = R && R.v === 'right'; return '<tr class="' + (ok ? 'ok' : 'no') + '"><td class="pk">' + esc(it.lab) + '</td><td>' + yourAnswer(it) + '</td><td><span class="bt">' + verdict(it) + '</span></td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('') + '</tbody></table>';
@@ -750,8 +750,12 @@ function pqTest(d, qn){
 }
 function testFormHtml(label, form){
   var T = window.TEACHER_TEST || {}, h = [], qn = 0, total = ITEMS.length;
-  h.push('<div class="phead"><div class="pt1 ptest"><span class="bt">' + esc(U.title).replace(/\s*Practice Test\b/i, ' Test') + '</span></div>' +
-    '<div class="pt2"><span class="bt">' + label + ' · Form ' + form + ' · ' + total + ' points</span></div>' +
+  /* ruling 54 (25 Oct 2026): the title says what it is ("A7 Unit 6 Test", "… Make-up Test"); the line under it, the unit's
+     name, the form and the points — and "two class periods" for a two-period test; a one-period test says nothing about
+     its length (Croix, 25 Oct 2026: "I don't need that text at all") — as the paper's head and teacher.js's */
+  var when = T.two_day ? 'two class periods' : '';
+  h.push('<div class="phead"><div class="pt1 ptest"><span class="bt">' + esc(U.title).replace(/\s*Practice Test\b/i, label === 'Test' ? ' Test' : ' ' + label + ' Test') + '</span></div>' +
+    '<div class="pt2"><span class="bt">' + [plainText(U.h1 || ''), 'Form ' + form, total + ' points', when].filter(Boolean).map(esc).join(' · ') + '</span></div>' +
     '<div class="pname"><span class="bt">Name:</span><span class="pline"></span><span class="bt">Date:</span><span class="pline short"></span></div></div>');
   /* each of the paper's lines once: the teacher copy's ("Show your work…", the π line), then the unit's print notes; a unit
      that prints the scoring lines itself (M7 Unit 10's notesPrint) does not get them twice, and the follow-through line
