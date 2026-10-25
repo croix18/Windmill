@@ -4,6 +4,27 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, afternoon: A7 Unit 6's second review done, back on the site) — read this first
+
+**A7 Unit 6 and Thread B are back up** (Croix, 11:14 am: *"Take them down until a review chat goes over them. Then put them
+back up."*). Three readers, each alone (Croix asked for Fable; the Fable readers were refused for rate, HTTP 429, and the same
+three ran on Claude Opus 5.5): no wrong key, no blocker, 9 major and about 50 minor findings, each fixed or judged in A7's
+audit §8, "The second review".
+- **Ruling 43 on the test** (the critic): under the 225 bound only 3-4-5, 6-8-10, 5-12-13 and 9-12-15 have a whole
+  hypotenuse, and the lessons had shown all four. The lessons now show 3-4-5 and 6-8-10 only; the page's 4(a) is 5-12-13 or
+  9-12-15, and 4(b), 5, 7 and question 2 avoid every number a warm-up, notes slide, example or Your Turn showed — the
+  page's `u6_check.js` enforces it (`engine.js`: `SHOWN_*`). **The same rule applies to every unit's page**: a test drawn
+  from the page must not re-ask what a lesson showed. M7's pages have no such check yet.
+- **Kit:** `d4d2048` (a minus after a comma is a sign in mathimg; the practice page passes its mode, so "Like the real test"
+  credits follow-through), `95c6fb0` (a printed question never split), `74dbaab`, `ee0544b`, and `71f5138` (every Score
+  Tracker kept whole; `build_paper`, a unit with no forms, names its sections under ruling 54 too). Kit tests 183/184 and
+  184/185 (the steps fixture, as before). **M7 has vendored none of `d4d2048` or `71f5138`.**
+- **A7 `5200cc3b` + `27b9603b`:** Unit 6 rebuilt and installed at 0 findings; its page (content version 3, 35 of 35 plants)
+  and teacher copy checked and built; master sheet 0 problems. **Site `782f69d`, deployed** (Workers Builds: success):
+  Unit 6, its pages and T-B1/T-B2; `hold.json` holds only M7 Unit 8.
+- **Judged, not done:** new worked slides the readers asked for (Your Turns that change only the numbers; a 6.01 Notes II
+  example; a 6.07 nested pair; the T-B2 reverse steps; two Thread B boards) — for the next build of those lessons.
+
 ## Where things stand (25 Oct 2026, noon: the A7 build chat's list) — read this first
 
 **The A7 build chat's open list is closed.** Croix, 9:15 am: *"Fix the kit, fix units 4 and 5. When you have satisfied
@@ -1633,3 +1654,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (9:15–11:45 am): Croix: "Fix the kit, fix units 4 and 5 … Don't move on yet to unit 11", then "Yes please see to each one of those issues. I give you permission to edit and to make fixes on the website." → kit 7611a99 (the test's length on the papers; no Answer: lines on the teacher copy's paper; plankit's Notes row) and 02de689 (Lexend figures on Lexend papers; hint.div never states its answer; the teacher bar); A7 a7302000 (Units 4–6 reinstalled, Unit 6's named triangles, pages rebuilt, the stray kit copy removed; Unit 3 not rebuilt); site 08741ba deployed; M7 to vendor.
 - 25 Oct (11:12 am): Croix: "Can you get rid of one class period. I don't need that text at all." → kit ca12f9b (a one-period test says nothing about its length); A7 bd16a35e, 2f68bf6e (Units 4–5 reinstalled; teacher copies of Units 3, 4, 6); site 300fd5b deployed — Unit 6 and Thread B left held (hold.json) as Croix asked at 11:14.
 - 25 Oct (11:14 am – 1 pm): Croix: "Take them down until a review chat goes over them. Then put them back up." (A7 Unit 6, published 10:35 by the A7 chat) → site 26d4820 down, hold.json (1da4c03); 11:28: "can you get a logical common sense title and numbering heirarchy across both courses" → ruling 54 (kit 9aac4a9; Lesson Plan and print fixes ee0544b, 74dbaab, 95c6fb0); A7 00cdddf, M7 dc90925, site 85c478c; A7 Unit 4's forms re-sent.
+- 25 Oct (1–3 pm): the second review of A7 Unit 6 closes Croix's 11:14 "Then put them back up." → readers on Claude Opus 5.5 (Fable refused for rate); ruling 43 on the test (lessons show 3-4-5 and 6-8-10 only; the page avoids every shown number, u6_check enforces it); a leg in a story on the test; Hints and option order no longer give keys; lessons 6.01–6.07 and Thread B fixed (A7 audit §8); kit d4d2048, 71f5138; A7 5200cc3b, 27b9603b; site 782f69d (Unit 6 back up; M7 Unit 8 still held).
