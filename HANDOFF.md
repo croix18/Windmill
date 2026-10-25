@@ -4,6 +4,36 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, 10 am: ruling 53) — read this first
+
+**IXL is done with each lesson and due by the unit test — ruling 53.** Croix, 9:18 am: *"fix the ixl due dates across the
+board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit
+assessment."* A run of lessons with the same skills is one assignment, done as it is taught and **due on the first day of
+the next unit test**; a thread day's skills are due by the next unit test (A7 Thread B, 18–19 Nov → the Unit 11 test, Fri 11 Dec);
+with no test after a run, the next class. (Before: the first class day after the run.) Both HOUSE STYLEs 13b(xxv).
+- **Calendars:** M7 `tools/mkscope.py` (`0d00445`), A7 `tools/scope_calendar.py` (`3976f039`, `a8ff30af`). Both master
+  sheets' Today field is **"IXL due today"** — nothing, one assignment's skills, or on a test day every skill of the unit
+  ("— N assignments (IXL tracker)"); `check_master_sheet.py` checks each due date against the first test after its run.
+- **Windmill `fbac773`:** the spine regenerated (validate 0, test_flow 0 failed); the phone page lays due dates out the same
+  way (`plan/pagecore.js`; published as v8, its `log` was empty); the kit's IXL slide and plan say **"Due by the Unit N
+  test."** from the plan (`kit/lib/ixlplan.due_line`) unless a spec's `ixl_due` says more; SPEC SCHEMA and the A7 Unit 6
+  brief in line.
+- **Rebuilt on it:** M7 Units 9 and 10, installed at 0 (9.05, 10.03 and both review days say it in their own words), and
+  Unit 10's practice page and teacher copy on the vendored practice kit — **the kit-fix section's M7 item below is done**
+  (the printed test shows no set number; the key does). **A7 is not vendored or rebuilt:** its specs' IXL lines are in (Units
+  5–6; Thread B "due by the next unit test, Unit 11's"); Units 4–5 are the kit-fix session's — build them on Windmill
+  `fbac773` or later; Unit 6 picks the line up at its review; A7's packages' copies of the due-date sheet refresh at their
+  next install.
+- **M7 Unit 8 (the build chat)** gets the new line from the kit at its next `build_all` — `pull --rebase` first (M7 is at
+  `0d00445`).
+- **Schedule doc** (M7, Claude Docs `QjF2aXsraxWbkMhjKdwJd4`) rev 41: the IXL paragraph and its 53-row table carry the new
+  dates. **Site `09922db`, deployed:** the schedules' lead ("Do each day's IXL skills that day, while the lesson is fresh;
+  every skill in a unit is due by the unit's test") and every IXL line "due by the Unit N test, <date>"; M7 Units 9–10
+  republished. M7 Unit 8 held back by hand again (publish_web.py — still open).
+- **Stories, the M7 Unit 10 review's open item — Croix: *"A little bit of exposure to stories is ok. Follow the learning
+  plan."*** The 10.02–10.04 inequality story boards stay; Q16's percent stays (AR.2.2 learning plan LT6); the test's Q7 stays
+  in a mathematical context (AR.2.1). Recorded in the Unit 10 audit (§7, §8) and M7 NOTES.md.
+
 ## Where things stand (25 Oct 2026, afternoon) — read this first
 
 **Three kit defects found building A7 Unit 6 are fixed** (Windmill `c9c3e8a`). Croix, after the list: *"Fix it. I give you
@@ -22,7 +52,8 @@ permission."*
   and so do A7 Units 3–4 and M7 Unit 4. **M7 must vendor (`python3 tools/vendor_windmill.py`, then `python3
   ../Windmill/tools/practice_kit.py --vendor m7/practice/kit`) and rebuild its Unit 10 teacher copy (`run.py`) before the
   19 Nov test is printed**; its `unit.js` needs nothing (its `notesPrint` already carries the scoring and two-period lines,
-  and the kit prints each line once). Then the site republishes the teacher copy.
+  and the kit prints each line once). Then the site republishes the teacher copy. **Done** with ruling 53: M7 `0d00445`,
+  site `09922db`.
 - **Still open in the kit:** the unit test paper (`unitbuild.py`) and the fixed-form teacher copy (`teacher_gen.py`,
   `teacher.js`) print "two class periods" and the two-period line on every test, A7's too (ruling 51: one period) — A7
   Unit 4 (Mon 26 Oct) and Unit 5 (Thu 5 Nov) papers say it; `teacher.js`'s fixed-form paper still has "Answer:" lines;
@@ -1246,8 +1277,9 @@ changes, the spiral rule and the build order (about 24 sessions).
   refuses to place benchmarks rather than misreading an index.
 - **`spine.py` reads the source repositories' own calendar modules** (A7 `scope_calendar.py`, M7
   `mkscope.py`) rather than re-deriving the plan: the plan has one home per course and Windmill is a
-  view of it. The IXL due-date rule is A7's own (lessons in a row with the same skills are one
-  assignment, due the first class day after the run).
+  view of it. The IXL due-date rule is ruling 53 (25 Oct): lessons in a row with the same skills are one
+  assignment, done as they are taught and due on the first day of the next unit test; with no test after the
+  run, the first class day after it (the rule before ruling 53, A7's own).
 - **Regeneration is byte-stable**: the same sources give the same `spine.json`; `generatedAt` moves
   only when content moves.
 
@@ -1529,3 +1561,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 22 Oct (9:36 pm): Croix: "I don't want the tests to be anything specific... the test will just pick a random set. There's like 100000 plus right?" → ruling 49 in both rulebooks; counted versions per question over all 99,999 set numbers (the thin ones listed in the ruling); the kit check, the teacher bar and the builds are still to do.
 - 25 Oct: Croix: "M7 stopped and is waiting for review." → the Fable pass on M7 Unit 10 (briefs/REVIEW AND PUBLISH): clean rebuild the same, kit checks pass; three fresh readers (Barton, critic, FAST — the FAST reader cut off by the Fable limit and re-run on Opus 5.5, as were the fixes). No wrong key. Fixed: Q7 mathematical context only (AR.2.1; six of eight contexts were stories), Q6 as x/d in half the sets, Q17's duplicate choice, Q15's missing coefficient, Q14's "the bill was", Q4 ±1, Q9 "exact", Q11/Q15 route by the numbers, Q7(b) feedback, no deck's own Q5/Q7 (contentVersion 3); 10.07 board 7 a route diagnostic; the review's Example 2; FAST stems; layout. Audit §8 "The second review". M7 4120cac (rebased over the build chat's Unit 8 8.01–8.02), site fe77c94 (deployed). OPEN for Croix: the 10.02–10.04 inequality stories (AR.2.1 vs the IXL word problems); Q16 percent before Unit 7. OPEN in the kit, before the 19 Nov test is printed: ui.js prints "Set N" on the student's test page (a student can open the set between the test's two days) — put it on the key only; publish_web.py publishes every unit with a package, so an unreviewed unit (M7 Unit 8) reaches the site's units/ — held back by hand this time.
 - 25 Oct (afternoon): Croix: "Fix it. I give you permission" (the A7 build chat's list of three kit defects) → deckkit ixl() gives a wrapping skill name its rows; the printed test with the paper's shape and no set number on the student's sheet (the M7 review's first open item); page.js decodes "&lt;". Windmill c9c3e8a; A7 459c3e62 (Unit 6 installed, its page and teacher copy built); M7 tried in a scratch worktree, not pushed — it vendors and rebuilds its Unit 10 teacher copy before the 19 Nov test.
+- 25 Oct (9:18 am): Croix: "A little bit of exposure to stories is ok. Follow the learning plan. Also, fix the ixl due dates across the board. The students should be doing the ixls as we do the corresponding lessons, however they are due by the unit assessment." → the M7 Unit 10 stories stay (Q7 mathematical, Q16 per AR.2.2 LT6); ruling 53: IXL done with each lesson, due by the unit test's first day (a thread day by the next test; with no test after, the next class). M7 0d00445 (mkscope, master sheet "IXL due today", Units 9–10 rebuilt, Unit 10 page and teacher copy on the vendored kit), A7 3976f039 + a8ff30af (scope_calendar, master sheet, spec lines; not rebuilt), Windmill fbac773 (spine, phone page v8, the kit's due_line), M7 Schedule doc rev 41, site 09922db (deployed; Unit 8 held back).
