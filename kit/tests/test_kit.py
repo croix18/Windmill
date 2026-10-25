@@ -791,6 +791,32 @@ ok("ruling 54: the review's sections are named, not 'PART A.', and its lessons a
    "PART A" not in _r54 and "The Triangle Inequality" in _r54 and "Lessons 90.01–90.02" in _r54 and "Lessons 90.01–90.08" in _r54
    and "Thread B, days 1–2" in _r54 and not re.search(r"Lessons? \d\b", _r54), _r54[:300])
 
+# the single paper (a unit with no forms — A7 Unit 3's kind) under the same ruling: its sections named, its tracker's line by
+# section name, not "Section 1"
+_U54p = {"unit": 90, "title": "Area and Circles", "assessment": {"sections": _s51(), "total": 1, "tracker": {"MA.7.GR.1.1": 1},
+         "tracker_order": ["MA.7.GR.1.1"], "transfer_cut": ["A transfer item cut for the test.", "Another, for the test."],
+         "follow_through": "A later part earns its point when the right operation is applied to the student's own earlier answer."}}
+with tempfile.TemporaryDirectory() as tmp:
+    _p54 = _doc_text(_ub51.build_paper(_U54p, tmp, key=False))
+    _pk54 = _doc_text(_ub51.build_paper(_U54p, tmp, key=True))
+ok("ruling 54 on the single paper: its sections are named, never '1.', and the key's tracker line names them, not 'Section 1'",
+   all(" Area " in t and not re.search(r"(?<![\d.])1\.\s+Area", t) for t in (_p54, _pk54)) and "Section 1" not in _pk54 and "Area — 1" in _pk54, _pk54[:300])
+
+# ---- the Score Tracker stays whole (A7 Unit 6's second review, 25 Oct 2026: the practice test key printed the tracker's
+# heading and first row at the foot of a page and the rest on the next): every row but the last keeps with the next
+def _tracker_keeps(p):
+    with zipfile.ZipFile(p) as z:
+        x = z.read("word/document.xml").decode("utf-8")
+    tbl = x[x.index("Score Tracker"):]
+    tbl = tbl[tbl.index("<w:tbl>"):tbl.index("</w:tbl>")]
+    rows = re.findall(r"<w:tr[ >].*?</w:tr>", tbl, flags=re.S)
+    return len(rows) >= 3 and all("<w:keepNext/>" in r for r in rows[:-1])
+with tempfile.TemporaryDirectory() as tmp:
+    _kt = _tracker_keeps(_ub51.build_form(_U51, tmp, key=True, form="A"))
+    _kp = _tracker_keeps(_ub51.build_paper(_U54p, tmp, key=True))
+ok("the Score Tracker stays whole: on a form's key and on the single paper's key every row but the last keeps with the next",
+   _kt and _kp, (_kt, _kp))
+
 # ---- ruling 46 for figures (25 Oct 2026): a Lexend paper letters its figures in Lexend, the slide's face; a page in the
 # body face keeps STIX. The papers' figures were lettered in STIX beside Lexend text and Lexend mathematics.
 from lib import dockit as _dk46, figkit as _fk46

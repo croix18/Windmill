@@ -292,7 +292,7 @@ def build_paper(U, outdir, key):
     si = 0; n = 0
     for sec in A["sections"]:
         si += 1
-        doc.section(f"{si}.  {sec['title']}", f"{per_sec[si - 1][1]} points")
+        doc.section(sec["title"], f"{per_sec[si - 1][1]} points")    # ruling 54: named, not "1." (question 1 sits under it)
         for it in sec["items"]:
             if it.get("heading"):
                 doc.heading(it["heading"]); continue
@@ -305,14 +305,14 @@ def build_paper(U, outdir, key):
             _fmt_q(doc, it2, key=key, points=_points(it), number=n)
     if key:
         doc.section("Score Tracker")
-        doc.para(f"{total} points, one point per lettered part.  " + "  ·  ".join(f"Section {i + 1} — {p}" for i, (t, p) in enumerate(per_sec)),
+        doc.para(f"{total} points, one point per lettered part.  " + "  ·  ".join(f"{t} — {p}" for t, p in per_sec),
                  size=10, before=2, after=6)
         rows = [["Benchmark", "Questions", "Possible", "Earned"]]
         for bm in A["tracker_order"]:
             qs, pts = per_bm[bm]
             rows.append([bm, ",  ".join(str(q) for q in qs), str(pts), ""])
         rows.append([{"text": "Total", "bold": True}, "", {"text": str(total), "bold": True}, ""])
-        doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5)
+        doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5, keep=True)   # one page, with its heading
         doc.para(A["follow_through"], size=9.5, italic=True, color=GRAY, before=6, after=4)
         doc.para(transfer_line(A, transfer), size=9.5, italic=True, color=GRAY, before=2, after=4)
     name = names.unit(U["unit"], "Test", "docx", key=key)
@@ -488,7 +488,7 @@ def build_form(U, outdir, key, form="test", student=False):
             qs, pts = per_bm[bm]
             rows.append([bm, ",  ".join(str(q) for q in qs), str(pts), ""])
         rows.append([{"text": "Total", "bold": True}, "", {"text": str(total), "bold": True}, ""])
-        doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5)
+        doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5, keep=True)   # one page, with its heading
         doc.para(FOLLOW_THROUGH + "  Nothing is weighed and nothing is arguable: apply the "
                  "part's operation to the student's own earlier value and tick if that is what is written.",
                  size=9.5, italic=True, color=GRAY, before=6, after=4)
