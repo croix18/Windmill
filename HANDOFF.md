@@ -4,6 +4,19 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (25 Oct 2026, 4 pm: A7 Unit 6 checked after its fixes; the site up to date) — read this first
+
+**Everything on the site is current** (Croix, 3:11 pm: *"Is everything else pushed to the site and updated?"*): every
+published unit of both courses, their practice pages and teacher copies, the schedules, and every app — Tally was the one
+behind and is synced (`7e135ab`; its own tests, 46 suites, 1461 checks). `hold.json` holds only M7 Unit 8.
+- **A7 Unit 6, checked once more:** a fourth reader, who had seen none of the work, read only what the second review's
+  fixes changed. Every new number right; eight findings, all taken (A7 audit §8, "The check after the fixes") — a new
+  warm-up that was the Review's Q11, the Reference Sheet still working the test's 9-12-15, a worked example sharing a
+  board's numbers, the kite's words, and three repeats inside the lessons. The page is content version 4, and
+  `u6_check.js` now also refuses a lesson's own independent question on the test (`engine.js` `ASKED`). **A review's
+  fixes are themselves unreviewed: a fresh reader over just the changes found 8 more.**
+- **A7 `8ca33dce`** (Unit 6 rebuilt and installed at 0 findings; master sheet 0 problems); **site `aa603e2`**.
+
 ## Where things stand (25 Oct 2026, afternoon: A7 Unit 6's second review done, back on the site) — read this first
 
 **A7 Unit 6 and Thread B are back up** (Croix, 11:14 am: *"Take them down until a review chat goes over them. Then put them
@@ -1656,3 +1669,4 @@ session; repositories are created by Croix. A token pasted into a chat is burned
 - 25 Oct (11:12 am): Croix: "Can you get rid of one class period. I don't need that text at all." → kit ca12f9b (a one-period test says nothing about its length); A7 bd16a35e, 2f68bf6e (Units 4–5 reinstalled; teacher copies of Units 3, 4, 6); site 300fd5b deployed — Unit 6 and Thread B left held (hold.json) as Croix asked at 11:14.
 - 25 Oct (11:14 am – 1 pm): Croix: "Take them down until a review chat goes over them. Then put them back up." (A7 Unit 6, published 10:35 by the A7 chat) → site 26d4820 down, hold.json (1da4c03); 11:28: "can you get a logical common sense title and numbering heirarchy across both courses" → ruling 54 (kit 9aac4a9; Lesson Plan and print fixes ee0544b, 74dbaab, 95c6fb0); A7 00cdddf, M7 dc90925, site 85c478c; A7 Unit 4's forms re-sent.
 - 25 Oct (1–3 pm): the second review of A7 Unit 6 closes Croix's 11:14 "Then put them back up." → readers on Claude Opus 5.5 (Fable refused for rate); ruling 43 on the test (lessons show 3-4-5 and 6-8-10 only; the page avoids every shown number, u6_check enforces it); a leg in a story on the test; Hints and option order no longer give keys; lessons 6.01–6.07 and Thread B fixed (A7 audit §8); kit d4d2048, 71f5138; A7 5200cc3b, 27b9603b; site 782f69d (Unit 6 back up; M7 Unit 8 still held).
+- 25 Oct (3:11–4 pm): Croix: "Is everything else pushed to the site and updated?" → both courses and every app current on the site but Tally (synced, 7e135ab); a fourth reader over the second review's fixes to A7 Unit 6 found 8 things (a warm-up that was the Review's Q11, the Reference Sheet's 9-12-15, 6.04 Example 2 on board 1's numbers, the kite's words, three repeats inside the lessons, two slips), all fixed; the page content version 4 (ASKED); A7 8ca33dce; site aa603e2.
