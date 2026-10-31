@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-31T08:19:57-04:00",
+ "generatedAt": "2026-10-31T15:20:11-04:00",
  "sources": {
   "a7": "7eadd7ae",
-  "m7": "814fcfc",
+  "m7": "bfb9808",
   "deckhand": "b37ba97"
  },
  "year": {
@@ -921,7 +921,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.08"
+    "on:13.08+09"
    ]
   },
   "24Z": {
@@ -1383,7 +1383,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.08"
+    "on:13.08+09"
    ]
   },
   "8BA": {
@@ -2083,7 +2083,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.09"
+    "on:13.08+09"
    ]
   },
   "E7H": {
@@ -2532,8 +2532,7 @@
    ],
    "lessons": [
     "on:13.04",
-    "on:13.05",
-    "on:13.06"
+    "on:13.05+06"
    ]
   },
   "JS6": {
@@ -2709,7 +2708,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.08"
+    "on:13.08+09"
    ]
   },
   "LJQ": {
@@ -3243,7 +3242,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.08"
+    "on:13.08+09"
    ]
   },
   "SHV": {
@@ -3281,7 +3280,7 @@
    ],
    "lessons": [
     "acc:13.01+02+03",
-    "on:13.08"
+    "on:13.08+09"
    ]
   },
   "SZQ": {
@@ -4097,8 +4096,7 @@
     "MA.7.DP.1.1"
    ],
    "lessons": [
-    "on:13.02",
-    "on:13.03"
+    "on:13.02+03"
    ]
   },
   "ZYL": {
@@ -7387,31 +7385,36 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.01",
-    "title": "Product Laws of Exponents",
-    "unit": 8,
+    "code": "13.01",
+    "title": "Effects of Outliers",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.DP.1.1"
     ],
     "ixl": [
      {
-      "name": "Evaluate powers",
-      "code": "SZQ",
+      "name": "Interpret stem-and-leaf plots",
+      "code": "BCT",
       "due": "2026-12-10"
      },
      {
-      "name": "Multiplication with exponents",
-      "code": "5SK",
+      "name": "Identify an outlier and describe the effect of removing it",
+      "code": "QZU",
       "due": "2026-12-10"
      },
      {
-      "name": "Power rule",
-      "code": "8DA",
+      "name": "Calculate mean, median, mode, and range",
+      "code": "U2A",
       "due": "2026-12-10"
      },
      {
-      "name": "Understanding exponents",
-      "code": "BFA",
+      "name": "Calculate quartiles and interquartile range",
+      "code": "NZN",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Interpret charts and graphs to find mean, median, mode, and range",
+      "code": "CYK",
       "due": "2026-12-10"
      }
     ]
@@ -7472,26 +7475,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.02",
-    "title": "Quotient Laws of Exponents",
-    "unit": 8,
+    "code": "13.02+03",
+    "title": "Justifying and Choosing Measures of Center and Spread",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.DP.1.1"
     ],
     "ixl": [
      {
-      "name": "Powers with negative bases",
-      "code": "WFW",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Division with exponents",
-      "code": "XNC",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Identify equivalent expressions involving whole-number exponents",
-      "code": "KBE",
+      "name": "Describe distributions in dot plots",
+      "code": "ZX7",
       "due": "2026-12-10"
      }
     ]
@@ -7557,16 +7550,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.03",
-    "title": "Exponential Expressions",
-    "unit": 8,
+    "code": "13.04",
+    "title": "Comparing Graphical Representations",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.NSO.1.1"
+     "MA.7.DP.1.2"
     ],
     "ixl": [
      {
-      "name": "Evaluate expressions using properties of exponents",
-      "code": "ZE9",
+      "name": "Compare populations using measures of center and spread",
+      "code": "JQW",
       "due": "2026-12-10"
      }
     ]
@@ -7621,7 +7614,7 @@
     "kind": "off",
     "code": null,
     "title": "FAST PM2 (ELA) — no class",
-    "unit": 8,
+    "unit": 13,
     "benchmarks": [],
     "ixl": []
    }
@@ -7691,16 +7684,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.04",
-    "title": "Evaluating Numeric Expressions – Part 1",
-    "unit": 8,
+    "code": "13.05+06",
+    "title": "Comparing Data Sets and Their Graphs",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.NSO.2.1"
+     "MA.7.DP.1.2"
     ],
     "ixl": [
      {
-      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
-      "code": "2XW",
+      "name": "Compare populations using measures of center and spread",
+      "code": "JQW",
       "due": "2026-12-10"
      }
     ]
@@ -7772,31 +7765,16 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "8.05+06",
-    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
-    "unit": 8,
+    "code": "13.07",
+    "title": "Representing Real-World Contexts With Graphs",
+    "unit": 13,
     "benchmarks": [
-     "MA.7.NSO.2.1"
+     "MA.7.DP.1.5"
     ],
     "ixl": [
      {
-      "name": "Evaluate numerical expressions involving rational numbers",
-      "code": "KG2",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving decimals",
-      "code": "FNM",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving fractions",
-      "code": "XXQ",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Evaluate numerical expressions involving exponents",
-      "code": "D7P",
+      "name": "Choose the best type of graph",
+      "code": "VP6",
       "due": "2026-12-10"
      }
     ]
@@ -7851,7 +7829,7 @@
     "kind": "off",
     "code": null,
     "title": "FAST PM2 — no class",
-    "unit": 8,
+    "unit": 13,
     "benchmarks": [],
     "ixl": []
    }
@@ -7915,12 +7893,45 @@
     ]
    },
    "on": {
-    "kind": "review",
-    "code": "8.R",
-    "title": "Unit 8 review day",
-    "unit": 8,
-    "benchmarks": [],
-    "ixl": []
+    "kind": "lesson",
+    "code": "13.08+09",
+    "title": "Creating Displays for Numerical and Categorical Data",
+    "unit": 13,
+    "benchmarks": [
+     "MA.7.DP.1.5"
+    ],
+    "ixl": [
+     {
+      "name": "Create dot plots",
+      "code": "22B",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Create stem-and-leaf plots",
+      "code": "8AP",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Create histograms",
+      "code": "LGG",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Create bar graphs",
+      "code": "E76",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Box plots",
+      "code": "SKN",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Create and interpret dot plots with fractions",
+      "code": "SHS",
+      "due": "2026-12-10"
+     }
+    ]
    }
   },
   "2026-12-10": {
@@ -7978,9 +7989,9 @@
    },
    "on": {
     "kind": "exam",
-    "code": "8.X1",
-    "title": "Unit 8 assessment, day 1",
-    "unit": 8,
+    "code": "13.X1",
+    "title": "Unit 13 assessment, day 1",
+    "unit": 13,
     "benchmarks": [],
     "ixl": []
    }
@@ -8032,9 +8043,9 @@
    },
    "on": {
     "kind": "exam",
-    "code": "8.X2",
-    "title": "Unit 8 assessment, day 2",
-    "unit": 8,
+    "code": "13.X2",
+    "title": "Unit 13 assessment, day 2",
+    "unit": 13,
     "benchmarks": [],
     "ixl": []
    }
@@ -13554,37 +13565,32 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.01",
-    "title": "Effects of Outliers",
-    "unit": 13,
+    "code": "8.01",
+    "title": "Product Laws of Exponents",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Interpret stem-and-leaf plots",
-      "code": "BCT",
-      "due": "2027-04-27"
+      "name": "Evaluate powers",
+      "code": "SZQ",
+      "due": "2027-04-22"
      },
      {
-      "name": "Identify an outlier and describe the effect of removing it",
-      "code": "QZU",
-      "due": "2027-04-27"
+      "name": "Multiplication with exponents",
+      "code": "5SK",
+      "due": "2027-04-22"
      },
      {
-      "name": "Calculate mean, median, mode, and range",
-      "code": "U2A",
-      "due": "2027-04-27"
+      "name": "Power rule",
+      "code": "8DA",
+      "due": "2027-04-22"
      },
      {
-      "name": "Calculate quartiles and interquartile range",
-      "code": "NZN",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Interpret charts and graphs to find mean, median, mode, and range",
-      "code": "CYK",
-      "due": "2027-04-27"
+      "name": "Understanding exponents",
+      "code": "BFA",
+      "due": "2027-04-22"
      }
     ]
    }
@@ -13665,17 +13671,27 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.02",
-    "title": "Justifying Measures of Center and Spread",
-    "unit": 13,
+    "code": "8.02",
+    "title": "Quotient Laws of Exponents",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Describe distributions in dot plots",
-      "code": "ZX7",
-      "due": "2027-04-27"
+      "name": "Powers with negative bases",
+      "code": "WFW",
+      "due": "2027-04-22"
+     },
+     {
+      "name": "Division with exponents",
+      "code": "XNC",
+      "due": "2027-04-22"
+     },
+     {
+      "name": "Identify equivalent expressions involving whole-number exponents",
+      "code": "KBE",
+      "due": "2027-04-22"
      }
     ]
    }
@@ -13740,17 +13756,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.03",
-    "title": "Determining Appropriate Measures of Center and Variation",
-    "unit": 13,
+    "code": "8.03",
+    "title": "Exponential Expressions",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.1"
+     "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Describe distributions in dot plots",
-      "code": "ZX7",
-      "due": "2027-04-27"
+      "name": "Evaluate expressions using properties of exponents",
+      "code": "ZE9",
+      "due": "2027-04-22"
      }
     ]
    }
@@ -13802,17 +13818,17 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.04",
-    "title": "Comparing Graphical Representations",
-    "unit": 13,
+    "code": "8.04",
+    "title": "Evaluating Numeric Expressions – Part 1",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.2"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-27"
+      "name": "Evaluate numerical expressions involving rational numbers: up to 3 operations",
+      "code": "2XW",
+      "due": "2027-04-22"
      }
     ]
    }
@@ -13903,17 +13919,32 @@
    },
    "on": {
     "kind": "lesson",
-    "code": "13.05",
-    "title": "Comparing Data Sets",
-    "unit": 13,
+    "code": "8.05+06",
+    "title": "Evaluating Numeric Expressions – Parts 2 and 3",
+    "unit": 8,
     "benchmarks": [
-     "MA.7.DP.1.2"
+     "MA.7.NSO.2.1"
     ],
     "ixl": [
      {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-27"
+      "name": "Evaluate numerical expressions involving rational numbers",
+      "code": "KG2",
+      "due": "2027-04-22"
+     },
+     {
+      "name": "Evaluate numerical expressions involving decimals",
+      "code": "FNM",
+      "due": "2027-04-22"
+     },
+     {
+      "name": "Evaluate numerical expressions involving fractions",
+      "code": "XXQ",
+      "due": "2027-04-22"
+     },
+     {
+      "name": "Evaluate numerical expressions involving exponents",
+      "code": "D7P",
+      "due": "2027-04-22"
      }
     ]
    }
@@ -13964,20 +13995,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.06",
-    "title": "Comparing Data Sets and Graphs",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.2"
-    ],
-    "ixl": [
-     {
-      "name": "Compare populations using measures of center and spread",
-      "code": "JQW",
-      "due": "2027-04-27"
-     }
-    ]
+    "kind": "spiral",
+    "code": null,
+    "title": "Spiral / FAST practice day",
+    "unit": null,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-21": {
@@ -14026,20 +14049,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.07",
-    "title": "Representing Real-World Contexts With Graphs",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Choose the best type of graph",
-      "code": "VP6",
-      "due": "2027-04-27"
-     }
-    ]
+    "kind": "review",
+    "code": "8.R",
+    "title": "Unit 8 review day",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-22": {
@@ -14088,40 +14103,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.08",
-    "title": "Creating Displays for Numerical Data",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Create dot plots",
-      "code": "22B",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Create stem-and-leaf plots",
-      "code": "8AP",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Create histograms",
-      "code": "LGG",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Box plots",
-      "code": "SKN",
-      "due": "2027-04-27"
-     },
-     {
-      "name": "Create and interpret dot plots with fractions",
-      "code": "SHS",
-      "due": "2027-04-27"
-     }
-    ]
+    "kind": "exam",
+    "code": "8.X1",
+    "title": "Unit 8 assessment, day 1",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-23": {
@@ -14170,20 +14157,12 @@
     "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "13.09",
-    "title": "Creating Displays for Categorical Data",
-    "unit": 13,
-    "benchmarks": [
-     "MA.7.DP.1.5"
-    ],
-    "ixl": [
-     {
-      "name": "Create bar graphs",
-      "code": "E76",
-      "due": "2027-04-27"
-     }
-    ]
+    "kind": "exam",
+    "code": "8.X2",
+    "title": "Unit 8 assessment, day 2",
+    "unit": 8,
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2027-04-26": {
@@ -14232,10 +14211,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "review",
-    "code": "13.R",
-    "title": "Unit 13 review day",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -14286,10 +14265,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "13.X1",
-    "title": "Unit 13 assessment, day 1",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -14340,10 +14319,10 @@
     "ixl": []
    },
    "on": {
-    "kind": "exam",
-    "code": "13.X2",
-    "title": "Unit 13 assessment, day 2",
-    "unit": 13,
+    "kind": "fast",
+    "code": null,
+    "title": "FAST review block",
+    "unit": null,
     "benchmarks": [],
     "ixl": []
    }
@@ -17122,61 +17101,60 @@
     },
     {
      "kind": "lesson",
-     "code": "8.01",
-     "title": "Product Laws of Exponents",
-     "unit": 8,
+     "code": "13.01",
+     "title": "Effects of Outliers",
+     "unit": 13,
      "need": 8,
      "base": "2026-11-30"
     },
     {
      "kind": "lesson",
-     "code": "8.02",
-     "title": "Quotient Laws of Exponents",
-     "unit": 8,
+     "code": "13.02+03",
+     "title": "Justifying and Choosing Measures of Center and Spread",
+     "unit": 13,
      "base": "2026-12-01"
     },
     {
      "kind": "lesson",
-     "code": "8.03",
-     "title": "Exponential Expressions",
-     "unit": 8,
+     "code": "13.04",
+     "title": "Comparing Graphical Representations",
+     "unit": 13,
      "base": "2026-12-02"
     },
     {
      "kind": "lesson",
-     "code": "8.04",
-     "title": "Evaluating Numeric Expressions – Part 1",
-     "unit": 8,
+     "code": "13.05+06",
+     "title": "Comparing Data Sets and Their Graphs",
+     "unit": 13,
      "base": "2026-12-03"
     },
     {
      "kind": "lesson",
-     "code": "8.05+06",
-     "title": "Evaluating Numeric Expressions – Parts 2 and 3",
-     "unit": 8,
+     "code": "13.07",
+     "title": "Representing Real-World Contexts With Graphs",
+     "unit": 13,
      "base": "2026-12-04"
     },
     {
-     "kind": "review",
-     "code": "8.R",
-     "title": "Unit 8 review day",
-     "unit": 8,
-     "examIn": 1,
+     "kind": "lesson",
+     "code": "13.08+09",
+     "title": "Creating Displays for Numerical and Categorical Data",
+     "unit": 13,
      "base": "2026-12-07"
     },
     {
      "kind": "exam",
-     "code": "8.X1",
-     "title": "Unit 8 assessment, day 1",
-     "unit": 8,
+     "code": "13.X1",
+     "title": "Unit 13 assessment, day 1",
+     "unit": 13,
      "examIn": 0,
      "base": "2026-12-08"
     },
     {
      "kind": "exam",
-     "code": "8.X2",
-     "title": "Unit 8 assessment, day 2",
-     "unit": 8,
+     "code": "13.X2",
+     "title": "Unit 13 assessment, day 2",
+     "unit": 13,
      "base": "2026-12-09"
     },
     {
@@ -17593,90 +17571,62 @@
     },
     {
      "kind": "lesson",
-     "code": "13.01",
-     "title": "Effects of Outliers",
-     "unit": 13,
-     "need": 12,
+     "code": "8.01",
+     "title": "Product Laws of Exponents",
+     "unit": 8,
+     "need": 8,
      "base": "2027-04-12"
     },
     {
      "kind": "lesson",
-     "code": "13.02",
-     "title": "Justifying Measures of Center and Spread",
-     "unit": 13,
+     "code": "8.02",
+     "title": "Quotient Laws of Exponents",
+     "unit": 8,
      "base": "2027-04-13"
     },
     {
      "kind": "lesson",
-     "code": "13.03",
-     "title": "Determining Appropriate Measures of Center and Variation",
-     "unit": 13,
+     "code": "8.03",
+     "title": "Exponential Expressions",
+     "unit": 8,
      "base": "2027-04-14"
     },
     {
      "kind": "lesson",
-     "code": "13.04",
-     "title": "Comparing Graphical Representations",
-     "unit": 13,
+     "code": "8.04",
+     "title": "Evaluating Numeric Expressions – Part 1",
+     "unit": 8,
      "base": "2027-04-15"
     },
     {
      "kind": "lesson",
-     "code": "13.05",
-     "title": "Comparing Data Sets",
-     "unit": 13,
+     "code": "8.05+06",
+     "title": "Evaluating Numeric Expressions – Parts 2 and 3",
+     "unit": 8,
      "base": "2027-04-19"
     },
     {
-     "kind": "lesson",
-     "code": "13.06",
-     "title": "Comparing Data Sets and Graphs",
-     "unit": 13,
-     "base": "2027-04-20"
-    },
-    {
-     "kind": "lesson",
-     "code": "13.07",
-     "title": "Representing Real-World Contexts With Graphs",
-     "unit": 13,
+     "kind": "review",
+     "code": "8.R",
+     "title": "Unit 8 review day",
+     "unit": 8,
+     "examIn": 1,
      "base": "2027-04-21"
     },
     {
-     "kind": "lesson",
-     "code": "13.08",
-     "title": "Creating Displays for Numerical Data",
-     "unit": 13,
+     "kind": "exam",
+     "code": "8.X1",
+     "title": "Unit 8 assessment, day 1",
+     "unit": 8,
+     "examIn": 0,
      "base": "2027-04-22"
     },
     {
-     "kind": "lesson",
-     "code": "13.09",
-     "title": "Creating Displays for Categorical Data",
-     "unit": 13,
+     "kind": "exam",
+     "code": "8.X2",
+     "title": "Unit 8 assessment, day 2",
+     "unit": 8,
      "base": "2027-04-23"
-    },
-    {
-     "kind": "review",
-     "code": "13.R",
-     "title": "Unit 13 review day",
-     "unit": 13,
-     "examIn": 1,
-     "base": "2027-04-26"
-    },
-    {
-     "kind": "exam",
-     "code": "13.X1",
-     "title": "Unit 13 assessment, day 1",
-     "unit": 13,
-     "examIn": 0,
-     "base": "2027-04-27"
-    },
-    {
-     "kind": "exam",
-     "code": "13.X2",
-     "title": "Unit 13 assessment, day 2",
-     "unit": 13,
-     "base": "2027-04-28"
     }
    ]
   }
