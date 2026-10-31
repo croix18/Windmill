@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-10-25T09:26:51-04:00",
+ "generatedAt": "2026-10-31T08:19:57-04:00",
  "sources": {
-  "a7": "28e8a92c",
-  "m7": "4120cac",
+  "a7": "7eadd7ae",
+  "m7": "814fcfc",
   "deckhand": "b37ba97"
  },
  "year": {
@@ -7455,20 +7455,46 @@
    ],
    "events": [],
    "acc": {
-    "kind": "off",
-    "code": "off",
-    "title": "FAST PM2 (ELA) — no class",
+    "kind": "lesson",
+    "code": "11.02",
+    "title": "Variables on both sides",
     "unit": 11,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.8.AR.2.1"
+    ],
+    "ixl": [
+     {
+      "name": "Solve equations with variables on both sides",
+      "code": "ZYL",
+      "due": "2026-12-11"
+     }
+    ]
    },
    "on": {
-    "kind": "off",
-    "code": null,
-    "title": "FAST PM2 (ELA) — no class",
+    "kind": "lesson",
+    "code": "8.02",
+    "title": "Quotient Laws of Exponents",
     "unit": 8,
-    "benchmarks": [],
-    "ixl": []
+    "benchmarks": [
+     "MA.7.NSO.1.1"
+    ],
+    "ixl": [
+     {
+      "name": "Powers with negative bases",
+      "code": "WFW",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Division with exponents",
+      "code": "XNC",
+      "due": "2026-12-10"
+     },
+     {
+      "name": "Identify equivalent expressions involving whole-number exponents",
+      "code": "KBE",
+      "due": "2026-12-10"
+     }
+    ]
    }
   },
   "2026-12-02": {
@@ -7510,42 +7536,37 @@
    "events": [],
    "acc": {
     "kind": "lesson",
-    "code": "11.02",
-    "title": "Variables on both sides",
+    "code": "11.03",
+    "title": "One, none, infinitely many solutions",
     "unit": 11,
     "benchmarks": [
      "MA.8.AR.2.1"
     ],
     "ixl": [
      {
-      "name": "Solve equations with variables on both sides",
-      "code": "ZYL",
+      "name": "Find the number of solutions",
+      "code": "XDE",
+      "due": "2026-12-11"
+     },
+     {
+      "name": "Create equations with no solutions or infinitely many solutions",
+      "code": "7TY",
       "due": "2026-12-11"
      }
     ]
    },
    "on": {
     "kind": "lesson",
-    "code": "8.02",
-    "title": "Quotient Laws of Exponents",
+    "code": "8.03",
+    "title": "Exponential Expressions",
     "unit": 8,
     "benchmarks": [
      "MA.7.NSO.1.1"
     ],
     "ixl": [
      {
-      "name": "Powers with negative bases",
-      "code": "WFW",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Division with exponents",
-      "code": "XNC",
-      "due": "2026-12-10"
-     },
-     {
-      "name": "Identify equivalent expressions involving whole-number exponents",
-      "code": "KBE",
+      "name": "Evaluate expressions using properties of exponents",
+      "code": "ZE9",
       "due": "2026-12-10"
      }
     ]
@@ -7589,41 +7610,20 @@
    ],
    "events": [],
    "acc": {
-    "kind": "lesson",
-    "code": "11.03",
-    "title": "One, none, infinitely many solutions",
+    "kind": "off",
+    "code": "off",
+    "title": "FAST PM2 (ELA) — no class",
     "unit": 11,
-    "benchmarks": [
-     "MA.8.AR.2.1"
-    ],
-    "ixl": [
-     {
-      "name": "Find the number of solutions",
-      "code": "XDE",
-      "due": "2026-12-11"
-     },
-     {
-      "name": "Create equations with no solutions or infinitely many solutions",
-      "code": "7TY",
-      "due": "2026-12-11"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    },
    "on": {
-    "kind": "lesson",
-    "code": "8.03",
-    "title": "Exponential Expressions",
+    "kind": "off",
+    "code": null,
+    "title": "FAST PM2 (ELA) — no class",
     "unit": 8,
-    "benchmarks": [
-     "MA.7.NSO.1.1"
-    ],
-    "ixl": [
-     {
-      "name": "Evaluate expressions using properties of exponents",
-      "code": "ZE9",
-      "due": "2026-12-10"
-     }
-    ]
+    "benchmarks": [],
+    "ixl": []
    }
   },
   "2026-12-04": {
@@ -15793,7 +15793,7 @@
      "unit": null,
      "meets": true
     },
-    "2026-12-01": {
+    "2026-12-03": {
      "kind": "off",
      "code": "off",
      "title": "FAST PM2 (ELA) — no class",
@@ -16830,7 +16830,7 @@
      "unit": null,
      "meets": false
     },
-    "2026-12-01": {
+    "2026-12-03": {
      "kind": "off",
      "code": null,
      "title": "FAST PM2 (ELA) — no class",
