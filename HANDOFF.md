@@ -4,7 +4,31 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## Where things stand (25 Oct 2026, 7 pm: two pages under way, everything backed up) — read this first
+## Where things stand (30 Oct 2026, late: M7 Unit 9 and A7 Unit 5's practice pages reviewed and published) — read this first
+
+**Croix, 30 Oct, 7:39 pm:** *"Yep run it. I want you to run the review only on the assessment and build/review the practice
+so it can get uploaded."* Both pages under way are reviewed, fixed and live; nothing new was started (**M7 Unit 5's page, next
+in ruling 55's order, still waits for his word**). The Opus weekly limit cut the 25 Oct readers off; today's ran on Fable.
+- **M7 Unit 9** (test Mon–Tue 2–3 Nov): every 25 Oct finding fixed; a fourth reader read the fixed page against the list —
+  one major left (Q11 drew the forms' factor pairs: "4(c + 4) − c" was Form A Q16a), fixed and guarded in the engine and
+  `ruling43.py`; the minors fixed. M7 `2548e71`, site `d300400` (Workers Builds success); `m7/practice/u9/REVIEW.md` has
+  the fixes and the re-read. The embed was sent to Croix. `dump.json` untracked in both course repos.
+- **A7 Unit 5** (test Thu 5 Nov): three fresh readers (critic, educator, student), no wrong key, nine majors — the big one:
+  **Q19 is typed now** (the faster one's name and the mi/h speed in km/h; as a choice question the vehicle named in the
+  right option gave it away in nine sets of ten). A7 `179299f`, site `d8d75b3` (success); `a7/practice/u5/REVIEW.md`.
+- **The kit changed** (`practice/kit`, this repo `2420f2d` → `4d8e093`, vendored into A7 at `4d8e093`; **M7's copy is still
+  `af0f990`** — vendor at M7's next page rebuild and re-run its units' checks): `ctxOf` gives the coach `prevOk` (is part (a)
+  right yet — false while unanswered) and `extra` (a fresh "Try another"), and passes it to `solution(x, type, ctx)` and
+  `walk(x, type, ctx)`; `another()` never repeats an answer; `part.imode` sets the phone keyboard. A unit that ignores the
+  third argument is unchanged.
+- **Kit issues still open** (the readers of both units): "Worksheet + answer key" prints 8 Letter pages; a fresh one's earned
+  point leaves the original ✗ at Finish; the set box resets silently; `hint.mul` with a factor 1 states its product; the
+  results table wraps "14 / 14" on a phone; Check and Hint touch on choice questions; Check-as-I-go's Finish leaves a blank
+  card unlabelled; a part (b)'s "fix part (a) first" stays after (a) is fixed until (b) is re-checked; a Hint number step
+  has no tolerance (A7 U5 Q14 wants 0.093025 where the sheet shows 0.093).
+- **For Croix, about the printed tests** (not changed): see the 25 Oct section below.
+
+## Where things stand (25 Oct 2026, 7 pm: two pages under way, everything backed up)
 
 **Croix, 7:02 pm:** *"Finish the unit you are working on but don't move on to anew one"*; **7:03 pm:** *"Make sure everything
 is backed up to GitHub so we don't lose anything if we run out of usage limit."* Every repository is pushed (A7 `3785885`,
