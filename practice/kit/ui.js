@@ -108,7 +108,7 @@ function fig(it){ try { return V.figure(it) || ''; } catch(e){ return ''; } }
 function inputHtml(p, id, lab){
   var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p);
   return '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
-    '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
+    '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (p.imode ? ' inputmode="' + esc(p.imode) + '"' : '') + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
     (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
 }
 function tailHtml(id){
@@ -199,7 +199,8 @@ function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span 
 function another(baseId){
   var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: streaks()[b0.pos] || 0, earned: !!res(b0).earned});
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
-  do { s = randomSeed(); tries++; k = U.key(atPos(U.generate(s), b0.pos).x); } while ((s === seed || k === base || k === was) && tries < 60);   /* never the same question again */
+  var ansOf = function(x){ try { return U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2;
+  do { s = randomSeed(); tries++; k2 = atPos(U.generate(s), b0.pos).x; k = U.key(k2); } while ((s === seed || k === base || k === was || (baseAns != null && ansOf(k2) === baseAns)) && tries < 60);   /* never the same question again — nor the same answer (30 Oct 2026: a Hint that ended "5 tanks" was followed by a fresh one whose answer was 5) */
   M0.seed = s; save();
   mountExtra(b0); paintItem(b0);
   var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]');
@@ -213,7 +214,13 @@ function byId(id){ return byIdBase(id) || EX[id] || null; }
 function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a && a.length) : a != null && String(a).trim() !== ''; }
 /* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
    printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
-function ctxOf(it){ return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, aShown: it.aShown, mode: S.mode} : {aShown: it.aShown, mode: S.mode}; }
+/* what the coach may know about a part: the student's part (a) and whether it is right yet, whether this is a fresh one
+   ("Try another": no part (a) of its own), what has been shown, and the mode (30 Oct 2026: a fresh 16(b)'s Hint said
+   "your part (a)", and 16(b)'s Show me how printed part (a)'s answer before (a) was right) */
+function ctxOf(it){
+  var sib = it.sib ? byId(it.sib) : null, prevOk = sib ? (res(sib).v === 'right') : null;
+  return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, prevOk: prevOk, aShown: it.aShown, extra: !!it.extra, mode: S.mode} : {aShown: it.aShown, extra: !!it.extra, mode: S.mode};
+}
 function judgeAns(it, a, tries){
   if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
   try {
@@ -279,7 +286,7 @@ function keyHtml(it){
   if (it.type === 'multi') return it.x.correct.map(function(k){ return '<b>' + LET[k] + '.</b> ' + V.opt(it.x, k); }).join('&nbsp;&nbsp; ');
   return V.key(it.x);
 }
-function solOf(it){ try { return U.solution(it.x, it.type); } catch(e){ return null; } }
+function solOf(it){ try { return U.solution(it.x, it.type, ctxOf(it)); } catch(e){ return null; } }
 function picOf(it){ try { return V.picture(it.x, it.type) || ''; } catch(e){ return ''; } }
 function stepsHtml(it, R){
   var sol = solOf(it), n = sol ? sol.length : 0, shown = Math.min(R.steps || 0, n);
@@ -361,7 +368,7 @@ function paintSections(){                                  /* [J-5] each section
 
 /* ------------------------------------------------ the Hint: the question as a few small questions, one at a time */
 function walkPic(it, lead){ var p = picOf(it); return p ? '<div class="wpic"><div class="wpl">' + lead + '</div>' + p + '</div>' : ''; }
-function walkOf(it){ try { return U.walk(it.x, it.type); } catch(e){ return null; } }
+function walkOf(it){ try { return U.walk(it.x, it.type, ctxOf(it)); } catch(e){ return null; } }
 function wstate(it){ return S.walk[it.id] || (S.walk[it.id] = {i: 0, wrong: {}, typed: {}, bad: {}, miss: {}, gave: {}}); }
 function walkHtml(it){
   var st = walkOf(it); if (!st) return '';

@@ -104,9 +104,12 @@ key(partOrItem) → string                      // what makes two questions the 
 view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), key(part),
        start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
-   ctx = {prev: the student's part (a) answer, prevPart, aShown}
-solution(x, type) → [{say, ex}]               // every ex equals the answer (checked)
-walk(x, type) → steps: {type: 'choice', ask, opts: [{label, ok, why}], then?, pic} | {type: 'num', ask, ans, hint, then?}
+   ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no
+          part (a) of its own), aShown, mode}
+   part.imode: an inputmode for the phone's keyboard ('decimal' for a box that never needs a space, a slash or a minus)
+solution(x, type, ctx) → [{say, ex}]          // every ex equals the answer (checked); ctx as judge's — a part (b) can keep part (a)'s
+                                                // number out of its lines until part (a) is right
+walk(x, type, ctx) → steps: {type: 'choice', ask, opts: [{label, ok, why}], then?, pic} | {type: 'num', ask, ans, hint, then?}
 readNum(text) → rational | null, numOk(step, value) → bool
 keyText(part) → what a student would type (for the checks)
 ```
