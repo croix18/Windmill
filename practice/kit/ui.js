@@ -218,7 +218,7 @@ function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a &
    ("Try another": no part (a) of its own), what has been shown, and the mode (30 Oct 2026: a fresh 16(b)'s Hint said
    "your part (a)", and 16(b)'s Show me how printed part (a)'s answer before (a) was right) */
 function ctxOf(it){
-  var sib = it.sib ? byId(it.sib) : null, prevOk = sib && S.res[sib.id] ? (S.res[sib.id].v === 'right') : null;
+  var sib = it.sib ? byId(it.sib) : null, prevOk = sib ? !!(S.res[sib.id] && S.res[sib.id].v === 'right') : null;   /* false until part (a) is checked right — unanswered counts as not right */
   return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, prevOk: prevOk, aShown: it.aShown, extra: !!it.extra, mode: S.mode} : {aShown: it.aShown, extra: !!it.extra, mode: S.mode};
 }
 function judgeAns(it, a, tries){
