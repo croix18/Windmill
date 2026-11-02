@@ -121,7 +121,8 @@ def extract(U, course, periods=2):
         d = {"stem": it["stem"]}
         if it.get("fig"): d["fig"] = svg_of(it["fig"])
         if "parts" in it:
-            d["parts"] = [{"label": p["label"], "stem": p["stem"], "answer": str(p["answer"]), "why": str(p.get("why", "")), "space": p.get("space", 0.6)} for p in it["parts"]]
+            d["parts"] = [dict({"label": p["label"], "stem": p["stem"], "answer": str(p["answer"]), "why": str(p.get("why", "")), "space": p.get("space", 0.6)},
+                               **({"choices": [str(c) for c in p["choices"]], "correct": [p["correct"]] if not isinstance(p["correct"], list) else list(p["correct"])} if "choices" in p else {})) for p in it["parts"]]   # a part with choices (2 Nov 2026)
         elif "choices" in it:
             d["choices"] = [str(c) for c in it["choices"]]; corr = it["correct"]
             d["correct"] = list(corr) if isinstance(corr, list) else [corr]; d["multi"] = isinstance(corr, list)
@@ -198,11 +199,11 @@ def check(U, T, out_path):
                     elif "check" in p: run_check(p["check"], where + ((" " + p.get("label", "")) if p is not it else ""), bad)
                     if p.get("answer") in (None, ""): bad.append(where + ": no answer")
                     spts += 1
-                if "choices" in it:
-                    corr = it["correct"] if isinstance(it["correct"], list) else [it["correct"]]
-                    letters = re.findall(r"\b([A-H])\b", str(it["answer"]))
-                    if sorted(LET[c] for c in corr) != sorted(letters): bad.append("%s: correct %s but answer says %r" % (where, corr, it["answer"]))
-                    if any(c >= len(it["choices"]) for c in corr): bad.append(where + ": correct index out of range")
+                for ch in ([it] if "choices" in it else []) + [p for p in units if p is not it and "choices" in p]:
+                    corr = ch["correct"] if isinstance(ch["correct"], list) else [ch["correct"]]
+                    letters = re.findall(r"\b([A-H])\b", str(ch["answer"]))
+                    if sorted(LET[c] for c in corr) != sorted(letters): bad.append("%s: correct %s but answer says %r" % (where, corr, ch["answer"]))
+                    if any(c >= len(ch["choices"]) for c in corr): bad.append(where + ": correct index out of range")
                 if it.get("fig"):
                     try: svg_of(it["fig"])
                     except Exception as e: bad.append("%s: figure does not draw: %s" % (where, e))

@@ -68,7 +68,7 @@
         qn++;
         var q = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + tex(it.stem) + '</span>' + (it.parts ? '' : '<span class="pt">1 pt</span>') + '</div>' + (it.fig || '') + '</div>';
         /* work space and no answer line, as the paper (house rule 2; the docx test has none — 25 Oct 2026) */
-        if (it.parts) it.parts.forEach(function(p){ q += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b><span class="st">' + tex(p.stem) + '</span><span class="pt">1 pt</span></div>' + work(p.space) + '</div>'; });
+        if (it.parts) it.parts.forEach(function(p){ q += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b><span class="st">' + tex(p.stem) + '</span><span class="pt">1 pt</span></div>' + (p.choices ? choices(p) : work(p.space)) + '</div>'; });   /* a part may have choices (2 Nov 2026) */
         else if (it.choices) q += '<div class="ppart">' + choices(it) + '</div>';
         else q += '<div class="ppart">' + work(it.space) + '</div>';
         h.push(q + '</div>');
@@ -83,7 +83,8 @@
       byBm[sec.benchmark] = byBm[sec.benchmark] || {qs: [], pts: 0}; byBm[sec.benchmark].qs.push(qn); byBm[sec.benchmark].pts += units.length;
       units.forEach(function(p, pi){
         var lab = qn + (it.parts ? p.label : '');
-        var ans = it.choices ? it.correct.map(function(c){ return '<b>' + LET[c] + '.</b> ' + tex(it.choices[c]); }).join('&nbsp;&nbsp; ') : tex(p.answer);
+        var ch = it.choices ? it : p.choices ? p : null;
+        var ans = ch ? ch.correct.map(function(c){ return '<b>' + LET[c] + '.</b> ' + tex(ch.choices[c]); }).join('&nbsp;&nbsp; ') : tex(p.answer);
         var why = (it.transfer && pi === 0 ? '<div class="kflag">' + esc(T.transfer_flag) + '</div>' : '') + (p.why ? '<div class="kwhy">' + tex(p.why) + '</div>' : '') +
           (it.errors && Object.keys(it.errors).length ? '<div class="kerr">' + Object.keys(it.errors).map(function(L){ return '<b>' + L + '</b> ' + tex(it.errors[L]); }).join('<br>') + '</div>' : '');
         rows.push('<tr><td class="pk">' + lab + '</td><td class="kv">' + ans + why + '</td></tr>');
