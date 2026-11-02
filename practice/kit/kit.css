@@ -372,3 +372,14 @@ input[type=text],textarea,.wnum input{font-size:16px}
 .tpage .ptrack td,.tpage .ptrack th{padding:5px 8px}
 .ptrk{break-inside:avoid;page-break-inside:avoid}   /* the score tracker stays whole, with its heading */
 @media print{ .teacherbar{display:none!important} }
+
+/* the teacher copy's question picker (2 Nov 2026) */
+.tpick .tpsec{font:600 15px var(--ui);margin:18px 0 6px;color:var(--mut)}
+.tpick .tpq{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-family:var(--ui);font-size:15px;line-height:1.35}
+.tpick .tpq:hover{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.tpick .tpq input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#b45309}
+.tpick .tpn{min-width:2.2em}
+.tpick .tps{flex:1}
+.tpick .tpf{color:var(--mut);font-style:normal;font-size:13px}
+.tpick .tpp{flex:none;color:var(--mut);font-size:13px;padding-top:2px}
+.tpick .tpq.off .tps, .tpick .tpq.off .tpn{text-decoration:line-through;color:var(--mut)}

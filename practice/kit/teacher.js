@@ -23,6 +23,22 @@
   }
   if (!window.katex){ if ((tries || 0) < 200) setTimeout(function(){ boot((tries || 0) + 1); }, 25); return; }   /* KaTeX is inlined after the unit scripts */
   var LET = 'ABCDEFGH', FORMS = Object.keys(T.forms), form = FORMS[0];
+  /* Which questions get printed (Croix, 2 Nov 2026, the morning of the Unit 9 test: "Can I get the opportunity to edit
+     which test questions get printed on the test"). The questions are numbered through the paper; a left-out question is
+     left out of every form, the test and the key, the ones kept are renumbered in order, and the points follow. The choice is
+     kept on this browser (localStorage) until it is changed. */
+  var PICK_KEY = 'teacher.pick.' + T.course + '.' + T.unit, picked = null;
+  function allQ(){ var out = []; T.forms[FORMS[0]].forEach(function(sec, si){ sec.items.forEach(function(it, ii){ out.push({si: si, ii: ii, it: it, sec: sec}); }); }); return out; }
+  function loadPick(){ try { var v = JSON.parse(localStorage.getItem(PICK_KEY) || 'null'); if (v && v.length === allQ().length) return v; } catch(e){} return allQ().map(function(){ return true; }); }
+  picked = loadPick();
+  function savePick(){ try { localStorage.setItem(PICK_KEY, JSON.stringify(picked)); } catch(e){} }
+  function keptForms(f){                                  /* the form with the left-out questions removed */
+    var k = 0, secs = [];
+    T.forms[f].forEach(function(sec){ var items = sec.items.filter(function(){ return picked[k++]; }); if (items.length) secs.push({title: sec.title, benchmark: sec.benchmark, items: items, points: items.reduce(function(t, it){ return t + (it.parts ? it.parts.length : 1); }, 0)}); });
+    return secs;
+  }
+  function total(f){ return keptForms(f).reduce(function(t, s){ return t + s.points; }, 0); }
+  function nLeftOut(){ return picked.filter(function(x){ return !x; }).length; }
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   var errors = [];
   function tex(s){                                        /* "text $math$ text" → html; the math by KaTeX */
@@ -34,7 +50,7 @@
   }
   function formWord(f){ return f === 'test' ? '' : 'Form ' + f; }
   function head(f, key){
-    var sub = [formWord(f), T.total + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : ''].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test, which says nothing about its length (Croix, 25 Oct 2026: "I don't need that text at all") */
+    var sub = [formWord(f), total(f) + ' points', key ? 'ANSWER KEY' : T.two_day ? 'two class periods' : ''].filter(Boolean).join(' · ');   /* ruling 51: an empty two_day is a one-period test, which says nothing about its length (Croix, 25 Oct 2026: "I don't need that text at all") */
     return '<div class="phead"><div class="pt1 ptest">' + esc(T.course + ' Unit ' + T.unit + ' Test') + '</div><div class="pt2">' + esc(T.title) + ' · ' + esc(sub) + '</div>' +
       (key ? '' : '<div class="pname">Name:<span class="pline"></span>Date:<span class="pline short"></span>Period:<span class="pline short"></span></div>') + '</div>';   /* the paper's Name, Date and Period (ruling 54) */
   }
@@ -43,7 +59,7 @@
     return '<div class="pchoices">' + it.choices.map(function(c, k){ return '<div class="pch"><span class="pbox' + (it.multi ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + tex(c) + '</span></div>'; }).join('') + '</div>';
   }
   function testHtml(f){
-    var secs = T.forms[f], h = [head(f, false)], qn = 0;
+    var secs = keptForms(f), h = [head(f, false)], qn = 0;
     h.push('<p class="pnotes">' + (T.two_day ? '<span class="pinote">' + esc(T.two_day) + '</span>' : '') + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
     secs.forEach(function(sec, si){
       h.push('<h2 class="psec">' + esc(sec.title) + '<span class="ppts">' + sec.points + ' points</span></h2>');   /* ruling 54: named, never numbered */
@@ -62,7 +78,7 @@
   }
   function keyHtml(f){
     var rows = [], qn = 0, byBm = {};
-    T.forms[f].forEach(function(sec){ sec.items.forEach(function(it){
+    keptForms(f).forEach(function(sec){ sec.items.forEach(function(it){
       qn++; var units = it.parts || [it];
       byBm[sec.benchmark] = byBm[sec.benchmark] || {qs: [], pts: 0}; byBm[sec.benchmark].qs.push(qn); byBm[sec.benchmark].pts += units.length;
       units.forEach(function(p, pi){
@@ -75,9 +91,28 @@
     }); });
     var tracker = '<h2 class="psec">Score tracker</h2><table class="ptab ptrack"><thead><tr><th>Benchmark</th><th>Questions</th><th>Possible</th><th>Earned</th></tr></thead><tbody>' +
       (T.tracker_order || Object.keys(T.tracker)).map(function(bm){ var b = byBm[bm] || {qs: [], pts: 0}; return '<tr><td>' + esc(bm) + '</td><td>' + b.qs.join(', ') + '</td><td>' + b.pts + '</td><td></td></tr>'; }).join('') +
-      '<tr><td><b>Total</b></td><td></td><td><b>' + T.total + '</b></td><td></td></tr></tbody></table>' +
+      '<tr><td><b>Total</b></td><td></td><td><b>' + total(f) + '</b></td><td></td></tr></tbody></table>' +
       '<p class="pft">' + esc(T.follow_through_student) + ' Nothing is weighed and nothing is arguable: apply the part’s operation to the student’s own earlier value and tick if that is what is written.</p>';
     return '<div class="pkey">' + head(f, true) + (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab"><tbody>' + rows.join('') + '</tbody></table>' + tracker + '</div>';
+  }
+  function plainStem(s0){ return String(s0).replace(/\$[^$]*\$/g, function(m){ return m.slice(1, -1).replace(/\\(text|mathrm)\{([^}]*)\}/g, '$2').replace(/\\[a-zA-Z]+/g, ' ').replace(/[{}]/g, ''); }).replace(/\*\*/g, '').replace(/\s+/g, ' ').trim(); }
+  function pickPanel(){
+    var pv = document.getElementById('printview');
+    if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('translate', 'no'); pv.setAttribute('aria-label', 'Choose the questions'); document.body.appendChild(pv); }
+    var qs = allQ(), rows = [], qn = 0, lastSec = -1;
+    qs.forEach(function(q, i){
+      if (q.si !== lastSec){ lastSec = q.si; rows.push('<h3 class="tpsec">' + esc(q.sec.title) + '</h3>'); }
+      qn++; var pts = q.it.parts ? q.it.parts.length : 1, st = plainStem(q.it.stem);
+      rows.push('<label class="tpq' + (picked[i] ? '' : ' off') + '"><input type="checkbox" data-pick="' + i + '"' + (picked[i] ? ' checked' : '') + '><b class="tpn">' + qn + '.</b><span class="tps">' + esc(st.length > 110 ? st.slice(0, 108) + '…' : st) + (FORMS.length > 1 ? ' <i class="tpf">(Form ' + FORMS[0] + ')</i>' : '') + '</span><span class="tpp">' + pts + (pts === 1 ? ' pt' : ' pts') + '</span></label>');
+    });
+    pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="tpDone">Done</button><button type="button" id="tpAll">Keep every question</button><span class="pvhint" id="tpSum"></span></div>' +
+      '<div class="ppage tpage tpick"><h2 class="psec">Questions to print</h2><p class="pnotes"><span class="pinote">Untick a question to leave it off the test and the key' + (FORMS.length > 1 ? ' on every form (the forms share their question order; the words shown are Form ' + FORMS[0] + '\u2019s)' : '') + '. The ones you keep are renumbered in order, and the points follow. The choice is kept on this computer until you change it.</span></p>' + rows.join('') + '</div>';
+    pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
+    function sum(){ var n = nLeftOut(); document.getElementById('tpSum').textContent = (n ? n + ' left out · ' : 'every question · ') + total(form) + ' points'; var bb = document.querySelector('[data-tprint="test"]'); if (bb) bb.textContent = n ? 'Test (' + (qs.length - n) + ' of ' + qs.length + ')' : 'Test'; }
+    pv.addEventListener('change', function(e){ var c = e.target.closest('[data-pick]'); if (!c) return; picked[+c.dataset.pick] = c.checked; c.closest('.tpq').classList.toggle('off', !c.checked); savePick(); sum(); });
+    document.getElementById('tpAll').onclick = function(){ picked = picked.map(function(){ return true; }); savePick(); pickPanel(); };
+    document.getElementById('tpDone').onclick = function(){ pv.hidden = true; pv.innerHTML = ''; document.body.classList.remove('printing'); var b = document.getElementById('tpick'); if (b) b.focus(); };
+    sum(); document.getElementById('tpDone').focus();
   }
   function show(kind){
     var pv = document.getElementById('printview');
@@ -93,10 +128,12 @@
   var pick = FORMS.length > 1 ? '<label class="tbform">Form <select id="tform" aria-label="Which form">' + FORMS.map(function(f){ return '<option value="' + f + '">' + f + '</option>'; }).join('') + '</select></label>' : '';
   bar.innerHTML = '<div class="tbtxt"><b>Teacher copy.</b> This page holds the real Unit ' + T.unit + ' test' + (FORMS.length > 1 ? ' (Forms ' + FORMS.join(' and ') + ')' : '') + ' and its answer key — do not share this link or file with students. ' +
     'Students use the student page, on the class website or Google Sites.</div><div class="tbbtns"><span class="tblab">Print the real test:</span>' + pick +
-    '<button type="button" class="go" data-tprint="test">Test</button><button type="button" class="go" data-tprint="tk">Test + key</button><button type="button" data-tprint="key">Key only</button></div>';
+    '<button type="button" class="go" data-tprint="test">' + (nLeftOut() ? 'Test (' + (picked.length - nLeftOut()) + ' of ' + picked.length + ')' : 'Test') + '</button><button type="button" class="go" data-tprint="tk">Test + key</button><button type="button" data-tprint="key">Key only</button>' +
+    '<button type="button" id="tpick" aria-haspopup="dialog">Choose questions…</button></div>';
   var sheet = document.querySelector('.sheet'); if (sheet) sheet.insertBefore(bar, sheet.firstChild);
-  bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tprint]'); if (b) show(b.dataset.tprint); });
+  bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tprint]'); if (b) show(b.dataset.tprint); if (e.target.closest('#tpick')) pickPanel(); });
   var sel = bar.querySelector('#tform'); if (sel) sel.addEventListener('change', function(){ form = sel.value; });
   document.title = T.course + ' Unit ' + T.unit + ' — Teacher copy';
-  window.TEACHER = {testHtml: testHtml, keyHtml: keyHtml, errors: errors, show: show, forms: FORMS, setForm: function(f){ form = f; if (sel) sel.value = f; }};
+  window.TEACHER = {testHtml: testHtml, keyHtml: keyHtml, errors: errors, show: show, forms: FORMS, setForm: function(f){ form = f; if (sel) sel.value = f; },
+    pick: function(v){ if (v) { picked = v.slice(); savePick(); } return picked.slice(); }, total: total, pickPanel: pickPanel};
 })(0);
