@@ -449,7 +449,7 @@ def docscan_text(text, surface):
 def _fmt_q(doc, it, number=None, key=False, points=None):
     parts = None
     if it.get("parts"):
-        parts = [(p["label"], p["stem"], p.get("answer"), p.get("why"), p.get("space")) for p in it["parts"]]
+        parts = [(p["label"], p["stem"], p.get("answer"), p.get("why"), p.get("space"), p.get("choices"), p.get("correct")) for p in it["parts"]]
     doc.question(it["stem"], answer=it.get("answer"), reasoning=it.get("why"), space=it.get("space", 1.0),
                  parts=parts, choices=it.get("choices"), choice_answer=it.get("correct"), number=number,
                  lines=it.get("lines"), points=points, fig=it.get("fig"))
