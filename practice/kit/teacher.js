@@ -95,7 +95,7 @@
       '<p class="pft">' + esc(T.follow_through_student) + ' Nothing is weighed and nothing is arguable: apply the part’s operation to the student’s own earlier value and tick if that is what is written.</p>';
     return '<div class="pkey">' + head(f, true) + (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab"><tbody>' + rows.join('') + '</tbody></table>' + tracker + '</div>';
   }
-  function plainStem(s0){ return String(s0).replace(/\$[^$]*\$/g, function(m){ return m.slice(1, -1).replace(/\\(text|mathrm)\{([^}]*)\}/g, '$2').replace(/\\[a-zA-Z]+/g, ' ').replace(/[{}]/g, ''); }).replace(/\*\*/g, '').replace(/\s+/g, ' ').trim(); }
+  function plainStem(s0){ return String(s0).replace(/\$[^$]*\$/g, function(m){ return m.slice(1, -1).replace(/\\(text|mathrm)\{([^}]*)\}/g, '$2').replace(/(\d)\\frac\{(\d+)\}\{(\d+)\}/g, '$1 $2/$3').replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '$1/$2').replace(/\\left|\\right/g, '').replace(/\\(times|cdot)/g, '×').replace(/\\[a-zA-Z]+/g, ' ').replace(/[{}]/g, '').replace(/\s*,\s*/g, ', '); }).replace(/\*\*/g, '').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/ \)/g, ')').trim(); }
   function pickPanel(){
     var pv = document.getElementById('printview');
     if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('translate', 'no'); pv.setAttribute('aria-label', 'Choose the questions'); document.body.appendChild(pv); }
