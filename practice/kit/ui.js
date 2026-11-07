@@ -39,7 +39,7 @@ function qidOf(si, ii, item){
   if (!sk && item){ var fs = []; (item.type === 'parts' ? item.parts : item.type === 'solo' ? [item.part] : [item]).forEach(function(p){ var f = p && (p.fam || (p === item.part ? item.fam : '')); if (typeof f === 'string' && f && fs.indexOf(f) < 0) fs.push(f); }); if (!fs.length && typeof item.fam === 'string') fs.push(item.fam); sk = fs.join('/'); }
   return {id: 'U' + UNO + '·' + n, sk: typeof sk === 'string' ? sk : ''};
 }
-function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? '<span class="qsk"> · ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
+function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
 function qidOfItem(it){ var p = String(it.pos || '').split('.').map(Number); return qidOf(p[0], p[1], it.item); }
 var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts */
 function fromHash(){ var m = HASH.exec(location.hash || ''); return m && +m[1] >= 1 && (!m[2] || SCOPES[m[2].toLowerCase()]) ? {seed: +m[1], scope: (m[2] || 'all').toLowerCase()} : null; }
@@ -708,9 +708,10 @@ function paintResult(t){
   var lastLine = prev ? '<p class="last since">Since last time: <b>' + (dir > 0 ? 'up' : dir < 0 ? 'down' : 'the same') + '</b> — ' + pe + ' / ' + prev.of + ' then, ' + t.earned + ' / ' + N + ' today.</p>' : '';   /* [J-10] */
   /* per skill — the unit's sections — as text and an icon, never colour alone (item 5; the survey after ALEKS's labelled
      pie): Secure at 80% or more right on the first check with no help, Getting there at 50%, else Not yet */
-  var LV = [['not', 'Not yet', '○'], ['get', 'Getting there', '◐'], ['sec', 'Secure', '●']];
+  var ICON = function(fill){ return '<svg class="ci" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>' + (fill === 2 ? '<circle cx="6" cy="6" r="4.6" fill="currentColor"/>' : fill === 1 ? '<path d="M6 1.4a4.6 4.6 0 0 1 0 9.2z" fill="currentColor"/>' : '') + '</svg>'; };   /* empty, half, full: a shape as well as a word */
+  var LV = [['not', 'Not yet', 0], ['get', 'Getting there', 1], ['sec', 'Secure', 2]];
   var chips = '<ul class="skills" aria-label="By skill">' + DS.map(function(s, k){ var b = t.bySec[k], pc = b.of ? b.alone / b.of : 0, lv = LV[pc >= 0.8 ? 2 : pc >= 0.5 ? 1 : 0];
-    return '<li class="chip ' + lv[0] + '"><span class="ci" aria-hidden="true">' + lv[2] + '</span><b class="cl2">' + lv[1] + '</b><span class="cs">' + s.title + '</span><span class="cn">' + b.alone + ' / ' + b.of + '</span></li>'; }).join('') + '</ul>';
+    return '<li class="chip ' + lv[0] + '"><span class="cpill">' + ICON(lv[2]) + '<b class="cl2">' + lv[1] + '</b></span><span class="cs">' + s.title + '</span><span class="cn">' + b.alone + ' / ' + b.of + '</span></li>'; }).join('') + '</ul>';
   var firstLine = test ? '' : '<p class="last">Right on the first try: ' + t.first + ' / ' + N + (t.helped ? ' ' + bulb(t.helped) : '') + '</p>';
   /* effort, beside correctness and never mixed with it (item 1; the survey after Mathspace's effort stars): how each question
      was worked — on your own, with a hint (rung 1 or 2, or the walkthrough), or after the worked solution (rung 3) — before

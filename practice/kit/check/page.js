@@ -227,9 +227,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     /* item 5: a chip per section — Secure ≥ 80% right on the first check with no help, Getting there ≥ 50%, else Not yet — as
        a word and an icon, not colour alone */
     { const st = await state(p, 781), its = itemsOf(781), g = U.generate(781), want = g.sections.map((sec, si) => { const mine = its.filter(i => +i.pos.split('.')[0] === si), al = mine.filter(i => { const R = st.res[i.id]; return R && R.first === true && !R.helped; }).length, pc = mine.length ? al / mine.length : 0; return pc >= 0.8 ? 'Secure' : pc >= 0.5 ? 'Getting there' : 'Not yet'; });
-      const chips = await p.$$eval('#result .skills .chip', es => es.map(e => ({ word: (e.querySelector('.cl2') || {}).textContent, icon: (e.querySelector('.ci') || {}).textContent, title: (e.querySelector('.cs') || {}).textContent })));
+      const chips = await p.$$eval('#result .skills .chip', es => es.map(e => ({ word: (e.querySelector('.cl2') || {}).textContent, icon: (e.querySelector('svg.ci') || { innerHTML: '' }).innerHTML.length, title: (e.querySelector('.cs') || {}).textContent })));
       if (JSON.stringify(chips.map(c => c.word)) !== JSON.stringify(want)) fail('end panel chips ' + JSON.stringify(chips.map(c => c.word)) + ', expected ' + JSON.stringify(want));
-      if (chips.some(c => !c.icon || !c.icon.trim() || !c.title)) fail('a chip without its icon or its section: ' + JSON.stringify(chips)); }
+      if (chips.some(c => !c.icon || !c.title)) fail('a chip without its icon or its section: ' + JSON.stringify(chips)); }
     const nf = Object.entries((await state(p, 781)).res).filter(([k, r]) => !/x\d+$/.test(k) && r.first === true).length; if (nf !== 3) fail('first-try count ' + nf + ', expected 3 (A, B and C were right on their first check)'); }
   /* 10. test mode: only "can't read this yet"; results' buttons practise with checking */
   await fresh(p, 779); await p.click('.mode button[data-mode="test"]');
