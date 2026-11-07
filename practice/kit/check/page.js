@@ -583,7 +583,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     { const c = await p.evaluate(() => ({ open: !document.getElementById('mMenu').hidden, exp: document.getElementById('bMore').getAttribute('aria-expanded'), focus: document.activeElement && document.activeElement.id }));
       if (c.open || c.exp !== 'false' || c.focus !== 'bMore') fail('Escape did not close the ⋯ menu back to ⋯: ' + JSON.stringify(c)); }
     await p.click('#bMore'); await p.click('h1'); if (!(await p.isHidden('#mMenu'))) fail('a tap outside does not close the ⋯ menu');
-    /* item 5: "Question 4 of 16" — the question holding the focus, as words and a thin navy bar in the bar area (not a ring) */
+    /* item 5: "Question 4 of 16" — the question holding the focus, as words and a thin turquoise bar in the bar area (not a ring) */
     { const N = await p.$$eval('#paper .q[data-q]:not(.xq)', e => e.length); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(60);
       const q1 = await p.$eval('#qof', e => e.textContent); if (q1 !== 'Question 1 of ' + N) fail('the bar says "' + q1 + '" at the top of the page, not "Question 1 of ' + N + '"');
       await p.evaluate(() => { const q = document.querySelectorAll('#paper .q[data-q]:not(.xq)')[3]; const f = q && q.querySelector('input'); if (f) f.focus(); }); await p.waitForTimeout(60);
@@ -591,7 +591,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       const bar = await p.evaluate(() => { const i = document.getElementById('prog'), b = i.parentNode.getBoundingClientRect(), r = i.getBoundingClientRect(); return { f: parseFloat(i.style.width) / 100, h: b.height, w: b.width, bg: getComputedStyle(i).backgroundColor, radius: getComputedStyle(i.parentNode).borderRadius, inBar: !!i.closest('.watch') }; });
       if (N >= 4 && Math.abs(bar.f - 4 / N) > 0.02) fail('the bar is ' + Math.round(bar.f * 100) + '% full at question 4 of ' + N);
       if (bar.h > 4 || bar.w < 120 || !bar.inBar) fail('the question bar is not a thin bar in the bar area: ' + JSON.stringify(bar));
-      if (bar.bg.replace(/\s/g, '') !== 'rgb(27,46,69)') fail('the question bar is ' + bar.bg + ', not navy'); }
+      if (bar.bg.replace(/\s/g, '') !== 'rgb(64,224,208)') fail('the question bar is ' + bar.bg + ', not turquoise (Deckhand\'s live accent)'); }
     /* the clock: hidden but running in "Check as I go"; shown in "Like the real test" */
     const tx = itemsOf(4821).filter(i => i.kind === 'text'); await p.fill('#a' + tx[0].id, '1'); await p.waitForTimeout(1200);
     { const st = await state(p, 4821); if (!st.running) fail('the clock does not run in "Check as I go" (it is only hidden there)'); }

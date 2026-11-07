@@ -67,7 +67,7 @@ in the code; the four reports are in the Windmill HANDOFF.
     record" or "· your record: 12" (the device keeps the unit's record run). Not in test mode before Finish: nothing there
     says right or wrong until then.
   - One primary button at a time: when the point is still owed, "Try another like this" is the primary and "Next ↓" is not.
-- **Where you are, and how it went** (7 Nov 2026, item 5): the bar says *"Question 4 of 16"* over a thin navy line (the question
+- **Where you are, and how it went** (7 Nov 2026, item 5): the bar says *"Question 4 of 16"* over a thin turquoise line (the question
   holding the focus, else the first on the screen; questions, not parts). The end panel keeps the first-try score and adds a
   chip per skill (the unit's sections) — **● Secure** (80% or more right on the first check with no help), **◐ Getting there**
   (50% or more), **○ Not yet** — a word and an icon, never colour alone; and *"Since last time: up — 12 / 36 then, 18 / 36
@@ -89,10 +89,19 @@ in the code; the four reports are in the Windmill HANDOFF.
 ## The look: mrshaffer.org's family (7 Nov 2026)
 Croix asked *"What would you change about the practice tests?"*, was given five changes, and said *"Ok sounds well thought out.
 Proceed."* The page is a practice test on mrshaffer.org, so it now looks like the site:
-- **The palette** is the site's (`public/site.css`): its cream for the desk, its card colour for the paper, navy ink, gold small
-  caps, teal for the pen and for links, navy for the one primary button, coral only for an alarm (the "this set was updated"
-  notice); green and red for right and wrong. A text colour is darkened a step where the site's token is under 4.5:1 on the
-  paper. The dark theme is the same family at night: a navy desk, cream ink, a cream primary. Print is dark ink on white, as before.
+- **The palette** is Deckhand's, as the site's is (re-themed the same day; Croix: *"use my color palette from deckhand
+  instead"*; the tokens are `public/site.css` `:root`, at the top of `kit.css`): a cream desk (`#F8F2E4`), white paper, navy
+  ink and pen (`#17324D`); teal ink (`#0F6B74`) for links, the item IDs and the small caps (the eyebrow, the menu's labels, the
+  rung headings); **turquoise** (`#40E0D0`, navy on it) is the one live accent and stays small — the "Question 4 of 16" line,
+  the pressed mode (with a navy edge, so the state is not colour alone), the keypad key being pressed, Larger text when on;
+  **sand** at low alpha for every quiet fill (the Hint panel, the walkthrough, ⋯ and its menu, the coach's rule box, the
+  secondary buttons, the teacher bar); **pale turquoise** beside the live thing (Hint 3 · the worked solution, the "A similar
+  one" box); **navy** for the one primary button (Check / Try a similar one / Next), white words; **green** for right;
+  **coral ink** (`#AD3B28`) on a coral-pale tint for a miss — never solid coral; solid coral (`#FF7F6A`, navy words) only for
+  the alarm (the "this set was updated" notice). The skill chips: Not yet a navy outline, Getting there teal, Secure green —
+  never turquoise. Nothing yellow. Every text colour is measured at ≥ 4.5:1 on each surface it sits on (≥ 3:1 for a control's
+  edge). The dark theme is the same family at night: the navy desk, navy2 paper, cream ink, a cream primary with navy words,
+  the turquoise a step quieter (`#4CD4C6`). Print is dark ink on white, as before.
 - **Fonts:** Lexend stays on the sheet (ruling 46 — questions, answers, coach, buttons); the title is the site's DM Serif Display,
   the bar and the eyebrow its DM Sans. All four faces are in `vendor/fonts/` (cut by `make_fonts.py`; SIL OFL 1.1, the licences
   beside them) and `build.py` inlines them as data URIs — the Google Fonts `<link>` is gone; the page loads nothing (`page.js` F
