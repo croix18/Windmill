@@ -483,3 +483,20 @@ details.setbox summary .chg,a{color:var(--link)}
 .flab{font:500 12.5px/1.3 var(--ui);color:var(--mut);margin:6px 0 -2px}
 .prt:not(.solo)>.flab{margin-left:var(--i2)}
 @media print{ .flab{display:none} }
+/* item 1: the help ladder — three rungs in the old Show-me-how box; each rung under a small heading, a thin rule between
+   rungs; the worked solution one step per line with a thin rule between steps (never a paragraph) */
+.ladder{display:flex;flex-direction:column}
+.rung{padding:8px 0 10px} .rung+.rung{border-top:1px solid var(--rule)}
+.rung:focus{outline:none} .rung:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:6px}
+.rh{font:700 12px/1.3 var(--ui);color:var(--pen);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.rnote{margin:0;font:15px/1.45 var(--ui)}
+.rung .say{font-size:15px;line-height:1.45}
+.rung .ex,.rung .wgot{margin-top:4px}
+.rwalk,.rnext{margin-top:8px} .rnext{padding-top:10px;border-top:1px solid var(--rule)}
+.rwalk button,.rnext button{min-height:44px;padding:8px 14px;font-size:13.5px}
+.rung ol.sol{padding-left:1.35em}
+.rung ol.sol li{margin:0;padding:8px 6px 8px 4px;border-radius:0}
+.rung ol.sol li+li{border-top:1px solid var(--rule)}
+.rung ol.sol li.off{border-radius:6px}
+button[data-rung]::before{content:"";display:inline-block;width:14px;height:14px;flex:none;background:currentColor;-webkit-mask:var(--bulb) center/contain no-repeat;mask:var(--bulb) center/contain no-repeat;margin-right:5px;vertical-align:-2px;opacity:.7}
+@media print{ .ladder .rnext,.ladder .rwalk{display:none} }

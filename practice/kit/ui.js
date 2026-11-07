@@ -1,6 +1,6 @@
 /* Practice-test kit: the page. One script for every unit; the unit supplies window.Unit (see kit/README.md).
-   Design decisions (Croix, Oct 2026) the kit keeps: one Hint (the step-by-step walkthrough, its picture at the step it
-   explains), Show me how after a try, Try another like this, the Practice menu (whole test / one part / my misses),
+   Design decisions (Croix, Oct 2026) the kit keeps: help as a ladder of three rungs (7 Nov 2026: what to notice, the first
+   step with the step-by-step walkthrough, its picture at the step it explains, then the worked solution), Try another like this, the Practice menu (whole test / one part / my misses),
    right on the first check is a point, Hint or not, and a question solved with the Hint gets a small gray bulb (the Hint
    button's own icon) instead of words; the clock pauses when the page is hidden, no tip box, no footer.
    Apple review (15 Oct 2026) changes are marked [R1-n], [R2-Nn], [J-n] (Jobs lens), [W-n] (Wozniak lens). */
@@ -131,7 +131,7 @@ function partHtml(p, id, solo, lab, lone){
 }
 function textType(p){ return p.kind === 'mc' ? 'mc' : 'text'; }
 function render(){
-  DS = build(); ITEMS = []; EX = {};
+  DS = build(); ITEMS = []; EX = {}; RULES = {};
   var h = [], qn = 0;
   if (!DS.length) h.push('<p class="how">No misses saved on this device yet. Finish a set first, then come back to practice the ones you missed.</p>');
   DS.forEach(function(sec, di){
@@ -182,6 +182,7 @@ function atPos(g, pos){
 function mountExtra(base){
   var M0 = S.more[base.id]; if (!M0) return;
   var a = atPos(U.generate(M0.seed), base.pos), id = base.id + 'x' + M0.n, it = a.item, h;
+  delete RULES[id];
   EX[id] = {id: id, lab: base.lab + ' (another)', type: a.type, x: a.x, item: it, base: base.id, extra: true, pos: base.pos, aShown: false};
   var head = '<div class="xq q" data-q="' + id + '"><div class="xhead"><span class="xt">Try another like this</span><span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
   if (it.type === 'parts') h = head + partHtml(Object.assign({}, a.x, {label: ''}), id, false, EX[id].lab, true) + '</div>';
@@ -263,7 +264,7 @@ function record(it, f, late){
   if (R.v === 'right') return R;
   R.tries++; R.v = f.v; R.lastAns = S.ans[it.id];
   var indep = f.v === 'right' && R.tries === 1 && !R.hinted && !R.shown;            /* right on the first check, on your own */
-  if (R.first === null){ R.first = (f.v === 'right'); R.helped = R.first && !!(R.hinted || R.shown); if (late) R.late = true; }   /* what happened on the first check: kept, never rewritten */
+  if (R.first === null){ R.first = (f.v === 'right'); R.helped = R.first && !!(R.hinted || R.shown); R.rungFirst = R.rung || 0; if (late) R.late = true; }   /* what happened on the first check: kept, never rewritten */
   if (R.tries === 1){
     var n = streakStep(it.pos, famOf(it), indep);                                    /* the one miss rule, base question or "another" */
     if (!late) runStep(indep);                                                        /* the run across the set (not a check Finish made) */
@@ -311,12 +312,13 @@ function keyHtml(it){
   if (it.type === 'multi') return it.x.correct.map(function(k){ return '<b>' + LET[k] + '.</b> ' + V.opt(it.x, k); }).join('&nbsp;&nbsp; ');
   return V.key(it.x);
 }
-function solOf(it){ try { return U.solution(it.x, it.type, ctxOf(it)); } catch(e){ return null; } }
+function solOf(it){ try { var a = authored(it); return a && a.steps ? a.steps : U.solution(it.x, it.type, ctxOf(it)); } catch(e){ return null; } }
+function authored(it){ try { return U.rungs ? U.rungs(it.x, it.type, ctxOf(it)) || null : null; } catch(e){ return null; } }
 function picOf(it){ try { return V.picture(it.x, it.type) || ''; } catch(e){ return ''; } }
 function stepsHtml(it, R){
   var sol = solOf(it), n = sol ? sol.length : 0, shown = Math.min(R.steps || 0, n);
   var pic = (shown >= n || R.v === 'right') ? picOf(it) : '';
-  var h = '<div class="sthead">Show me how</div>' + (pic ? '<details class="why"' + (R.pic === false ? '' : ' open') + ' data-pic="' + it.id + '"><summary>See why it works</summary>' + pic + '</details>' : '');
+  var h = (pic ? '<details class="why"' + (R.pic === false ? '' : ' open') + ' data-pic="' + it.id + '"><summary>See why it works</summary>' + pic + '</details>' : '');
   if (!sol) return h + '<div class="key"><span class="kl">Answer</span><span class="kv">' + keyHtml(it) + '</span></div>';
   var f = R.v && R.v !== 'right' ? lastFeedback(it) : null, off = f && f.step != null ? f.step : -1;
   var st = V.start(it.x, it.type); if (st) h += '<div class="solhead"><span class="kl">Start</span> ' + st + '</div>';
@@ -326,6 +328,61 @@ function stepsHtml(it, R){
   }).join('') + '</ol>';
   if (shown >= n) h += '<div class="key"><span class="kl">Answer</span><span class="kv">' + keyHtml(it) + '</span></div>';
   return h;
+}
+/* ---- the help ladder (7 Nov 2026, the practice-test deepening, item 1; the survey after Khan: "a hint for each step … viewing
+   all the hints gives a worked example"). Three rungs, each a button that opens the next; the rungs opened stay open:
+     Hint 1 · What to notice — the unit's rule for this kind of question (the coach's "Next time" line),
+     Hint 2 · The first step — the worked solution's first line (and "Step by step with me": the walkthrough, as before),
+     Hint 3 · The worked solution — every line, one per line with a thin rule between them, the step where the student's answer
+       went off, the picture, the answer (what "Show me how" was).
+   A unit may write all three: Unit.rungs(x, type, ctx) → {notice, first: {say, ex}, steps: [{say, ex}]} (any of them; the rest
+   are derived). The deepest rung opened is kept per attempt (R.rung; R.rungFirst is the rung open at the first check). The
+   scoring rule is the same: a point is earned only on a first check with no rung open. */
+var RULES = {};
+function ruleOf(it){                                       /* the coach's rule for this question, as it gives it after a miss */
+  if (Object.prototype.hasOwnProperty.call(RULES, it.id)) return RULES[it.id];
+  var r = '';
+  try {
+    var probe = function(a){ var f = U.judge.text(it.x, a, ctxOf(it)); return f && f.rule || ''; };
+    if (it.type === 'text') r = probe('987654') || probe('-987654') || probe('0');
+    else if (it.type === 'mc'){ for (var k = 0; k < it.x.opts.length && !r; k++) if (k !== it.x.correct){ var f = U.judge.mc(it.x, k); r = f && f.rule || ''; } }
+    else { var g = U.judge.multi(it.x, [], 1); r = g && g.rule || ''; }
+  } catch(e){}
+  return (RULES[it.id] = r);
+}
+function rungsOf(it){
+  var a = authored(it) || {}, sol = solOf(it), w = walkOf(it), s0 = w && w[0], s1 = w && w[1];
+  var stepOf = function(s){ return s ? {say: s.ask, got: s.type === 'choice' ? ((s.opts.filter(function(o){ return o.ok; })[0] || {}).label || '') : V.got(s), ex: s.then || null} : null; };
+  var notice = a.notice || ruleOf(it) || (s0 ? s0.ask : '') || 'Read the question again: what does it ask for, and what do you know already?';
+  var first = a.first || (sol && sol.length >= 2 ? sol[0] : s0 && s0.ask !== notice ? stepOf(s0) : s1 ? stepOf(s1) : sol && sol[0] ? sol[0] : null);
+  return {notice: notice, first: first};
+}
+function rungBtn(it, to, after){
+  var lab = after ? 'See the worked solution' : to === 1 ? 'Hint' : to === 2 ? 'Hint 2: the first step' : 'Hint 3: the whole solution';
+  return '<button type="button" data-rung="' + it.id + '" data-to="' + to + '" aria-label="' + lab + ', question ' + esc(it.lab) + '">' + lab + '</button>';
+}
+var RH = ['', 'Hint 1 · What to notice', 'Hint 2 · The first step', 'Hint 3 · The worked solution'];
+function ladderHtml(it, R){
+  var g = rungsOf(it), n = Math.min(3, R.rung || 0), h = '<div class="ladder">';
+  var head = function(k){ return '<div class="rung r' + k + '" id="rg' + it.id + '-' + k + '" tabindex="-1"><div class="rh">' + RH[k] + '</div>'; };
+  if (n >= 1) h += head(1) + '<p class="rnote">' + g.notice + '</p></div>';
+  if (n >= 2){ var f = g.first;
+    h += head(2) + (f ? '<div class="say">' + f.say + '</div>' + (f.got ? '<div class="wgot"><span class="wok">✓</span> ' + f.got + '</div>' : '') + (f.ex ? '<div class="ex">' + V.ex(it.x, f.ex, it.type) + '</div>' : '') : '') +
+      (n < 3 && R.v !== 'right' && walkOf(it) && !S.walkOpen[it.id] ? '<div class="rwalk"><button type="button" data-walk="' + it.id + '" aria-label="Step by step with me, question ' + esc(it.lab) + '">Step by step with me</button></div>' : '') + '</div>'; }
+  if (n >= 3) h += head(3) + stepsHtml(it, R) + '</div>';
+  if (n >= 1 && n < 3 && R.v !== 'right') h += '<div class="rnext">' + rungBtn(it, n + 1) + '</div>';
+  return h + '</div>';
+}
+function openRung(it, to){
+  if (!it) return; var R = res(it); to = Math.max(1, Math.min(3, to | 0));
+  if ((R.rung || 0) < to){
+    R.rung = to;
+    if (R.v !== 'right'){ R.hinted = true; if (to >= 3){ R.shown = true; if (R.first === null) R.first = false; } }   /* help before the point: the point then comes from one on your own */
+    if (to >= 3){ var sol = solOf(it); R.steps = sol ? sol.length : 1; S.walkOpen[it.id] = false; }
+    if (!S.running && !S.done && !it.extra) start();
+    save(); paintItem(it); paintScore();
+  }
+  var el = $('rg' + it.id + '-' + to); if (el){ el.focus({preventScroll: true}); if (el.scrollIntoView) el.scrollIntoView({block: 'nearest'}); }
 }
 function lastFeedback(it){ var R = S.res[it.id]; return R && R.v ? judgeAns(it, R.lastAns, R.tries - 1) : null; }   /* [W-6] recomputed, never stored */
 function hostOf(it){ return document.querySelector('[data-host="' + it.id + '"]'); }
@@ -344,23 +401,20 @@ function paintItem(it){
   R = R || {tries: 0, v: null, steps: 0};
   if (R.v) host.classList.add(R.v === 'right' ? 'is-right' : R.v === 'form' ? 'is-form' : 'is-wrong');
   if (R.v){ fb.innerHTML = cardHtml(it, R, lastFeedback(it)); delete FLASH[it.id]; } else if (!FLASH[it.id]) fb.innerHTML = '';
-  var b = [], all = (R.steps || 0) >= n, walkOn = S.walkOpen[it.id] && R.v !== 'right';
+  var b = [], rung = R.rung || ((R.steps || 0) >= n ? 3 : 0), all = rung >= 3, walkOn = S.walkOpen[it.id] && R.v !== 'right';
   var owed = S.mode !== 'test' && !R.earned && (R.v || R.shown || R.hinted);            /* the point is not earned yet: a fresh one is the way (24 Oct 2026) */
   if (R.v === 'right'){
     var nx = it.extra ? null : nextOpen(it);
     if (nx) b.push('<button type="button" class="' + (owed ? '' : 'go') + '" data-next="' + it.id + '" data-to="' + nx.id + '" aria-label="Next: question ' + nx.lab + '">Next ↓</button>');   /* one primary button: Try another when the point is owed */
-    if (!all) b.push('<button type="button" data-all="' + it.id + '" aria-label="Show me how for ' + it.lab + '">Show me how</button>');
-  } else {
-    if (!all && !walkOn && walkOf(it)) b.push('<button type="button" data-walk="' + it.id + '" aria-label="Hint for ' + it.lab + '">Hint</button>');   /* [J-3] least help first; no Hint once the steps are open */
-    if (!all && (R.tries > 0 || S.done)) b.push('<button type="button" data-all="' + it.id + '" aria-label="Show me how for ' + it.lab + '">Show me how</button>');
+    if (!all) b.push(rungBtn(it, 3, true));                                             /* after a right answer: the worked solution, one tap */
   }
   var missed = (R.v && R.v !== 'right') || R.shown || (R.v === 'right' && R.first === false);
   if (!it.extra && (missed || owed) && !S.more[it.id]) b.push('<button type="button" class="' + (R.v === 'right' || all || owed ? 'go' : '') + '" data-another="' + it.id + '">Try another like this</button>');
   if (it.extra && (R.v || R.shown)) b.push('<button type="button" class="' + (R.v === 'right' || !res(byId(it.base)).earned ? 'go' : '') + '" data-another="' + it.base + '">Try another like this</button>');
-  var hs = $('hs' + it.id), hintOnly = b.length === 1 && /data-walk=/.test(b[0]) && !R.v && !(R.tries > 0);   /* [D-8] before any try the Hint sits beside Check, not on a row of its own */
-  if (hs) hs.innerHTML = hintOnly ? b[0] : '';
-  mo.innerHTML = hintOnly ? '' : b.join('');
-  st.hidden = !(R.steps > 0); if (R.steps > 0) st.innerHTML = stepsHtml(it, R);
+  /* the ladder's first rung sits beside Check ([D-8]); once open, the next rung's button is at the foot of the rungs */
+  var hs = $('hs' + it.id); if (hs) hs.innerHTML = R.v !== 'right' && !rung ? rungBtn(it, 1) : '';
+  mo.innerHTML = b.join('');
+  st.hidden = !rung; if (rung) st.innerHTML = ladderHtml(it, R);
   wl.hidden = !walkOn; if (walkOn) wl.innerHTML = walkHtml(it);
   paintChoices(it, R.v ? R : null);
   var input = $('a' + it.id); if (input){ input.readOnly = R.v === 'right'; if (R.v === 'right' && keys.target === input) hideKeys(); }
@@ -449,12 +503,7 @@ function walkGive(id){ var it = byId(id), W = wstate(it); W.gave = W.gave || {};
 document.addEventListener('click', function(e){
   var t = e.target && e.target.closest ? e.target : null; if (!t) return;
   var b = t.closest('[data-check]'); if (b){ check(b.dataset.check); return; }
-  var a = t.closest('[data-all]');
-  if (a){ var it2 = byId(a.dataset.all), R2 = res(it2), sol2 = solOf(it2);
-    R2.steps = sol2 ? sol2.length : 1; S.walkOpen[it2.id] = false;
-    if (R2.v !== 'right'){ R2.shown = true; if (R2.first === null) R2.first = false; }
-    if (!S.running && !S.done && !it2.extra) start();
-    save(); paintItem(it2); paintScore(); var stp = $('st' + it2.id); if (stp) stp.focus({preventScroll: true}); return; }
+  var rg = t.closest('[data-rung]'); if (rg){ openRung(byId(rg.dataset.rung), +rg.dataset.to); return; }
   var nx = t.closest('[data-next]'); if (nx){ var to = byId(nx.dataset.to), host = to && hostOf(to);
     if (host){ host.scrollIntoView({block: 'center', behavior: 'smooth'}); var f = $('a' + to.id) || host.querySelector('.ch input'); if (f) f.focus({preventScroll: true}); } return; }
   var an = t.closest('[data-another]'); if (an){ another(an.dataset.another); return; }
@@ -582,16 +631,31 @@ function paintResult(t){
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
   var lastLine = prev ? '<p class="last">Last time: ' + pe + ' / ' + prev.of + ' in ' + fmt(prev.time) + '. Today: ' + t.earned + ' / ' + N + (prev.of === N ? ' (' + (t.earned - pe >= 0 ? '+' : '−') + Math.abs(t.earned - pe) + ')' : '') + '.</p>' : '';   /* [J-10] */
   var firstLine = test ? '' : '<p class="last">Right on the first try: ' + t.first + ' / ' + N + (t.helped ? ' ' + bulb(t.helped) : '') + '</p>';
+  /* effort, beside correctness and never mixed with it (item 1; the survey after Mathspace's effort stars): how each question
+     was worked — on your own, with a hint (rung 1 or 2, or the walkthrough), or after the worked solution (rung 3) — before
+     it was right. A help opened after a right answer is not counted. */
+  var ef = effort(), effortLine = test ? '' : '<p class="last effort">Solved without help: <b>' + ef.own + '</b> · With a hint: <b>' + ef.hint + '</b> · Saw the solution: <b>' + ef.saw + '</b></p>';
   var rec = record_(), runLine = test || !(S.best >= 2) ? '' : '<p class="last">Best run this set: <b>' + S.best + '</b> in a row' + (S.newRecord ? ' — a new record' : rec.n > S.best ? ' · your record: ' + rec.n : '') + '</p>';
   box.innerHTML = '<h2>Set ' + seed + ' · ' + esc(SCOPES[scope]) + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</h2>' +
     '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points earned on your own') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
-    firstLine + runLine + lastLine +
+    firstLine + effortLine + runLine + lastLine +
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') +
     '<div class="tw"><table><thead><tr><th>Section</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
-      '<p class="note"><b>Show me how</b> has the steps; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
+      '<p class="note"><b>Hint</b> goes one step at a time, up to the worked solution; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
     '<div class="btns">' + btns + '</div>';
   box.hidden = false;
+}
+function effort(){
+  var own = 0, hint = 0, saw = 0;
+  ITEMS.forEach(function(it){
+    var Rs = Object.keys(S.res).filter(function(k){ return k === it.id || (k.indexOf(it.id + 'x') === 0 && /^\d+$/.test(k.slice(it.id.length + 1))); }).map(function(k){ return S.res[k]; });
+    var R0 = S.res[it.id];
+    if (Rs.some(function(R){ return R && R.shown; })) saw++;
+    else if (Rs.some(function(R){ return R && R.hinted; })) hint++;
+    else if (R0 && (R0.v === 'right' || R0.earned)) own++;
+  });
+  return {own: own, hint: hint, saw: saw};
 }
 function finish(){
   if (S.done) return;                                                                  /* [R2-1] */
@@ -644,7 +708,8 @@ function openSet(n, sc, mode){
   var h1 = $('h1'); if (h1 && document.activeElement && document.activeElement !== document.body && !(document.activeElement.closest && document.activeElement.closest('#paper'))) { h1.setAttribute('tabindex', '-1'); h1.focus({preventScroll: true}); }
 }
 function earnedOf(rec){                                   /* a set saved before 24 Oct 2026: the point as it was then scored, never rewritten */
-  Object.keys(rec.res || {}).forEach(function(k){ var R = rec.res[k]; if (R && R.earned === undefined && !/x\d+$/.test(k)) R.earned = R.first === true && !R.helped; });
+  Object.keys(rec.res || {}).forEach(function(k){ var R = rec.res[k]; if (R && R.earned === undefined && !/x\d+$/.test(k)) R.earned = R.first === true && !R.helped;
+    if (R && R.rung == null){ if (R.steps > 0) R.rung = 3; else if (R.hinted) R.rung = 1; } });   /* a set saved before the ladder (7 Nov 2026): Show me how was the worked solution, the Hint the first help */
   return rec;
 }
 function restoreOne(it){

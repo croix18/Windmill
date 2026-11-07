@@ -31,6 +31,8 @@ const active = p => p.evaluate(() => { const a = document.activeElement; return 
 /* Print, what to practice and the set number live in the ⋯ menu (7 Nov 2026, the site review): a student opens it first, so
    the check does too — every flow below that touches them is the same flow, one tap deeper */
 async function more(p) { if (await p.isHidden('#mMenu')) await p.click('#bMore'); }
+/* the help ladder (7 Nov 2026): Hint 1, Hint 2, Hint 3 — each a button that opens the next; rungTo opens them up to n */
+async function rungTo(p, id, n) { for (let k = 1; k <= n; k++) await p.evaluate(([id, k]) => { const b = document.querySelector('[data-rung="' + id + '"][data-to="' + k + '"]'); if (b) b.click(); }, [id, k]); }
 async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await p.goto(url + '#set-' + seed); await p.reload(); await p.waitForTimeout(150); }
 
 (async () => {
@@ -82,8 +84,28 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* 2. the same wrong answer again is not another try */
   await p.fill('#a' + T[0].id, '987654'); for (let k = 0; k < 3; k++) await p.press('#a' + T[0].id, 'Enter');
   let S = await state(p, seed); if (!S || S.res[T[0].id].tries !== 1) fail('Enter ×3 on one answer counted ' + (S && S.res[T[0].id].tries) + ' tries');
-  /* 3. Show me how takes focus to the steps */
-  await p.click('[data-all="' + T[0].id + '"]'); if (!/^st/.test(await active(p))) fail('Show me how: focus is ' + await active(p));
+  /* 3. the ladder: each rung a button that opens the next, the rungs opened stay open, focus goes to the new rung; the last
+     is the worked solution, one step per line with a rule between, ending in the answer (7 Nov 2026, item 1) */
+  { const id = T[0].id, sol = U.solution(T[0].x, 'text', {}) || [];
+    if (!(await p.$('#hs' + id + ' [data-rung][data-to="1"]'))) fail('ladder: no Hint beside Check after a wrong answer on ' + id);
+    for (let k = 1; k <= 3; k++) {
+      await p.click('[data-rung="' + id + '"][data-to="' + k + '"]');
+      const a = await active(p); if (a.split('|')[0] !== 'rg' + id + '-' + k) fail('ladder: after Hint ' + k + ' focus is ' + a);
+      const open = await p.$$eval('#st' + id + ' .rung', es => es.map(e => e.querySelector('.rh').textContent));
+      if (open.length !== k) fail('ladder: ' + open.length + ' rungs open after Hint ' + k + ': ' + open.join(' | '));
+      const nextB = await p.$('#st' + id + ' .rnext [data-rung][data-to="' + (k + 1) + '"]'); if (k < 3 && !nextB) fail('ladder: no button for Hint ' + (k + 1) + ' under rung ' + k);
+      if (k === 3 && await p.$('#st' + id + ' .rnext')) fail('ladder: a next-rung button under the last rung');
+    }
+    const heads = await p.$$eval('#st' + id + ' .rh', es => es.map(e => e.textContent));
+    if (JSON.stringify(heads) !== JSON.stringify(['Hint 1 · What to notice', 'Hint 2 · The first step', 'Hint 3 · The worked solution'])) fail('ladder headings: ' + heads.join(' | '));
+    const r3 = await p.evaluate(id => { const r = document.getElementById('rg' + id + '-3'), lis = r ? Array.from(r.querySelectorAll('ol.sol > li')) : [];
+      return { n: lis.length, ruled: lis.slice(1).every(li => parseFloat(getComputedStyle(li).borderTopWidth) > 0), key: !!(r && r.querySelector('.key')), notice: (document.querySelector('#rg' + id + '-1 .rnote') || {}).textContent || '' }; }, id);
+    if (sol.length && r3.n !== sol.length) fail('ladder: rung 3 shows ' + r3.n + ' steps of ' + sol.length);
+    if (r3.n > 1 && !r3.ruled) fail('ladder: rung 3\'s steps have no rule between them');
+    if (!r3.key) fail('ladder: rung 3 does not end in the answer');
+    if (!r3.notice.trim()) fail('ladder: rung 1 is empty');
+    const S0 = await state(p, seed); if (!S0.res[id] || S0.res[id].rung !== 3 || !S0.res[id].shown) fail('ladder: the deepest rung is not kept: ' + JSON.stringify(S0.res[id]));
+    if (await p.$('[data-all]')) fail('a "Show me how" button is still on the page'); }
   /* 4. Try another: focus in the new question */
   await p.click('[data-another="' + T[0].id + '"]'); { const a = await active(p); if (!/^a.*x1|q.*x1/.test(a) && !/x1/.test(a)) fail('Try another: focus is ' + a); }
   /* 4b. Try another after a choice question got right on a later try: the new one's choices can be ticked (23 Oct 2026:
@@ -98,15 +120,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       const locked = await p.$$eval('input[name="q' + C.id + 'x1"]', xs => xs.filter(x => x.disabled).length); if (locked) fail('Try another on ' + C.id + ': ' + locked + ' of the new choices are disabled — the student cannot touch the new question');
       else { await p.click('#ch' + C.id + 'x1A'); const on = await p.$eval('input[name="q' + C.id + 'x1"][value="0"]', x => x.checked); if (!on) fail('Try another on ' + C.id + ': the new choice did not tick'); }
       const still = await p.$$eval('input[name="q' + C.id + '"]', xs => xs.filter(x => !x.disabled).length); if (still) fail('the right answer on ' + C.id + ' no longer locks its own choices'); } }
-  /* 5. Hint takes focus into the walkthrough; Close gives it back to Hint */
-  await p.click('[data-walk="' + T[1].id + '"]'); { const a = await active(p); if (!/wopt|^wn/.test(a)) fail('Hint: focus is ' + a); }
+  /* 5. Hint 2's "Step by step with me" takes focus into the walkthrough; Close gives it back to its button */
+  await rungTo(p, T[1].id, 2); await p.click('[data-walk="' + T[1].id + '"]'); { const a = await active(p); if (!/wopt|^wn/.test(a)) fail('Hint: focus is ' + a); }
   const head = await p.$eval('#wl' + T[1].id + ' .wkhead b', e => e.textContent); if (!/^Hint · step 1 of \d+$/.test(head)) fail('Hint heading "' + head + '"');
   await p.click('[data-wclose="' + T[1].id + '"]'); if (!/"walk"/.test(await active(p))) fail('Close: focus is ' + await active(p));
   /* 6. Show this step after two wrong numbers */
   { let found = false;
     for (const it of T.slice(2)) {
       const steps = U.walk(it.x, 'text') || []; const k = steps.findIndex(s => s.type === 'num'); if (k < 0) continue;
-      await p.click('[data-walk="' + it.id + '"]');
+      await rungTo(p, it.id, 2); await p.click('[data-walk="' + it.id + '"]');
       for (let j = 0; j < k; j++) { const ok = steps[j].opts.findIndex(o => o.ok); await p.click('[data-wopt="' + it.id + '|' + j + '|' + ok + '"]'); }
       for (let t = 0; t < 2; t++) { await p.fill('#wn' + it.id, '987654'); await p.click('[data-wnum="' + it.id + '"]'); }
       if (!(await p.isVisible('[data-wgive="' + it.id + '"]'))) fail('no "Show this step" after two misses on ' + it.id);
@@ -118,7 +140,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const a = await active(p); if (!/next/.test(a) && !/"next"/.test(a)) { const nx = await p.$('[data-next="' + it.id + '"]'); if (nx) fail('right answer: focus is ' + a + ', not Next'); } }
   /* 8. tap targets and the keypad */
   await p.focus('#a' + T[2].id);
-  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
+  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore, .hslot button, .rnext button, .rwalk button')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
   if (small.length) fail('tap targets under 44px: ' + JSON.stringify(small.slice(0, 5)));
   const tabbable = await p.evaluate(() => Array.from(document.querySelectorAll('.keys button')).filter(b => b.tabIndex >= 0).length); if (tabbable) fail(tabbable + ' keypad keys are tab stops');
   /* 9. Finish marks a typed answer that was never checked */
@@ -139,10 +161,11 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (!(R.earned === true && R.first === true && !R.helped)) fail('unaided first check: earned/first/helped = ' + [R.earned, R.first, R.helped]);
     if (!/^1 earned/.test(await bar())) fail('bar after one unaided point: ' + await bar());
     /* 6. Show me how after the point: still earned */
-    await p.click('[data-all="' + A.id + '"]'); R = await resOf(A.id); if (R.earned !== true || R.shown) fail('Show me how after the point revoked it');
+    await p.click('[data-rung="' + A.id + '"][data-to="3"]'); R = await resOf(A.id); if (R.earned !== true || R.shown) fail('the worked solution after the point revoked it');
     /* 2. Hint, close it, the key on the first check → not earned, the fresh one offered first */
-    await p.click('[data-walk="' + B.id + '"]'); await p.click('[data-wclose="' + B.id + '"]'); await answer(p, B); await check(p, B.id); R = await resOf(B.id);
+    await rungTo(p, B.id, 1); await answer(p, B); await check(p, B.id); R = await resOf(B.id);
     if (!(R.earned === false && R.first === true && R.helped === true)) fail('hinted first check: earned/first/helped = ' + [R.earned, R.first, R.helped]);
+    if (R.rungFirst !== 1) fail('the rung open at the first check is not kept: ' + R.rungFirst);
     if (!/^1 earned/.test(await bar())) fail('bar after a hinted point: ' + await bar());
     const fbB = await p.$eval('#fb' + B.id, e => e.textContent); if (!/One on your own earns the point/.test(fbB) || /first try/.test(fbB)) fail('hinted right card: ' + fbB);
     if (!(await p.$('[data-another="' + B.id + '"].go'))) fail('after help, Try another is not the primary button');
@@ -153,7 +176,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (!/^2 earned/.test(await bar())) fail('bar after the fresh one: ' + await bar());
     if (!/point earned/.test(await p.$eval('#fb' + B.id, e => e.textContent))) fail('base card does not say the point is earned');
     /* 4. a fresh one wrong then right on the same one → nothing; the next fresh one right → the point */
-    await p.click('[data-walk="' + Cc.id + '"]'); await p.click('[data-wclose="' + Cc.id + '"]'); await answer(p, Cc); await check(p, Cc.id);
+    await rungTo(p, Cc.id, 2); await answer(p, Cc); await check(p, Cc.id);
     await p.click('[data-another="' + Cc.id + '"]'); await p.fill('#a' + Cc.id + 'x1', '987654'); await check(p, Cc.id + 'x1');
     await fillExtra(Cc, 1); await check(p, Cc.id + 'x1'); R = await resOf(Cc.id); if (R.earned) fail('a corrected fresh one earned the point');
     if (!(await p.$('[data-another="' + Cc.id + '"]'))) fail('after a wrong fresh one, no way to the next fresh one');
@@ -176,6 +199,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (!/Best run this set: 2 in a row — a new record/.test(await p.$eval('#result', e => e.textContent))) fail('end panel has no best run line');
     const rec = await store('record'); if (!rec || rec.n !== 2) fail('the record run was not kept: ' + JSON.stringify(rec));
     const ft = await p.$eval('#result', e => e.textContent); if (!/Right on the first try: 3 \/ /.test(ft)) fail('end panel first-try line: ' + (ft.match(/Right on the first try.{0,12}/) || [''])[0]);
+    { const ef = await p.$eval('#result .effort', e => e.textContent).catch(() => ''); if (!/Solved without help: 2 · With a hint: 2 · Saw the solution: 0/.test(ef)) fail('end panel effort line: "' + ef + '" (A on its own, B and C with a hint, D on its own by its fresh ones)'); }
     const nf = Object.entries((await state(p, 781)).res).filter(([k, r]) => !/x\d+$/.test(k) && r.first === true).length; if (nf !== 3) fail('first-try count ' + nf + ', expected 3 (A, B and C were right on their first check)'); }
   /* 10. test mode: only "can't read this yet"; results' buttons practise with checking */
   await fresh(p, 779); await p.click('.mode button[data-mode="test"]');
@@ -189,7 +213,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await fresh(p, 780);
   { const i5 = itemsOf(780);
     for (const it of i5) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id); await check(p, it.id);
-      await p.evaluate(id => { const b = document.querySelector('[data-all="' + id + '"]'); if (b) b.click(); }, it.id); }
+      await rungTo(p, it.id, 3); }
     const txt = await p.evaluate(() => document.getElementById('paper').innerText);
     const m = /\b(null|undefined|NaN)\b/.exec(txt); if (m) fail('"' + m[1] + '" on the page: …' + txt.slice(Math.max(0, m.index - 80), m.index + 20).replace(/\s+/g, ' ')); }
   /* 13. a new set never says it "was updated" */
@@ -263,15 +287,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       for (const it of its) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
       for (const it of TT.slice(0, 6)) {
         const steps = U.walk(it.x, 'text') || []; if (!steps.length) continue;
-        await p.click('[data-walk="' + it.id + '"]');
+        await rungTo(p, it.id, 2); await p.click('[data-walk="' + it.id + '"]');
         for (let j = 0; j < steps.length; j++) {
           if (steps[j].type === 'choice') { const bad = steps[j].opts.findIndex(o => !o.ok), ok = steps[j].opts.findIndex(o => o.ok); if (bad >= 0) await p.click('[data-wopt="' + it.id + '|' + j + '|' + bad + '"]'); await p.click('[data-wopt="' + it.id + '|' + j + '|' + ok + '"]'); }
           else { for (let t = 0; t < 2; t++) { await p.fill('#wn' + it.id, '987654'); await p.click('[data-wnum="' + it.id + '"]'); } await p.fill('#wn' + it.id, 'abc'); await p.click('[data-wnum="' + it.id + '"]'); await p.click('[data-wgive="' + it.id + '"]'); }
         }
       }
       await biAudit('hints');
-      for (const it of its) await p.evaluate(id => { const b = document.querySelector('[data-all="' + id + '"]'); if (b) b.click(); }, it.id);
-      await biAudit('Show me how');
+      for (const it of its) await rungTo(p, it.id, 3);
+      await biAudit('the ladder');
       await p.click('[data-another="' + TT[0].id + '"]'); await p.waitForTimeout(80);
       for (const it of [TT[1], MM[0]].filter(Boolean)) { await answer(p, it); await check(p, it.id); }
       await p.click('#bFinish'); await biAudit('the confirm'); await p.click('#cy'); await p.waitForTimeout(100);

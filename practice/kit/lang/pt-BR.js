@@ -91,6 +91,21 @@ var T = {
   'Not quite.': 'Não exatamente.',
   'Type just a number, like # or #.': 'Digite só um número, como # ou #.',
 
+  /* the help ladder (7 Nov 2026, the practice-test deepening, item 1) */
+  'Hint #': 'Dica #',                                 /* "Hint 1 · What to notice": the number is carried over */
+  'What to notice': 'O que observar',
+  'The first step': 'O primeiro passo',
+  'The worked solution': 'A solução passo a passo',
+  'Hint #: the first step': 'Dica #: o primeiro passo',
+  'Hint #: the whole solution': 'Dica #: a solução inteira',
+  'See the worked solution': 'Ver a solução passo a passo',
+  'Step by step with me': 'Passo a passo comigo',
+  'Read the question again: what does it ask for, and what do you know already?': 'Leia a questão de novo: o que ela pede, e o que você já sabe?',
+  'Solved without help: <b>#</b>': 'Resolvidas sem ajuda: <b>#</b>',
+  'With a hint: <b>#</b>': 'Com uma dica: <b>#</b>',
+  'Saw the solution: <b>#</b>': 'Viu a solução: <b>#</b>',
+  '<b>Hint</b> goes one step at a time, up to the worked solution; <b>Try another like this</b> gives you a fresh one.': '<b>Dica</b> vai um passo de cada vez, até a solução passo a passo; <b>Outra parecida</b> dá uma nova para você.',
+
   /* asking before a change */
   'Leave': 'Sair',
   'Keep working': 'Continuar trabalhando',

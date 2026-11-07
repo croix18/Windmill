@@ -21,12 +21,14 @@ in the code; the four reports are in the Windmill HANDOFF.
   the value is right but the form isn't.
   - **The clean rule:** no modelled mistake, printed number or other part's answer may equal an answer. The generator
     draws such numbers again, so a wrong method is never marked right.
-- **Hint:** one button opens a step-by-step walkthrough ("Hint · step 2 of 5").
-  - Tap-a-choice steps give a reason for every wrong choice.
-  - Type-a-number steps give a smaller step after a miss, and after two misses offer *Show this step*.
-  - The picture appears at the step it explains. The walkthrough ends with the answer, as Croix chose.
+- **Help is a ladder of three rungs** (7 Nov 2026; see "The help ladder" below): **Hint** beside Check opens *Hint 1 · What to
+  notice*; under it *Hint 2: the first step*, then *Hint 3: the whole solution* — the worked solution that "Show me how" was
+  (every step, the step where the student's answer went off, "See why it works", the answer). The rungs opened stay open.
+  - Hint 2 also offers **Step by step with me**: the walkthrough as before ("Hint · step 2 of 5"). Tap-a-choice steps give a
+    reason for every wrong choice; type-a-number steps give a smaller step after a miss, and after two misses offer *Show this
+    step*; the picture appears at the step it explains; it ends with the answer, as Croix chose.
 - **After an answer:**
-  - **Show me how** (after a try): every step, the step where the student's answer went off, and "See why it works".
+  - **See the worked solution** after a right answer (rung 3 in one tap).
   - **Try another like this:** the same kind of question with new numbers, never a repeat. It is offered after a miss and
     whenever the question's point is not earned yet (then as the primary button), and on a fresh one after any check.
   - **Next ↓** after a right answer. Focus never jumps by itself.
@@ -96,6 +98,22 @@ Proceed."* The page is a practice test on mrshaffer.org, so it now looks like th
   `../../unit-N/`, with N from `Unit.id`. As an artifact or a Google Sites download it is hidden.
 `check/page.js` part F checks all of this; the flows that use Print, the practice menu or the set box open ⋯ first.
 
+## The help ladder (7 Nov 2026, the practice-test deepening, item 1)
+From the survey (Khan: *"a hint for each step … viewing all the hints gives a worked example"*): one ladder in place of Hint
+and Show me how. **Hint 1 · What to notice** is the coach's rule for the kind of question (what "Next time:" said after a
+miss); **Hint 2 · The first step** is the worked solution's first line (with "Step by step with me", the walkthrough);
+**Hint 3 · The worked solution** is every line, one per line with a thin rule between them, never a paragraph.
+- **The authoring API:** `Unit.rungs(x, type, ctx) → {notice, first: {say, ex}, steps: [{say, ex}]}`, any of the three. What a
+  unit leaves out is derived: `notice` from the coach's `rule` (else the walkthrough's first question), `first` from
+  `solution()[0]` (a one-line solution takes the walkthrough's first step and its answer instead), `steps` is `solution()`.
+- **Kept per attempt:** `R.rung`, the deepest rung opened (the question and each fresh one has its own), and `R.rungFirst`, the
+  rung open at the first check. A set saved before the ladder reads its Show me how as rung 3 and its Hint as rung 1.
+- **Scoring is unchanged:** the point is earned only by a first check with no rung open, on the question or a fresh one; a
+  rung opened before the first check is the bulb; rung 3 before any check makes the first try "not first" (as Show me how
+  did). The first-try store is never rewritten. A rung opened after a right answer changes nothing.
+- **Effort, beside correctness:** the end panel says *"Solved without help: 7 · With a hint: 2 · Saw the solution: 1"* — each
+  question counted once, by the most help opened before it was right (its fresh ones too); in *Check as I go* only.
+
 ## Equivalent forms are right (7 Nov 2026, the practice-test deepening, item 3)
 From the 170-site survey (its items 14–19, which Croix approved): the most concrete failure it found was *"x=3 was not
 accepted unless written as 3=x"*. The unit's coach still judges first — its mistake models, its "Almost" — and then, when it
@@ -164,6 +182,7 @@ judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: rig
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no
           part (a) of its own), aShown, mode}
    part.imode: an inputmode for the phone's keyboard ('decimal' for a box that never needs a space, a slash or a minus)
+rungs?(x, type, ctx) → {notice, first, steps}   // the help ladder's three rungs, any of them (else derived)
 solution(x, type, ctx) → [{say, ex}]          // every ex equals the answer (checked); ctx as judge's — a part (b) can keep part (a)'s
                                                 // number out of its lines until part (a) is right
 walk(x, type, ctx) → steps: {type: 'choice', ask, opts: [{label, ok, why}], then?, pic} | {type: 'num', ask, ans, hint, then?}
