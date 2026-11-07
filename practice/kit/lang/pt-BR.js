@@ -110,6 +110,9 @@ var T = {
   'Move on': 'Seguir em frente',
   'A similar one': 'Uma parecida',
   'Look at:': 'Observe:',
+  /* a select-all's wrong pick, named (item 4) */
+  'One more choice is right too.': 'Mais uma escolha também está certa.',
+  '# more choices are right too.': 'Mais # escolhas também estão certas.',
 
   /* asking before a change */
   'Leave': 'Sair',

@@ -504,6 +504,30 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       return out; });
     if (w.errs.length) fail('tex: KaTeX errors on ' + JSON.stringify(w.errs)); if (w.bad.length) fail('tex: digits/letters changed on ' + JSON.stringify(w.bad));
     console.log('E. tex checked: ' + t.n + ' spans on the page, ' + w.n + ' over 60 sets'); }
+  /* G. named distractors (7 Nov 2026, item 4): picking a wrong choice shows that choice's own line — the unit's view.why(x, k),
+     the item's whys[k], or the coach's words — and two wrong choices of one question never say the same thing when the unit
+     names them; a select-all's wrong pick is named on the first check when the unit names it */
+  { await fresh(p, 795); const ig = itemsOf(795); let named = 0;
+    for (const it of ig.filter(i => i.kind === 'mc')) {
+      const wrong = it.x.opts.map((_, k) => k).filter(k => k !== it.x.correct).slice(0, 2), seen = [];
+      for (const k of wrong) {
+        await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [it.id, k]); await check(p, it.id);
+        const r = await p.evaluate(([id, k, pos]) => { const P = pos.split('.').map(Number), g = Unit.generate(795), item = g.sections[P[0]].items[P[1]], x = item.type === 'parts' ? item.parts[P[2]] : item;
+          const w = (Unit.view.why && Unit.view.why(x, k)) || (x.whys && x.whys[k]) || ((Unit.judge.mc(x, k) || {}).what || [])[0] || '', d = document.createElement('div'); d.innerHTML = w;
+          return { want: d.textContent.replace(/\s+/g, ' ').trim(), card: document.getElementById('fb' + id).textContent.replace(/\s+/g, ' ').trim() }; }, [it.id, k, it.pos]);
+        if (r.want && r.card.indexOf(r.want) < 0) fail('named distractor: ' + it.id + ' choice ' + 'ABCDEFGH'[k] + ' shows "' + r.card.slice(0, 90) + '", not its line "' + r.want.slice(0, 90) + '"');
+        if (r.want) { named++; if (seen.indexOf(r.want) >= 0) fail('named distractor: two wrong choices of ' + it.id + ' say the same thing: "' + r.want.slice(0, 80) + '"'); seen.push(r.want); }
+      }
+    }
+    for (const it of ig.filter(i => i.kind === 'multi')) {
+      const k = it.x.opts.map((_, j) => j).find(j => it.x.correct.indexOf(j) < 0); if (k == null) continue;
+      const w = await p.evaluate(([pos, k]) => { const P = pos.split('.').map(Number), x = Unit.generate(795).sections[P[0]].items[P[1]]; const h = Unit.view.why ? Unit.view.why(x, k) : (x.whys && x.whys[k]) || ''; const d = document.createElement('div'); d.innerHTML = h || ''; return d.textContent.replace(/\s+/g, ' ').trim(); }, [it.pos, k]);
+      if (!w) continue;
+      for (const c of it.x.correct.concat([k])) await p.evaluate(([q, c]) => document.querySelector('input[name="q' + q + '"][value="' + c + '"]').click(), [it.id, c]);
+      await check(p, it.id); const card = await p.$eval('#fb' + it.id, e => e.textContent.replace(/\s+/g, ' ').trim());
+      if (card.indexOf(w) < 0) fail('named distractor: select-all ' + it.id + ' picked ' + 'ABCDEFGH'[k] + ' on the first check and shows "' + card.slice(0, 90) + '", not "' + w.slice(0, 90) + '"'); else named++;
+    }
+    console.log('G. named distractors: ' + named + ' wrong picks shown their own line'); }
   /* F. the site's family (7 Nov 2026, the site review; Croix: "Ok sounds well thought out. Proceed."): the top is quiet — the
      mode toggle and ⋯, and question 1 on a phone's first screen; ⋯ is a real button whose menu opens and closes by keyboard;
      the clock shows only in "Like the real test" and still runs in "Check as I go"; the end panel has "Try a new set"; the way

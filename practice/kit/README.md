@@ -120,6 +120,19 @@ miss); **Hint 2 · The first step** is the worked solution's first line (with "S
 - **Effort, beside correctness:** the end panel says *"Solved without help: 7 · With a hint: 2 · Saw the solution: 1"* — each
   question counted once, by the most help opened before it was right (its fresh ones too); in *Check as I go* only.
 
+## Named distractors (7 Nov 2026, the practice-test deepening, item 4)
+From the survey (Diagnostic Questions: *"the three distractors are designed to expose specific misconceptions"*): each wrong
+choice may carry its misconception line, and picking it shows that line on the card — *"✗ Not yet That adds the exponents.
+(13⁵)³ is 3 factors of 13⁵ … multiply, 5 × 3."* The authoring field is **`view.why(x, k)`** (a function of the item and the
+choice) or **`whys: [line per choice]`** on the item (`''` for the right one); with neither, the coach's own words stand. On a
+select-all, the wrong picks are named on the first check, and missed ones are counted ("One more choice is right too.").
+- **Already named before 7 Nov** (the coach's `mcFeedback` names every wrong choice): every single-answer choice question of
+  M7 Units 4, 8, 9 and 10 and A7 Units 3–6, and M7 Unit 8's, 9's and 10's select-alls.
+- **Named from 7 Nov:** the select-alls that waited for the second try — A7 Unit 3 Q8, Unit 4 Q4 and Q13, Unit 5 Q3 and Q10,
+  Unit 6 Q2 — by `view.why` returning the coach's own second-try line for that choice (no new sentence).
+- `check/page.js` part G picks two wrong choices of every choice question on a set and each select-all's first wrong choice,
+  and fails a card that does not show that choice's line, or two choices of one question that say the same thing.
+
 ## Equivalent forms are right (7 Nov 2026, the practice-test deepening, item 3)
 From the 170-site survey (its items 14–19, which Croix approved): the most concrete failure it found was *"x=3 was not
 accepted unless written as 3=x"*. The unit's coach still judges first — its mistake models, its "Almost" — and then, when it
@@ -182,7 +195,7 @@ generate(seed) → {sections: [{title, items}]}
    item: {type: 'parts' | 'solo' | 'mc' | 'multi', stem, fig?, parts | part | opts+correct}
    part: {label, kind ('mc' for a lettered multiple choice), fam, prm, …}
 key(partOrItem) → string                      // what makes two questions the same
-view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), key(part), form?(part),
+view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
        start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no

@@ -292,6 +292,21 @@ function flash(it, f){
   $('fb' + it.id).innerHTML = f.v === 'blank' ? '<div class="fbx"><p>' + (it.type === 'text' ? 'Type an answer first.' : 'Pick an answer first.') + '</p></div>'
     : '<div class="fbx"><p>' + TAG.unread + ' ' + (f.what[0] || '') + '</p></div>';
 }
+/* a choice's named misconception (7 Nov 2026, item 4; the survey after Diagnostic Questions: every distractor exposes one
+   misconception). A unit gives it with view.why(x, k), or as the item's whys[k]; picking that wrong choice shows that line
+   ("You added the exponents — for a power of a power, multiply them"). With neither, the coach's own words stand. */
+function whyOf(x, k){ var w = ''; try { w = V.why ? V.why(x, k) || '' : ''; } catch(e){} if (!w && x && x.whys && x.whys[k]) w = x.whys[k]; return w; }
+function namedWhat(it, R){
+  if (R.v !== 'wrong') return null;
+  if (it.type === 'mc'){ var w = whyOf(it.x, +R.lastAns); return w ? [w] : null; }
+  if (it.type === 'multi'){
+    var picked = (R.lastAns || []).map(Number), C = it.x.correct, bad = picked.filter(function(k){ return C.indexOf(k) < 0; }), missed = C.filter(function(k){ return picked.indexOf(k) < 0; });
+    var names = bad.map(function(k){ return whyOf(it.x, k); });
+    if (!bad.length || names.some(function(n){ return !n; })) return null;
+    return names.concat(missed.length ? [missed.length === 1 ? 'One more choice is right too.' : missed.length + ' more choices are right too.'] : []);
+  }
+  return null;
+}
 function cardHtml(it, R, f){
   var v = R.v;
   if (v === 'right'){
@@ -302,6 +317,7 @@ function cardHtml(it, R, f){
     return '<div class="fbx"><p><span class="tag ok">' + line + '</span>' + (R.first && R.helped && !R.late ? ' ' + bulb() : '') + pt + '</p>' + note + next + '</div>';
   }
   f = R.unreadMsg ? {what: [R.unreadMsg], rule: ''} : (f || {what: []});
+  var nmd = R.unreadMsg ? null : namedWhat(it, R); if (nmd) f = {what: nmd, rule: f.rule};
   var w = (f.what || []).map(function(x){ return S.walkOpen[it.id] ? String(x).replace(/,? or tap Hint to go one step at a time\./, '.').replace(/ Tap Hint[^.]*\./, '') : x; }), tag = TAG[v] || '';
   if (!w.length && (v === 'wrong' || v === 'form')){ var nt = rungsOf(it).notice; if (nt) w = ['<b>Look at:</b> ' + nt]; }   /* nothing named: the generic line, from Hint 1 */
   var body = w.length > 1 ? '<p>' + tag + '</p><ul>' + w.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p>' + tag + (w.length ? ' ' + w[0] : '') + '</p>';   /* [J-4] tag and diagnosis on one line; the rule is Hint 1 now (7 Nov 2026), not a second paragraph */
