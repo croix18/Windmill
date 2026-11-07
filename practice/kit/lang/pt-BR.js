@@ -104,7 +104,12 @@ var T = {
   'Solved without help: <b>#</b>': 'Resolvidas sem ajuda: <b>#</b>',
   'With a hint: <b>#</b>': 'Com uma dica: <b>#</b>',
   'Saw the solution: <b>#</b>': 'Viu a solução: <b>#</b>',
-  '<b>Hint</b> goes one step at a time, up to the worked solution; <b>Try another like this</b> gives you a fresh one.': '<b>Dica</b> vai um passo de cada vez, até a solução passo a passo; <b>Outra parecida</b> dá uma nova para você.',
+  '<b>Hint</b> goes one step at a time, up to the worked solution; <b>Try a similar one</b> gives you a fresh one.': '<b>Dica</b> vai um passo de cada vez, até a solução passo a passo; <b>Tentar uma parecida</b> dá uma nova para você.',
+  /* after a wrong answer: two buttons (item 2) */
+  'Try a similar one': 'Tentar uma parecida',
+  'Move on': 'Seguir em frente',
+  'A similar one': 'Uma parecida',
+  'Look at:': 'Observe:',
 
   /* asking before a change */
   'Leave': 'Sair',

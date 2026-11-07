@@ -172,7 +172,7 @@ function paintScopes(){
     return '<option value="' + k + '"' + (k === scope ? ' selected' : '') + (k === 'miss' && !nm && scope !== 'miss' ? ' disabled' : '') + '>' + esc(lab) + '</option>'; }).join('');
 }
 
-/* ------------------------------------------------ "Try another like this": the same kind of question, new numbers */
+/* ------------------------------------------------ "Try a similar one" (was "Try another like this"): the same kind of question, new numbers */
 function atPos(g, pos){
   var p = pos.split('.').map(Number), sec = g.sections[p[0]], it = sec && sec.items[p[1]]; if (!it) return null;
   if (it.type === 'parts'){ var pt = it.parts[p[2]]; return pt ? {type: textType(pt), part: pt, x: pt, item: it} : null; }
@@ -184,7 +184,7 @@ function mountExtra(base){
   var a = atPos(U.generate(M0.seed), base.pos), id = base.id + 'x' + M0.n, it = a.item, h;
   delete RULES[id];
   EX[id] = {id: id, lab: base.lab + ' (another)', type: a.type, x: a.x, item: it, base: base.id, extra: true, pos: base.pos, aShown: false};
-  var head = '<div class="xq q" data-q="' + id + '"><div class="xhead"><span class="xt">Try another like this</span><span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
+  var head = '<div class="xq q" data-q="' + id + '"><div class="xhead"><span class="xt">A similar one</span><span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
   if (it.type === 'parts') h = head + partHtml(Object.assign({}, a.x, {label: ''}), id, false, EX[id].lab, true) + '</div>';
   else if (it.type === 'solo') h = head + partHtml(a.x, id, true, EX[id].lab) + '</div>';
   else h = head + '<div class="mcp" data-host="' + id + '">' + choicesHtml(it, id, EX[id].lab, it.type === 'multi') + '</div></div>';
@@ -303,8 +303,8 @@ function cardHtml(it, R, f){
   }
   f = R.unreadMsg ? {what: [R.unreadMsg], rule: ''} : (f || {what: []});
   var w = (f.what || []).map(function(x){ return S.walkOpen[it.id] ? String(x).replace(/,? or tap Hint to go one step at a time\./, '.').replace(/ Tap Hint[^.]*\./, '') : x; }), tag = TAG[v] || '';
-  var body = w.length > 1 ? '<p>' + tag + '</p><ul>' + w.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p>' + tag + (w.length ? ' ' + w[0] : '') + '</p>';   /* [J-4] tag and diagnosis on one line */
-  if (v === 'wrong' && f.rule) body += '<p class="rule"><b>Next time:</b> ' + f.rule + '</p>';
+  if (!w.length && (v === 'wrong' || v === 'form')){ var nt = rungsOf(it).notice; if (nt) w = ['<b>Look at:</b> ' + nt]; }   /* nothing named: the generic line, from Hint 1 */
+  var body = w.length > 1 ? '<p>' + tag + '</p><ul>' + w.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p>' + tag + (w.length ? ' ' + w[0] : '') + '</p>';   /* [J-4] tag and diagnosis on one line; the rule is Hint 1 now (7 Nov 2026), not a second paragraph */
   return '<div class="fbx">' + body + '</div>';
 }
 function keyHtml(it){
@@ -409,8 +409,14 @@ function paintItem(it){
     if (!all) b.push(rungBtn(it, 3, true));                                             /* after a right answer: the worked solution, one tap */
   }
   var missed = (R.v && R.v !== 'right') || R.shown || (R.v === 'right' && R.first === false);
-  if (!it.extra && (missed || owed) && !S.more[it.id]) b.push('<button type="button" class="' + (R.v === 'right' || all || owed ? 'go' : '') + '" data-another="' + it.id + '">Try another like this</button>');
-  if (it.extra && (R.v || R.shown)) b.push('<button type="button" class="' + (R.v === 'right' || !res(byId(it.base)).earned ? 'go' : '') + '" data-another="' + it.base + '">Try another like this</button>');
+  /* after a check that is not right (item 2; the survey after ALEKS: explain, then "Work on something else" or "Try again"):
+     the card names the mistake, and exactly two buttons follow — a fresh one of the same kind (never the same numbers) or
+     move on. No penalty question, ever: a fresh one replaces the last in the question's own box, and nothing is added to
+     the set. The ladder stays beside Check for a second try. */
+  var simB = function(base, go){ return '<button type="button"' + (go ? ' class="go"' : '') + ' data-another="' + base + '">Try a similar one</button>'; };
+  if (R.v && R.v !== 'right'){ b = [simB(it.extra ? it.base : it.id, true), '<button type="button" data-moveon="' + (it.extra ? it.base : it.id) + '">Move on</button>']; }
+  else if (!it.extra && (missed || owed) && !S.more[it.id]) b.push(simB(it.id, R.v === 'right' || all || owed));
+  else if (it.extra && (R.v || R.shown)) b.push(simB(it.base, R.v === 'right' || !res(byId(it.base)).earned));
   /* the ladder's first rung sits beside Check ([D-8]); once open, the next rung's button is at the foot of the rungs */
   var hs = $('hs' + it.id); if (hs) hs.innerHTML = R.v !== 'right' && !rung ? rungBtn(it, 1) : '';
   mo.innerHTML = b.join('');
@@ -507,6 +513,10 @@ document.addEventListener('click', function(e){
   var nx = t.closest('[data-next]'); if (nx){ var to = byId(nx.dataset.to), host = to && hostOf(to);
     if (host){ host.scrollIntoView({block: 'center', behavior: 'smooth'}); var f = $('a' + to.id) || host.querySelector('.ch input'); if (f) f.focus({preventScroll: true}); } return; }
   var an = t.closest('[data-another]'); if (an){ another(an.dataset.another); return; }
+  var mv = t.closest('[data-moveon]'); if (mv){ var mb = byId(mv.dataset.moveon), mn = mb && nextOpen(mb), mh = mn && hostOf(mn);
+    if (mh){ mh.scrollIntoView({block: 'center', behavior: 'smooth'}); var mf = $('a' + mn.id) || mh.querySelector('.ch input'); if (mf) mf.focus({preventScroll: true}); }
+    else { var bf = $('bFinish'); if (bf && !bf.hidden) bf.focus(); }
+    return; }
   var wa = t.closest('[data-walk]'); if (wa){ walkStart(byId(wa.dataset.walk)); var wl = $('wl' + wa.dataset.walk); if (wl && wl.scrollIntoView) wl.scrollIntoView({block: 'nearest'}); return; }
   var wo = t.closest('[data-wopt]'); if (wo){ var pr = wo.dataset.wopt.split('|'); walkPick(pr[0], +pr[1], +pr[2]); return; }
   var wn = t.closest('[data-wnum]'); if (wn){ walkNum(wn.dataset.wnum); return; }
@@ -642,7 +652,7 @@ function paintResult(t){
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') +
     '<div class="tw"><table><thead><tr><th>Section</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
-      '<p class="note"><b>Hint</b> goes one step at a time, up to the worked solution; <b>Try another like this</b> gives you a fresh one.</p>' : '') +
+      '<p class="note"><b>Hint</b> goes one step at a time, up to the worked solution; <b>Try a similar one</b> gives you a fresh one.</p>' : '') +
     '<div class="btns">' + btns + '</div>';
   box.hidden = false;
 }

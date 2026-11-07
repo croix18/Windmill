@@ -17,8 +17,9 @@ in the code; the four reports are in the Windmill HANDOFF.
     Saved answers on a changed set are then cleared, with a notice.
 - **Two modes:** *Check as I go*, or *Like the real test*. In test mode nothing is marked until Finish. The only thing said
   before then is "Can't read this yet".
-- **The coach.** It names the exact mistake ("That is what you get if you…"), gives a *Next time* rule, and says *Almost* when
-  the value is right but the form isn't.
+- **The coach.** It names the exact mistake ("That is what you get if you…") and says *Almost* when the value is right but the
+  form isn't (and, since 7 Nov 2026, *right* when the form is only another way of writing the key). Its *Next time* rule is
+  Hint 1 now.
   - **The clean rule:** no modelled mistake, printed number or other part's answer may equal an answer. The generator
     draws such numbers again, so a wrong method is never marked right.
 - **Help is a ladder of three rungs** (7 Nov 2026; see "The help ladder" below): **Hint** beside Check opens *Hint 1 · What to
@@ -29,8 +30,13 @@ in the code; the four reports are in the Windmill HANDOFF.
     step*; the picture appears at the step it explains; it ends with the answer, as Croix chose.
 - **After an answer:**
   - **See the worked solution** after a right answer (rung 3 in one tap).
-  - **Try another like this:** the same kind of question with new numbers, never a repeat. It is offered after a miss and
-    whenever the question's point is not earned yet (then as the primary button), and on a fresh one after any check.
+  - **After a miss — explain, then two buttons** (7 Nov 2026, item 2): the card names that wrong answer ("That is what you get
+    if you…", a choice's own misconception), or, when nothing names it, says *Look at:* with Hint 1; then exactly **Try a
+    similar one** (the primary) and **Move on** (to the next question not right yet, else Finish). The ladder stays beside
+    Check for a second try. No penalty questions, ever: nothing is added to the set for a miss.
+  - **Try a similar one** (was "Try another like this"): the same kind of question with new numbers, never a repeat, in the
+    question's own box ("A similar one"), replacing the last. It is offered after a miss and whenever the question's point is
+    not earned yet (then as the primary button), and on a fresh one after any check.
   - **Next ↓** after a right answer. Focus never jumps by itself.
 - **Scoring — the point comes from one on your own (24 Oct 2026).** A question's point is earned by a right answer on the
   first check with no Hint and no Show me how — on the question itself, or on a fresh one of the same kind ("Try another like

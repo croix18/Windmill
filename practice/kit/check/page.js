@@ -84,6 +84,29 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* 2. the same wrong answer again is not another try */
   await p.fill('#a' + T[0].id, '987654'); for (let k = 0; k < 3; k++) await p.press('#a' + T[0].id, 'Enter');
   let S = await state(p, seed); if (!S || S.res[T[0].id].tries !== 1) fail('Enter ×3 on one answer counted ' + (S && S.res[T[0].id].tries) + ' tries');
+  /* 2b. after a wrong answer: the explanation, then exactly two buttons — "Try a similar one" (a fresh one, never the same
+     numbers) and "Move on"; nothing is added to the set, however many misses (7 Nov 2026, item 2) */
+  { const id = T[0].id, q0 = await p.$$eval('#paper .q[data-q]:not(.xq)', e => e.length), t0 = await p.$eval('#total', e => e.textContent);
+    const btns = await p.$$eval('#mo' + id + ' button', es => es.map(e => e.textContent.trim()));
+    if (JSON.stringify(btns) !== JSON.stringify(['Try a similar one', 'Move on'])) fail('after a wrong answer the buttons are ' + JSON.stringify(btns) + ', not exactly "Try a similar one" and "Move on"');
+    const card = await p.$eval('#fb' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
+    if (!/^✗ Not yet \S/.test(card)) fail('after a wrong answer the card does not explain: "' + card.slice(0, 80) + '"');
+    if (/Next time:/.test(card)) fail('the wrong card still carries "Next time:" (it is Hint 1 now)');
+    if (!(await p.$('#mo' + id + ' [data-another].go'))) fail('"Try a similar one" is not the primary after a miss');
+    const nx = T.find((x, k) => k > 0); await p.click('#mo' + id + ' [data-moveon]'); await p.waitForTimeout(60);
+    { const a = await active(p); if (a.split('|')[0] !== 'a' + nx.id && a.split('|')[0] !== '') { const firstOpen = await p.evaluate(() => { const i = document.activeElement; return i && i.id; }); if (!/^a/.test(firstOpen || '')) fail('Move on: focus is ' + a); } }
+    /* three fresh ones in a row: each new numbers, each in the question's own box, the set the same size */
+    const keys = [U.key(itemsOf(seed).find(x => x.id === id).x)];
+    for (let r = 1; r <= 3; r++) {
+      await p.click('[data-another="' + id + '"]'); await p.waitForTimeout(40);
+      const st = await state(p, seed), m = st.more[id], g = U.generate(m.seed), q = T[0].pos.split('.').map(Number), it = g.sections[q[0]].items[q[1]], pt = it.type === 'parts' ? it.parts[q[2]] : it.type === 'solo' ? it.part : it;
+      const k = U.key(pt); if (keys.indexOf(k) >= 0) fail('"Try a similar one" served the same numbers again (round ' + r + ')'); keys.push(k);
+      await p.fill('#a' + id + 'x' + m.n, '987654'); await check(p, id + 'x' + m.n);
+      const xb = await p.$$eval('#mo' + id + 'x' + m.n + ' button', es => es.map(e => e.textContent.trim())); if (JSON.stringify(xb) !== JSON.stringify(['Try a similar one', 'Move on'])) fail('a fresh one answered wrong offers ' + JSON.stringify(xb));
+      const boxes = await p.$$eval('#ag' + id + ' .xq', e => e.length); if (boxes !== 1) fail('the question\'s box holds ' + boxes + ' fresh ones after ' + r + ' (a penalty question?)');
+    }
+    const q1 = await p.$$eval('#paper .q[data-q]:not(.xq)', e => e.length), t1 = await p.$eval('#total', e => e.textContent);
+    if (q1 !== q0 || t1 !== t0) fail('wrong answers grew the set: ' + q0 + ' → ' + q1 + ' questions, "' + t0 + '" → "' + t1 + '"'); }
   /* 3. the ladder: each rung a button that opens the next, the rungs opened stay open, focus goes to the new rung; the last
      is the worked solution, one step per line with a rule between, ending in the answer (7 Nov 2026, item 1) */
   { const id = T[0].id, sol = U.solution(T[0].x, 'text', {}) || [];
@@ -107,7 +130,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const S0 = await state(p, seed); if (!S0.res[id] || S0.res[id].rung !== 3 || !S0.res[id].shown) fail('ladder: the deepest rung is not kept: ' + JSON.stringify(S0.res[id]));
     if (await p.$('[data-all]')) fail('a "Show me how" button is still on the page'); }
   /* 4. Try another: focus in the new question */
-  await p.click('[data-another="' + T[0].id + '"]'); { const a = await active(p); if (!/^a.*x1|q.*x1/.test(a) && !/x1/.test(a)) fail('Try another: focus is ' + a); }
+  await p.click('[data-another="' + T[0].id + '"]'); { const a = await active(p); if (!/^a\S*x\d+\|/.test(a)) fail('Try a similar one: focus is ' + a); }
   /* 4b. Try another after a choice question got right on a later try: the new one's choices can be ticked (23 Oct 2026:
      a select-all got right on the second try opened its "another" locked — the right answer's lock reached into the box) */
   { const C = itemsOf(seed).find(x => x.kind !== 'text'); if (!C) fail('no choice question to test Try another on');
@@ -206,6 +229,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   { const i3 = itemsOf(779).filter(i => i.kind === 'text')[0]; await p.fill('#a' + i3.id, '((3'); await p.focus('#bFinish');
     const rd = await p.$eval('#rd' + i3.id, e => e.textContent); if (!/^Can’t read this yet/.test(rd)) fail('test mode: no "can’t read this yet" (' + rd + ')');
     const fb = await p.$eval('#fb' + i3.id, e => e.textContent); if (/Correct|Not yet/.test(fb)) fail('test mode shows a verdict before Finish');
+    await p.fill('#a' + i3.id, '987654'); await p.press('#a' + i3.id, 'Enter'); await p.waitForTimeout(40);
+    if (await p.$('#paper [data-another], #paper [data-moveon], #paper [data-rung]')) fail('test mode: help or "Try a similar one" before Finish');
     await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100);
     await p.click('#result button[data-new]'); await p.waitForTimeout(200);
     const mode = await p.$eval('.mode button[aria-pressed="true"]', e => e.dataset.mode); if (mode !== 'practice') fail('results button opened in ' + mode + ' mode'); }
