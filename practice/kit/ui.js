@@ -215,8 +215,10 @@ function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span 
 function another(baseId){
   var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: streaks()[b0.pos] || 0, earned: !!res(b0).earned});
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
+  var seen = M0.seen || (M0.seen = []); if (was && seen.indexOf(was) < 0) seen.push(was);          /* never numbers served before (7 Nov 2026, item 2) */
   var ansOf = function(x){ try { return U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2;
-  do { s = randomSeed(); tries++; k2 = atPos(U.generate(s), b0.pos).x; k = U.key(k2); } while ((s === seed || k === base || k === was || (baseAns != null && ansOf(k2) === baseAns)) && tries < 60);   /* never the same question again — nor the same answer (30 Oct 2026: a Hint that ended "5 tanks" was followed by a fresh one whose answer was 5) */
+  do { s = randomSeed(); tries++; k2 = atPos(U.generate(s), b0.pos).x; k = U.key(k2); } while ((s === seed || k === base || k === was || (seen.indexOf(k) >= 0 && tries < 40) || (baseAns != null && ansOf(k2) === baseAns)) && tries < 60);
+  seen.push(k); if (seen.length > 40) seen.shift();   /* never the same question again — nor the same answer (30 Oct 2026: a Hint that ended "5 tanks" was followed by a fresh one whose answer was 5) */
   M0.seed = s; save();
   mountExtra(b0); paintItem(b0);
   var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]');
@@ -261,7 +263,12 @@ function formOf(p){
   f.key = key; if (FORMS) FORMS.set(p, f); return f;
 }
 /* the keypad's fraction template writes ()/(); a unit's reader need not know it: (3)/(4) is 3/4 */
-function tidy(a){ return typeof a === 'string' && a.indexOf(')/(') >= 0 ? a.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*\)\s*\/\s*\(\s*(-?\d+(?:\.\d+)?)\s*\)/g, '$1/$2') : a; }
+function tidy(a){
+  if (typeof a !== 'string' || a.indexOf(')/(') < 0) return a;
+  return a.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*\)\s*\/\s*\(\s*(-?\d+(?:\.\d+)?)\s*\)(\s*\^)?/g, function(m, n, d, pow, at, all){
+    var before = all.slice(0, at).replace(/\s+$/, ''), glued = /[\w).π]$/.test(before) && !/\s$/.test(all.slice(0, at));
+    return pow || glued ? '(' + n + '/' + d + ')' + (pow || '') : n + '/' + d; });   /* (4)/(7)^8 is (4/7)^8; 2 (3)/(4) is 2 3/4 */
+}
 function equivUp(it, a, f){
   if (!f || f.v === 'right' || f.v === 'blank' || !K.Ans) return f;
   var fm = formOf(it.x), r; if (!fm.key) return f;
@@ -563,14 +570,23 @@ document.addEventListener('click', function(e){
 document.addEventListener('toggle', function(e){ var d = e.target; if (d && d.dataset && d.dataset.pic){ var it = byId(d.dataset.pic); if (it){ res(it).pic = d.open; save(); } } }, true);
 
 /* ------------------------------------------------ typing */
+/* the keypad (7 Nov 2026, item 7; the survey after MathLive's virtual keyboard): compact, and only on a touch screen
+   (pointer: coarse) — a keyboard has these keys. The unit's keys for the box's kind (−, /, ^, ( ), π, ×·, ≤ …), and beside a
+   fraction bar the fraction template, which writes ()/() with the caret in the top; each inserts at the caret. 44 px keys,
+   above the box in the page's flow, so they never cover the box or its Check row. A unit with no keypad at all gets the
+   kit's: − / a/b ^ ( ) π ×. */
+var KEYPAD = (U.keypad == null ? [{label: '−', say: 'minus', ins: function(){ return '-'; }}, {label: '/', say: 'fraction bar'}, {label: '^', say: 'power'}, {label: '(', say: 'open parenthesis'}, {label: ')', say: 'close parenthesis'}, {label: 'π', say: 'pi'}, {label: '×', say: 'times', ins: function(){ return '*'; }}] : U.keypad).slice();
+(function(){ var fi = -1; KEYPAD.forEach(function(k, i){ if (fi < 0 && k.label === '/' && /fraction/i.test(k.say || '')) fi = i; });
+  if (fi >= 0 && !KEYPAD.some(function(k){ return k.tpl; })) KEYPAD.splice(fi + 1, 0, {label: 'a/b', say: 'a fraction', tpl: 'frac', kinds: KEYPAD[fi].kinds}); })();
+function coarse(){ try { return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); } catch(e){ return false; } }
 var keys = document.createElement('div'); keys.className = 'keys'; keys.hidden = true;
-(U.keypad || []).forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; b.textContent = k.label; if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
-keys.addEventListener('pointerdown', function(e){ if (e.target.dataset.k) e.preventDefault(); });
+KEYPAD.forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else b.textContent = k.label; if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
+keys.addEventListener('pointerdown', function(e){ var kb = e.target.closest && e.target.closest('[data-k]'); if (kb) e.preventDefault(); });
 keys.addEventListener('click', function(e){
-  var lab = e.target.dataset.k, el = keys.target; if (!lab || !el || el.readOnly) return;
-  var k = (U.keypad || []).filter(function(x){ return x.label === lab; })[0], ins = k.ins ? k.ins(el.dataset.kind) : lab, a = el.selectionStart, b = el.selectionEnd;
+  var kb = e.target.closest && e.target.closest('[data-k]'), lab = kb && kb.dataset.k, el = keys.target; if (!lab || !el || el.readOnly) return;
+  var k = KEYPAD.filter(function(x){ return x.label === lab; })[0], ins = k.tpl ? '()/()' : k.ins ? k.ins(el.dataset.kind) : lab, at = k.tpl ? 1 : ins.length, a = el.selectionStart, b = el.selectionEnd;
   if (a == null){ a = b = el.value.length; }
-  el.value = el.value.slice(0, a) + ins + el.value.slice(b); el.focus(); try { el.setSelectionRange(a + ins.length, a + ins.length); } catch(x){}
+  el.value = el.value.slice(0, a) + ins + el.value.slice(b); el.focus(); try { el.setSelectionRange(a + at, a + at); } catch(x){}
   el.dispatchEvent(new Event('input', {bubbles: true}));
 });
 function setPreview(el){ var pv = el.parentNode.querySelector('.pv'); if (!pv) return; var p = ''; try { p = V.pretty(el.value, el.dataset.kind) || ''; } catch(e){} pv.innerHTML = p; }
@@ -579,7 +595,8 @@ function setPreview(el){ var pv = el.parentNode.querySelector('.pv'); if (!pv) r
    the same amount, so the box just tapped stays put under the finger [R1-9]. */
 document.addEventListener('focusin', function(e){
   var t = e.target;
-  if (!(t.matches && t.matches('#paper input[type=text]') && !t.readOnly && !(t.id && t.id.indexOf('wn') === 0) && (U.keypad || []).length)) return;
+  if (!(t.matches && t.matches('#paper input[type=text]') && !t.readOnly && !(t.id && t.id.indexOf('wn') === 0) && KEYPAD.length)) return;
+  if (!coarse()){ hideKeys(); keys.target = null; return; }                               /* a mouse and a keyboard: no keypad (item 7) */
   if (keys.target === t && !keys.hidden) return;
   /* only the keys this kind of answer uses (a unit's keypad entry may name its kinds); none → no keypad */
   var kind = t.dataset.kind || '', shown = 0;
@@ -1009,6 +1026,17 @@ if (moreBtn()){
   document.addEventListener('pointerdown', function(e){ var w = moreBtn().parentNode; if (!$('mMenu').hidden && !(e.target && e.target.closest && w.contains(e.target))) moreClose(); }, true);
   document.addEventListener('focusin', function(e){ var w = moreBtn().parentNode; if (!$('mMenu').hidden && !w.contains(e.target)) moreClose(); });
 }
+/* "Larger text" (7 Nov 2026, item 7; the survey after Desmos: one toggle, not the browser's zoom): two sizes, in the ⋯ menu,
+   remembered on this device (any unit); the sheet and the end panel grow, the bar stays. Storage may be refused: then it is
+   just this visit's. */
+var BIGKEY = 'practice.textsize';
+function setBig(on, keep){ document.documentElement.classList.toggle('lg', !!on); var b = $('bBig'); if (b) b.setAttribute('aria-pressed', String(!!on)); if (keep){ try { if (on) localStorage.setItem(BIGKEY, 'large'); else localStorage.removeItem(BIGKEY); } catch(e){} } }
+(function(){ var w = document.querySelector('#mMenu .mprint'); if (!w) return;
+  var row = document.createElement('div'); row.className = 'mtext'; row.innerHTML = '<button type="button" id="bBig" aria-pressed="false">Larger text</button>';
+  w.parentNode.insertBefore(row, w.nextSibling);
+  $('bBig').addEventListener('click', function(){ setBig(!document.documentElement.classList.contains('lg'), true); });
+  var on = false; try { on = localStorage.getItem(BIGKEY) === 'large'; } catch(e){}
+  setBig(on, false); })();
 /* the way back (7 Nov 2026, the site review): on mrshaffer.org a practice test is /<course>/practice/unit-N/, and its unit's
    page is /<course>/unit-N/ — the bar's far left gets "‹ Unit N" there, as the site's own top bar has its way back. As a
    claude.ai artifact or a Google Sites download there is no unit page to go back to, so it stays hidden. N is the unit's

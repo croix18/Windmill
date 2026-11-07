@@ -618,6 +618,70 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
         if (!bk.shown || bk.href !== '../../unit-' + N + '/' || bk.text !== 'Unit ' + N || !bk.first || bk.h < 44) fail('the way back on the site: ' + JSON.stringify(bk));
       } finally { fs.rmSync(path.join(dir, 'm7'), { recursive: true, force: true }); } }
     console.log('F. the site\'s family checked'); }
+  /* H. phone math hygiene (7 Nov 2026, item 7): the keypad only on a touch screen (pointer: coarse), 44 px keys, inserting at the
+     caret, the fraction template, never over the box or its Check row, the box not moved when it opens; "Larger text" in the ⋯
+     menu, two sizes, remembered on the device and safe without storage; no display of mathematics makes the page scroll
+     sideways, at either size. */
+  { const tc = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }), t = await tc.newPage();
+    tc.on('request', r => { const u = r.url(); if (!/^(http:\/\/127\.0\.0\.1|data:|blob:|about:)/.test(u)) netAsked.push(u); }); t.on('pageerror', e => errs.push(e.message));
+    await fresh(t, 4821);
+    if (!(await t.evaluate(() => matchMedia('(pointer: coarse)').matches))) fail('keypad check: the touch context is not pointer: coarse');
+    const KP = (U.keypad || []).length;
+    const boxes = itemsOf(4821).filter(i => i.kind === 'text');
+    let tested = false;
+    for (const it of boxes) {
+      await t.evaluate(id => { window.scrollTo(0, 0); document.getElementById('a' + id).scrollIntoView({ block: 'center' }); }, it.id); await t.waitForTimeout(30);
+      const y0 = await t.$eval('#a' + it.id, e => e.getBoundingClientRect().top);
+      await t.evaluate(id => document.getElementById('a' + id).focus(), it.id); await t.waitForTimeout(40);
+      const k = await t.evaluate(id => { const keys = document.querySelector('.keys'), inp = document.getElementById('a' + id); if (!keys || keys.hidden) return null;
+        const vis = Array.from(keys.querySelectorAll('button')).filter(b => !b.hidden && b.offsetParent);
+        const kr = keys.getBoundingClientRect(), row = inp.closest('.ans') || inp.closest('.prt'), acts = row.querySelector('.acts') || row, ar = acts.getBoundingClientRect(), ir = inp.getBoundingClientRect();
+        const hit = (a, c) => !(a.right <= c.left || c.right <= a.left || a.bottom <= c.top || c.bottom <= a.top);
+        return { n: vis.length, small: vis.filter(b => b.getBoundingClientRect().height < 44 || b.getBoundingClientRect().width < 44).map(b => b.dataset.k), coversCheck: hit(kr, ar), coversBox: hit(kr, ir), y: ir.top,
+          labels: vis.map(b => b.dataset.k), tabs: vis.filter(b => b.tabIndex >= 0).length }; }, it.id);
+      if (!k) continue;
+      tested = true;
+      if (k.small.length) fail('keypad: keys under 44 px: ' + k.small.join(' '));
+      if (k.coversCheck || k.coversBox) fail('keypad: it covers ' + (k.coversBox ? 'the box' : 'the Check row') + ' of ' + it.id);
+      if (Math.abs(k.y - y0) > 2) fail('keypad: opening it moved the box ' + it.id + ' by ' + Math.round(k.y - y0) + ' px');
+      if (k.tabs) fail('keypad: ' + k.tabs + ' keys are tab stops');
+      /* inserting at the caret: a key between "a" and "b" */
+      const lab = k.labels.find(l => l !== 'a/b');
+      if (lab) { const want = await t.evaluate(([id, lab]) => { const e = document.getElementById('a' + id), K = (Unit.keypad || []).find(x => x.label === lab) || { label: lab }; e.value = 'ab'; e.setSelectionRange(1, 1); const ins = K.ins ? K.ins(e.dataset.kind) : K.label; return 'a' + ins + 'b'; }, [it.id, lab]);
+        await t.click('.keys button[data-k="' + lab + '"]'); const got = await t.$eval('#a' + it.id, e => e.value); if (got !== want) fail('keypad: "' + lab + '" at the caret gave "' + got + '", not "' + want + '"'); }
+      if (k.labels.indexOf('a/b') >= 0) { await t.evaluate(id => { const e = document.getElementById('a' + id); e.value = ''; e.setSelectionRange(0, 0); }, it.id); await t.click('.keys button[data-k="a/b"]');
+        const r = await t.$eval('#a' + it.id, e => [e.value, e.selectionStart]); if (r[0] !== '()/()' || r[1] !== 1) fail('keypad: the fraction template wrote ' + JSON.stringify(r)); }
+      await t.fill('#a' + it.id, ''); break;
+    }
+    if (KP && !tested) fail('keypad: the unit has a keypad but no box on a touch screen showed it');
+    /* the fraction template's (3)/(4) reads as 3/4: the key of a fraction answer typed that way is right */
+    { const isFr = i => i.kind === 'text' && /^-?\d+\/\d+$/.test(String(U.keyText(i.x))); let sd = [4821, 11, 12, 13].find(x => itemsOf(x).some(isFr)), fr = sd && itemsOf(sd).find(isFr); if (fr) { await fresh(t, sd);
+      const [n0, d0] = String(U.keyText(fr.x)).split('/'); await t.fill('#a' + fr.id, '(' + n0 + ')/(' + d0 + ')'); await check(t, fr.id); const v = await t.evaluate(([pre, sd, id]) => (JSON.parse(localStorage.getItem(pre + 'set.' + sd + '.all')).res[id] || {}).v, [U.id + '.', sd, fr.id]); if (v !== 'right') fail('the template\'s (' + n0 + ')/(' + d0 + ') for ' + fr.id + ' (set ' + sd + ') was marked ' + v + ': ' + (await t.$eval('#fb' + fr.id, e => e.textContent)).slice(0, 120) + ' / typed ' + (await t.$eval('#a' + fr.id, e => e.value))); } }
+    await t.close(); await tc.close(); }
+  { /* a mouse: no keypad at all */
+    await p.setViewportSize({ width: 1280, height: 800 }); await fresh(p, 4821); const tb = itemsOf(4821).filter(i => i.kind === 'text')[0];
+    await p.focus('#a' + tb.id); await p.waitForTimeout(40); if (await p.evaluate(() => { const k = document.querySelector('.keys'); return !!(k && !k.hidden && k.offsetParent); })) fail('keypad: shown with a mouse (pointer: fine)');
+    await p.setViewportSize({ width: 390, height: 844 }); }
+  { /* Larger text: in ⋯, two sizes, remembered, and the page never scrolls sideways — with every worked solution open */
+    await fresh(p, 780); await more(p);
+    if (!(await p.$('#mMenu #bBig'))) fail('Larger text: not in the ⋯ menu');
+    const h0 = await p.$eval('#paper .stem', e => e.getBoundingClientRect().height);
+    await p.click('#bBig'); await p.waitForTimeout(60);
+    const st = await p.evaluate(() => ({ lg: document.documentElement.classList.contains('lg'), pressed: document.getElementById('bBig').getAttribute('aria-pressed'), h: document.querySelector('#paper .stem').getBoundingClientRect().height }));
+    if (!st.lg || st.pressed !== 'true' || !(st.h > h0 * 1.08)) fail('Larger text did not make the sheet larger: ' + JSON.stringify(st) + ' from ' + h0);
+    await p.reload(); await p.waitForTimeout(200); if (!(await p.evaluate(() => document.documentElement.classList.contains('lg')))) fail('Larger text is not remembered after a reload');
+    const over = async (where) => { const r = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth, wide: Array.from(document.querySelectorAll('#paper .ex, #paper .solhead')).filter(e => e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).overflowX === 'visible').length }));
+      if (r.sw > r.iw + 1) fail(where + ': the page scrolls sideways (' + r.sw + ' px in ' + r.iw + ')'); if (r.wide) fail(where + ': ' + r.wide + ' lines of mathematics overflow without scrolling'); };
+    for (const it of itemsOf(780)) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id); await check(p, it.id); await rungTo(p, it.id, 3); }
+    await over('larger text, every worked solution open');
+    await more(p); await p.click('#bBig'); await p.waitForTimeout(60); await over('every worked solution open');
+    await p.reload(); await p.waitForTimeout(150); if (await p.evaluate(() => document.documentElement.classList.contains('lg'))) fail('Larger text came back after it was turned off');
+    /* storage refused (a private window, blocked site data): the page still opens and the toggle still works */
+    const ps = await p.context().newPage(); await ps.addInitScript(() => { const no = () => { throw new Error('blocked'); }; Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no; });
+    const e2 = []; ps.on('pageerror', e => e2.push(e.message)); await ps.goto(url + '#set-12'); await ps.waitForTimeout(250);
+    await ps.click('#bMore'); await ps.click('#bBig'); const ok2 = await ps.evaluate(() => document.documentElement.classList.contains('lg') && !!document.querySelector('#paper .q'));
+    if (!ok2 || e2.length) fail('without storage: Larger text ' + (ok2 ? 'works' : 'fails') + (e2.length ? '; errors: ' + e2[0] : '')); await ps.close();
+    console.log('H. keypad, larger text and the width of the mathematics checked'); }
   if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();

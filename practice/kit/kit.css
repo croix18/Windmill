@@ -522,3 +522,22 @@ button[data-rung]::before{content:"";display:inline-block;width:14px;height:14px
 .pqid .qsk{font-weight:400}
 .ptab .pid{white-space:nowrap;color:#555;font-size:12px;text-align:right;width:5em}
 @media print{ .qid{display:flex!important;color:#555;opacity:1} .pqid,.ptab .pid{color:#444} }
+/* item 7: phone math hygiene — a display line of mathematics scrolls sideways inside itself, never the page; the keypad only on
+   a touch screen, 44 px keys (ui.js); "Larger text" in the ⋯ menu */
+.ex,.solhead,.wfin,.steps .key .kv{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-block:2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;overscroll-behavior-x:contain}
+.steps,.walk,.fb,.fbx,.rung,.prt,.q,.helpl{min-width:0;max-width:100%}
+.keys button{min-width:44px;min-height:44px}
+.keys .ktpl{display:inline-grid;place-items:center}
+.keys .kfr{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+.keys .kfr i{display:block;width:13px;height:9px;border:1.5px solid currentColor;border-radius:2px}
+.keys .kfr i:first-child{position:relative;margin-bottom:3px}
+.keys .kfr i:first-child::after{content:"";position:absolute;left:-4px;right:-4px;bottom:-4.5px;border-bottom:1.5px solid currentColor}
+.menu .mtext{display:flex}
+#bBig{flex:1 1 auto;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#bBig::before{content:"A";font:700 17px/1 var(--chrome);margin-right:-2px} #bBig::after{content:"";order:-1}
+#bBig[aria-pressed=true]{background:var(--go);border-color:var(--go);color:var(--goInk)}
+:root.lg .sheet,:root.lg .result{zoom:1.16}
+@media print{ :root.lg .sheet,:root.lg .result{zoom:1} }
+.ch{max-width:100%} .ch .cv{min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding-block:2px;scrollbar-width:thin}   /* a long choice in larger text scrolls in its own line */
+.choices{min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr)}
+.say,.rung-note,.wask,.wwhy,.wgot,.fbx p,.fbx li{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-block:1px;scrollbar-width:thin}   /* a long piece of mathematics inside a sentence scrolls in its own line */

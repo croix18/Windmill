@@ -118,6 +118,18 @@ var T = {
   'Since last time: <b>up</b> — # / # then, # / # today.': 'Desde a última vez: <b>subiu</b> — # / # antes, # / # hoje.',
   'Since last time: <b>down</b> — # / # then, # / # today.': 'Desde a última vez: <b>caiu</b> — # / # antes, # / # hoje.',
   'Since last time: <b>the same</b> — # / # then, # / # today.': 'Desde a última vez: <b>igual</b> — # / # antes, # / # hoje.',
+  /* phone math hygiene (item 7) */
+  'Larger text': 'Letra maior',
+  /* the form a box expects (item 3) */
+  'In scientific notation': 'Em notação científica',
+  'As an inequality': 'Como uma desigualdade',
+  'As a power': 'Como uma potência',
+  'To the nearest tenth': 'Arredondado ao décimo mais próximo',
+  'To the nearest hundredth': 'Arredondado ao centésimo mais próximo',
+  'To the nearest whole number': 'Arredondado ao número inteiro mais próximo',
+  'Simplify: #/# = #/#.': 'Simplifique: #/# = #/#.',
+  'Round to the nearest tenth: #.': 'Arredonde ao décimo mais próximo: #.',
+  'Round to the nearest hundredth: #.': 'Arredonde ao centésimo mais próximo: #.',
   /* a select-all's wrong pick, named (item 4) */
   'One more choice is right too.': 'Mais uma escolha também está certa.',
   '# more choices are right too.': 'Mais # escolhas também estão certas.',

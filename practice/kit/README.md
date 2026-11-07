@@ -149,6 +149,21 @@ its key (`teacher.js`, ID only — the paper has no generator). A question left 
 printed numbers close up. The print styles keep them (`.qid`, `.pqid`, `td.pid`). `page.js` part D checks the cards, the
 worksheet, the keys, the test forms and the real paper.
 
+## On a phone (7 Nov 2026, the practice-test deepening, item 7)
+- **Mathematics never widens the page:** a worked line, a Start line, a key and a long choice scroll sideways inside
+  themselves (`overflow-x: auto`), and the choices' grid cannot grow past the sheet. KaTeX stays inlined.
+- **Worked steps one per line,** a thin rule between them (rung 3).
+- **The keypad only on a touch screen** (`pointer: coarse`; a mouse and keyboard get none): the unit's keys for the box's
+  kind, and beside a fraction bar the **fraction template**, which writes `()/()` with the caret in the top (the page reads
+  `(3)/(4)` as `3/4` before the coach sees it, and `(4)/(7)^8` as `(4/7)^8`). Keys are 44 px, insert at the caret, are not
+  tab stops, and sit above the box in the page's flow, so they never cover it or its Check row. A unit with no `keypad` at
+  all gets the kit's: − / a/b ^ ( ) π ×.
+- **Larger text** in the ⋯ menu: two sizes (the sheet and the end panel at 116%), remembered on the device for every unit
+  (`practice.textsize`, every read and write in try/catch: with storage refused it lasts the visit).
+- `check/page.js` part H, in a touch context and a mouse one: the keypad's presence, its key sizes, insertion at the caret,
+  the template, nothing covered or moved; Larger text in the menu, larger, remembered, off again, and safe without storage;
+  no sideways scroll at either size with every worked solution of a set open. Part F already fails any request off the page.
+
 ## Equivalent forms are right (7 Nov 2026, the practice-test deepening, item 3)
 From the 170-site survey (its items 14–19, which Croix approved): the most concrete failure it found was *"x=3 was not
 accepted unless written as 3=x"*. The unit's coach still judges first — its mistake models, its "Almost" — and then, when it
@@ -273,7 +288,7 @@ marks right, results match, only the printout on paper, Close restores the page,
 
 ## Small kit additions from the A7 Unit 4 review (16 Oct 2026)
 - **Keypad by kind:** a keypad entry may carry `kinds: ['sci', 'num', …]`; a box shows only the keys for its part's kind, and
-  no keypad at all when none apply (a "how many significant digits" box gets none).
+  no keypad at all when none apply (a "how many significant digits" box gets none). Since 7 Nov 2026 only on a touch screen.
 - **Hint number boxes** are plain text boxes: a phone's decimal pad has no minus and no slash, and many Hint steps need them.
 - **Print:** a unit may give `notesPrint` (paper is not a keyboard) and `view.blank(part)` (e.g. "___ × 10^__" for
   scientific-notation answers).
