@@ -110,6 +110,14 @@ var T = {
   'Move on': 'Seguir em frente',
   'A similar one': 'Uma parecida',
   'Look at:': 'Observe:',
+  /* progress (item 5) */
+  'Question # of #': 'Questão # de #',
+  'Secure': 'Seguro',
+  'Getting there': 'Quase lá',
+  'Not yet': 'Ainda não',
+  'Since last time: <b>up</b> — # / # then, # / # today.': 'Desde a última vez: <b>subiu</b> — # / # antes, # / # hoje.',
+  'Since last time: <b>down</b> — # / # then, # / # today.': 'Desde a última vez: <b>caiu</b> — # / # antes, # / # hoje.',
+  'Since last time: <b>the same</b> — # / # then, # / # today.': 'Desde a última vez: <b>igual</b> — # / # antes, # / # hoje.',
   /* a select-all's wrong pick, named (item 4) */
   'One more choice is right too.': 'Mais uma escolha também está certa.',
   '# more choices are right too.': 'Mais # escolhas também estão certas.',

@@ -318,8 +318,11 @@ function cardHtml(it, R, f){
   }
   f = R.unreadMsg ? {what: [R.unreadMsg], rule: ''} : (f || {what: []});
   var nmd = R.unreadMsg ? null : namedWhat(it, R); if (nmd) f = {what: nmd, rule: f.rule};
-  var w = (f.what || []).map(function(x){ return S.walkOpen[it.id] ? String(x).replace(/,? or tap Hint to go one step at a time\./, '.').replace(/ Tap Hint[^.]*\./, '') : x; }), tag = TAG[v] || '';
-  if (!w.length && (v === 'wrong' || v === 'form')){ var nt = rungsOf(it).notice; if (nt) w = ['<b>Look at:</b> ' + nt]; }   /* nothing named: the generic line, from Hint 1 */
+  var w = (f.what || []).map(function(x){ return S.walkOpen[it.id] || R.rung ? String(x).replace(/,? or tap Hint to go one step at a time\./, '.').replace(/ Tap Hint[^.]*\./, '') : x; }), tag = TAG[v] || '';
+  /* nothing named — no line, or the units' own "Not one of the usual slips." (which pointed to the rule paragraph that is Hint 1
+     now) — the generic line, from Hint 1: "✗ Not yet  Look at: <what to notice>" (item 2) */
+  var GEN = /^Not one of the usual slips\.\s*(?:Check each step against the rule below(?:, or tap Hint to go one step at a time)?\.|Tap Hint to go one step at a time\.)?\s*/;
+  if ((v === 'wrong' || v === 'form') && (!w.length || GEN.test(String(w[0])))){ var nt = rungsOf(it).notice, rest = w.length ? String(w[0]).replace(GEN, '') : ''; if (nt) w = ['<b>Look at:</b> ' + nt + (rest ? ' ' + rest : '')].concat(w.slice(1)); }
   var body = w.length > 1 ? '<p>' + tag + '</p><ul>' + w.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>' : '<p>' + tag + (w.length ? ' ' + w[0] : '') + '</p>';   /* [J-4] tag and diagnosis on one line; the rule is Hint 1 now (7 Nov 2026), not a second paragraph */
   return '<div class="fbx">' + body + '</div>';
 }
@@ -609,11 +612,24 @@ function fmt(s){ s = Math.max(0, Math.floor(s)); var m = Math.floor(s / 60), r =
 function start(){ if (S.running || S.done) return; S.running = true; S.startedAt = now(); save(); paintBar(); }
 function pause(){ if (!S.running) return; S.acc = elapsed(); S.running = false; S.startedAt = null; save(); paintBar(); }
 function tally(){
-  var first = 0, helped = 0, done = 0, earned = 0, bySec = DS.map(function(){ return {got: 0, of: 0, help: 0, earned: 0}; });
-  ITEMS.forEach(function(it){ var R = S.res[it.id]; bySec[it.sec].of++; if (R && R.first === true){ first++; bySec[it.sec].got++; if (R.helped){ helped++; bySec[it.sec].help++; } } if (R && R.earned){ earned++; bySec[it.sec].earned++; } if (R && R.v === 'right') done++; });
+  var first = 0, helped = 0, done = 0, earned = 0, bySec = DS.map(function(){ return {got: 0, of: 0, help: 0, earned: 0, alone: 0}; });
+  ITEMS.forEach(function(it){ var R = S.res[it.id]; bySec[it.sec].of++; if (R && R.first === true){ first++; bySec[it.sec].got++; if (R.helped){ helped++; bySec[it.sec].help++; } else bySec[it.sec].alone++; } if (R && R.earned){ earned++; bySec[it.sec].earned++; } if (R && R.v === 'right') done++; });
   return {first: first, helped: helped, done: done, earned: earned, bySec: bySec};
 }
-function paintProgress(){ var n = ITEMS.filter(answered).length; $('prog').style.width = (ITEMS.length ? 100 * n / ITEMS.length : 0) + '%'; return n; }
+/* "Question 4 of 16" (7 Nov 2026, item 5): where the student is, as words and a thin navy bar in the bar area (never a ring) —
+   the question holding the focus, else the first one on the screen. Questions, not parts; a fresh one is not counted. */
+function cards(){ return Array.prototype.slice.call(document.querySelectorAll('#paper .q[data-q]:not(.xq)')); }
+function paintProgress(){
+  var qs = cards(), N = qs.length, a = document.activeElement, cur = a && a.closest && a.closest('#paper') ? a.closest('.q[data-q]:not(.xq)') || (a.closest('.xq') && a.closest('.xq').parentNode.closest('.q[data-q]:not(.xq)')) : null;
+  var i = cur ? qs.indexOf(cur) : -1;
+  if (i < 0){ var top = document.querySelector('.watch').getBoundingClientRect().bottom + 8, lim = Math.max(top + 40, window.innerHeight * 0.35);
+    for (var k = 0; k < N; k++){ var r = qs[k].getBoundingClientRect(); if (r.bottom > lim){ i = k; break; } } if (i < 0) i = N - 1; }
+  var n = N ? i + 1 : 0, q = $('qof'); if (q) q.textContent = N ? 'Question ' + n + ' of ' + N : '';
+  $('prog').style.width = (N ? 100 * n / N : 0) + '%';
+  return ITEMS.filter(answered).length;
+}
+var progRaf = 0; window.addEventListener('scroll', function(){ if (progRaf) return; progRaf = requestAnimationFrame(function(){ progRaf = 0; if (DS) paintProgress(); }); }, {passive: true});
+document.addEventListener('focusin', function(e){ if (DS && e.target && e.target.closest && e.target.closest('#paper')) paintProgress(); });
 function paintScore(light){
   var t = tally(), sc = $('score'), N = ITEMS.length, nb = function(s){ return '<span class="nw">' + s + '</span>'; };
   if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered') + ' · ' + nb('marked when you finish');
@@ -655,7 +671,15 @@ function paintResult(t){
       (twin ? newSet(!nm) : '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>' + newSet(false));
   var hk = scope + '.' + S.mode, H = hist()[hk] || [], prev = H.filter(function(x){ return !(x.seed === seed && x.at === S.finishedAt); })[0];
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
-  var lastLine = prev ? '<p class="last">Last time: ' + pe + ' / ' + prev.of + ' in ' + fmt(prev.time) + '. Today: ' + t.earned + ' / ' + N + (prev.of === N ? ' (' + (t.earned - pe >= 0 ? '+' : '−') + Math.abs(t.earned - pe) + ')' : '') + '.</p>' : '';   /* [J-10] */
+  /* "Since last time: up / down / the same" (item 5; the survey after Khan's session summary), from this device's history of
+     the same practice choice and mode — as a share of the points when the sets differ in size */
+  var dir = prev ? (prev.of === N ? Math.sign(t.earned - pe) : Math.sign(t.earned / N - pe / prev.of)) : 0;
+  var lastLine = prev ? '<p class="last since">Since last time: <b>' + (dir > 0 ? 'up' : dir < 0 ? 'down' : 'the same') + '</b> — ' + pe + ' / ' + prev.of + ' then, ' + t.earned + ' / ' + N + ' today.</p>' : '';   /* [J-10] */
+  /* per skill — the unit's sections — as text and an icon, never colour alone (item 5; the survey after ALEKS's labelled
+     pie): Secure at 80% or more right on the first check with no help, Getting there at 50%, else Not yet */
+  var LV = [['not', 'Not yet', '○'], ['get', 'Getting there', '◐'], ['sec', 'Secure', '●']];
+  var chips = '<ul class="skills" aria-label="By skill">' + DS.map(function(s, k){ var b = t.bySec[k], pc = b.of ? b.alone / b.of : 0, lv = LV[pc >= 0.8 ? 2 : pc >= 0.5 ? 1 : 0];
+    return '<li class="chip ' + lv[0] + '"><span class="ci" aria-hidden="true">' + lv[2] + '</span><b class="cl2">' + lv[1] + '</b><span class="cs">' + s.title + '</span><span class="cn">' + b.alone + ' / ' + b.of + '</span></li>'; }).join('') + '</ul>';
   var firstLine = test ? '' : '<p class="last">Right on the first try: ' + t.first + ' / ' + N + (t.helped ? ' ' + bulb(t.helped) : '') + '</p>';
   /* effort, beside correctness and never mixed with it (item 1; the survey after Mathspace's effort stars): how each question
      was worked — on your own, with a hint (rung 1 or 2, or the walkthrough), or after the worked solution (rung 3) — before
@@ -665,7 +689,7 @@ function paintResult(t){
   box.innerHTML = '<h2>Set ' + seed + ' · ' + esc(SCOPES[scope]) + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</h2>' +
     '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points earned on your own') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
     firstLine + effortLine + runLine + lastLine +
-    (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') +
+    (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') + chips +
     '<div class="tw"><table><thead><tr><th>Section</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
       '<p class="note"><b>Hint</b> goes one step at a time, up to the worked solution; <b>Try a similar one</b> gives you a fresh one.</p>' : '') +

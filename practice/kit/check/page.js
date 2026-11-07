@@ -92,6 +92,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const card = await p.$eval('#fb' + id, e => e.innerText.replace(/\s+/g, ' ').trim());
     if (!/^✗ Not yet \S/.test(card)) fail('after a wrong answer the card does not explain: "' + card.slice(0, 80) + '"');
     if (/Next time:/.test(card)) fail('the wrong card still carries "Next time:" (it is Hint 1 now)');
+    if (/usual slips|rule below/.test(card)) fail('the wrong card says "' + card.slice(0, 80) + '" — when nothing names the mistake it is "Look at:" with Hint 1');
     if (!(await p.$('#mo' + id + ' [data-another].go'))) fail('"Try a similar one" is not the primary after a miss');
     const nx = T.find((x, k) => k > 0); await p.click('#mo' + id + ' [data-moveon]'); await p.waitForTimeout(60);
     { const a = await active(p); if (a.split('|')[0] !== 'a' + nx.id && a.split('|')[0] !== '') { const firstOpen = await p.evaluate(() => { const i = document.activeElement; return i && i.id; }); if (!/^a/.test(firstOpen || '')) fail('Move on: focus is ' + a); } }
@@ -223,6 +224,12 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const rec = await store('record'); if (!rec || rec.n !== 2) fail('the record run was not kept: ' + JSON.stringify(rec));
     const ft = await p.$eval('#result', e => e.textContent); if (!/Right on the first try: 3 \/ /.test(ft)) fail('end panel first-try line: ' + (ft.match(/Right on the first try.{0,12}/) || [''])[0]);
     { const ef = await p.$eval('#result .effort', e => e.textContent).catch(() => ''); if (!/Solved without help: 2 · With a hint: 2 · Saw the solution: 0/.test(ef)) fail('end panel effort line: "' + ef + '" (A on its own, B and C with a hint, D on its own by its fresh ones)'); }
+    /* item 5: a chip per section — Secure ≥ 80% right on the first check with no help, Getting there ≥ 50%, else Not yet — as
+       a word and an icon, not colour alone */
+    { const st = await state(p, 781), its = itemsOf(781), g = U.generate(781), want = g.sections.map((sec, si) => { const mine = its.filter(i => +i.pos.split('.')[0] === si), al = mine.filter(i => { const R = st.res[i.id]; return R && R.first === true && !R.helped; }).length, pc = mine.length ? al / mine.length : 0; return pc >= 0.8 ? 'Secure' : pc >= 0.5 ? 'Getting there' : 'Not yet'; });
+      const chips = await p.$$eval('#result .skills .chip', es => es.map(e => ({ word: (e.querySelector('.cl2') || {}).textContent, icon: (e.querySelector('.ci') || {}).textContent, title: (e.querySelector('.cs') || {}).textContent })));
+      if (JSON.stringify(chips.map(c => c.word)) !== JSON.stringify(want)) fail('end panel chips ' + JSON.stringify(chips.map(c => c.word)) + ', expected ' + JSON.stringify(want));
+      if (chips.some(c => !c.icon || !c.icon.trim() || !c.title)) fail('a chip without its icon or its section: ' + JSON.stringify(chips)); }
     const nf = Object.entries((await state(p, 781)).res).filter(([k, r]) => !/x\d+$/.test(k) && r.first === true).length; if (nf !== 3) fail('first-try count ' + nf + ', expected 3 (A, B and C were right on their first check)'); }
   /* 10. test mode: only "can't read this yet"; results' buttons practise with checking */
   await fresh(p, 779); await p.click('.mode button[data-mode="test"]');
@@ -555,6 +562,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     { const c = await p.evaluate(() => ({ open: !document.getElementById('mMenu').hidden, exp: document.getElementById('bMore').getAttribute('aria-expanded'), focus: document.activeElement && document.activeElement.id }));
       if (c.open || c.exp !== 'false' || c.focus !== 'bMore') fail('Escape did not close the ⋯ menu back to ⋯: ' + JSON.stringify(c)); }
     await p.click('#bMore'); await p.click('h1'); if (!(await p.isHidden('#mMenu'))) fail('a tap outside does not close the ⋯ menu');
+    /* item 5: "Question 4 of 16" — the question holding the focus, as words and a thin navy bar in the bar area (not a ring) */
+    { const N = await p.$$eval('#paper .q[data-q]:not(.xq)', e => e.length); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(60);
+      const q1 = await p.$eval('#qof', e => e.textContent); if (q1 !== 'Question 1 of ' + N) fail('the bar says "' + q1 + '" at the top of the page, not "Question 1 of ' + N + '"');
+      await p.evaluate(() => { const q = document.querySelectorAll('#paper .q[data-q]:not(.xq)')[3]; const f = q && q.querySelector('input'); if (f) f.focus(); }); await p.waitForTimeout(60);
+      const q4 = await p.$eval('#qof', e => e.textContent); if (N >= 4 && q4 !== 'Question 4 of ' + N) fail('focus in question 4: the bar says "' + q4 + '"');
+      const bar = await p.evaluate(() => { const i = document.getElementById('prog'), b = i.parentNode.getBoundingClientRect(), r = i.getBoundingClientRect(); return { f: parseFloat(i.style.width) / 100, h: b.height, w: b.width, bg: getComputedStyle(i).backgroundColor, radius: getComputedStyle(i.parentNode).borderRadius, inBar: !!i.closest('.watch') }; });
+      if (N >= 4 && Math.abs(bar.f - 4 / N) > 0.02) fail('the bar is ' + Math.round(bar.f * 100) + '% full at question 4 of ' + N);
+      if (bar.h > 4 || bar.w < 120 || !bar.inBar) fail('the question bar is not a thin bar in the bar area: ' + JSON.stringify(bar));
+      if (bar.bg.replace(/\s/g, '') !== 'rgb(27,46,69)') fail('the question bar is ' + bar.bg + ', not navy'); }
     /* the clock: hidden but running in "Check as I go"; shown in "Like the real test" */
     const tx = itemsOf(4821).filter(i => i.kind === 'text'); await p.fill('#a' + tx[0].id, '1'); await p.waitForTimeout(1200);
     { const st = await state(p, 4821); if (!st.running) fail('the clock does not run in "Check as I go" (it is only hidden there)'); }
@@ -565,7 +581,13 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await fresh(p, 4821); await answer(p, itemsOf(4821)[0]); await check(p, itemsOf(4821)[0].id); await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100);
     const tn = await p.$$('#result [data-newset]'); if (tn.length !== 1) fail('the end panel has ' + tn.length + ' "Try a new set" buttons');
     else { await tn[0].click(); await p.waitForTimeout(200); const h = await p.evaluate(() => location.hash); if (!/^#set-\d+$/.test(h) || h === '#set-4821') fail('"Try a new set" opened ' + h);
-      if (await p.isVisible('#result')) fail('"Try a new set" left the end panel up'); }
+      if (await p.isVisible('#result')) fail('"Try a new set" left the end panel up');
+      /* item 5: "Since last time" — two right on the new set after one on the last: up */
+      const sd = +(/\d+/.exec(h) || [0])[0], i2 = itemsOf(sd); for (const it of i2.slice(0, 2)) { await answer(p, it); await check(p, it.id); }
+      await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100);
+      const since = await p.$eval('#result .since', e => e.textContent.replace(/\s+/g, ' ').trim()).catch(() => '');
+      if (!/^Since last time: up — 1 \/ \d+ then, 2 \/ \d+ today\.$/.test(since)) fail('end panel: "' + since + '", not "Since last time: up — 1 / N then, 2 / N today."');
+      if (await p.$('#result .confetti, #result canvas')) fail('the end panel celebrates'); }
     /* the way back: on /<course>/practice/unit-N/ only, to ../../unit-N/ with N the unit's own */
     const N = (/u(\d+)$/.exec(U.id) || [])[1];
     if (N) { const sub = path.join(dir, 'm7', 'practice', 'unit-' + N); fs.mkdirSync(sub, { recursive: true }); fs.copyFileSync(path.join(dir, 'preview.html'), path.join(sub, 'index.html'));

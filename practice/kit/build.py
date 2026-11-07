@@ -68,7 +68,7 @@ body = f"""<title>{esc(cfg['title'])}</title>
   <div class="score" id="score"></div>
   <div class="btns"><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
   <div class="confirm" id="confirm" role="alertdialog" aria-live="assertive" hidden></div>
-</div><div class="bar"><i id="prog"></i></div></div>
+</div><div class="qbar"><span class="qof" id="qof"></span><span class="bar" aria-hidden="true"><i id="prog"></i></span></div></div>
 <div class="result" id="result" hidden></div>
 <main class="sheet">
   <div class="head"><div><div class="eyebrow" id="eyebrow"></div><h1 id="h1"></h1><div class="total"><span id="total"></span></div></div></div>

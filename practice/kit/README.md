@@ -67,12 +67,18 @@ in the code; the four reports are in the Windmill HANDOFF.
     record" or "· your record: 12" (the device keeps the unit's record run). Not in test mode before Finish: nothing there
     says right or wrong until then.
   - One primary button at a time: when the point is still owed, "Try another like this" is the primary and "Next ↓" is not.
+- **Where you are, and how it went** (7 Nov 2026, item 5): the bar says *"Question 4 of 16"* over a thin navy line (the question
+  holding the focus, else the first on the screen; questions, not parts). The end panel keeps the first-try score and adds a
+  chip per skill (the unit's sections) — **● Secure** (80% or more right on the first check with no help), **◐ Getting there**
+  (50% or more), **○ Not yet** — a word and an icon, never colour alone; and *"Since last time: up — 12 / 36 then, 18 / 36
+  today."* (down, the same) from this device's history of the same practice choice and mode, as a share when the sizes differ.
+  Calm: no confetti, nothing that nags.
 - **Practice menu:** whole test, one part (two rounds with new numbers), or my misses (new numbers; one round if there
   are more than 8).
 - **The end:**
   - "Every one on the first try." when it's perfect; "Every point earned." when every point came, some from a fresh one.
   - Otherwise, jump links to the parts not right yet, "Practice my misses", and the parts under 80%.
-  - "Last time: … Today: … (+6)".
+  - "Since last time: up — … then, … today." (it was "Last time: … Today: … (+6)").
 - **The clock:** it starts with the first answer and pauses when the page is hidden (Resume brings it back). It is shown only in
   *Like the real test* (7 Nov 2026); in *Check as I go* it runs unseen, so the end panel still has the time.
 - **Progress:** each device keeps its last 25 sets in its own browser storage. Nothing is sent anywhere.
