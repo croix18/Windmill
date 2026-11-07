@@ -100,8 +100,26 @@ Proceed."* The page is a practice test on mrshaffer.org, so it now looks like th
   **coral ink** (`#AD3B28`) on a coral-pale tint for a miss — never solid coral; solid coral (`#FF7F6A`, navy words) only for
   the alarm (the "this set was updated" notice). The skill chips: Not yet a navy outline, Getting there teal, Secure green —
   never turquoise. Nothing yellow. Every text colour is measured at ≥ 4.5:1 on each surface it sits on (≥ 3:1 for a control's
-  edge). The dark theme is the same family at night: the navy desk, navy2 paper, cream ink, a cream primary with navy words,
-  the turquoise a step quieter (`#4CD4C6`). Print is dark ink on white, as before.
+  edge). Print is dark ink on white, whatever the theme.
+- **Dark is true dark (7 Nov 2026).** Croix, on his tablet in dark mode, of the navy desk with navy cards: *"That's entirely
+  too difficult to look at"* — *"dark mode should be true dark mode. Black background not dark teal."* — *"And white
+  letters."* It is Apple's dark mode: a **black** desk (`#000000`), **near-black grey** paper (`#121418` — never navy), the ⋯
+  menu a step lighter (`#181B21`); **white** ink and pen (`#FFFFFF`) for the title, the questions, the answers and the coach,
+  a light grey (`#B4B9C2`) only for the quiet lines; the primary is **white with black words**; turquoise (`#40E0D0`, black
+  words) only where something is live, as in light; a lighter teal (`#5FD9CC`) for links, the IDs and the small caps; right
+  `#7EE2A7`; a miss `#FF9B8A` on a coral tint; the alarm solid coral with black words; the bar black glass. The quiet fills are
+  white at 6 % and 10 %; the answer boxes' underline is white at 42 % (`--edge`, ≥ 3:1 on the paper — the hairline `--rule`
+  is not a control's edge). The figures (number lines, triangles, the coordinate plane) are drawn in the tokens, so they turn
+  white with the ink; KaTeX inherits it. Every text pair is measured ≥ 4.5:1, every control edge and figure line ≥ 3:1.
+- **Appearance: System · Light · Dark**, in the ⋯ menu under Larger text — one radiogroup (each choice 44 px; Tab reaches the
+  chosen one, the arrows, Home and End move and choose). **System** follows the device (no attribute); **Light** and **Dark**
+  set `data-theme` on `<html>`. The choice is remembered on this device for every unit and the teacher copy
+  (`localStorage` `practice.theme`, in try/catch); `build.py` puts a one-line script first in `<head>` that applies it before
+  the first paint, so nothing flashes. Storage refused (a private window): the control still works for the visit. The chosen
+  word has the ink's edge and weight — not turquoise, nothing about it is live. `check/page.js` part I checks it: a dark
+  device is black with grey paper and white ink, the mathematics in the same ink; Light under a dark device is the light
+  page; the control by keyboard, remembered across a reload, back to System; Dark printed is still dark on white; without
+  storage; and every line and word of a figure found in the unit's first sets ≥ 3:1 on the dark paper.
 - **Fonts:** Lexend stays on the sheet (ruling 46 — questions, answers, coach, buttons); the title is the site's DM Serif Display,
   the bar and the eyebrow its DM Sans. All four faces are in `vendor/fonts/` (cut by `make_fonts.py`; SIL OFL 1.1, the licences
   beside them) and `build.py` inlines them as data URIs — the Google Fonts `<link>` is gone; the page loads nothing (`page.js` F

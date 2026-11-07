@@ -682,6 +682,109 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await ps.click('#bMore'); await ps.click('#bBig'); const ok2 = await ps.evaluate(() => document.documentElement.classList.contains('lg') && !!document.querySelector('#paper .q'));
     if (!ok2 || e2.length) fail('without storage: Larger text ' + (ok2 ? 'works' : 'fails') + (e2.length ? '; errors: ' + e2[0] : '')); await ps.close();
     console.log('H. keypad, larger text and the width of the mathematics checked'); }
+  /* I. true dark and Appearance (7 Nov 2026, Croix: "I want it to be based on the system, also give me an option. But dark mode
+     should be true dark mode. Black background not dark teal." — "And white letters."): a dark device with no choice made is a
+     black desk, grey (never navy) paper and white ink, the mathematics in the same ink; Light under a dark device is the light
+     page; System · Light · Dark is a radiogroup in ⋯ that works by keyboard, is remembered, is applied by the first script in
+     <head>, and still works without storage; every figure's lines and words read on the dark paper (≥ 3:1). */
+  { const rgb = c => { const v = (String(c).match(/[\d.]+/g) || []).map(Number); return v.length >= 3 ? { r: v[0], g: v[1], b: v[2], a: v.length > 3 ? v[3] : 1 } : null; };
+    const lum = c => { const f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return .2126 * f(c.r) + .7152 * f(c.g) + .0722 * f(c.b); };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+    const over = (f, a, bg) => ({ r: f.r * a + bg.r * (1 - a), g: f.g * a + bg.g * (1 - a), b: f.b * a + bg.b * (1 - a) });
+    const dc = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' }), d = await dc.newPage();
+    const de = []; d.on('pageerror', e => de.push(e.message));
+    await d.goto(url + '#set-4821'); await d.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await d.reload(); await d.waitForTimeout(200);
+    const look = () => d.evaluate(() => { const cs = e => getComputedStyle(e); const k = document.querySelector('#paper .katex'), st = document.querySelector('#paper .stem .st');
+      return { attr: document.documentElement.getAttribute('data-theme'), ground: cs(document.body).backgroundColor, paper: cs(document.querySelector('.sheet')).backgroundColor,
+        ink: cs(document.getElementById('h1')).color, stem: st ? cs(st).color : null, katex: k ? cs(k).color : null }; });
+    let L = await look();
+    if (L.attr !== null) fail('dark device, no choice: <html> has data-theme="' + L.attr + '"');
+    if (L.ground.replace(/\s/g, '') !== 'rgb(0,0,0)') fail('dark device: the desk is ' + L.ground + ', not black');
+    { const pp = rgb(L.paper); if (!pp || Math.max(pp.r, pp.g, pp.b) - Math.min(pp.r, pp.g, pp.b) > 10 || lum(pp) > .03) fail('dark device: the paper is ' + L.paper + ' — not a near-black grey (navy?)'); }
+    if (L.ink.replace(/\s/g, '') !== 'rgb(255,255,255)') fail('dark device: the title is ' + L.ink + ', not white');
+    if (L.stem && L.stem.replace(/\s/g, '') !== 'rgb(255,255,255)') fail('dark device: a question is ' + L.stem + ', not white');
+    if (L.katex && L.katex !== L.stem) fail('dark device: the mathematics is ' + L.katex + ', not the question\'s ink ' + L.stem);
+    /* the first script in <head> applies the choice (no flash) */
+    const head = await d.evaluate(() => { const s = document.head && document.head.querySelector('script'); return !!s && /practice\.theme/.test(s.textContent) && !document.head.querySelector('style:not(:empty)') ? 'first' : (s && /practice\.theme/.test(s.textContent) ? 'after-style' : 'none'); });
+    if (head !== 'first') fail('the Appearance choice is not applied by the first script in <head> (' + head + ')');
+    /* the control */
+    await more(d);
+    const ctl = await d.evaluate(() => { const g = document.querySelector('#mMenu #mTheme'); if (!g) return null; const r = Array.from(g.querySelectorAll('[role=radio]'));
+      return { role: g.getAttribute('role'), label: (document.getElementById(g.getAttribute('aria-labelledby') || '') || {}).textContent || '', words: r.map(x => x.textContent.trim()),
+        h: Math.min.apply(null, r.map(x => x.getBoundingClientRect().height)), w: Math.min.apply(null, r.map(x => x.getBoundingClientRect().width)),
+        checked: r.filter(x => x.getAttribute('aria-checked') === 'true').map(x => x.dataset.themeTo), tabs: r.filter(x => x.tabIndex === 0).length }; });
+    if (!ctl) fail('Appearance: no control in the ⋯ menu');
+    else {
+      if (ctl.role !== 'radiogroup' || !ctl.label) fail('Appearance: not a labelled radiogroup: ' + JSON.stringify(ctl));
+      if (ctl.words.join('|').replace(/\s+/g, ' ').indexOf('System') !== 0 || !/Light/.test(ctl.words[1]) || !/Dark/.test(ctl.words[2])) fail('Appearance: the words are ' + JSON.stringify(ctl.words) + ', not System · Light · Dark');
+      if (ctl.h < 44 || ctl.w < 44) fail('Appearance: a choice is ' + Math.round(ctl.w) + '×' + Math.round(ctl.h) + ' px, under 44');
+      if (ctl.checked.join() !== 'system' || ctl.tabs !== 1) fail('Appearance: with nothing chosen it shows ' + JSON.stringify(ctl.checked) + ' (' + ctl.tabs + ' tab stops), not System');
+      /* by keyboard: Tab reaches the chosen one; arrows move and choose */
+      await d.focus('#mTheme [aria-checked=true]'); await d.keyboard.press('ArrowRight'); await d.waitForTimeout(40);
+      L = await look(); const f1 = await d.evaluate(() => document.activeElement && document.activeElement.dataset.themeTo);
+      if (L.attr !== 'light' || f1 !== 'light') fail('Appearance: → from System did not choose Light (data-theme ' + L.attr + ', focus ' + f1 + ')');
+      if (L.ground.replace(/\s/g, '') !== 'rgb(248,242,228)') fail('Light under a dark device: the desk is ' + L.ground + ', not the cream');
+      if (L.ink.replace(/\s/g, '') !== 'rgb(23,50,77)') fail('Light under a dark device: the title is ' + L.ink + ', not the navy ink');
+      await d.keyboard.press('ArrowRight'); await d.waitForTimeout(40); L = await look();
+      if (L.attr !== 'dark' || L.ground.replace(/\s/g, '') !== 'rgb(0,0,0)') fail('Appearance: → from Light did not choose Dark: ' + JSON.stringify(L));
+      await d.reload(); await d.waitForTimeout(200); L = await look();
+      const ck = await d.evaluate(() => (document.querySelector('#mTheme [aria-checked=true]') || {}).dataset);
+      if (L.attr !== 'dark' || !ck || ck.themeTo !== 'dark') fail('Appearance: Dark is not remembered after a reload (' + L.attr + ')');
+      await more(d); await d.focus('#mTheme [aria-checked=true]'); await d.keyboard.press('Home'); await d.waitForTimeout(40);
+      await d.reload(); await d.waitForTimeout(200); L = await look();
+      const kept = await d.evaluate(() => { try { return localStorage.getItem('practice.theme'); } catch (e) { return 'x'; } });
+      if (L.attr !== null || kept !== null) fail('Appearance: System did not go back to following the device (data-theme ' + L.attr + ', stored ' + kept + ')');
+      /* the light device, Dark chosen: the dark page */
+      await d.emulateMedia({ colorScheme: 'light' }); await more(d); await d.click('#mTheme [data-theme-to=dark]'); await d.waitForTimeout(40); L = await look();
+      if (L.ground.replace(/\s/g, '') !== 'rgb(0,0,0)') fail('Dark under a light device: the desk is ' + L.ground);
+      /* print stays dark ink on white whatever the choice */
+      await d.emulateMedia({ media: 'print', colorScheme: 'dark' }); L = await look();
+      { const v = rgb(L.ink); if (v.r + v.g + v.b > 200) fail('Dark chosen, printed: the title prints in ' + L.ink); }
+      await d.emulateMedia({ media: 'screen', colorScheme: 'dark' });
+      await d.evaluate(() => { try { localStorage.removeItem('practice.theme'); } catch (e) {} });
+    }
+    /* storage refused: the control still works for the visit */
+    { const ps = await dc.newPage(); await ps.addInitScript(() => { const no = () => { throw new Error('blocked'); }; Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no; });
+      const e2 = []; ps.on('pageerror', e => e2.push(e.message)); await ps.goto(url + '#set-12'); await ps.waitForTimeout(250);
+      await ps.click('#bMore'); await ps.click('#mTheme [data-theme-to=light]'); await ps.waitForTimeout(40);
+      const r = await ps.evaluate(() => ({ attr: document.documentElement.getAttribute('data-theme'), ground: getComputedStyle(document.body).backgroundColor, q: !!document.querySelector('#paper .q'),
+        checked: (document.querySelector('#mTheme [aria-checked=true]') || {}).textContent }));
+      if (r.attr !== 'light' || r.ground.replace(/\s/g, '') !== 'rgb(248,242,228)' || !r.q || !/Light/.test(r.checked || '') || e2.length) fail('without storage: Appearance does not work for the visit: ' + JSON.stringify(r) + (e2.length ? ' errors: ' + e2[0] : ''));
+      await ps.close(); }
+    /* the figures on black: every drawn line and word of the first figure found has ≥ 3:1 on the paper (and so on the desk) */
+    { let found = null;
+      for (let s = 1; s <= 60 && !found; s++) {
+        await d.goto(url + '#set-' + s); await d.waitForTimeout(80);
+        found = await d.evaluate(() => {
+          const svg = Array.from(document.querySelectorAll('#paper svg')).find(v => !v.closest('button, .keys, .chip') && v.getBoundingClientRect().width > 60 && v.querySelector('line, path, polyline, polygon, circle, rect, ellipse, text'));
+          if (!svg) return null;
+          let host = svg, bg = 'rgba(0, 0, 0, 0)'; while (host && host.nodeType === 1) { const c = getComputedStyle(host).backgroundColor; if (!/rgba\(0, 0, 0, 0\)|transparent/.test(c)) { bg = c; break; } host = host.parentElement; }
+          const marks = [];
+          svg.querySelectorAll('line, path, polyline, polygon, circle, rect, ellipse, text').forEach(e => {
+            const cs = getComputedStyle(e), op = parseFloat(cs.opacity) || 1, txt = e.tagName.toLowerCase() === 'text';
+            if (cs.display === 'none' || cs.visibility === 'hidden') return;
+            if (!txt && cs.stroke && cs.stroke !== 'none' && parseFloat(cs.strokeWidth) > 0) marks.push({ k: 'stroke', c: cs.stroke, a: op * parseFloat(cs.strokeOpacity), cls: e.getAttribute('class') || e.tagName });
+            if (cs.fill && cs.fill !== 'none' && !/url/.test(cs.fill) && (txt || cs.stroke === 'none' || !cs.stroke)) marks.push({ k: 'fill', c: cs.fill, a: op * parseFloat(cs.fillOpacity), cls: e.getAttribute('class') || e.tagName, txt: txt });
+          });
+          const q = svg.closest('.q'); return { id: q ? 'Q' + (q.getAttribute('data-q') || '?') : '?', bg: bg, marks: marks };
+        });
+      }
+      if (!found) console.log('I. no figure on this unit\'s first 60 sets — the figures check is skipped');
+      else {
+        const bg = rgb(found.bg), black = { r: 0, g: 0, b: 0 }, low = [];
+        let n = 0;
+        for (const m of found.marks) { const c = rgb(m.c); if (!c) continue; const a = m.a * c.a;
+          if (a < .5 && !m.txt) continue;                       /* a shading or a grid at low alpha: a ground, not a line */
+          n++; const seen = over(c, a, bg); const r1 = ratio(seen, bg), r2 = ratio(over(c, a, black), black);
+          if (Math.min(r1, r2) < 3) low.push(m.cls + ' ' + m.k + ' ' + m.c + ' at ' + a.toFixed(2) + ': ' + r1.toFixed(2) + ':1'); }
+        if (!n) fail('I. the figure in ' + found.id + ' has no line or word to measure');
+        if (low.length) fail('figures on black: ' + low.length + ' marks under 3:1 in ' + found.id + ' — ' + low.slice(0, 4).join(' | '));
+        console.log('I. a figure (' + found.id + ') on the dark paper: ' + n + ' marks measured, ' + low.length + ' under 3:1');
+      }
+    }
+    if (de.length) fail('dark page errors: ' + de.slice(0, 3).join(' | '));
+    await dc.close();
+    console.log('I. true dark and Appearance checked'); }
   if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();

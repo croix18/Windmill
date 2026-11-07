@@ -59,7 +59,11 @@ if "--force" not in sys.argv:
     if not ok: sys.exit("build: the checks have not passed for these sources — run the unit's checks first (or --force for a look only)")
 
 esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
-body = f"""<title>{esc(cfg['title'])}</title>
+# the Appearance choice (7 Nov 2026, Croix: "I want it to be based on the system, also give me an option"): ui.js keeps it under
+# practice.theme; this runs before any style or content, first in <head> (on the first line, with the title), so a Light or
+# Dark choice is on <html> before the first paint and nothing flashes. Storage refused: nothing is set and the page follows the device.
+THEME_JS = "try{var t=localStorage.getItem('practice.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
+body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <style id="kit-fonts">{fonts_css()}</style>
 <style>{rk('kit.css')}{''.join(ru(c) for c in cfg.get('css', []))}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">

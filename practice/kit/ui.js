@@ -1038,6 +1038,30 @@ function setBig(on, keep){ document.documentElement.classList.toggle('lg', !!on)
   $('bBig').addEventListener('click', function(){ setBig(!document.documentElement.classList.contains('lg'), true); });
   var on = false; try { on = localStorage.getItem(BIGKEY) === 'large'; } catch(e){}
   setBig(on, false); })();
+/* Appearance (7 Nov 2026, Croix in dark mode on his tablet: "I want it to be based on the system, also give me an option. But dark
+   mode should be true dark mode."): System · Light · Dark in the ⋯ menu, one radiogroup (arrows move and choose, Tab leaves).
+   Light and Dark set data-theme on <html>; System removes it and the page follows the device. Remembered on this device (any
+   unit) under THEMEKEY; build.py's first script applies it before the first paint, so nothing flashes. Storage may be refused:
+   then the choice is just this visit's. */
+var THEMEKEY = 'practice.theme';
+function themeNow(){ var t = document.documentElement.getAttribute('data-theme'); return t === 'light' || t === 'dark' ? t : 'system'; }
+function setTheme(t, keep){
+  var r = document.documentElement; if (t === 'light' || t === 'dark') r.setAttribute('data-theme', t); else { t = 'system'; r.removeAttribute('data-theme'); }
+  Array.prototype.forEach.call(document.querySelectorAll('#mTheme [role=radio]'), function(b){ var on = b.getAttribute('data-theme-to') === t; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+  if (keep){ try { if (t === 'system') localStorage.removeItem(THEMEKEY); else localStorage.setItem(THEMEKEY, t); } catch(e){} }
+}
+(function(){ var w = document.querySelector('#mMenu .mtext') || document.querySelector('#mMenu .mprint'); if (!w) return;
+  var lab = document.createElement('div'); lab.className = 'mlab'; lab.id = 'mThemeL'; lab.textContent = 'Appearance';
+  var g = document.createElement('div'); g.className = 'mtheme'; g.id = 'mTheme'; g.setAttribute('role', 'radiogroup'); g.setAttribute('aria-labelledby', 'mThemeL');
+  g.innerHTML = [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']].map(function(o){ return '<button type="button" role="radio" data-theme-to="' + o[0] + '" aria-checked="false">' + o[1] + '</button>'; }).join('');
+  w.parentNode.insertBefore(g, w.nextSibling); w.parentNode.insertBefore(lab, g);
+  var opts = function(){ return Array.prototype.slice.call(g.querySelectorAll('[role=radio]')); };
+  g.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[role=radio]'); if (b) setTheme(b.getAttribute('data-theme-to'), true); });
+  g.addEventListener('keydown', function(e){
+    var o = opts(), i = o.indexOf(e.target.closest ? e.target.closest('[role=radio]') : null); if (i < 0) return;
+    var j = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i + 1) % o.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i + o.length - 1) % o.length : e.key === 'Home' ? 0 : e.key === 'End' ? o.length - 1 : -1;
+    if (j < 0) return; e.preventDefault(); setTheme(o[j].getAttribute('data-theme-to'), true); o[j].focus(); });
+  setTheme(themeNow(), false); })();
 /* the way back (7 Nov 2026, the site review): on mrshaffer.org a practice test is /<course>/practice/unit-N/, and its unit's
    page is /<course>/unit-N/ — the bar's far left gets "‹ Unit N" there, as the site's own top bar has its way back. As a
    claude.ai artifact or a Google Sites download there is no unit page to go back to, so it stays hidden. N is the unit's

@@ -120,6 +120,11 @@ var T = {
   'Since last time: <b>the same</b> — # / # then, # / # today.': 'Desde a última vez: <b>igual</b> — # / # antes, # / # hoje.',
   /* phone math hygiene (item 7) */
   'Larger text': 'Letra maior',
+  /* Appearance in the ⋯ menu (7 Nov 2026) */
+  'Appearance': 'Aparência',
+  'System': 'Sistema',
+  'Light': 'Claro',
+  'Dark': 'Escuro',
   /* the form a box expects (item 3) */
   'In scientific notation': 'Em notação científica',
   'As an inequality': 'Como uma desigualdade',

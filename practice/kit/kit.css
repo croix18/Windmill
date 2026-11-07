@@ -13,21 +13,24 @@
   --pen:#17324D; --ok:#1b7a45; --no:#AD3B28; --noTint:rgba(255,194,181,.45); --warn:#0F6B74; --bar:rgba(248,242,228,.9); --shadow:0 0 0 1px rgba(23,50,77,.07),0 12px 40px -10px rgba(23,50,77,.18);
   --go:#17324D; --goHi:#22476B; --goInk:#FFFFFF; --hot:#40E0D0; --hotInk:#17324D; --live:#D8F6F1; --liveLine:#8FE5DC;
   --menu:color-mix(in srgb,#E6D5B8 22%,#FFFFFF); --alarm:#FF7F6A; --alarmInk:#17324D; --link:#0F6B74; --focus:#0F6B74; --navyLine:#17324D; --teal:#127A85;
+  --edge:var(--rule); --seg:var(--paper); --barLine:rgba(23,50,77,.08); --pop:0 18px 48px -12px rgba(23,50,77,.32);
   --chrome:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;          /* the site's text face: the bar and the eyebrow only */
   --display:"DM Serif Display",Georgia,"Times New Roman",serif;                           /* the site's display face: the title only */
   --serif:"Lexend","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;   /* ruling 46: Lexend everywhere (Croix, 17 Oct: "Can you make it in the lexend font?") — the name --serif stays so no rule moves */
   --ui:"Lexend",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
 @media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --ground:#17324D; --paper:#22476B; --ink:#F8F2E4; --mut:#C3CFDB; --rule:rgba(248,242,228,.17); --field:rgba(248,242,228,.08); --field2:rgba(248,242,228,.14);
-  --pen:#F8F2E4; --ok:#86E0AC; --no:#FFB3A6; --noTint:rgba(255,127,106,.16); --warn:#8FE5DC; --bar:rgba(23,50,77,.9); --shadow:0 0 0 1px rgba(0,0,0,.18),0 12px 40px -10px rgba(0,0,0,.45);
-  --go:#F8F2E4; --goHi:#FFFFFF; --goInk:#17324D; --hot:#4CD4C6; --hotInk:#17324D; --live:rgba(76,212,198,.14); --liveLine:rgba(76,212,198,.45);
-  --menu:#22476B; --alarm:#FF7F6A; --alarmInk:#17324D; --link:#8FE5DC; --focus:#8FE5DC; --navyLine:#F8F2E4; --teal:#4CD4C6; color-scheme:dark } }   /* the same family at night: the navy desk, cream ink, a cream primary, the turquoise a step quieter */
+  --ground:#000000; --paper:#121418; --ink:#FFFFFF; --mut:#B4B9C2; --rule:rgba(255,255,255,.14); --field:rgba(255,255,255,.06); --field2:rgba(255,255,255,.1);
+  --pen:#FFFFFF; --ok:#7EE2A7; --no:#FF9B8A; --noTint:rgba(255,127,106,.16); --warn:#5FD9CC; --bar:rgba(0,0,0,.88); --shadow:0 0 0 1px rgba(255,255,255,.08);
+  --go:#FFFFFF; --goHi:#E2E5EA; --goInk:#000000; --hot:#40E0D0; --hotInk:#000000; --live:rgba(64,224,208,.14); --liveLine:rgba(64,224,208,.5);
+  --menu:#181B21; --alarm:#FF7F6A; --alarmInk:#000000; --link:#5FD9CC; --focus:#5FD9CC; --navyLine:#FFFFFF; --teal:#5FD9CC;
+  --edge:rgba(255,255,255,.42); --seg:rgba(255,255,255,.16); --barLine:rgba(255,255,255,.1); --pop:0 0 0 1px rgba(255,255,255,.06),0 18px 48px -12px rgba(0,0,0,.9); color-scheme:dark } }   /* true dark (7 Nov 2026, Croix: "dark mode should be true dark mode. Black background not dark teal." — "And white letters."): a black desk, near-black grey paper, white ink, a white primary with black words, turquoise only where something is live */
 @media screen{ :root[data-theme="dark"]{
-  --ground:#17324D; --paper:#22476B; --ink:#F8F2E4; --mut:#C3CFDB; --rule:rgba(248,242,228,.17); --field:rgba(248,242,228,.08); --field2:rgba(248,242,228,.14);
-  --pen:#F8F2E4; --ok:#86E0AC; --no:#FFB3A6; --noTint:rgba(255,127,106,.16); --warn:#8FE5DC; --bar:rgba(23,50,77,.9); --shadow:0 0 0 1px rgba(0,0,0,.18),0 12px 40px -10px rgba(0,0,0,.45);
-  --go:#F8F2E4; --goHi:#FFFFFF; --goInk:#17324D; --hot:#4CD4C6; --hotInk:#17324D; --live:rgba(76,212,198,.14); --liveLine:rgba(76,212,198,.45);
-  --menu:#22476B; --alarm:#FF7F6A; --alarmInk:#17324D; --link:#8FE5DC; --focus:#8FE5DC; --navyLine:#F8F2E4; --teal:#4CD4C6; color-scheme:dark } }
+  --ground:#000000; --paper:#121418; --ink:#FFFFFF; --mut:#B4B9C2; --rule:rgba(255,255,255,.14); --field:rgba(255,255,255,.06); --field2:rgba(255,255,255,.1);
+  --pen:#FFFFFF; --ok:#7EE2A7; --no:#FF9B8A; --noTint:rgba(255,127,106,.16); --warn:#5FD9CC; --bar:rgba(0,0,0,.88); --shadow:0 0 0 1px rgba(255,255,255,.08);
+  --go:#FFFFFF; --goHi:#E2E5EA; --goInk:#000000; --hot:#40E0D0; --hotInk:#000000; --live:rgba(64,224,208,.14); --liveLine:rgba(64,224,208,.5);
+  --menu:#181B21; --alarm:#FF7F6A; --alarmInk:#000000; --link:#5FD9CC; --focus:#5FD9CC; --navyLine:#FFFFFF; --teal:#5FD9CC;
+  --edge:rgba(255,255,255,.42); --seg:rgba(255,255,255,.16); --barLine:rgba(255,255,255,.1); --pop:0 0 0 1px rgba(255,255,255,.06),0 18px 48px -12px rgba(0,0,0,.9); color-scheme:dark } }
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.4;padding-inline:16px;padding-block:0 56px}
 button{font:600 14px/1 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:8px;padding:9px 13px;cursor:pointer}
@@ -62,7 +65,7 @@ h2{font:700 18px/1.25 var(--serif);margin:0}
 .prt{margin:12px 0 0 calc(1.9em + 10px)} .prt.solo{margin-top:8px}
 .ans{display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap}
 .prt:not(.solo) .ans{margin-left:calc(1.4em + 10px)}
-input[type=text],textarea{font:17px/1.35 var(--serif);color:var(--pen);background:var(--field);border:0;border-bottom:1.5px solid var(--rule);border-radius:6px 6px 0 0;padding:7px 9px;width:min(100%,17rem)}
+input[type=text],textarea{font:17px/1.35 var(--serif);color:var(--pen);background:var(--field);border:0;border-bottom:1.5px solid var(--edge);border-radius:6px 6px 0 0;padding:7px 9px;width:min(100%,17rem)}
 textarea{width:100%;resize:vertical;min-height:4.6em}
 input[readonly],textarea[readonly]{background:transparent}
 .pv{color:var(--pen);font-size:1.05em;min-height:1em}
@@ -409,7 +412,7 @@ body{background:var(--ground)}
 .sheet,.result{border-radius:20px}
 @media (max-width:480px){ .sheet,.result{border-radius:16px} }
 /* the bar: the site's top bar (header.top) — cream glass, a hairline under it, DM Sans */
-.watch{background:var(--bar);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:0;box-shadow:0 1px 0 rgba(23,50,77,.08);font-family:var(--chrome)}
+.watch{background:var(--bar);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:0;box-shadow:0 1px 0 var(--barLine);font-family:var(--chrome)}
 .watch button,.watch .confirm,.watch .confirm button{font-family:var(--chrome)}
 .watch .score,.watch .time{font-family:var(--chrome)}
 .watch .score b{font-weight:700}
@@ -447,7 +450,7 @@ h1{font:400 30px/1.12 var(--display);letter-spacing:-.01em;margin:6px 0 4px}
 #bMore svg{width:20px;height:20px;fill:currentColor}
 #bMore[aria-expanded=true]{background:var(--field2);border-color:var(--rule);color:var(--ink)}
 .menu{position:absolute;right:0;top:calc(100% + 8px);z-index:6;width:min(21rem,calc(100vw - 32px));display:flex;flex-direction:column;gap:10px;
-  padding:14px;background:var(--menu);border:1px solid var(--rule);border-radius:16px;box-shadow:0 18px 48px -12px rgba(23,50,77,.32);font-family:var(--ui)}
+  padding:14px;background:var(--menu);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--pop);font-family:var(--ui)}
 .menu .mlab{font:700 11.5px/1.2 var(--chrome);letter-spacing:.12em;text-transform:uppercase;color:var(--link)}
 .menu select{flex:none;height:auto;font:600 14px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:10px;padding:10px;min-height:44px;width:100%;max-width:none;margin-top:-4px}
 .menu .mprint{display:flex;gap:10px} .menu .mprint button{flex:1 1 auto;min-height:44px}
@@ -573,3 +576,16 @@ button:not(.go):not([aria-pressed=true]):not([aria-expanded=true]):hover{backgro
 .wopt,.wnum input,details.why,.wpic{border-color:var(--rule)}
 .qbar .bar{background:color-mix(in srgb,var(--ink) 12%,transparent)}
 
+
+/* ==== true dark and the Appearance control, 7 Nov 2026 (Croix, on his tablet in dark mode: "That's entirely too difficult to look
+   at" — "I want it to be based on the system, also give me an option. But dark mode should be true dark mode. Black background
+   not dark teal." — "And white letters.") ====
+   The tokens are at the top: in dark, a black desk (#000), near-black grey paper (#121418, never navy), white ink and pen, a
+   white primary with black words, turquoise (#40E0D0, black on it) only where something is live, a lighter teal (#5FD9CC) for
+   links and the small caps. The ⋯ menu's Appearance row: System · Light · Dark, a radiogroup (ui.js). The chosen word has
+   the ink's edge and weight, as the pressed mode has — never colour alone, never turquoise (nothing live about it). */
+.menu .mtheme{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--field);margin-top:-4px}
+.mtheme button{flex:1 1 0;min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mut);font:600 14px/1 var(--ui);padding:8px 6px}
+.mtheme button[aria-checked=true]{color:var(--ink);font-weight:700;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+.mtheme button:not([aria-checked=true]):hover{background:var(--field2)}
+@media print{ .mtheme{display:none!important} }
