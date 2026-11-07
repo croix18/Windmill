@@ -17,6 +17,8 @@ var T = {
   'Set number': 'Número da lista',
   'Go': 'Ir',
   'New set': 'Nova lista',
+  'Try a new set': 'Tentar uma nova lista',            /* the end panel (7 Nov 2026) */
+  'What to practice': 'O que praticar',                /* the ⋯ menu (7 Nov 2026) */
   'Start this set over': 'Recomeçar esta lista',
   '# points': '# pontos',
   '# point': '# ponto',

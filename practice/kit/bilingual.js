@@ -127,7 +127,7 @@ function make(table, names){
 
 /* ------------------------------------------------ the page: the toggle, and the translation under each block */
 /* the blocks that carry words; buttons get theirs as a second small line inside the button */
-var BLOCK = ['#eyebrow', '#h1', '.itx', '.pinote', '#total', '.setbox summary', '.setrow label', '#notice', '#confirm > span', '.how',
+var BLOCK = ['#eyebrow', '#h1', '.itx', '.pinote', '#total', '.menu .mlab', '.setbox summary', '.setrow label', '#notice', '#confirm > span', '.how',
   '.sechead h2', '.sechead .pts', '.stem .st', '.line .st', '.cv', '.xhead .xt', '.xhead .streak', '.fbx p', '.fbx li', '.note2', '.rd',
   '.sthead', '.solhead .kl', '.say', '.offnote', '.key .kl', '.key .kv', '.why > summary', '.vis .cap', '.vis p', '.wpl',
   '.wkhead b', '.wask', '.wgot', '.wwhy', '.wfin', '#score', '#result h2', '#result .big span', '#result .last',

@@ -20,6 +20,20 @@ rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
 KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+# the page's own fonts (7 Nov 2026, the site review: the page joins mrshaffer.org's family — Croix: "Ok sounds well thought
+# out. Proceed."): Lexend for the sheet (ruling 46), DM Serif Display for the title, DM Sans for the bar and the eyebrow.
+# Inlined as data URIs, never a <link>: the page is a claude.ai artifact and a Google Sites download too, and loads nothing.
+FONTS = [("Lexend", "400", "lexend-regular.woff2", "100 549"), ("Lexend", "700", "lexend-bold.woff2", "550 900"),
+         ("DM Sans", "400 700", "dm-sans.woff2", "400 700"), ("DM Serif Display", "400", "dm-serif-display.woff2", "400")]
+def fonts_css():
+    """@font-face rules for the four faces in vendor/fonts (SIL OFL 1.1, the licences beside them). Lexend has two real
+    weights; 500 draws as Regular and 600 as Bold (the ranges below), so nothing is ever a faux bold."""
+    import base64
+    out = ["/* Lexend, DM Sans, DM Serif Display: SIL Open Font License 1.1 (practice/kit/vendor/fonts/OFL-*.txt) */"]
+    for fam, _w, f, rng in FONTS:
+        b64 = base64.b64encode(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read()).decode()
+        out.append('@font-face{font-family:"' + fam + '";font-style:normal;font-weight:' + rng + ';font-display:swap;src:url(data:font/woff2;base64,' + b64 + ') format("woff2")}')
+    return "\n".join(out)
 def katex_css():
     """KaTeX's stylesheet with the shipped fonts inlined (woff2 only); faces not shipped fall back to KaTeX_Main."""
     import base64
@@ -38,6 +52,7 @@ def source_hash():
     h = hashlib.sha256()
     for f in KITFILES: h.update(rk(f).encode())
     for f in cfg["scripts"] + cfg.get("css", []): h.update(ru(f).encode())
+    for _fam, _w, f, _r in FONTS: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())
     return h.hexdigest()[:16]
 if "--force" not in sys.argv:
     ok = os.path.exists(os.path.join(UD, "CHECKED")) and open(os.path.join(UD, "CHECKED")).read().split()[0] == source_hash()
@@ -45,9 +60,10 @@ if "--force" not in sys.argv:
 
 esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
 body = f"""<title>{esc(cfg['title'])}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style id="kit-fonts">{fonts_css()}</style>
 <style>{rk('kit.css')}{''.join(ru(c) for c in cfg.get('css', []))}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">
+  <a class="back" id="back" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="backl">Unit</span></a>
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
   <div class="score" id="score"></div>
   <div class="btns"><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
@@ -57,9 +73,14 @@ body = f"""<title>{esc(cfg['title'])}</title>
 <main class="sheet">
   <div class="head"><div><div class="eyebrow" id="eyebrow"></div><h1 id="h1"></h1><div class="total"><span id="total"></span></div></div></div>
   <p class="intro" id="intro"></p>
-  <div class="ctl"><div class="mode" role="group" aria-label="How to practice"><button type="button" data-mode="practice" aria-pressed="true">Check as I go</button><button type="button" data-mode="test" aria-pressed="false">Like the real test</button></div><select id="scope" aria-label="What to practice"></select></div>
-  <details class="setbox"><summary>Set <b id="setno"></b> · <span class="chg">Change</span></summary>
+  <div class="ctl"><div class="mode" role="group" aria-label="How to practice"><button type="button" data-mode="practice" aria-pressed="true">Check as I go</button><button type="button" data-mode="test" aria-pressed="false">Like the real test</button></div>
+  <div class="tools"><div class="mwrap"><button type="button" id="bMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="mMenu" aria-label="More: what to practice, print, set number" title="More"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button>
+  <div class="menu" id="mMenu" role="dialog" aria-label="More" hidden>
+    <label class="mlab" for="scope">What to practice</label><select id="scope"></select>
+    <div class="mprint"></div>
+    <details class="setbox"><summary>Set <b id="setno"></b> · <span class="chg">Change</span></summary>
     <div class="setrow"><label for="setin">Set number</label><input type="text" inputmode="numeric" id="setin" autocomplete="off"><button type="button" id="setgo">Go</button><button type="button" class="go" id="bNew">New set</button><button type="button" id="bAgain">Start this set over</button></div></details>
+  </div></div></div></div>
   <p class="notice" id="notice" role="status" hidden></p>
   <div id="paper"></div>
 </main>

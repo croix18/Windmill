@@ -109,7 +109,7 @@ function inputHtml(p, id, lab){
   var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p);
   return '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
     '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (p.imode ? ' inputmode="' + esc(p.imode) + '"' : '') + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
-    (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
+    (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<span class="acts"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></span><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
 }
 function tailHtml(id){
   return '<div class="fb" id="fb' + id + '" aria-live="polite"></div><div class="more" id="mo' + id + '"></div>' +
@@ -120,7 +120,7 @@ function choicesHtml(x, id, lab, multi){
   x.opts.forEach(function(o, k){
     q.push('<label class="ch" id="ch' + id + LET[k] + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q' + id + '" value="' + k + '"><span class="box' + (multi ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></label>');
   });
-  q.push('</div><div class="ckrow"><button type="button" class="chk" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></div>' + tailHtml(id));
+  q.push('</div><div class="ckrow"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></div>' + tailHtml(id));
   return q.join('');
 }
 function partHtml(p, id, solo, lab, lone){
@@ -339,7 +339,10 @@ function paintItem(it){
   wl.hidden = !walkOn; if (walkOn) wl.innerHTML = walkHtml(it);
   paintChoices(it, R.v ? R : null);
   var input = $('a' + it.id); if (input){ input.readOnly = R.v === 'right'; if (R.v === 'right' && keys.target === input) hideKeys(); }
-  var btn = host.querySelector('[data-check="' + it.id + '"]'); if (btn) btn.disabled = R.v === 'right';
+  var btn = host.querySelector('[data-check="' + it.id + '"]'); if (btn){ btn.disabled = R.v === 'right';
+    /* Check is the primary (navy, as button.go) — it was the greyest thing on the page — but one primary at a time: when
+       "Try another like this" or "Next ↓" is the primary under this part, Check steps back (7 Nov 2026, the site review) */
+    btn.classList.toggle('go', R.v !== 'right' && !mo.querySelector('button.go')); }
   /* a right answer locks this question's own choices — not the "Try another" mounted inside its box (23 Oct 2026: a
      student who got a select-all right on her second try asked for another; it opened locked, and she could not touch it) */
   if (it.type !== 'text') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
@@ -522,8 +525,12 @@ function paintScore(light){
 function paintBar(){
   $('time').textContent = fmt(elapsed());
   var started0 = elapsed() > 0;
-  $('bPause').hidden = S.done || !S.running;                                             /* [J-2] Pause only while it runs */
-  $('bResume').hidden = S.done || S.running || !started0;
+  /* the clock is shown only in "Like the real test" (7 Nov 2026, the site review: Croix: "Ok sounds well thought out.
+     Proceed."). In "Check as I go" it still runs — the end panel's time and the saved history are as before — but the time,
+     and its Pause and Resume, are not shown; the next answer starts it again after the page was put away, as before. */
+  var testMode = S.mode === 'test'; document.body.classList.toggle('mode-test', testMode);
+  $('bPause').hidden = S.done || !S.running || !testMode;                                /* [J-2] Pause only while it runs */
+  $('bResume').hidden = S.done || S.running || !started0 || !testMode;
   $('bFinish').hidden = S.done || !ITEMS.length;
   $('bFinish').textContent = S.mode === 'test' ? 'Finish & mark' : 'Finish';
   document.body.classList.toggle('hidechk', S.mode === 'test' && !S.done);
@@ -538,10 +545,14 @@ function paintResult(t){
   var notYet = ITEMS.filter(function(it){ var R = S.res[it.id]; return !R || R.v !== 'right'; });
   var weak = {}; DS.forEach(function(s, k){ if (scope === 'all' && t.bySec[k].of && t.bySec[k].got / t.bySec[k].of < 0.8) weak[k] = 1; });
   var nm = Object.keys(misses()).length, perfect = t.earned === N && N > 0, alone = perfect && t.first === N && !t.helped;
-  var btns = perfect ? '<button type="button" class="go" data-new="1" data-scope="all">New whole test</button>'
+  /* "Try a new set" (7 Nov 2026, the site review): what New set does behind Set · Change — a new random set, this practice
+     choice and this mode (My misses opens the whole test, as New set does). In "Check as I go" on the whole test it is the
+     same as New whole test, so it takes that button's place (and its primary) rather than standing beside its twin. */
+  var twin = scope === 'all' && !test, newSet = function(go){ return '<button type="button"' + (go ? ' class="go"' : '') + ' data-newset="1">Try a new set</button>'; };
+  var btns = perfect ? (twin ? newSet(true) : '<button type="button" class="go" data-new="1" data-scope="all">New whole test</button>' + newSet(false))
     : (nm ? '<button type="button" class="go" data-new="1" data-scope="miss">Practice my misses (' + nm + ')</button>' : '') +
       Object.keys(weak).map(function(k){ return '<button type="button" data-new="1" data-scope="p' + (+k + 1) + '">Practice: ' + esc(G0.sections[+k].title) + '</button>'; }).join('') +
-      '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>';
+      (twin ? newSet(!nm) : '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>' + newSet(false));
   var hk = scope + '.' + S.mode, H = hist()[hk] || [], prev = H.filter(function(x){ return !(x.seed === seed && x.at === S.finishedAt); })[0];
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
   var lastLine = prev ? '<p class="last">Last time: ' + pe + ' / ' + prev.of + ' in ' + fmt(prev.time) + '. Today: ' + t.earned + ' / ' + N + (prev.of === N ? ' (' + (t.earned - pe >= 0 ? '+' : '−') + Math.abs(t.earned - pe) + ')' : '') + '.</p>' : '';   /* [J-10] */
@@ -631,15 +642,17 @@ Array.prototype.forEach.call(document.querySelectorAll('.mode button'), function
     if (started()) ask('Switching starts this set over. Your answers will be cleared.', 'Switch', go); else go();
   });
 });
-$('scope').addEventListener('change', function(){ var v = this.value; if (v === scope) return;
+$('scope').addEventListener('change', function(){ var v = this.value; if (v === scope) return; moreClose();
   var to = v === 'all' ? (scope === 'all' ? seed : (load('lastAll') || seed)) : randomSeed();   /* [R2-N3] one part or misses: new numbers; back to the whole test you were on [B6] */
   var go = function(){ goSet(to, v); };
   if (started() && !S.done) ask('Switch to “' + SCOPES[v] + '”? This set stays saved on this device.', 'Switch', go); else go();
   $('scope').value = scope; });
-$('setgo').addEventListener('click', function(){ var v = Math.floor(+$('setin').value); if (v >= 1 && v <= 99999) goSet(v, scope); else { $('setin').value = seed; } });
+$('setgo').addEventListener('click', function(){ var v = Math.floor(+$('setin').value); if (v >= 1 && v <= 99999){ moreClose(); goSet(v, scope); } else { $('setin').value = seed; } });
 $('setin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('setgo').click(); } });
-$('bNew').addEventListener('click', function(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Leave this set for a new one? This one stays saved on this device.', 'New set', go); else go(); });
-$('bAgain').addEventListener('click', function(){ ask('Clear your answers to this set and start it again?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
+function newSet(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Leave this set for a new one? This one stays saved on this device.', 'New set', go); else go(); }
+$('bNew').addEventListener('click', function(){ moreClose(); newSet(); });
+document.addEventListener('click', function(e){ if (e.target && e.target.closest && e.target.closest('[data-newset]')) newSet(); });   /* the end panel's "Try a new set" */
+$('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your answers to this set and start it again?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
 /* Ruling 49 (22 Oct 2026): on a unit whose test is a random set of this page, the teacher bar (teacher.js) prints the
    TEST as n forms — the make-up printing, headed "Test · Form A" instead of "Make-up" (the set number on the key only,
    25 Oct 2026). Teacher copies only. */
@@ -806,7 +819,7 @@ function makeupHtml(n, label){
 function ask0(text, opts){                                   /* the print choice, in the same bar as the other questions */
   var c = $('confirm'); c.hidden = false; document.body.classList.add('asking');
   c.innerHTML = '<span>' + text + '</span>' + opts.map(function(o){ return '<button type="button" class="go" data-print="' + o[0] + '"' + (o[2] ? ' disabled title="' + esc(o[2]) + '"' : '') + '>' + o[1] + '</button>'; }).join('') + '<button type="button" id="cn">Cancel</button>';
-  $('cn').onclick = function(){ closeAsk(); var b = $('bPrint'); if (b) b.focus(); };
+  $('cn').onclick = function(){ closeAsk(); moreFocus(); };
   var f = c.querySelector('[data-print]:not([disabled])'); if (f) f.focus();
 }
 function showPrint(kind, label){
@@ -822,10 +835,35 @@ function showPrint(kind, label){
   $('pvClose').onclick = closePrint;
   $('pvPrint').focus();
 }
-function closePrint(){ var pv = $('printview'); if (pv){ pv.hidden = true; pv.innerHTML = ''; } document.body.classList.remove('printing'); var b = $('bPrint'); if (b) b.focus(); }
+function closePrint(){ var pv = $('printview'); if (pv){ pv.hidden = true; pv.innerHTML = ''; } document.body.classList.remove('printing'); moreFocus(); }
 document.addEventListener('click', function(e){ var t = e.target && e.target.closest && e.target.closest('[data-print]'); if (t && !t.disabled) showPrint(t.dataset.print); });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && document.body.classList.contains('printing')) closePrint(); });
-(function(){ var b = document.createElement('button'); b.type = 'button'; b.id = 'bPrint'; b.className = 'pbtn'; b.textContent = 'Print'; b.addEventListener('click', printMenu); var w = document.querySelector('.ctl'); if (w){ var tl = w.querySelector('.tools'); if (!tl){ tl = document.createElement('div'); tl.className = 'tools'; w.appendChild(tl); } tl.appendChild(b); } })();
+(function(){ var b = document.createElement('button'); b.type = 'button'; b.id = 'bPrint'; b.className = 'pbtn'; b.textContent = 'Print'; b.addEventListener('click', function(){ moreClose(); printMenu(); });
+  var w = document.querySelector('#mMenu .mprint') || document.querySelector('.ctl'); if (w) w.appendChild(b); })();   /* in the ⋯ menu (7 Nov 2026) */
+
+/* ------------------------------------------------ the ⋯ menu (7 Nov 2026, the site review: "Quiet the top" — Croix: "Ok sounds
+   well thought out. Proceed."). Four rows of controls stood before question 1; the mode toggle stays, and what to practice,
+   Print and the set number (Set · Change) sit in one menu beside it. Their own functions are unchanged; the menu only opens,
+   closes (Escape, a tap outside, or once one of them acts) and gives focus back to ⋯. */
+function moreBtn(){ return $('bMore'); }
+function moreOpen(){ var m = $('mMenu'), b = moreBtn(); if (!m || !b) return; m.hidden = false; b.setAttribute('aria-expanded', 'true'); var f = $('scope'); if (f) f.focus(); }
+function moreClose(back){ var m = $('mMenu'), b = moreBtn(); if (!m || m.hidden) return; m.hidden = true; if (b){ b.setAttribute('aria-expanded', 'false'); if (back) b.focus(); } }
+function moreFocus(){ var b = $('bPrint'); if (b && b.offsetParent) b.focus(); else if (moreBtn()) moreBtn().focus(); }
+if (moreBtn()){
+  moreBtn().addEventListener('click', function(){ if ($('mMenu').hidden) moreOpen(); else moreClose(true); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('mMenu').hidden){ e.stopPropagation(); moreClose(true); } }, true);
+  document.addEventListener('pointerdown', function(e){ var w = moreBtn().parentNode; if (!$('mMenu').hidden && !(e.target && e.target.closest && w.contains(e.target))) moreClose(); }, true);
+  document.addEventListener('focusin', function(e){ var w = moreBtn().parentNode; if (!$('mMenu').hidden && !w.contains(e.target)) moreClose(); });
+}
+/* the way back (7 Nov 2026, the site review): on mrshaffer.org a practice test is /<course>/practice/unit-N/, and its unit's
+   page is /<course>/unit-N/ — the bar's far left gets "‹ Unit N" there, as the site's own top bar has its way back. As a
+   claude.ai artifact or a Google Sites download there is no unit page to go back to, so it stays hidden. N is the unit's
+   (Unit.id, "m7u9"), never read from the address. */
+(function(){
+  var a = $('back'), n = /u(\d+)$/.exec(U.id || ''), onSite = /^\/(m7|a7)\/practice\/unit-\d+\/(index\.html)?$/.test(location.pathname || '');
+  if (!a || !n || !onSite) return;
+  a.href = '../../unit-' + n[1] + '/'; $('backl').textContent = 'Unit ' + n[1]; a.setAttribute('aria-label', 'Back to Unit ' + n[1]); a.hidden = false;
+})();
 
 /* the page's words, from the unit */
 document.title = U.title;

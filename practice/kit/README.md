@@ -65,16 +65,44 @@ in the code; the four reports are in the Windmill HANDOFF.
   - "Every one on the first try." when it's perfect; "Every point earned." when every point came, some from a fresh one.
   - Otherwise, jump links to the parts not right yet, "Practice my misses", and the parts under 80%.
   - "Last time: … Today: … (+6)".
-- **The clock:** it starts with the first answer and pauses when the page is hidden (Resume brings it back).
+- **The clock:** it starts with the first answer and pauses when the page is hidden (Resume brings it back). It is shown only in
+  *Like the real test* (7 Nov 2026); in *Check as I go* it runs unseen, so the end panel still has the time.
 - **Progress:** each device keeps its last 25 sets in its own browser storage. Nothing is sent anywhere.
-- **Made on purpose to be absent:** no Start button, no typing-tip box, no footer, no "Help me solve this".
+- **Made on purpose to be absent:** no Start button, no typing-tip box, no footer, no "Help me solve this", no row of controls
+  above question 1 (what to practice, Print and the set number are in the ⋯ menu), no clock in *Check as I go*, no font or
+  anything else from the network.
+
+## The look: mrshaffer.org's family (7 Nov 2026)
+Croix asked *"What would you change about the practice tests?"*, was given five changes, and said *"Ok sounds well thought out.
+Proceed."* The page is a practice test on mrshaffer.org, so it now looks like the site:
+- **The palette** is the site's (`public/site.css`): its cream for the desk, its card colour for the paper, navy ink, gold small
+  caps, teal for the pen and for links, navy for the one primary button, coral only for an alarm (the "this set was updated"
+  notice); green and red for right and wrong. A text colour is darkened a step where the site's token is under 4.5:1 on the
+  paper. The dark theme is the same family at night: a navy desk, cream ink, a cream primary. Print is dark ink on white, as before.
+- **Fonts:** Lexend stays on the sheet (ruling 46 — questions, answers, coach, buttons); the title is the site's DM Serif Display,
+  the bar and the eyebrow its DM Sans. All four faces are in `vendor/fonts/` (cut by `make_fonts.py`; SIL OFL 1.1, the licences
+  beside them) and `build.py` inlines them as data URIs — the Google Fonts `<link>` is gone; the page loads nothing (`page.js` F
+  fails any request off the page). Lexend's 500 draws as its Regular and 600 as its Bold; no faux weights.
+- **A quiet top:** the eyebrow, the title, the points, the unit's `notes` as a small muted line, then the mode toggle and **⋯**.
+  ⋯ is a button (`aria-haspopup`, `aria-expanded`) whose menu holds *What to practice*, **Print** and **Set N · Change** — the
+  same controls with the same ids and functions as before. Enter opens it with focus inside; Escape, a tap outside, or any of
+  them acting closes it, and focus goes back to ⋯. On a phone question 1 is on the first screen.
+- **The clock** shows only in *Like the real test* (above).
+- **Answering on a phone:** the box takes the width; Check and Hint share one row under it (a/b parts too). **Check is the
+  primary** (navy) until "Try another like this" or "Next ↓" is — still one primary button at a time.
+- **After Finish:** "Try a new set" — New set from behind Set · Change: a new random set, the same practice choice and mode. On
+  the whole test in *Check as I go* it takes the place of "New whole test", its twin.
+- **The way back (the site only):** on `/<course>/practice/unit-N/` the bar's far left has the site's "‹ Unit N", to
+  `../../unit-N/`, with N from `Unit.id`. As an artifact or a Google Sites download it is hidden.
+`check/page.js` part F checks all of this; the flows that use Print, the practice menu or the set box open ⋯ first.
 
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
 | `core.js` | `slot(unit, seed, slotName)`, `draw(unit, seed, slot, build, ok)`, `fnv1a`, and `hint.mul/div/add/sub/sq` (one smaller step of arithmetic, never the final answer) |
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
-| `kit.css` | the sheet: light and dark mode, 44px tap targets, print |
+| `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
+| `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
 | `check/run.py` | `python3 kit/check/run.py <unit>`: the unit's own checks, then the lock, then the browser checks. If all pass it writes `CHECKED` and builds. |
 | `check/hints.js` | the kit's own arithmetic hints (`core.js` `hint.div`, and `hint.mul` by 0.5) never state their answer: 400,000 divisions read for "= the answer" (25 Oct 2026 — "45 ÷ 3: Start with 3 × 10 = 30; 45 − 30 = 15 is left", and 15 is the answer). `run.py` runs it first |

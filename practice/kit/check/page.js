@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 const dir = path.resolve(process.argv[2] || '.'), U = require(path.join(dir, 'unit.js'));
 /* served over http (as on Google Sites), so the browser behaves as it will for students: storage events between tabs, etc. */
 const http = require('http'), fs = require('fs');
-const server = http.createServer((q, r) => { const f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
+const server = http.createServer((q, r) => { let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
 let url = '';
 const fails = []; const fail = m => { fails.push(m); };
 function itemsOf(seed) {
@@ -28,6 +28,9 @@ async function answer(p, it) {
 const check = (p, id) => p.evaluate(id => document.querySelector('[data-check="' + id + '"]').click(), id);
 const state = (p, seed) => p.evaluate(([pre, seed]) => JSON.parse(localStorage.getItem(pre + 'set.' + seed + '.all') || 'null'), [U.id + '.', seed]);
 const active = p => p.evaluate(() => { const a = document.activeElement; return a ? (a.id || '') + '|' + (a.className || '') + '|' + (a.dataset ? JSON.stringify(a.dataset) : '') : ''; });
+/* Print, what to practice and the set number live in the ⋯ menu (7 Nov 2026, the site review): a student opens it first, so
+   the check does too — every flow below that touches them is the same flow, one tap deeper */
+async function more(p) { if (await p.isHidden('#mMenu')) await p.click('#bMore'); }
 async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await p.goto(url + '#set-' + seed); await p.reload(); await p.waitForTimeout(150); }
 
 (async () => {
@@ -38,6 +41,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   const VEND = path.join(__dirname, '..', 'vendor', 'katex');
   await ctx.route('https://cdnjs.cloudflare.com/**', route => { const u = route.request().url(); const f = /katex\.min\.js$/.test(u) ? 'katex.min.js' : /katex\.min\.css$/.test(u) ? 'katex.min.css' : null;
     if (f) route.fulfill({ status: 200, contentType: f.endsWith('.js') ? 'application/javascript' : 'text/css', headers: { 'access-control-allow-origin': '*' }, body: fs.readFileSync(path.join(VEND, f)) }); else route.fulfill({ status: 404, body: '' }); });
+  const netAsked = []; ctx.on('request', r => { const u = r.url(); if (!/^(http:\/\/127\.0\.0\.1|data:|blob:|about:)/.test(u)) netAsked.push(u); });   /* nothing from the network: the page is an artifact and a download too (7 Nov 2026) */
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/fonts|ERR_TUNNEL|net::/.test(m.text())) errs.push(m.text()); });
 
   /* the line under the title is the unit's notes and nothing else — hidden when there are none (Croix, 21 Oct 2026: "eliminate
@@ -114,7 +118,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const a = await active(p); if (!/next/.test(a) && !/"next"/.test(a)) { const nx = await p.$('[data-next="' + it.id + '"]'); if (nx) fail('right answer: focus is ' + a + ', not Next'); } }
   /* 8. tap targets and the keypad */
   await p.focus('#a' + T[2].id);
-  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
+  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
   if (small.length) fail('tap targets under 44px: ' + JSON.stringify(small.slice(0, 5)));
   const tabbable = await p.evaluate(() => Array.from(document.querySelectorAll('.keys button')).filter(b => b.tabIndex >= 0).length); if (tabbable) fail(tabbable + ' keypad keys are tab stops');
   /* 9. Finish marks a typed answer that was never checked */
@@ -189,7 +193,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const txt = await p.evaluate(() => document.getElementById('paper').innerText);
     const m = /\b(null|undefined|NaN)\b/.exec(txt); if (m) fail('"' + m[1] + '" on the page: …' + txt.slice(Math.max(0, m.index - 80), m.index + 20).replace(/\s+/g, ' ')); }
   /* 13. a new set never says it "was updated" */
-  await p.click('details.setbox summary'); await p.click('#bNew'); await p.waitForTimeout(150);
+  await more(p); await p.click('details.setbox summary'); await p.click('#bNew'); await p.waitForTimeout(150);
   if (await p.isVisible('#notice')) fail('a new set says: ' + await p.$eval('#notice', e => e.textContent));
   /* 14. the keypad never moves the box being tapped (at the top of the page too) */
   await fresh(p, 781); { const tt = itemsOf(781).filter(i => i.kind === 'text');
@@ -272,7 +276,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       for (const it of [TT[1], MM[0]].filter(Boolean)) { await answer(p, it); await check(p, it.id); }
       await p.click('#bFinish'); await biAudit('the confirm'); await p.click('#cy'); await p.waitForTimeout(100);
       await biAudit('the results');
-      await p.click('details.setbox summary'); await biAudit('the set box');
+      await more(p); await p.click('details.setbox summary'); await biAudit('the set box');
       await p.selectOption('#scope', 'p2'); await p.waitForTimeout(100); if (await p.isVisible('#cy')) await p.click('#cy'); await p.waitForTimeout(200);
       await biAudit('one part, two rounds');
       await p.click('.mode button[data-mode="test"]'); if (await p.isVisible('#cy')) await p.click('#cy'); await p.waitForTimeout(100);
@@ -301,7 +305,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const txt = h => String(h).replace(/<[^>]*>/g, '').replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => e[0] === '#' ? String.fromCodePoint(e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : +e.slice(1)) : (ENT[e.toLowerCase()] ?? m)).replace(/\s+/g, ' ').trim();
     await fresh(p, seedP);
     const screenStems = await p.$$eval('.sheet .stem .st', es => es.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
-    await p.click('#bPrint'); if (!(await p.isVisible('[data-print="wk"]'))) fail('print: no choice after Print');
+    await more(p); await p.click('#bPrint'); if (!(await p.isVisible('[data-print="wk"]'))) fail('print: no choice after Print');
     await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     const pr = await p.evaluate(() => ({ stems: Array.from(document.querySelectorAll('#printview .pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim()),
       blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length,
@@ -319,7 +323,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose');
     const isTeacher = await p.evaluate(() => !!window.TEACHER_TEST);
     if (!isTeacher) {
-      await p.click('#bPrint');
+      await more(p); await p.click('#bPrint');
       const opts = await p.$$eval('[data-print]', es => es.map(e => e.dataset.print));
       if (opts.some(o => /^mk/.test(o))) fail('print: a student page offers make-up tests: ' + opts.join(', '));
       if (['ws', 'wk', 'res'].some(o => opts.indexOf(o) < 0)) fail('print: the student menu is ' + opts.join(', '));
@@ -329,7 +333,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       if (forged.pv || forged.printing) fail('print: a forged make-up request printed on a student page');
     }
     if (isTeacher) {
-    await p.click('#bPrint'); await p.click('[data-print="mk"]');
+    await more(p); await p.click('#bPrint'); await p.click('[data-print="mk"]');
     if (!(await p.isVisible('[data-print="mk3"]'))) fail('print: no form count after Make-up tests');
     const before = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent }));
     await p.click('[data-print="mk3"]'); await p.waitForTimeout(150);
@@ -404,7 +408,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       await p.click('#pvClose');
     } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');
     }
-    await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
+    await more(p); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     await p.emulateMedia({ media: 'print' });
     const vis = await p.evaluate(() => ({ sheet: getComputedStyle(document.querySelector('.sheet')).display, watch: getComputedStyle(document.querySelector('.watch')).display, bar: getComputedStyle(document.querySelector('#printview .pbar')).display, pv: getComputedStyle(document.getElementById('printview')).display }));
     if (vis.sheet !== 'none' || vis.watch !== 'none' || vis.bar !== 'none' || vis.pv === 'none') fail('print: on paper, more than the printout shows ' + JSON.stringify(vis));
@@ -413,7 +417,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose'); if (await p.evaluate(() => document.body.classList.contains('printing')) || !(await p.isVisible('.sheet'))) fail('print: Close did not give the page back');
     /* results */
     await answer(p, ip[0]); await check(p, ip[0].id); if (ip[1].kind === 'text') { await p.fill('#a' + ip[1].id, '987654'); await check(p, ip[1].id); }
-    await p.click('#bPrint'); await p.click('[data-print="res"]'); await p.waitForTimeout(100);
+    await more(p); await p.click('#bPrint'); await p.click('[data-print="res"]'); await p.waitForTimeout(100);
     const rs = await p.$$eval('#printview .pans2 tbody tr', rr => rr.map(r => Array.from(r.cells).map(c => c.textContent.replace(/\s+/g, ' ').trim())));
     if (rs.length !== ip.length) fail('print: results list ' + rs.length + ' parts of ' + ip.length);
     if (!rs[0] || !/^✓ First try$/.test(rs[0][2])) fail('print: a first-try right answer shows "' + (rs[0] && rs[0][2]) + '"');
@@ -422,9 +426,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose');
     /* test mode: the results wait for Finish */
     await p.click('.mode button[data-mode="test"]'); if (await p.isVisible('#cy')) await p.click('#cy');
-    await p.click('#bPrint'); if (!(await p.$eval('[data-print="res"]', b => b.disabled))) fail('print: results printable in test mode before Finish');
+    await more(p); await p.click('#bPrint'); if (!(await p.$eval('[data-print="res"]', b => b.disabled))) fail('print: results printable in test mode before Finish');
     await p.click('#cn');
-    if (U.second) { await p.click('.bi-toggle'); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(150);
+    if (U.second) { await p.click('.bi-toggle'); await more(p); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(150);
       const miss = await p.evaluate(() => Object.keys(window.__biMissing || {})); if (miss.length) fail('print: no Portuguese for ' + miss.slice(0, 4).join(' | '));
       if (!(await p.$$eval('#printview .tr', e => e.length))) fail('print: Portuguese on, but none in the printout');
       await p.click('#pvClose'); await p.click('.bi-toggle'); }
@@ -451,6 +455,54 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       return out; });
     if (w.errs.length) fail('tex: KaTeX errors on ' + JSON.stringify(w.errs)); if (w.bad.length) fail('tex: digits/letters changed on ' + JSON.stringify(w.bad));
     console.log('E. tex checked: ' + t.n + ' spans on the page, ' + w.n + ' over 60 sets'); }
+  /* F. the site's family (7 Nov 2026, the site review; Croix: "Ok sounds well thought out. Proceed."): the top is quiet — the
+     mode toggle and ⋯, and question 1 on a phone's first screen; ⋯ is a real button whose menu opens and closes by keyboard;
+     the clock shows only in "Like the real test" and still runs in "Check as I go"; the end panel has "Try a new set"; the way
+     back shows only on mrshaffer.org's practice addresses; and the page asks the network for nothing. */
+  { await p.setViewportSize({ width: 390, height: 844 }); await fresh(p, 4821);
+    const top = await p.evaluate(() => { const q = document.querySelector('#paper .q'), r = q && q.getBoundingClientRect();
+      return { q1: r ? Math.round(r.top) : 9999, h1: Math.round(document.getElementById('h1').getBoundingClientRect().top), menu: document.getElementById('mMenu').hidden,
+        print: !!document.querySelector('#mMenu #bPrint'), scope: !!document.querySelector('#mMenu #scope'), set: !!document.querySelector('#mMenu details.setbox'),
+        noteWeight: (() => { const n = document.querySelector('#intro .pinote'); return n ? +getComputedStyle(n).fontWeight : 0; })(),
+        time: getComputedStyle(document.getElementById('time')).display, back: !document.getElementById('back').hidden }; });
+    if (!top.menu) fail('the ⋯ menu is open when the page opens');
+    if (!top.print || !top.scope || !top.set) fail('the ⋯ menu does not hold Print, what to practice and the set number: ' + JSON.stringify(top));
+    if (top.q1 > 844 - 60) fail('on a phone question 1 starts at ' + top.q1 + 'px — not on the first screen');
+    if (top.noteWeight > 500) fail('the unit\'s notes are set bold (' + top.noteWeight + '): they are a quiet line');
+    if (top.time !== 'none') fail('the clock shows in "Check as I go"');
+    if (top.back) fail('the way back shows on a page that is not on mrshaffer.org');
+    /* ⋯ by keyboard: Enter opens it with focus inside, Escape closes it and gives focus back to ⋯ */
+    const bm = await p.evaluate(() => { const b = document.getElementById('bMore'); return { tag: b.tagName, pop: b.getAttribute('aria-haspopup'), exp: b.getAttribute('aria-expanded'), tab: b.tabIndex }; });
+    if (bm.tag !== 'BUTTON' || !bm.pop || bm.exp !== 'false' || bm.tab < 0) fail('⋯ is not a keyboard button with aria-haspopup: ' + JSON.stringify(bm));
+    await p.focus('#bMore'); await p.keyboard.press('Enter'); await p.waitForTimeout(50);
+    { const o = await p.evaluate(() => ({ open: !document.getElementById('mMenu').hidden, exp: document.getElementById('bMore').getAttribute('aria-expanded'), inside: document.getElementById('mMenu').contains(document.activeElement) }));
+      if (!o.open || o.exp !== 'true' || !o.inside) fail('Enter on ⋯ did not open its menu with focus inside: ' + JSON.stringify(o)); }
+    await p.keyboard.press('Tab'); { const inside = await p.evaluate(() => document.getElementById('mMenu').contains(document.activeElement)); if (!inside) fail('Tab from the practice menu leaves the ⋯ menu before Print'); }
+    await p.keyboard.press('Escape'); await p.waitForTimeout(50);
+    { const c = await p.evaluate(() => ({ open: !document.getElementById('mMenu').hidden, exp: document.getElementById('bMore').getAttribute('aria-expanded'), focus: document.activeElement && document.activeElement.id }));
+      if (c.open || c.exp !== 'false' || c.focus !== 'bMore') fail('Escape did not close the ⋯ menu back to ⋯: ' + JSON.stringify(c)); }
+    await p.click('#bMore'); await p.click('h1'); if (!(await p.isHidden('#mMenu'))) fail('a tap outside does not close the ⋯ menu');
+    /* the clock: hidden but running in "Check as I go"; shown in "Like the real test" */
+    const tx = itemsOf(4821).filter(i => i.kind === 'text'); await p.fill('#a' + tx[0].id, '1'); await p.waitForTimeout(1200);
+    { const st = await state(p, 4821); if (!st.running) fail('the clock does not run in "Check as I go" (it is only hidden there)'); }
+    if (await p.isVisible('#bPause')) fail('Pause shows in "Check as I go", where the clock is hidden');
+    await p.click('.mode button[data-mode="test"]'); if (await p.isVisible('#cy')) await p.click('#cy'); await p.waitForTimeout(80);
+    if (!(await p.isVisible('#time'))) fail('the clock is not shown in "Like the real test"');
+    /* after Finish: "Try a new set" opens a new random set, the same practice choice, and asks nothing (the set is finished) */
+    await fresh(p, 4821); await answer(p, itemsOf(4821)[0]); await check(p, itemsOf(4821)[0].id); await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100);
+    const tn = await p.$$('#result [data-newset]'); if (tn.length !== 1) fail('the end panel has ' + tn.length + ' "Try a new set" buttons');
+    else { await tn[0].click(); await p.waitForTimeout(200); const h = await p.evaluate(() => location.hash); if (!/^#set-\d+$/.test(h) || h === '#set-4821') fail('"Try a new set" opened ' + h);
+      if (await p.isVisible('#result')) fail('"Try a new set" left the end panel up'); }
+    /* the way back: on /<course>/practice/unit-N/ only, to ../../unit-N/ with N the unit's own */
+    const N = (/u(\d+)$/.exec(U.id) || [])[1];
+    if (N) { const sub = path.join(dir, 'm7', 'practice', 'unit-' + N); fs.mkdirSync(sub, { recursive: true }); fs.copyFileSync(path.join(dir, 'preview.html'), path.join(sub, 'index.html'));
+      try { await p.goto(url.replace(/preview\.html$/, 'm7/practice/unit-' + N + '/')); await p.waitForTimeout(200);
+        const bk = await p.evaluate(() => { const a = document.getElementById('back'); return { shown: !a.hidden && !!a.offsetParent, href: a.getAttribute('href'), text: a.textContent.trim(), h: Math.round(a.getBoundingClientRect().height),
+          left: Math.round(a.getBoundingClientRect().left), first: document.querySelector('.watch .in').firstElementChild === a }; });
+        if (!bk.shown || bk.href !== '../../unit-' + N + '/' || bk.text !== 'Unit ' + N || !bk.first || bk.h < 44) fail('the way back on the site: ' + JSON.stringify(bk));
+      } finally { fs.rmSync(path.join(dir, 'm7'), { recursive: true, force: true }); } }
+    console.log('F. the site\'s family checked'); }
+  if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();
   console.log('B. flows checked');
