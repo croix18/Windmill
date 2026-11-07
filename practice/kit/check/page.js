@@ -115,15 +115,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     for (let k = 1; k <= 3; k++) {
       await p.click('[data-rung="' + id + '"][data-to="' + k + '"]');
       const a = await active(p); if (a.split('|')[0] !== 'rg' + id + '-' + k) fail('ladder: after Hint ' + k + ' focus is ' + a);
-      const open = await p.$$eval('#st' + id + ' .rung', es => es.map(e => e.querySelector('.rh').textContent));
+      const open = await p.$$eval('#st' + id + ' .rung', es => es.map(e => e.querySelector('.rung-h').textContent));
       if (open.length !== k) fail('ladder: ' + open.length + ' rungs open after Hint ' + k + ': ' + open.join(' | '));
-      const nextB = await p.$('#st' + id + ' .rnext [data-rung][data-to="' + (k + 1) + '"]'); if (k < 3 && !nextB) fail('ladder: no button for Hint ' + (k + 1) + ' under rung ' + k);
-      if (k === 3 && await p.$('#st' + id + ' .rnext')) fail('ladder: a next-rung button under the last rung');
+      const nextB = await p.$('#st' + id + ' .rung-next [data-rung][data-to="' + (k + 1) + '"]'); if (k < 3 && !nextB) fail('ladder: no button for Hint ' + (k + 1) + ' under rung ' + k);
+      if (k === 3 && await p.$('#st' + id + ' .rung-next')) fail('ladder: a next-rung button under the last rung');
     }
-    const heads = await p.$$eval('#st' + id + ' .rh', es => es.map(e => e.textContent));
+    const heads = await p.$$eval('#st' + id + ' .rung-h', es => es.map(e => e.textContent));
     if (JSON.stringify(heads) !== JSON.stringify(['Hint 1 · What to notice', 'Hint 2 · The first step', 'Hint 3 · The worked solution'])) fail('ladder headings: ' + heads.join(' | '));
     const r3 = await p.evaluate(id => { const r = document.getElementById('rg' + id + '-3'), lis = r ? Array.from(r.querySelectorAll('ol.sol > li')) : [];
-      return { n: lis.length, ruled: lis.slice(1).every(li => parseFloat(getComputedStyle(li).borderTopWidth) > 0), key: !!(r && r.querySelector('.key')), notice: (document.querySelector('#rg' + id + '-1 .rnote') || {}).textContent || '' }; }, id);
+      return { n: lis.length, ruled: lis.slice(1).every(li => parseFloat(getComputedStyle(li).borderTopWidth) > 0), key: !!(r && r.querySelector('.key')), notice: (document.querySelector('#rg' + id + '-1 .rung-note') || {}).textContent || '' }; }, id);
     if (sol.length && r3.n !== sol.length) fail('ladder: rung 3 shows ' + r3.n + ' steps of ' + sol.length);
     if (r3.n > 1 && !r3.ruled) fail('ladder: rung 3\'s steps have no rule between them');
     if (!r3.key) fail('ladder: rung 3 does not end in the answer');
@@ -164,7 +164,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const a = await active(p); if (!/next/.test(a) && !/"next"/.test(a)) { const nx = await p.$('[data-next="' + it.id + '"]'); if (nx) fail('right answer: focus is ' + a + ', not Next'); } }
   /* 8. tap targets and the keypad */
   await p.focus('#a' + T[2].id);
-  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore, .hslot button, .rnext button, .rwalk button')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
+  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore, .hslot button, .rung-next button, .rung-walk button')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
   if (small.length) fail('tap targets under 44px: ' + JSON.stringify(small.slice(0, 5)));
   const tabbable = await p.evaluate(() => Array.from(document.querySelectorAll('.keys button')).filter(b => b.tabIndex >= 0).length); if (tabbable) fail(tabbable + ' keypad keys are tab stops');
   /* 9. Finish marks a typed answer that was never checked */
@@ -361,12 +361,22 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const txt = h => String(h).replace(/<[^>]*>/g, '').replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => e[0] === '#' ? String.fromCodePoint(e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : +e.slice(1)) : (ENT[e.toLowerCase()] ?? m)).replace(/\s+/g, ' ').trim();
     await fresh(p, seedP);
     const screenStems = await p.$$eval('.sheet .stem .st', es => es.map(e => e.textContent.replace(/\s+/g, ' ').trim()));
+    /* item 6: every question card has its speakable ID, "U9·3" in the whole test's order, and it prints on paper too */
+    const UN = (/u(\d+)$/.exec(U.id) || [])[1], screenIds = await p.$$eval('#paper .q[data-q]:not(.xq) > .qid .qn', es => es.map(e => e.textContent));
+    const nQ = U.generate(seedP).sections.reduce((t, s0) => t + s0.items.length, 0);
+    if (JSON.stringify(screenIds) !== JSON.stringify(Array.from({ length: nQ }, (_, k) => 'U' + UN + '·' + (k + 1)))) fail('IDs on the cards: ' + screenIds.slice(0, 5).join(' ') + '… for ' + nQ + ' questions');
+    { const r = await p.evaluate(() => { const q = document.querySelector('#paper .q[data-q] > .qid'), b = q.getBoundingClientRect(), c = q.parentNode.getBoundingClientRect(); return { right: Math.round(c.right - b.right), top: Math.round(b.top - c.top) }; });
+      if (r.right > 2 || r.top > 4) fail('the ID is not at the top right of its card: ' + JSON.stringify(r)); }
+    await p.emulateMedia({ media: 'print' }); { const d = await p.$eval('#paper .q[data-q] > .qid', e => getComputedStyle(e).display); if (d === 'none') fail('the IDs are hidden when the page itself is printed'); } await p.emulateMedia({ media: 'screen' });
     await more(p); await p.click('#bPrint'); if (!(await p.isVisible('[data-print="wk"]'))) fail('print: no choice after Print');
     await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     const pr = await p.evaluate(() => ({ stems: Array.from(document.querySelectorAll('#printview .pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim()),
+      ids: Array.from(document.querySelectorAll('#printview .pq .pqid .qn')).map(e => e.textContent), keyIds: Array.from(document.querySelectorAll('#printview .pkey tr td.pid')).map(e => e.textContent),
       blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length,
       keys: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }));
     if (JSON.stringify(pr.stems) !== JSON.stringify(screenStems)) fail('print: the worksheet questions are not the screen questions');
+    if (JSON.stringify(pr.ids) !== JSON.stringify(screenIds)) fail('print: the worksheet IDs ' + pr.ids.slice(0, 4).join(' ') + '… are not the screen\'s');
+    { const want = ip.map(it => 'U' + UN + '·' + (+it.id.replace(/\D+$/, '').replace(/\D.*$/, ''))); if (JSON.stringify(pr.keyIds) !== JSON.stringify(want)) fail('print: the key\'s IDs ' + pr.keyIds.slice(0, 4).join(' ') + '… are not its questions\' (' + want.slice(0, 4).join(' ') + '…)'); }
     const nText = ip.filter(i => i.kind === 'text').length, nMc = ip.length - nText;
     if (pr.blanks !== nText || pr.groups !== nMc) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists for ' + nText + ' / ' + nMc + ' parts');
     if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
@@ -401,6 +411,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
         heads: forms.map(f => f.querySelector('.pt2').textContent.trim()), titles: forms.map(f => f.querySelector('.pt1').textContent.trim()), khead: keys.map(k => k.querySelector('.psec').textContent.trim() + ' ' + k.querySelector('.pmeta').textContent.trim()),
         stems: forms.map(f => Array.from(f.querySelectorAll('.pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim())),
         keyrows: keys.map(k => Array.from(k.querySelectorAll('table.pkrows tr')).map(r => r.cells[1].textContent.replace(/\s+/g, ' ').trim())),
+        formIds: forms.map(f => Array.from(f.querySelectorAll('.pq .pqid .qn')).map(e => e.textContent)), keyIds: keys.map(k => Array.from(k.querySelectorAll('table.pkrows td.pid')).map(e => e.textContent)),
         names: forms.map(f => f.querySelectorAll('.pname').length),
         sets: forms.map(f => (/\bSet \d/.exec(f.textContent) || [''])[0]),
         answerLines: forms.map(f => f.querySelectorAll('.pans, .pblank').length + (/Answer:/.test(f.textContent) ? 1 : 0)),
@@ -421,6 +432,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       mk.headPts.forEach((x, k) => { if (+x !== nParts[k]) fail(word + ': form ' + 'ABCDE'[k] + ' is headed ' + x + ' points for ' + nParts[k] + ' parts'); });
       if (mk.oneDay) mk.period.forEach((x, k) => { if (x) fail(word + ': form ' + 'ABCDE'[k] + ' of a one-period test (ruling 51) prints a line about its length'); });
       mk.lines.forEach((ls, k) => { ls.forEach((x, i) => { if (ls.indexOf(x) !== i || mk.ft[k].indexOf(x) >= 0) fail(word + ': form ' + 'ABCDE'[k] + ' prints "' + x.slice(0, 60) + '…" twice'); }); });
+      mk.formIds.forEach((ids, k) => { const n = mk.stems[k].length, want = Array.from({ length: n }, (_, j) => 'U' + (/u(\d+)$/.exec(U.id) || [])[1] + '·' + (j + 1)); if (JSON.stringify(ids) !== JSON.stringify(want)) fail(word + ': form ' + 'ABCDE'[k] + ' prints the IDs ' + ids.slice(0, 3).join(' ') + '…'); if (!mk.keyIds[k].length || mk.keyIds[k].some(x => want.indexOf(x) < 0)) fail(word + ': key ' + 'ABCDE'[k] + ' has the IDs ' + mk.keyIds[k].slice(0, 3).join(' ')); });
       mk.tracker.forEach((t, k) => { if (!t || t.total !== nParts[k]) fail(word + ': key ' + 'ABCDE'[k] + ' has ' + (t ? 'a score tracker totalling ' + t.total : 'no score tracker') + ' for ' + nParts[k] + ' parts'); });
     };
     const mk = await p.evaluate(formShape);
@@ -463,6 +475,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       secs.forEach(s => { if (/^(\d+|[IVX]+|Part \w+)[.:]/i.test(s)) fail('ruling 54: a printed section is numbered: "' + s + '"'); });
       await p.click('#pvClose');
     } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');
+    else {   /* the real test's paper (teacher.js): the same IDs as the page, on the test and on its key, a left-out question keeping its gap */
+      const tt = await p.evaluate(() => { const T = window.TEACHER; if (!T || !T.testHtml) return null; const f = T.forms[0], keep = T.pick(); const d = document.createElement('div');
+        d.innerHTML = T.testHtml(f); const ids = Array.from(d.querySelectorAll('.pqid .qn')).map(e => e.textContent); d.innerHTML = T.keyHtml(f); const kids = Array.from(d.querySelectorAll('td.pid')).map(e => e.textContent);
+        T.pick(keep.map((x, i) => i !== 1)); d.innerHTML = T.testHtml(f); const gap = Array.from(d.querySelectorAll('.pqid .qn')).map(e => e.textContent); T.pick(keep); return { ids, kids, gap, n: keep.length, unit: window.TEACHER_TEST.unit }; });
+      if (tt) { const want = Array.from({ length: tt.n }, (_, j) => 'U' + tt.unit + '·' + (j + 1));
+        if (JSON.stringify(tt.ids) !== JSON.stringify(want)) fail('the real test prints the IDs ' + tt.ids.slice(0, 4).join(' ') + '…');
+        if (!tt.kids.length || tt.kids.some(x => want.indexOf(x) < 0) || tt.kids[0] !== want[0]) fail('the real test\'s key has the IDs ' + tt.kids.slice(0, 4).join(' '));
+        if (tt.gap[1] !== want[2]) fail('a left-out question renumbered the IDs: ' + tt.gap.slice(0, 3).join(' '));
+        if ('U' + tt.unit !== 'U' + (/u(\d+)$/.exec(U.id) || [])[1]) fail('the real test\'s IDs are for unit ' + tt.unit + ', the page\'s for ' + U.id); } }
     }
     await more(p); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     await p.emulateMedia({ media: 'print' });

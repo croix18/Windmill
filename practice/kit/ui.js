@@ -27,6 +27,20 @@ var G0 = U.generate(1), NSEC = G0.sections.length;
 var SCOPES = { all: 'Whole test' };
 G0.sections.forEach(function(s, k){ SCOPES['p' + (k + 1)] = s.title + ' only'; });   /* ruling 54: a section is named, never numbered */
 SCOPES.miss = 'My misses, with new numbers';
+/* speakable IDs (7 Nov 2026, item 6): "U9·3" — the unit, then the question's place in the whole test — so a teacher can say "look
+   at U9·3". Stable across sets, practice choices and rounds; the same on the screen, on every printout and on the teacher
+   copy's keys (teacher.js writes them on the real test too). The generator's skill code follows on the screen and the
+   practice printouts: view.skill(item) if the unit gives one, else the item's family code(s). */
+var UNO = (/u(\d+)$/.exec(U.id || '') || [])[1] || '', QORD = [];
+(function(){ var c = 0; G0.sections.forEach(function(s, si){ QORD[si] = s.items.map(function(){ return ++c; }); }); })();
+function qidOf(si, ii, item){
+  var n = QORD[si] && QORD[si][ii]; if (!n) return null;
+  var sk = ''; try { sk = V.skill ? V.skill(item) || '' : ''; } catch(e){}
+  if (!sk && item){ var fs = []; (item.type === 'parts' ? item.parts : item.type === 'solo' ? [item.part] : [item]).forEach(function(p){ var f = p && (p.fam || (p === item.part ? item.fam : '')); if (typeof f === 'string' && f && fs.indexOf(f) < 0) fs.push(f); }); if (!fs.length && typeof item.fam === 'string') fs.push(item.fam); sk = fs.join('/'); }
+  return {id: 'U' + UNO + '·' + n, sk: typeof sk === 'string' ? sk : ''};
+}
+function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? '<span class="qsk"> · ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
+function qidOfItem(it){ var p = String(it.pos || '').split('.').map(Number); return qidOf(p[0], p[1], it.item); }
 var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts */
 function fromHash(){ var m = HASH.exec(location.hash || ''); return m && +m[1] >= 1 && (!m[2] || SCOPES[m[2].toLowerCase()]) ? {seed: +m[1], scope: (m[2] || 'all').toLowerCase()} : null; }
 function hashOf(sd, sc){ return '#set-' + sd + (sc === 'all' ? '' : '-' + sc); }
@@ -138,7 +152,7 @@ function render(){
     var pts = 0;
     var body = sec.items.map(function(d){
       var it = d.it; qn++;
-      var q = ['<div class="q" data-q="' + qn + '">'];
+      var q = ['<div class="q" data-q="' + qn + '">' + qidHtml(qidOf(d.si, d.ii, it), 'qid')];
       if (it.type === 'parts'){
         q.push('<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it));
         var shown = it.parts.filter(function(p, pi){ return !d.keep || d.keep[pi]; }).length, lone = shown === 1 && it.parts.length > 1;
@@ -382,14 +396,14 @@ function rungBtn(it, to, after){
 }
 var RH = ['', 'Hint 1 · What to notice', 'Hint 2 · The first step', 'Hint 3 · The worked solution'];
 function ladderHtml(it, R){
-  var g = rungsOf(it), n = Math.min(3, R.rung || 0), h = '<div class="ladder">';
-  var head = function(k){ return '<div class="rung r' + k + '" id="rg' + it.id + '-' + k + '" tabindex="-1"><div class="rh">' + RH[k] + '</div>'; };
-  if (n >= 1) h += head(1) + '<p class="rnote">' + g.notice + '</p></div>';
+  var g = rungsOf(it), n = Math.min(3, R.rung || 0), h = '<div class="helpl">';
+  var head = function(k){ return '<div class="rung r' + k + '" id="rg' + it.id + '-' + k + '" tabindex="-1"><div class="rung-h">' + RH[k] + '</div>'; };
+  if (n >= 1) h += head(1) + '<p class="rung-note">' + g.notice + '</p></div>';
   if (n >= 2){ var f = g.first;
     h += head(2) + (f ? '<div class="say">' + f.say + '</div>' + (f.got ? '<div class="wgot"><span class="wok">✓</span> ' + f.got + '</div>' : '') + (f.ex ? '<div class="ex">' + V.ex(it.x, f.ex, it.type) + '</div>' : '') : '') +
-      (n < 3 && R.v !== 'right' && walkOf(it) && !S.walkOpen[it.id] ? '<div class="rwalk"><button type="button" data-walk="' + it.id + '" aria-label="Step by step with me, question ' + esc(it.lab) + '">Step by step with me</button></div>' : '') + '</div>'; }
+      (n < 3 && R.v !== 'right' && walkOf(it) && !S.walkOpen[it.id] ? '<div class="rung-walk"><button type="button" data-walk="' + it.id + '" aria-label="Step by step with me, question ' + esc(it.lab) + '">Step by step with me</button></div>' : '') + '</div>'; }
   if (n >= 3) h += head(3) + stepsHtml(it, R) + '</div>';
-  if (n >= 1 && n < 3 && R.v !== 'right') h += '<div class="rnext">' + rungBtn(it, n + 1) + '</div>';
+  if (n >= 1 && n < 3 && R.v !== 'right') h += '<div class="rung-next">' + rungBtn(it, n + 1) + '</div>';
   return h + '</div>';
 }
 function openRung(it, to){
@@ -815,7 +829,7 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
    printout is the same set as the screen (the same items, drawn by the same view functions; the key is the same key the
    page marks with), shown first as a preview with its own Print button. With Português on, its lines print too. */
 function pq(d, qn){
-  var it = d.it, h = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
+  var it = d.it, h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
   var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
@@ -837,7 +851,7 @@ function worksheetHtml(){
   return h.join('');
 }
 function keyListHtml(){
-  var rows = ITEMS.map(function(it){ return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('');
+  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
   return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
 }
 function yourAnswer(it){
@@ -902,7 +916,7 @@ function collect(){                                        /* the items of DS, a
    the teacher's key, with a score tracker by benchmark. */
 function pqTest(d, qn){
   var it = d.it, one = '<span class="pt">1 pt</span>';
-  var h = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
+  var h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span>' + one + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : '<div class="pwork"></div>') + '</div>'; });
@@ -936,7 +950,7 @@ function testFormHtml(label, form){
 }
 function testKeyHtml(form, s){
   var T = window.TEACHER_TEST || {};
-  var rows = ITEMS.map(function(it){ return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td></tr>'; }).join('');
+  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
   var bySec = DS.map(function(sec, si){ var its = ITEMS.filter(function(it){ return it.sec === si; }), qs = [];
     its.forEach(function(it){ var q = String(it.lab).replace(/[a-z]+$/, ''); if (qs.indexOf(q) < 0) qs.push(q); }); return {title: sec.title, qs: qs, pts: its.length}; });
   var order = T.tracker_order || [], tr = T.tracker || {};      /* the test's benchmarks, section by section, where the spec's tracker agrees with the page */

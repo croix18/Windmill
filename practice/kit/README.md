@@ -139,6 +139,16 @@ select-all, the wrong picks are named on the first check, and missed ones are co
 - `check/page.js` part G picks two wrong choices of every choice question on a set and each select-all's first wrong choice,
   and fails a card that does not show that choice's line, or two choices of one question that say the same thing.
 
+## Speakable IDs (7 Nov 2026, the practice-test deepening, item 6)
+From the survey's don't-do table (badge codes that need a legend): every question card has a short stable ID, quiet at its
+top right — **U9·3**, the unit and the question's place in the whole test — then the generator's skill code
+(`view.skill(item)` if the unit gives one, else the item's family codes: "U9·4 · sumDec/diffDec"). A teacher can say "look at
+U9·3": the ID is the same in every set, practice choice and round, on the printed worksheet (top right of each question), in
+every answer key's last column (the worksheet's, the make-ups', the ruling-49 test's) and on the teacher copy's real test and
+its key (`teacher.js`, ID only — the paper has no generator). A question left out of the real test keeps its ID; only the
+printed numbers close up. The print styles keep them (`.qid`, `.pqid`, `td.pid`). `page.js` part D checks the cards, the
+worksheet, the keys, the test forms and the real paper.
+
 ## Equivalent forms are right (7 Nov 2026, the practice-test deepening, item 3)
 From the 170-site survey (its items 14–19, which Croix approved): the most concrete failure it found was *"x=3 was not
 accepted unless written as 3=x"*. The unit's coach still judges first — its mistake models, its "Almost" — and then, when it
@@ -201,7 +211,7 @@ generate(seed) → {sections: [{title, items}]}
    item: {type: 'parts' | 'solo' | 'mc' | 'multi', stem, fig?, parts | part | opts+correct}
    part: {label, kind ('mc' for a lettered multiple choice), fam, prm, …}
 key(partOrItem) → string                      // what makes two questions the same
-view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
+view: {stem(item), figure(item), skill?(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
        start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no

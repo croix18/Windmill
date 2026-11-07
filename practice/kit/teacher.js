@@ -37,6 +37,10 @@
     T.forms[f].forEach(function(sec){ var items = sec.items.filter(function(){ return picked[k++]; }); if (items.length) secs.push({title: sec.title, benchmark: sec.benchmark, items: items, points: items.reduce(function(t, it){ return t + (it.parts ? it.parts.length : 1); }, 0)}); });
     return secs;
   }
+  /* the speakable ID (7 Nov 2026, the practice-test deepening, item 6): "U9·3", the question's place in the whole test — the
+     same as on the student page, its printouts and its keys, so a teacher can say "look at U9·3". A left-out question keeps
+     its gap: the IDs are never renumbered, only the printed question numbers are. */
+  function qid(f, it){ var k = 0, r = 0; T.forms[f].forEach(function(sec){ sec.items.forEach(function(x){ k++; if (x === it) r = k; }); }); return r ? 'U' + T.unit + '·' + r : ''; }
   function total(f){ return keptForms(f).reduce(function(t, s){ return t + s.points; }, 0); }
   function nLeftOut(){ return picked.filter(function(x){ return !x; }).length; }
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -66,7 +70,7 @@
       if (sec.items.some(function(it){ return it.parts; })) h.push('<p class="pft">' + esc(T.follow_through_student) + '</p>');
       sec.items.forEach(function(it){
         qn++;
-        var q = '<div class="pq"><div class="pqh"><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + tex(it.stem) + '</span>' + (it.parts ? '' : '<span class="pt">1 pt</span>') + '</div>' + (it.fig || '') + '</div>';
+        var q = '<div class="pq"><div class="pqh"><div class="pqid" translate="no"><span class="qn">' + qid(f, it) + '</span></div><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + tex(it.stem) + '</span>' + (it.parts ? '' : '<span class="pt">1 pt</span>') + '</div>' + (it.fig || '') + '</div>';
         /* work space and no answer line, as the paper (house rule 2; the docx test has none — 25 Oct 2026) */
         if (it.parts) it.parts.forEach(function(p){ q += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b><span class="st">' + tex(p.stem) + '</span><span class="pt">1 pt</span></div>' + (p.choices ? choices(p) : work(p.space)) + '</div>'; });   /* a part may have choices (2 Nov 2026) */
         else if (it.choices) q += '<div class="ppart">' + choices(it) + '</div>';
@@ -87,7 +91,7 @@
         var ans = ch ? ch.correct.map(function(c){ return '<b>' + LET[c] + '.</b> ' + tex(ch.choices[c]); }).join('&nbsp;&nbsp; ') : tex(p.answer);
         var why = (it.transfer && pi === 0 ? '<div class="kflag">' + esc(T.transfer_flag) + '</div>' : '') + (p.why ? '<div class="kwhy">' + tex(p.why) + '</div>' : '') +
           (it.errors && Object.keys(it.errors).length ? '<div class="kerr">' + Object.keys(it.errors).map(function(L){ return '<b>' + L + '</b> ' + tex(it.errors[L]); }).join('<br>') + '</div>' : '');
-        rows.push('<tr><td class="pk">' + lab + '</td><td class="kv">' + ans + why + '</td></tr>');
+        rows.push('<tr><td class="pk">' + lab + '</td><td class="kv">' + ans + why + '</td><td class="pid">' + qid(f, it) + '</td></tr>');
       });
     }); });
     var tracker = '<h2 class="psec">Score tracker</h2><table class="ptab ptrack"><thead><tr><th>Benchmark</th><th>Questions</th><th>Possible</th><th>Earned</th></tr></thead><tbody>' +
