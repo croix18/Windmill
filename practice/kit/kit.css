@@ -476,3 +476,10 @@ details.setbox summary .chg,a{color:var(--link)}
 .xq{border-color:color-mix(in srgb,var(--pen) 55%,transparent)}
 @media print{ .menu,#bMore,.watch .back{display:none!important} .intro .pinote{color:#444} }
 
+
+/* ==== the practice-test deepening, 7 Nov 2026 (the 170-site survey, items 14–19; Croix approved) ==== */
+/* item 3: the form a box expects, as a quiet line over it ("To the nearest tenth", "In scientific notation") — only from a
+   unit's declaration, or where the key makes it certain */
+.flab{font:500 12.5px/1.3 var(--ui);color:var(--mut);margin:6px 0 -2px}
+.prt:not(.solo)>.flab{margin-left:var(--i2)}
+@media print{ .flab{display:none} }

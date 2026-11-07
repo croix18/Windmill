@@ -1,6 +1,6 @@
 """Practice-test kit: run every check for a unit, then build it.   python3 <kit>/check/run.py <unit folder>
 
-0. the kit's own arithmetic hints never state their answer (check/hints.js);
+0. the kit's own arithmetic hints never state their answer (check/hints.js); the answer normaliser's cases (check/norm.js);
 1. the unit's own checks (unit.json "checks": exact answers, keys typed back, mistake models, the clean rule, solution and
    walkthrough chains, claims in sentences, pictures and figures, test-form avoidance, planted errors, the sympy oracle);
 2. the stability lock (check/lock.js): set numbers keep their questions unless contentVersion is bumped; and the variety
@@ -19,6 +19,7 @@ def run(cmd, cwd):
     r = subprocess.run(cmd, shell=True, cwd=cwd, env=env)
     if r.returncode: sys.exit("CHECK FAILED: " + cmd)
 run("node " + os.path.join(KIT, "check", "hints.js"), UD)
+run("node " + os.path.join(KIT, "check", "norm.js"), UD)          # the answer normaliser, case by case (7 Nov 2026)
 for c in cfg.get("checks", []): run(c, UD)
 run("node " + os.path.join(KIT, "check", "lock.js") + " .", UD)
 if not any(x.endswith("teacher.js") for x in cfg["scripts"]):    # a teacher copy is its unit's questions: counted there

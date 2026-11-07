@@ -105,10 +105,11 @@ function build(){
 
 /* ------------------------------------------------ drawing the sheet */
 function fig(it){ try { return V.figure(it) || ''; } catch(e){ return ''; } }
+function flabHtml(p, id){ var fm = formOf(p); return fm.label ? '<div class="flab" id="fl' + id + '">' + esc(fm.label.charAt(0).toUpperCase() + fm.label.slice(1)) + '</div>' : ''; }
 function inputHtml(p, id, lab){
-  var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p);
-  return '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
-    '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (p.imode ? ' inputmode="' + esc(p.imode) + '"' : '') + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
+  var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p), fl = formOf(p).label;
+  return flabHtml(p, id) + '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
+    '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + (fl ? ' fl' + id : '') + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (p.imode ? ' inputmode="' + esc(p.imode) + '"' : '') + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
     (unit ? '<span class="unit">' + esc(unit) + '</span>' : '') + '<span class="acts"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></span><span class="pv" aria-hidden="true"></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
 }
 function tailHtml(id){
@@ -224,12 +225,36 @@ function ctxOf(it){
 function judgeAns(it, a, tries){
   if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
   try {
-    if (it.type === 'text') return U.judge.text(it.x, a, ctxOf(it));
+    if (it.type === 'text'){ a = tidy(a); return equivUp(it, a, U.judge.text(it.x, a, ctxOf(it))); }
     if (it.type === 'mc') return U.judge.mc(it.x, +a);
     return U.judge.multi(it.x, a, (tries || 0) + 1);
   } catch(e){ return {v: 'unread', what: ['I can’t read that yet. Type just your answer.']}; }
 }
 function judge(it, tries){ return judgeAns(it, S.ans[it.id], tries); }
+/* ---- equivalent forms (7 Nov 2026, the practice-test deepening, item 3): the unit's coach judges first; when it says "not
+   yet" (or "almost", or cannot read it) and the typed answer IS the key written another way — 3 = x for x = 3, 2/4 for 1/2,
+   1 1/2 for 3/2, the terms in another order, a unicode minus, a $ in a money box (core.js Kit.Ans) — it is right, with a quiet
+   nudge where the form could be tidier. The normaliser never does the arithmetic the question asks for (3x + 2x is not 5x).
+   A unit declares a box's expected form with view.form(part) → {label, expect, precision, simplest, equiv: false, …}; with
+   none, the form is read from the key and the box, and its label shows only where it cannot be wrong. */
+var FORMS = typeof WeakMap === 'function' ? new WeakMap() : null;
+function formOf(p){
+  if (FORMS && FORMS.has(p)) return FORMS.get(p);
+  var d = null, key = '', f; try { d = V.form ? V.form(p) : null; } catch(e){}
+  try { key = U.keyText ? String(U.keyText(p)) : ''; } catch(e){}
+  try { f = K.Ans.form(key, {declared: Object.assign({}, p.form || {}, d || {}), placeholder: V.placeholder(p), pre: V.pre(p), unit: V.unit(p)}); } catch(e){ f = {label: '', equiv: false}; }
+  f.key = key; if (FORMS) FORMS.set(p, f); return f;
+}
+/* the keypad's fraction template writes ()/(); a unit's reader need not know it: (3)/(4) is 3/4 */
+function tidy(a){ return typeof a === 'string' && a.indexOf(')/(') >= 0 ? a.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*\)\s*\/\s*\(\s*(-?\d+(?:\.\d+)?)\s*\)/g, '$1/$2') : a; }
+function equivUp(it, a, f){
+  if (!f || f.v === 'right' || f.v === 'blank' || !K.Ans) return f;
+  var fm = formOf(it.x), r; if (!fm.key) return f;
+  try { r = K.Ans.equiv(a, fm.key, fm); } catch(e){ return f; }
+  if (!r || !r.ok) return f;
+  var nudge = r.nudge ? esc(r.nudge) : f.v === 'form' && f.what && f.what[0] ? f.what[0] : '';   /* a unit's own "almost" words become the nudge */
+  return {v: 'right', what: nudge ? [nudge] : [], equiv: true};
+}
 function res(it){ return S.res[it.id] || (S.res[it.id] = {tries: 0, first: null, v: null, shown: false, hinted: false, steps: 0}); }
 function plainText(h){ var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
 function sameAns(a, b){ return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }

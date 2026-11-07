@@ -96,16 +96,45 @@ Proceed."* The page is a practice test on mrshaffer.org, so it now looks like th
   `../../unit-N/`, with N from `Unit.id`. As an artifact or a Google Sites download it is hidden.
 `check/page.js` part F checks all of this; the flows that use Print, the practice menu or the set box open ⋯ first.
 
+## Equivalent forms are right (7 Nov 2026, the practice-test deepening, item 3)
+From the 170-site survey (its items 14–19, which Croix approved): the most concrete failure it found was *"x=3 was not
+accepted unless written as 3=x"*. The unit's coach still judges first — its mistake models, its "Almost" — and then, when it
+says not yet, `core.js` **`Kit.Ans`** asks whether the typed answer *is* the key (`keyText`) written another way. If it is,
+it is right (and counts as right on the first check), with a quiet nudge under ✓ where the form could be tidier.
+- **The same:** `3 = x` and `x = 3`; `0.5`, `1/2` and `2/4` (nudge *"Simplify: 2/4 = 1/2."* when the key is in lowest terms
+  and the box does not say `simplest: false`); `1 1/2` and `3/2`; trailing zeros, spaces, a leading `+`, `.5`; the unicode
+  minus and dashes; `×`, `*`, `·` and `x` between two numbers; `÷` and `/`; `^` and superscript digits; `pi` and `π`; thousands
+  commas; `$` in a money box and `%` in a percent box; the box's own unit typed after the number; `x*2`, `2x` and `2·x`;
+  the terms of a sum and the factors of a product in any order; one sign for a term (`−(2x)`, `(−2)x`, `−2x`); `x/2` and
+  `½x`; the sides of an inequality turned round with its sign (`3 < x` is `x > 3`, chains too); an ordered pair `(2, 3)`, or
+  `98, 24` for `98 and 24`; `n = 9` (or `9 = n`) in a box that already says `n =`; a template's `(3)/(4)`.
+- **Never the same** (the question asks for these, so the coach marks them): like terms combined (`3x + 2x` is not `5x`),
+  products worked out (`7 × 3` is not `21`), a power and its value (`9^5`, `59049`), `(−3)^2` and `−3^2`, the grouping of a
+  sum (`(a + b) + c` is not `a + (b + c)`), one scientific notation and another, a negative exponent for a positive one,
+  distributing, a rounded decimal for a fraction (`0.33`, `1/3`), words, two numbers side by side, a number after a letter.
+- **Rounding:** a box that declares a precision (or whose placeholder says "nearest tenth") takes any answer within half of
+  it; more places than asked is right with *"Round to the nearest tenth: 9.2."*
+- **The form label:** every box may carry a quiet line over it — *"To the nearest tenth"*, *"In scientific notation"*, *"As an
+  inequality"*, *"As a power"*. A unit declares it with **`view.form(part) → {label, expect, precision, simplest, money,
+  percent, v, equiv}`** (or `part.form`); with no declaration the label is read from the key only where it cannot be wrong, and
+  a box with a placeholder gets none. `expect: 'fraction'` with `label: 'as a fraction a/b'` also nudges a decimal; `equiv:
+  false` leaves a box to its coach alone (M7 Unit 9's associative-property question, where the grouping is the answer).
+- **Checked:** `check/norm.js` (run by `run.py`) — 101 cases, 28 of them answers that must *not* be the same.
+- **Known limits:** it reads one-letter variables only (a word, "bus 85.33", is the unit's reader's); it does not combine
+  numbers (`2·3x` is not `6x`); `x` is "times" only between two numbers; a fraction bar binds left to right (`1/2x` is `½x`,
+  as the units write it); `|x|` and roots are not read.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
-| `core.js` | `slot(unit, seed, slotName)`, `draw(unit, seed, slot, build, ok)`, `fnv1a`, and `hint.mul/div/add/sub/sq` (one smaller step of arithmetic, never the final answer) |
+| `core.js` | `slot(unit, seed, slotName)`, `draw(unit, seed, slot, build, ok)`, `fnv1a`, `hint.mul/div/add/sub/sq` (one smaller step of arithmetic, never the final answer), and `Ans` (the answer normaliser: `parse`, `canon`, `form`, `equiv`) |
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
 | `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
 | `check/run.py` | `python3 kit/check/run.py <unit>`: the unit's own checks, then the lock, then the browser checks. If all pass it writes `CHECKED` and builds. |
 | `check/hints.js` | the kit's own arithmetic hints (`core.js` `hint.div`, and `hint.mul` by 0.5) never state their answer: 400,000 divisions read for "= the answer" (25 Oct 2026 — "45 ÷ 3: Start with 3 × 10 = 30; 45 − 30 = 15 is left", and 15 is the answer). `run.py` runs it first |
+| `check/norm.js` | the answer normaliser's cases (≥ 60; the ones that must not be equivalent too). `run.py` runs it second |
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
@@ -129,7 +158,7 @@ generate(seed) → {sections: [{title, items}]}
    item: {type: 'parts' | 'solo' | 'mc' | 'multi', stem, fig?, parts | part | opts+correct}
    part: {label, kind ('mc' for a lettered multiple choice), fam, prm, …}
 key(partOrItem) → string                      // what makes two questions the same
-view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), key(part),
+view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), key(part), form?(part),
        start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no
