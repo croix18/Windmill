@@ -24,6 +24,7 @@ project memory.
 | `room/fixtures/` | Rooms for the conformance test: empty, plan-only, tally, panel, stale, conflicting copies, a newer version, a planted name, a planted score, a roster. Synthetic first names only. |
 | `room/test.js` | **The conformance test.** `node room/test.js path/to/your/room-reader.js` — a repo that embeds the reader runs this in its own CI against its copy. |
 | `kit/` | **The build kit.** The one code base that turns a lesson spec into its deck (pptx and the HTML console), teacher's edition, lesson plan and question documents, for both courses — gates, checks, drivers. Vendored into each course's `build/` by `tools/vendor_into.py`, held there by `kit/KIT.sha256`. Edit it here only. See `kit/README.md`. |
+| `nib/` | **The handwriting engine.** `nib.js` as built by [croix18/Nib](https://github.com/croix18/Nib) (reads handwritten maths into LaTeX, works out the answer after an "=", draws a reading in place, the `<nib-pad>` element), with `VERSION` naming the release; `tools/vendor_nib.py` copies it into a tool. `nib/README.md` lists what the engine stores in the browser, so no tool collides with it. |
 | `tools/check.sh` | Secrets and names guard, spine regeneration (when the sources are beside this repo) and validation, fixtures against the schema, the conformance test, the kit's manifest and its tests under both course profiles. `tools/push.sh` runs it, commits, pushes and verifies the remote head. |
 
 ## The room codes

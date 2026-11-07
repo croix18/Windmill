@@ -4,6 +4,17 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (7 Nov 2026: Nib's engine lands in the kit) — read with the 30 Oct section
+
+**Croix, 7 Nov:** Nib — his handwriting-to-LaTeX engine (repo `croix18/Nib`; Nib Board runs on the Promethean and his Tab S9+)
+— is the shared code the other tools will take from here, the way the courses take the build kit: `nib/nib.js` is the built
+engine (1.5.0), `nib/VERSION` the release and Nib commit, `tools/vendor_nib.py` the copy. Nib's repository stays the source
+of truth (training, tests, `docs/HANDOFF.md` there). `nib/README.md` lists the six browser-storage keys the engine and its
+pages use, so a tool that embeds it keeps its own keys and leaves the writer's memory shared. Decided today with Croix:
+students will not write by hand on any computer (no touch-screen Chromebooks), so for the practice pages the engine's value is
+the **solver** — a typed answer checked for equivalence — not ink; the Board is for him and for students at the panel. Nothing
+in the courses or the practice kit vendors it yet; the first consumer decides where the solver hooks into `practice/kit`.
+
 ## Where things stand (30 Oct 2026, late: M7 Unit 9 and A7 Unit 5's practice pages reviewed and published) — read this first
 
 **Croix, 30 Oct, 7:39 pm:** *"Yep run it. I want you to run the review only on the assessment and build/review the practice
