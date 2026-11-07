@@ -27,6 +27,9 @@ var G0 = U.generate(1), NSEC = G0.sections.length;
 var SCOPES = { all: 'Whole test' };
 G0.sections.forEach(function(s, k){ SCOPES['p' + (k + 1)] = s.title + ' only'; });   /* ruling 54: a section is named, never numbered */
 SCOPES.miss = 'My misses, with new numbers';
+/* a lesson's practice from Cadence (bank.js, 7 Nov 2026): one choice per lesson of the plan, after the test's own */
+if (K.Bank) K.Bank.scopes(SCOPES);
+function lessonScope(sc){ return !!(K.Bank && K.Bank.isLesson(sc)); }
 /* speakable IDs (7 Nov 2026, item 6): "U9·3" — the unit, then the question's place in the whole test — so a teacher can say "look
    at U9·3". Stable across sets, practice choices and rounds; the same on the screen, on every printout and on the teacher
    copy's keys (teacher.js writes them on the real test too). The generator's skill code follows on the screen and the
@@ -34,6 +37,7 @@ SCOPES.miss = 'My misses, with new numbers';
 var UNO = (/u(\d+)$/.exec(U.id || '') || [])[1] || '', QORD = [];
 (function(){ var c = 0; G0.sections.forEach(function(s, si){ QORD[si] = s.items.map(function(){ return ++c; }); }); })();
 function qidOf(si, ii, item){
+  if (item && item.bank && K.Bank) return K.Bank.qid(item);                          /* a lesson item: "U9·L3·7" */
   var n = QORD[si] && QORD[si][ii]; if (!n) return null;
   var sk = ''; try { sk = V.skill ? V.skill(item) || '' : ''; } catch(e){}
   if (!sk && item){ var fs = []; (item.type === 'parts' ? item.parts : item.type === 'solo' ? [item.part] : [item]).forEach(function(p){ var f = p && (p.fam || (p === item.part ? item.fam : '')); if (typeof f === 'string' && f && fs.indexOf(f) < 0) fs.push(f); }); if (!fs.length && typeof item.fam === 'string') fs.push(item.fam); sk = fs.join('/'); }
@@ -41,8 +45,11 @@ function qidOf(si, ii, item){
 }
 function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
 function qidOfItem(it){ var p = String(it.pos || '').split('.').map(Number); return qidOf(p[0], p[1], it.item); }
-var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts */
-function fromHash(){ var m = HASH.exec(location.hash || ''); return m && +m[1] >= 1 && (!m[2] || SCOPES[m[2].toLowerCase()]) ? {seed: +m[1], scope: (m[2] || 'all').toLowerCase()} : null; }
+var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss|lesson-[a-z0-9.+-]+))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts; a lesson (7 Nov 2026) */
+var LHASH = /^#lesson-([a-z0-9.+-]+)$/i, LSEED = 0;            /* the site's link to a day's lesson, #lesson-9.03: a new set of it */
+function fromHash(){ var h = location.hash || '', m = HASH.exec(h), l = LHASH.exec(h);
+  if (!m && l && SCOPES['lesson-' + l[1].toLowerCase()]){ if (!LSEED) LSEED = randomSeed(); return {seed: LSEED, scope: 'lesson-' + l[1].toLowerCase(), bare: true}; }
+  return m && +m[1] >= 1 && (!m[2] || SCOPES[m[2].toLowerCase()]) ? {seed: +m[1], scope: (m[2] || 'all').toLowerCase()} : null; }
 function hashOf(sd, sc){ return '#set-' + sd + (sc === 'all' ? '' : '-' + sc); }
 
 /* ------------------------------------------------ saved state [W-6]: one record per set and practice choice */
@@ -65,10 +72,11 @@ function streaks(){ return load('streaks') || {}; }
    miss. Any other first check — wrong, or right after the Hint or Show me how — adds the miss and starts the count over. The
    base question and every "Try another like this" of it count alike. */
 function streakStep(pos, fam, indep){
-  var st = streaks(), ms = misses(), n = indep ? (st[pos] || 0) + 1 : 0;
+  var bk = String(pos).indexOf('b:') === 0, sk = bk ? 'bstreaks' : 'streaks', mk = bk ? 'bmisses' : 'misses';   /* a lesson item's count is kept apart: My misses is the test's */
+  var st = load(sk) || {}, ms = load(mk) || {}, n = indep ? (st[pos] || 0) + 1 : 0;
   if (n >= 2) delete ms[pos]; else if (!indep) ms[pos] = fam;             /* the second in a row clears the miss; the count goes on (24 Oct) */
   if (n) st[pos] = n; else delete st[pos];
-  store('streaks', st); store('misses', ms); return n;
+  store(sk, st); store(mk, ms); return n;
 }
 function migrate(){                                       /* earlier versions of this page kept progress under other names */
   (U.legacy || []).forEach(function(pre){
@@ -99,6 +107,7 @@ function build(){
   G = U.generate(seed);
   var out = [];
   if (scope === 'all') G.sections.forEach(function(sec, si){ out.push({title: esc(sec.title), items: sec.items.map(function(it, ii){ return {it: it, keep: null, si: si, ii: ii}; })}); });
+  else if (lessonScope(scope)) out = K.Bank.sections(scope, seed);                /* a lesson's set: 8 of its Cadence items */
   else if (scope === 'miss'){
     var pos = S.pos || [], rounds = missRounds(pos.length) === 1 ? [G] : [G, round2()];
     rounds.forEach(function(R, r){
@@ -181,9 +190,18 @@ function render(){
 }
 function paintScopes(){
   var sc = $('scope'), nm = Object.keys(misses()).length;
-  sc.innerHTML = Object.keys(SCOPES).map(function(k){
+  var opt = function(k){
     var lab = SCOPES[k] + (k === 'miss' && nm ? ' (' + nm + ')' : '');      /* how many when there are; no "(none yet)" aside (21 Oct 2026) */
-    return '<option value="' + k + '"' + (k === scope ? ' selected' : '') + (k === 'miss' && !nm && scope !== 'miss' ? ' disabled' : '') + '>' + esc(lab) + '</option>'; }).join('');
+    return '<option value="' + k + '"' + (k === scope ? ' selected' : '') + (k === 'miss' && !nm && scope !== 'miss' ? ' disabled' : '') + '>' + esc(lab) + '</option>'; };
+  var ks = Object.keys(SCOPES), test = ks.filter(function(k){ return !lessonScope(k); }), les = ks.filter(function(k){ return lessonScope(k) && (K.Bank.shown(k) || k === scope); });
+  /* the lessons after the test's own choices, as their own group (a two-lesson day's choice only while it is open) */
+  sc.innerHTML = les.length ? '<optgroup label="Practice test">' + test.map(opt).join('') + '</optgroup><optgroup label="Lessons" translate="no">' + les.map(opt).join('') + '</optgroup>' : test.map(opt).join('');
+}
+/* the eyebrow and the title: the unit's, or in a lesson choice the lesson's ("GRADE 7 MATH · UNIT 9 · LESSON 9.03 PRACTICE") */
+function paintHead(){
+  var h = lessonScope(scope) ? K.Bank.head(scope) : null;
+  $('eyebrow').innerHTML = h ? h.eyebrow : U.eyebrow; $('h1').innerHTML = h ? h.h1 : U.h1;
+  document.title = h ? h.title : U.title;
 }
 
 /* ------------------------------------------------ "Try a similar one" (was "Try another like this"): the same kind of question, new numbers */
@@ -195,7 +213,7 @@ function atPos(g, pos){
 }
 function mountExtra(base){
   var M0 = S.more[base.id]; if (!M0) return;
-  var a = atPos(U.generate(M0.seed), base.pos), id = base.id + 'x' + M0.n, it = a.item, h;
+  var a = M0.bank ? K.Bank.at(M0.bank, base) : atPos(U.generate(M0.seed), base.pos), id = base.id + 'x' + M0.n, it, h; if (!a) return; it = a.item;
   delete RULES[id];
   EX[id] = {id: id, lab: base.lab + ' (another)', type: a.type, x: a.x, item: it, base: base.id, extra: true, pos: base.pos, aShown: false};
   var head = '<div class="xq q" data-q="' + id + '"><div class="xhead"><span class="xt">A similar one</span><span id="xs' + id + '">' + streakHtml(M0) + '</span></div><div class="stem" id="' + (it.type === 'parts' ? 'lx' : 'ln') + id + '"><span class="st">' + V.stem(it) + '</span></div>' + fig(it);
@@ -213,7 +231,17 @@ function runStep(indep){ if (S.mode === 'test') return; if (indep){ S.run = (S.r
 function record_(){ return load('record') || {n: 0}; }
 function runHtml(){ return S.mode === 'test' || !(S.run >= 2) ? '' : ' · <span class="nw streak">✓✓ ' + S.run + ' in a row</span>'; }   /* one atom for the translator: no span inside a span */   /* short: the bar is one phone line per piece; the record is told at the end */
 function another(baseId){
-  var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: streaks()[b0.pos] || 0, earned: !!res(b0).earned});
+  var b0 = byId(baseId), M0 = S.more[baseId] || (S.more[baseId] = {n: 0, seed: 0, streak: (load(String(b0.pos).indexOf('b:') === 0 ? 'bstreaks' : 'streaks') || {})[b0.pos] || 0, earned: !!res(b0).earned});
+  if (b0.item && b0.item.bank){                                /* a lesson item: another unused item of the same lesson and kind */
+    var seenB = M0.seen || (M0.seen = []); if (M0.bank && seenB.indexOf(M0.bank) < 0) seenB.push(M0.bank);
+    var inSet = ITEMS.map(function(x){ return x.item && x.item.bank ? x.item.bank.id : null; }).filter(Boolean), nb = K.Bank.similar(b0, seenB, inSet);
+    if (!nb) return;
+    M0.n++; M0.bank = nb; seenB.push(nb); if (seenB.length > 40) seenB.shift(); save();
+    mountExtra(b0); paintItem(b0);
+    var nidB = baseId + 'x' + M0.n, inpB = $('a' + nidB) || document.querySelector('input[name="q' + nidB + '"]'), elB = $('ag' + baseId);
+    if (elB && elB.scrollIntoView) elB.scrollIntoView({block: 'nearest'}); if (inpB) inpB.focus({preventScroll: true});
+    return;
+  }
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
   var seen = M0.seen || (M0.seen = []); if (was && seen.indexOf(was) < 0) seen.push(was);          /* never numbers served before (7 Nov 2026, item 2) */
   var ansOf = function(x){ try { return U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2;
@@ -578,6 +606,7 @@ document.addEventListener('toggle', function(e){ var d = e.target; if (d && d.da
 var KEYPAD = (U.keypad == null ? [{label: '−', say: 'minus', ins: function(){ return '-'; }}, {label: '/', say: 'fraction bar'}, {label: '^', say: 'power'}, {label: '(', say: 'open parenthesis'}, {label: ')', say: 'close parenthesis'}, {label: 'π', say: 'pi'}, {label: '×', say: 'times', ins: function(){ return '*'; }}] : U.keypad).slice();
 (function(){ var fi = -1; KEYPAD.forEach(function(k, i){ if (fi < 0 && k.label === '/' && /fraction/i.test(k.say || '')) fi = i; });
   if (fi >= 0 && !KEYPAD.some(function(k){ return k.tpl; })) KEYPAD.splice(fi + 1, 0, {label: 'a/b', say: 'a fraction', tpl: 'frac', kinds: KEYPAD[fi].kinds}); })();
+if (K.Bank) KEYPAD = KEYPAD.concat(K.Bank.keypad);              /* a lesson item's box: its own keys, after the unit's (bank.js) */
 function coarse(){ try { return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); } catch(e){ return false; } }
 var keys = document.createElement('div'); keys.className = 'keys'; keys.hidden = true;
 KEYPAD.forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else b.textContent = k.label; if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
@@ -600,7 +629,7 @@ document.addEventListener('focusin', function(e){
   if (keys.target === t && !keys.hidden) return;
   /* only the keys this kind of answer uses (a unit's keypad entry may name its kinds); none → no keypad */
   var kind = t.dataset.kind || '', shown = 0;
-  Array.prototype.forEach.call(keys.children, function(b){ var ks = b.dataset.kinds; b.hidden = !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
+  Array.prototype.forEach.call(keys.children, function(b){ var ks = b.dataset.kinds; b.hidden = kind === 'bank' ? !(ks && ks.split(' ').indexOf('bank') >= 0) : !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
   if (!shown){ hideKeys(); keys.target = null; return; }
   var y0 = t.getBoundingClientRect().top;
   var row = t.closest('.ans') || t.parentNode; keys.target = t; row.parentNode.insertBefore(keys, row); keys.hidden = false;
@@ -696,7 +725,7 @@ function paintResult(t){
      choice and this mode (My misses opens the whole test, as New set does). In "Check as I go" on the whole test it is the
      same as New whole test, so it takes that button's place (and its primary) rather than standing beside its twin. */
   var twin = scope === 'all' && !test, newSet = function(go){ return '<button type="button"' + (go ? ' class="go"' : '') + ' data-newset="1">Try a new set</button>'; };
-  var btns = perfect ? (twin ? newSet(true) : '<button type="button" class="go" data-new="1" data-scope="all">New whole test</button>' + newSet(false))
+  var btns = lessonScope(scope) ? '<button type="button" class="go" data-new="1" data-scope="' + esc(scope) + '">Another set from this lesson</button><button type="button" data-new="1" data-scope="all">The whole practice test</button>' : perfect ? (twin ? newSet(true) : '<button type="button" class="go" data-new="1" data-scope="all">New whole test</button>' + newSet(false))
     : (nm ? '<button type="button" class="go" data-new="1" data-scope="miss">Practice my misses (' + nm + ')</button>' : '') +
       Object.keys(weak).map(function(k){ return '<button type="button" data-new="1" data-scope="p' + (+k + 1) + '">Practice: ' + esc(G0.sections[+k].title) + '</button>'; }).join('') +
       (twin ? newSet(!nm) : '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>' + newSet(false));
@@ -780,11 +809,12 @@ function openSet(n, sc, mode){
   var loaded = !!(saved && saved.res && saved.schema === SCHEMA); if (loaded) S = earnedOf(saved);
   if (scope === 'miss' && !S.pos) S.pos = Object.keys(misses());
   S.more = S.more || {}; S.walk = S.walk || {}; S.walkOpen = S.walkOpen || {}; S.running = false; S.startedAt = null; FLASH = {};
-  render();
+  render(); paintHead();
   NOTICE = '';
   if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated since you last opened it, so it starts fresh.'; }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
   S.hash = HASHV;
   try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
+  LSEED = 0;
   restore(); save(); paintAll(); window.scrollTo(0, 0);
   $('notice').textContent = NOTICE; $('notice').hidden = !NOTICE;
   var h1 = $('h1'); if (h1 && document.activeElement && document.activeElement !== document.body && !(document.activeElement.closest && document.activeElement.closest('#paper'))) { h1.setAttribute('tabindex', '-1'); h1.focus({preventScroll: true}); }
@@ -1074,7 +1104,7 @@ function setTheme(t, keep){
 
 /* the page's words, from the unit */
 document.title = U.title;
-$('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;
+$('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;   /* openSet repaints them for a lesson choice (paintHead) */
 /* No line about the page under the title (Croix, 21 Oct 2026: "eliminate the little texts that you do in the menu like (Same kinds
    of questions as the unit test, new numbers every set.)"): only a unit's notes — how to write an answer — and none at all hides it. */
 var notesHtml = (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');

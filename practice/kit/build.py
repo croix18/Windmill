@@ -19,7 +19,48 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+
+# a lesson's practice from Cadence (7 Nov 2026): the unit's bank/ (Windmill tools/cadence_bank.py) — the student page's own
+# folder, or for a teacher copy its unit's — is inlined, as everything is: the page loads nothing
+def bank_dir():
+    for d in (os.path.join(UD, "bank"), os.path.join(os.path.dirname(UD), "bank")):
+        if all(os.path.exists(os.path.join(d, f)) for f in ("cadence.json", "map.json", "BANK.sha256")): return d
+    return None
+BANK = bank_dir()
+def bank_files():
+    return [os.path.join(BANK, f) for f in ("cadence.json", "map.json")] if BANK else []
+def bank_script():
+    """the bank as the page reads it: what bank.js uses and nothing else — no benchmark codes (they stay off student pages),
+    no plain-text copies. BANK.sha256 must match the two files (a hand-edited bank is refused)."""
+    if not BANK: return ""
+    want = {}
+    for line in open(os.path.join(BANK, "BANK.sha256"), encoding="utf-8"):
+        if line.strip(): h, f = line.split(); want[f] = h
+    for f in ("cadence.json", "map.json"):
+        got = hashlib.sha256(open(os.path.join(BANK, f), "rb").read()).hexdigest()
+        if want.get(f) != got: sys.exit(f"REFUSED: bank/{f} does not match bank/BANK.sha256 — re-make the bank with Windmill tools/cadence_bank.py")
+    bank = json.load(open(os.path.join(BANK, "cadence.json"), encoding="utf-8")); mp = json.load(open(os.path.join(BANK, "map.json"), encoding="utf-8"))
+    les = {}
+    for lid, L in bank["lessons"].items():
+        codes = L["codes"]
+        items = []
+        for it in L["items"]:
+            o = {k: it[k] for k in ("id", "lesson", "rigor", "rt", "stem", "solution", "gen") if k in it}
+            o["sk"] = codes.index(it["codes"][0]) if it["codes"][0] in codes else 0
+            for k in ("fig", "figText", "inst", "cols", "rows"):
+                if k in it: o[k] = it[k]
+            if "choices" in it: o["choices"] = [{"t": c["t"]} for c in it["choices"]]
+            A = dict(it["answer"])
+            if "parts" in A:
+                A["parts"] = [{k: v for k, v in p.items() if not (k == "label" and "labelS" in p)} for p in A["parts"]]
+            A.pop("also", None)
+            o["answer"] = A
+            items.append(o)
+        les[lid] = {"title": L["title"], "skills": [L["labels"].get(c, "") for c in codes], "items": items}
+    m = {"order": mp["order"], "lessons": {c: {k: r[k] for k in ("status", "cadence", "title") if k in r} for c, r in mp["lessons"].items()}}
+    dump = lambda x: json.dumps(x, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    return f"<script>window.CADENCE_BANK={dump({'unit': bank['unit'], 'lessons': les})};window.CADENCE_MAP={dump(m)};</script>\n"
 # the page's own fonts (7 Nov 2026, the site review: the page joins mrshaffer.org's family — Croix: "Ok sounds well thought
 # out. Proceed."): Lexend for the sheet (ruling 46), DM Serif Display for the title, DM Sans for the bar and the eyebrow.
 # Inlined as data URIs, never a <link>: the page is a claude.ai artifact and a Google Sites download too, and loads nothing.
@@ -53,6 +94,7 @@ def source_hash():
     for f in KITFILES: h.update(rk(f).encode())
     for f in cfg["scripts"] + cfg.get("css", []): h.update(ru(f).encode())
     for _fam, _w, f, _r in FONTS: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())
+    for f in bank_files(): h.update(open(f, "rb").read())
     return h.hexdigest()[:16]
 if "--force" not in sys.argv:
     ok = os.path.exists(os.path.join(UD, "CHECKED")) and open(os.path.join(UD, "CHECKED")).read().split()[0] == source_hash()
@@ -90,7 +132,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 </main>
 <script>{rk('core.js')}</script>
 <script>{rk('bilingual.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + f"<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
 # holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
 tf = os.path.join(UD, "test_forms.js")

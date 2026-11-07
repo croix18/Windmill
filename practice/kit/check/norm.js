@@ -103,6 +103,15 @@ const cases = [
   ['3 4', '34', {}, N, '', 'two numbers side by side'],
   ['x2', '2x', {}, N, '', 'a number after a letter is not read as a product'],
   ['5', '5', { equiv: false }, N, '', 'a unit can switch it off for a question (it then judges alone)'],
+  /* square roots and degrees (7 Nov 2026, the Cadence lesson banks: "√85", "49°") */
+  ['√85', '√85', {}, Y, '', 'a square root'],
+  ['sqrt(85)', '√85', {}, Y, '', 'sqrt( ) for √'],
+  ['√(85)', '√85', {}, Y, '', 'the radicand in parentheses'],
+  ['3√2', '3√2', {}, Y, '', 'a coefficient and a root'],
+  ['85', '√85', {}, N, '', 'the radicand is not its root'],
+  ['√18', '3√2', {}, N, '', 'simplifying a root is the question'],
+  ['42°', '42', {}, Y, '', 'the degree sign of an angle box'],
+  ['42 °', '42', {}, Y, '', 'a space before the degree sign'],
 ];
 let fails = [], n = 0;
 for (const [typed, key, form, want, nudge, why] of cases) {

@@ -70,12 +70,19 @@
   function paint(el){
     if (el.shadowRoot || !window.katex) return;
     var root; try { root = el.attachShadow({mode: 'open'}); } catch(e){ return; }
-    var s = toTex(el), html = '';
-    try { html = katex.renderToString(s, {throwOnError: true, strict: 'ignore', output: 'html'}); } catch(e){ html = ''; }
+    /* a lesson-bank span carries Cadence's own TeX (bank.js, 7 Nov 2026); a display run is set as display math */
+    var given = el.getAttribute('data-tex'), s = given != null ? given : toTex(el), html = '';
+    try { html = katex.renderToString(s, {throwOnError: true, strict: 'ignore', output: 'html', displayMode: given != null && el.hasAttribute('data-disp')}); } catch(e){ html = ''; }
     if (!html){ root.innerHTML = '<slot></slot>'; failed++; el.setAttribute('data-tex-fallback', ''); return; }
     if (sheet) root.adoptedStyleSheets = [sheet]; else if (cssText) html = '<style>' + cssText + '</style>' + html;
     root.innerHTML = html; done++;
+    if (given != null && el.hasAttribute('data-disp')) fitLater(el);
   }
+  /* a Cadence display line wider than its column (a phone) is set smaller, down to 72%, before it scrolls sideways */
+  function fit(el){ el.style.fontSize = ''; var k = 1; while (el.scrollWidth > el.clientWidth + 1 && k > 0.72){ k -= 0.07; el.style.fontSize = k.toFixed(2) + 'em'; } }
+  var fitQ = [], fitRaf = 0;
+  function fitLater(el){ fitQ.push(el); if (!fitRaf) fitRaf = (window.requestAnimationFrame || setTimeout)(function(){ fitRaf = 0; var q = fitQ; fitQ = []; q.forEach(fit); }); }
+  window.addEventListener('resize', function(){ var all = document.querySelectorAll('.m[data-disp]'); for (var i = 0; i < all.length; i++) fitLater(all[i]); });
   var queued = false;
   function run(){ queued = false; if (!ready) return; var all = document.querySelectorAll('.m'); for (var i = 0; i < all.length; i++) if (!all[i].shadowRoot) paint(all[i]); }
   function schedule(){ if (queued) return; queued = true; (window.requestAnimationFrame || setTimeout)(run); }
@@ -84,6 +91,7 @@
     new MutationObserver(schedule).observe(document.body, {childList: true, subtree: true});
   }
   var LOCAL = '.katex{font-size:1.08em;line-height:1.2;text-indent:0;white-space:nowrap}.katex .text{font-family:"Lexend",system-ui,sans-serif}.katex .mord.text{font-family:"Lexend",system-ui,sans-serif}' +
+    '.katex-display{margin:.3em 0}.katex-display>.katex{text-align:left}' +   /* a Cadence display line sits at the margin, as the sheet's text does */
     '@media print{.katex{color:#000}}';
   function boot(){
     if (!document.body) return setTimeout(boot, 10);
@@ -103,6 +111,6 @@
       document.head.appendChild(sc);
     }).catch(function(){});
   }
-  K.Tex = {toTex: toTex, skeleton: skeleton, skeletonOf: skeletonOf, isReady: function(){ return ready; }, stats: function(){ return {done: done, failed: failed}; }, CDN: CDN};
+  K.Tex = {toTex: function(el){ var g = el && el.getAttribute && el.getAttribute('data-tex'); return g != null ? g : toTex(el); }, skeleton: skeleton, skeletonOf: skeletonOf, isReady: function(){ return ready; }, stats: function(){ return {done: done, failed: failed}; }, CDN: CDN};
   boot();
 })();

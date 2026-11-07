@@ -119,6 +119,8 @@ function ansPrep(text) {
   s = s.replace(/(\d)\s*([½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])/g, '$1 $2').replace(/[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]/g, c => VULGAR[c]);
   s = s.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+/g, m => '^(' + m.split('').map(c => SUPS[c]).join('') + ')');   /* x² is x^2 */
   s = s.replace(/(^|[^A-Za-z])pi(?![A-Za-z])/gi, '$1π');
+  s = s.replace(/(^|[^A-Za-z])sqrt\s*/gi, '$1√');               /* a square root: √85, √(85), sqrt(85) (7 Nov 2026, the Cadence lesson banks) */
+  s = s.replace(/°/g, ' ').replace(/\s+$/, '');                   /* degrees are the box's unit: 42° is 42 */
   return s.trim();
 }
 /* tokens: n (a number, its text kept), mix (a mixed number), v (a letter), pi, op (+ - * / ^), ( ), rel (= < > <= >= !=), sep */
@@ -152,6 +154,7 @@ function ansTokens(s, o) {
       out.push({ t: 'v', s: w }); i = j; continue;
     }
     if (c === 'π') { out.push({ t: 'pi' }); i++; continue; }
+    if (c === '√') { out.push({ t: 'root' }); i++; continue; }
     if (c === '<' || c === '>' || c === '=' || c === '!') {
       if ((c === '<' || c === '>' || c === '!') && s[i + 1] === '=') { out.push({ t: 'rel', s: c + '=' }); i += 2; continue; }
       if (c === '!') return null;
@@ -182,6 +185,7 @@ function ansParse(text, o) {
     if (t.t === 'mix') { const d = BigInt(t.d); if (d === 0n) throw 0; return { k: 'num', q: Q(BigInt(t.w) * d + BigInt(t.n), d), mixed: true, text: t.w + ' ' + t.n + '/' + t.d, unred: gcd(BigInt(t.n), d) > 1n ? [t.n + '/' + t.d, Q(BigInt(t.n), d)] : null }; }
     if (t.t === 'v') return { k: 'var', s: t.s };
     if (t.t === 'pi') return { k: 'var', s: 'π' };
+    if (t.t === 'root') return { k: 'root', x: power() };            /* √85 is the root of 85; √(2x) of the group */
     if (t.t === '(') { let e = sum(); if (peek() && peek().t === 'sep') {   /* an ordered pair, (2, 3) */ const items = [e]; while (peek() && peek().t === 'sep') { take(); items.push(sum()); } e = { k: 'list', items }; }
       if (!peek() || peek().t !== ')') throw 0; take(); return { k: 'grp', x: e }; }
     throw 0;
@@ -192,7 +196,7 @@ function ansParse(text, o) {
     return b;
   }
   function unary() { if (isOp(peek(), '-')) { take(); return { k: 'neg', x: unary() }; } if (isOp(peek(), '+')) { take(); return unary(); } return power(); }
-  const starts = t => t && (t.t === 'n' || t.t === 'mix' || t.t === 'v' || t.t === 'pi' || t.t === '(');
+  const starts = t => t && (t.t === 'n' || t.t === 'mix' || t.t === 'v' || t.t === 'pi' || t.t === '(' || t.t === 'root');
   function product() {
     let a = unary();
     for (;;) {
@@ -233,6 +237,7 @@ function ansCanon(tree) {
     switch (x.k) {
       case 'num': if (x.dec) notes.dec = true; if (x.mixed) notes.mixed = true; if (x.unred) notes.unred.push(x.unred); return lit(x.q);
       case 'var': return { c: 'v', s: x.s };
+      case 'root': return { c: 'r', s: 'Q(' + C(x.x).s + ')' };          /* a root stays a root: √18 is not 3√2 */
       case 'grp': { const y = C(x.x); return y.c === 'sum' ? { c: 'g', y, s: 'G(' + y.s + ')' } : y; }   /* a group keeps its grouping only around a sum */
       case 'neg': return negC(C(x.x));
       case 'pow': { const b = C(x.b), e = C(x.e); return { c: 'p', s: 'P(' + b.s + '^' + e.s + ')' }; }

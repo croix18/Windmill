@@ -219,6 +219,53 @@ it is right (and counts as right on the first check), with a quiet nudge under �
   numbers (`2·3x` is not `6x`); `x` is "times" only between two numbers; a fraction bar binds left to right (`1/2x` is `½x`,
   as the units write it); `|x|` and roots are not read.
 
+## A lesson's practice from Cadence (7 Nov 2026)
+Croix: *"instead of having the entire practice test, the days should have practice questions directly from that day's lessons"*
+and *"have it pull Cadence questions … Cadence already tracks by unit and lesson"*; told the figures needed rendering support:
+*"Can you provide rendering support?"*
+- **The bank.** Windmill `tools/cadence_bank.py` runs Cadence (its one file) headlessly and writes `<unit>/bank/`: `cadence.json`
+  (per Cadence lesson of the unit's plan days, 60 of Cadence's own items — 45 regular, then 15 high rigor where the skill has
+  them — each with its stem, figure, choices, key read into checkable parts, worked solution and a stable id), `map.json` (every
+  lesson code of the unit on the plan → its Cadence lessons, `cadence`, or `whole-unit` with the reason: a review day, a test
+  day, no Cadence lesson, a title that does not agree, too few items), `BANK.sha256` and a README. `build.py` inlines the two
+  files (refusing them if they do not match their hashes) with `bank.js`, before `ui.js`; benchmark codes stay out of the page.
+- **The practice choices.** *What to practice* lists, under **Lessons**, "Lesson 9.03 · Title" for every lesson of the plan the
+  map gives to Cadence (a two-lesson day, 9.03+04, is a choice too, opened by its link; a thread day is one choice). The scope is
+  `lesson-<code>`: `#lesson-9.03` (the site's link: a new set) or `#set-4821-lesson-9.03`. The eyebrow reads "Grade 7 Math ·
+  Unit 9 · Lesson 9.03 Practice" and the lesson's title replaces the unit's. The whole test, its sections and My misses are
+  untouched.
+- **A set** is 8 items: 6 regular, then 2 high rigor when the lesson has them (a two-lesson day: 3 + 1 of each), one of each of
+  Cadence's templates before any comes twice, never repeating on this device until the lesson's bank is used up, then
+  reshuffled. A set number gives the same order to any device that has not used the bank; a set once drawn on a device keeps
+  its questions there (`<unit id>.bank.sets`, `.bank.used.<lesson>`, every read and write in try/catch). The end panel offers
+  **Another set from this lesson** and **The whole practice test**.
+- **An item is a native card.** `bank.js` turns a Cadence item into a kit item — one box (`solo`), a box or a choice per claim of
+  Cadence's key (`parts`: "shorter base 11 cm; longer base 16 cm" is two boxes, "Step 3; the correct expression is …" a choice
+  of step and a box, a matching grid one choice per row), `mc` or `multi` — and wraps the unit interface (view, judge,
+  solution, rungs, walk, key, keyText) so a bank item is answered by it and anything else by the unit, unchanged. So the coach
+  card, first-try scoring, the IDs, the keypad (its own keys: − / a/b ^ ( ) π × √ ≤ ≥), Larger text and print work as for
+  native questions. The ID is **U9·L3·7**: the unit, the lesson, the item's place in the lesson's bank.
+- **The help ladder** for a bank item: Hint 1 · What to notice is the skill's name and the first sentence of Cadence's
+  solution; Hint 2 · The first step is the solution's next step (its final "= …" kept back when it would be the answer); Hint 3
+  is Cadence's whole worked solution, one step per line. **Try a similar one** is another item of the same lesson — the same
+  Cadence template where there is one, the same kind of answer, never one in this set or served before for the question.
+- **Answers.** A choice is Cadence's key. A typed answer is right when it is the key, or a form Cadence's key itself accepts
+  ("(or 4.75)", "(28.00 also accepted)"), written any way `Kit.Ans` reads as the same — the box's unit typed after it, `$` in a
+  money box, a precision the stem names; where Cadence allows "an equivalent equation / inequality / expression", the same
+  solution (one letter, linear, the same root and direction) or the same value everywhere is right too. The right value in
+  another form than asked is *Almost* (a decimal for an answer in terms of π, a standard number for scientific notation).
+  `Kit.Ans` reads square roots (√85, √(85), sqrt(85); √18 is not 3√2) and drops a degree sign since 7 Nov 2026 (`norm.js`).
+- **Rendering is Cadence's.** Its strings were cut into prose and TeX by Cadence's own converter at export; each math run is a
+  `<span class="m" data-tex>` that `tex.js` draws with the inlined KaTeX (a display line at the margin, set smaller down to 72%
+  before it scrolls sideways on a phone). Figures are Cadence's SVG, verbatim: up to 420 px wide and 320 px tall, a wide one
+  (four graphs to choose from) scrolling sideways in its own box, never clipped; light on dark in the dark theme (inverted,
+  the hues turned back); dark on white on paper. Its tables take the sheet's rules.
+- **Checked** by `check/bank.js` (run by `run.py` on a unit with a bank): the schema and the hashes; every lesson code of the
+  plan (the course's `build/assets/windmill/spine.js`) in the map, resolved; at least 20 items per `cadence` lesson; every item
+  of every lesson drawn at 390 px in light and dark — no error, no request, no sideways scroll, every TeX run drawn, a figure
+  wherever the item has one, light on dark in dark, its ID; 30 items at random answered through the page with Cadence's key,
+  ✓ on the first try; a wrong answer not; the three rungs; a similar one; the end panel; the print keeping the IDs.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -232,6 +279,8 @@ it is right (and counts as right on the first check), with a quiet nudge under �
 | `check/norm.js` | the answer normaliser's cases (≥ 60; the ones that must not be equivalent too). `run.py` runs it second |
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
+| `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
+| `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
