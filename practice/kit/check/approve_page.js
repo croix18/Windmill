@@ -150,11 +150,13 @@ module.exports = async function partL(b, url, U, dir, fail) {
     /* the survey's kinds, as the panel takes them (sets 1–240) */
     const kinds = new Set(); for (let s = 1; s <= 240; s++) U.generate(s).sections.forEach(sec => sec.items.forEach(it => kinds.add(famKey(it))));
     const panel = await p.evaluate(() => ({ dialog: document.getElementById('printview').getAttribute('role'), rows: Array.from(document.querySelectorAll('#printview .aprow[data-fk]')).map(r => r.dataset.fk), sum: (document.querySelector('#printview .apsum') || {}).textContent || '',
+      ids: Array.from(document.querySelectorAll('#printview .aprow[data-fk] .apid')).map(e => e.textContent.trim()),
       inputs: document.querySelectorAll('#printview .apq input, #printview .apq textarea').length, small: Array.from(document.querySelectorAll('#printview .apseg button, #printview .apmore, #printview [data-ap="done"]')).filter(x => x.getBoundingClientRect().height < 44).length }));
     if (panel.dialog !== 'dialog') fail('L: Approve questions is not the kit\'s #printview dialog');
     if (panel.rows.length !== kinds.size || [...kinds].some(k => panel.rows.indexOf(k) < 0)) fail('L: Approve questions shows ' + panel.rows.length + ' kinds, the unit has ' + kinds.size);
     if (!new RegExp('^' + kinds.size + ' kinds? of question · 0 disapproved').test(panel.sum)) fail('L: the summary line is "' + panel.sum + '"');
     if (panel.inputs) fail('L: a sample in Approve questions has ' + panel.inputs + ' inputs (they are drawn static)');
+    { const bad = panel.ids.filter(t => !/^U\d+·\d+( · U\d+·\d+)*$/.test(t)); if (bad.length) fail('L: a kind\'s row shows more than its place(s): ' + bad.slice(0, 3).join(' | ')); }   /* no kind code (8 Nov 2026) */
     if (panel.small) fail('L: ' + panel.small + ' of the panel\'s buttons are under 44 px');
     const K0 = panel.rows[Math.min(1, panel.rows.length - 1)];
     const sel = '#printview .aprow[data-fk="' + K0.replace(/"/g, '\\"') + '"]';
@@ -176,6 +178,8 @@ module.exports = async function partL(b, url, U, dir, fail) {
     if (bankDir) {
       await p.click('#printview [data-aptab="lessons"]'); await p.waitForTimeout(400);
       const lrow = await p.evaluate(() => { const r = document.querySelector('#printview .aprow[data-bid]'); return r ? r.dataset.bid : null; });
+      { const bad = await p.$$eval('#printview .aprow[data-bid] .apid', es => es.map(e => e.textContent.trim()).filter(t => !/^U\d+·L[0-9A-Za-z.+-]+·\d+( · high rigor)?$/.test(t)));
+        if (bad.length) fail('L: a lesson item\'s row shows more than its ID and "high rigor": ' + bad.slice(0, 3).join(' | ')); }
       if (!lrow) fail('L: the Lesson sets tab shows no lesson items');
       else {
         await p.click('#printview .aprow[data-bid="' + lrow + '"] [data-ap="off"]'); await p.waitForTimeout(250);

@@ -167,6 +167,9 @@ select-all, the wrong picks are named on the first check, and missed ones are co
   and fails a card that does not show that choice's line, or two choices of one question that say the same thing.
 
 ## Speakable IDs (7 Nov 2026, the practice-test deepening, item 6)
+*8 Nov 2026 (the review of Tests A and B): **the ID alone** — no skill or family code follows it anywhere (on a student's printed
+test "U10·3 · solveAdd/graphAdd" cued the method, and it was jargon on the page); and on paper it sits on its own line at the
+top right of its question, as on the card, so a one-part question's "1 pt" stays at the right of its line.*
 From the survey's don't-do table (badge codes that need a legend): every question card has a short stable ID, quiet at its
 top right — **U9·3**, the unit and the question's place in the whole test — then the generator's skill code
 (`view.skill(item)` if the unit gives one, else the item's family codes: "U9·4 · sumDec/diffDec"). A teacher can say "look at
@@ -396,6 +399,10 @@ but two ways in.**
   (`teacher.pick.<course>.<unit>`) moves up once.
 - **The cockpit:** no section; each unit with a teacher copy has *Tests A·B* and *Approve* beside its links, to
   `…/practice/?open=tests` and `?open=approve` (a query: the page's `#` is its set and lesson router).
+- **From the review (8 Nov 2026):** a question's ID is the ID alone — "U10·3", a lesson item's "U10·L1·7" (Approve questions
+  adds "· high rigor" to a lesson item's row, which means something) — on the card, every printout, the editor and Approve
+  questions; on paper it is on its own line at the top right, the points at the right of their line. The editor's and the
+  panel's sticky bar is opaque in light and dark (`--ground`), so no question shows through it on a phone.
 - **The student page carries only the filter.** The bar, the panels, their styles (`teacher.css`, added by `build.py` to a
   teacher build) and `window.PracticeKit` (what `ui.js` lends the teacher's tools to draw with) are on the teacher copy only.
 - **Checked:** `check/page.js` part L (`check/approve_page.js`, a mocked `/api/items` and `/teacher/api/items`): a disapproved
@@ -447,7 +454,7 @@ generate(seed) → {sections: [{title, items}]}
    item: {type: 'parts' | 'solo' | 'mc' | 'multi', stem, fig?, parts | part | opts+correct}
    part: {label, kind ('mc' for a lettered multiple choice), fam, prm, …}
 key(partOrItem) → string                      // what makes two questions the same
-view: {stem(item), figure(item), skill?(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
+view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
        start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no

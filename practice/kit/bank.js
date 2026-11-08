@@ -362,7 +362,7 @@ K.Bank = {
     return out;
   },
   /* "U9·L3·7": the unit, the lesson, the item's place in that lesson's bank (the same in every set and on every printout) */
-  qid: function(item){ var b = item.bank, lid = String(b.lesson), m = /^(\d+)\.(\d+)$/.exec(lid); return {id: 'U' + UNO + '·L' + (m && m[1] === UNO ? m[2] : lid) + '·' + b.n, sk: ''}; },
+  qid: function(item){ var b = item.bank, lid = String(b.lesson), m = /^(\d+)\.(\d+)$/.exec(lid); return {id: 'U' + UNO + '·L' + (m && m[1] === UNO ? m[2] : lid) + '·' + b.n}; },
   /* "Try a similar one": another item of the same lesson — the same Cadence template where there is one, the same kind of
      answer (for a part, the same parts), the same rigor — never one in this set or served before for this question; unused on
      this device first */

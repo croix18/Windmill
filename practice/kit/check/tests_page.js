@@ -53,7 +53,13 @@ module.exports = async function partM(b, url, U, dir, fail) {
       const testText = Array.from(pv.querySelectorAll('.ppage > *, .pform:not(.pkeyform)')).filter(e => !e.closest('.pkey') && !e.classList.contains('pkey') && !e.classList.contains('pkeyform')).map(tx).join(' ');
       const trs = key ? Array.from((key.querySelector('table.pkrows') || key.querySelector('table.ptab')).querySelectorAll('tr')) : [], rows = trs.map(tr => Array.from(tr.cells).map(tx)), kwhy = trs.map(tr => !!tr.querySelector('.kwhy, .kerr'));
       const trk = key && key.querySelector('.ptrack tbody tr:last-child td:nth-child(3)');
-      return { head: tx(pv.querySelector('.pt2')), nums: qs.map(q => tx(q.querySelector('.num'))), ids: qs.map(q => tx(q.querySelector('.pqid .qn'))), stems: qs.map(q => tx(q.querySelector('.stem .st'))), whole: qs.map(tx),
+      /* the ID alone, on its own line at the top right, the points at the right of their line (8 Nov 2026) */
+      const place = qs.map(q => { const id = q.querySelector('.pqid'), st = q.querySelector('.stem'), pt = q.querySelector('.stem > .pt'); if (!id || !st) return 'no ID';
+        const a = id.getBoundingClientRect(), b = st.getBoundingClientRect(), c = q.getBoundingClientRect(), why = [];
+        if (tx(id) !== tx(id.querySelector('.qn'))) why.push('"' + tx(id) + '"'); if (a.bottom > b.top + 1) why.push('beside its stem'); if (c.right - a.right > 2) why.push('not at the right');
+        if (pt && b.right - pt.getBoundingClientRect().right > 2) why.push('its points not at the right');
+        return why.length ? tx(id) + ': ' + why.join(', ') : null; }).filter(Boolean);
+      return { place, head: tx(pv.querySelector('.pt2')), nums: qs.map(q => tx(q.querySelector('.num'))), ids: qs.map(q => tx(q.querySelector('.pqid .qn'))), stems: qs.map(q => tx(q.querySelector('.stem .st'))), whole: qs.map(tx),
         rows, kwhy, tracker: trk ? +tx(trk) : NaN, testText, meta: key ? tx(key.querySelector('.pmeta')) : '', bad: pv.querySelectorAll('script, img, a[href], [onerror], [onclick], [style*="color:red"]').length, html: pv.innerHTML };
     });
     await p.click('#pvClose'); await p.waitForTimeout(100);
@@ -95,6 +101,7 @@ module.exports = async function partM(b, url, U, dir, fail) {
   if (!same(A1, A2) || (B1 && !same(B1, B2))) fail('M: a reload printed other forms than were pinned');
   if (B1 && JSON.stringify(A1.whole) === JSON.stringify(B1.whole)) fail('M: Forms A and B print the same questions');
   if (/\bSet \d+/.test(A1.testText)) fail('M: the student\'s sheet prints its set number');
+  if (A1.place.length) fail('M: on the printed form a question ID is out of place or not alone: ' + A1.place.slice(0, 3).join(' | '));
   if (!FIXED && !/^Set \d+ · Whole test/.test(A1.meta)) fail('M: the key does not say its set: "' + A1.meta + '"');
   if (A1.nums.some((x, i) => x !== (i + 1) + '.') || A1.tracker !== A1.points || A1.rows.length !== A1.points) fail('M: Form A is numbered ' + A1.nums.slice(0, 3).join(' ') + '…, ' + A1.points + ' points, tracker ' + A1.tracker + ', ' + A1.rows.length + ' key rows');
   const FA = FIXED ? Object.keys(T.forms)[0] : 'A', idOf = k => 'U' + unit + '·' + (k + 1);

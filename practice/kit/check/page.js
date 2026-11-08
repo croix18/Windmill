@@ -384,6 +384,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const UN = (/u(\d+)$/.exec(U.id) || [])[1], screenIds = await p.$$eval('#paper .q[data-q]:not(.xq) > .qid .qn', es => es.map(e => e.textContent));
     const nQ = U.generate(seedP).sections.reduce((t, s0) => t + s0.items.length, 0);
     if (JSON.stringify(screenIds) !== JSON.stringify(Array.from({ length: nQ }, (_, k) => 'U' + UN + '·' + (k + 1)))) fail('IDs on the cards: ' + screenIds.slice(0, 5).join(' ') + '… for ' + nQ + ' questions');
+    /* the ID alone (8 Nov 2026): no kind or skill code beside it — "U10·3 · solveAdd/graphAdd" cued the method on a test */
+    { const extra = await p.$$eval('#paper .q[data-q] > .qid', es => es.filter(e => e.textContent.trim() !== (e.querySelector('.qn') || {}).textContent).map(e => e.textContent.trim()));
+      if (extra.length) fail('something beside the ID on a card: ' + extra.slice(0, 3).join(' | ')); }
     { const r = await p.evaluate(() => { const q = document.querySelector('#paper .q[data-q] > .qid'), b = q.getBoundingClientRect(), c = q.parentNode.getBoundingClientRect(); return { right: Math.round(c.right - b.right), top: Math.round(b.top - c.top) }; });
       if (r.right > 2 || r.top > 4) fail('the ID is not at the top right of its card: ' + JSON.stringify(r)); }
     await p.emulateMedia({ media: 'print' }); { const d = await p.$eval('#paper .q[data-q] > .qid', e => getComputedStyle(e).display); if (d === 'none') fail('the IDs are hidden when the page itself is printed'); } await p.emulateMedia({ media: 'screen' });
@@ -395,6 +398,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       keys: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }));
     if (JSON.stringify(pr.stems) !== JSON.stringify(screenStems)) fail('print: the worksheet questions are not the screen questions');
     if (JSON.stringify(pr.ids) !== JSON.stringify(screenIds)) fail('print: the worksheet IDs ' + pr.ids.slice(0, 4).join(' ') + '… are not the screen\'s');
+    /* on paper too: the ID alone, on its own line at the top right of its question, never beside the points (8 Nov 2026) */
+    { const bad = await p.evaluate(() => Array.from(document.querySelectorAll('#printview .pq')).map(q => {
+        const id = q.querySelector('.pqid'), st = q.querySelector('.stem'), pt = q.querySelector('.stem > .pt'); if (!id || !st) return null;
+        const a = id.getBoundingClientRect(), b = st.getBoundingClientRect(), c = q.getBoundingClientRect(), why = [];
+        if (id.textContent.trim() !== (id.querySelector('.qn') || {}).textContent) why.push('"' + id.textContent.trim() + '"');
+        if (a.bottom > b.top + 1) why.push('beside its stem'); if (c.right - a.right > 2) why.push('not at the right');
+        if (pt && b.right - pt.getBoundingClientRect().right > 2) why.push('its points not at the right');
+        return why.length ? (id.textContent.trim() + ': ' + why.join(', ')) : null; }).filter(Boolean));
+      if (bad.length) fail('print: a question ID out of place: ' + bad.slice(0, 3).join(' | ')); }
     { const want = ip.map(it => 'U' + UN + '·' + (+it.id.replace(/\D+$/, '').replace(/\D.*$/, ''))); if (JSON.stringify(pr.keyIds) !== JSON.stringify(want)) fail('print: the key\'s IDs ' + pr.keyIds.slice(0, 4).join(' ') + '… are not its questions\' (' + want.slice(0, 4).join(' ') + '…)'); }
     const nText = ip.filter(i => i.kind === 'text').length, nNl = ip.filter(i => i.kind === 'nline').length, nMc = ip.length - nText - nNl;
     if (pr.blanks !== nText || pr.groups !== nMc || pr.lines !== nNl) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists / ' + pr.lines + ' number lines for ' + nText + ' / ' + nMc + ' / ' + nNl + ' parts');

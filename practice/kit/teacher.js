@@ -652,16 +652,16 @@ function segHtml(kind, target, off, label){
 }
 function keysHtml(keys){ return '<div class="apkey"><span class="kl">Answer</span>' + keys.map(function(x){ return '<span class="apk">' + (x.lab ? '<b>' + esc(x.lab) + '.</b> ' : '') + x.key + '</span>'; }).join('') + '</div>'; }
 function kindRow(K0){
-  var off = !!(AP && AP.famHidden(K0.fk)), sm = K0.samples[K0.cur % K0.samples.length], p = PP[sm.k], it = Unit.generate(sm.seed).sections[p.si].items[p.ii], S = PK.sample(it), q = PK.qid(p.si, p.ii, it) || {};
+  var off = !!(AP && AP.famHidden(K0.fk)), sm = K0.samples[K0.cur % K0.samples.length], p = PP[sm.k], it = Unit.generate(sm.seed).sections[p.si].items[p.ii], S = PK.sample(it);
   var ids = K0.ks.slice().sort(function(a, b){ return a - b; }).map(qidOf).join(' · ');
-  return '<div class="aprow' + (off ? ' off' : '') + '" data-fk="' + esc(K0.fk) + '"><div class="apcard"><div class="apid" translate="no"><span class="qn">' + ids + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + '</div>' +
+  return '<div class="aprow' + (off ? ' off' : '') + '" data-fk="' + esc(K0.fk) + '"><div class="apcard"><div class="apid" translate="no"><span class="qn">' + ids + '</span></div>' +
     '<div class="apq">' + S.html + '</div>' + keysHtml(S.keys) + '</div>' +
     '<div class="apctl">' + segHtml('family', K0.fk, off, ids) + (K0.samples.length > 1 ? '<button type="button" class="apmore" data-ap="more" data-fk="' + esc(K0.fk) + '">Another example</button>' : '') +
     (off ? '<p class="apoff">Left out of new sets.</p>' : '') + '</div></div>';
 }
 function itemRow(b){
   var off = !!(AP && AP.bankHidden(b.id)), it = K.Bank._kitItem(b), S = PK.sample(it), q = K.Bank.qid({bank: b});
-  return '<div class="aprow' + (off ? ' off' : '') + '" data-bid="' + esc(b.id) + '"><div class="apcard"><div class="apid" translate="no"><span class="qn">' + esc(q.id) + '</span>' + (b.rigor ? ' <span class="qsk">· high rigor</span>' : '') + '</div>' +
+  return '<div class="aprow' + (off ? ' off' : '') + '" data-bid="' + esc(b.id) + '"><div class="apcard"><div class="apid" translate="no"><span class="qn">' + esc(q.id) + '</span>' + (b.rigor ? ' <span class="aprig">· high rigor</span>' : '') + '</div>' +
     '<div class="apq">' + S.html + '</div>' + keysHtml(S.keys) + '</div><div class="apctl">' + segHtml('bank', b.id, off, q.id) + (off ? '<p class="apoff">Left out of new sets.</p>' : '') + '</div></div>';
 }
 function openApprove(opener){

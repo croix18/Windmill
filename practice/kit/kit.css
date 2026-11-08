@@ -491,12 +491,12 @@ button[data-rung]::before{content:"";display:inline-block;width:14px;height:14px
 .chip.sec .cpill{color:var(--ok)} .chip.get .cpill{color:var(--link)} .chip.not .cpill{color:var(--navyLine)}   /* Secure green, Getting there teal, Not yet a navy outline — never turquoise */
 .chip .cs{color:var(--ink)} .chip .cn{color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
 @media print{ .qbar{display:none} }
-/* item 6: the speakable ID, quiet at the top right of a question card ("U9·3 · sumFrac"), on every printout and every key */
+/* item 6: the speakable ID, quiet at the top right of a question card ("U9·3"), on every printout and every key. The ID alone,
+   on its own line above the question on the card and on paper alike (8 Nov 2026: floated beside a one-part question's "1 pt"
+   it read as part of the points; the points stay where points go, at the right of their line) */
 .q{position:relative}
 .qid{display:block;text-align:right;margin:0 0 2px;font:600 11px/1.3 var(--chrome);letter-spacing:.03em;color:var(--link);font-variant-numeric:tabular-nums}
-.qid .qsk{font-weight:400}
-.pqid{float:right;margin:0 0 2px 10px;font:600 10.5px/1.6 var(--ui);color:#555;letter-spacing:.03em}
-.pqid .qsk{font-weight:400}
+.pqid{display:block;text-align:right;margin:0 0 1px;font:600 10.5px/1.25 var(--ui);color:#555;letter-spacing:.03em;font-variant-numeric:tabular-nums}
 .ptab .pid{white-space:nowrap;color:#555;font-size:12px;text-align:right;width:5em}
 @media print{ .qid{display:block!important;color:#555;opacity:1} .pqid,.ptab .pid{color:#444} }
 /* item 7: phone math hygiene — a display line of mathematics scrolls sideways inside itself, never the page; the keypad only on

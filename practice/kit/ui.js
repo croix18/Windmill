@@ -34,22 +34,20 @@ if (K.Bank) K.Bank.scopes(SCOPES);
 function lessonScope(sc){ return !!(K.Bank && K.Bank.isLesson(sc)); }
 /* speakable IDs (7 Nov 2026, item 6): "U9·3" — the unit, then the question's place in the whole test — so a teacher can say "look
    at U9·3". Stable across sets, practice choices and rounds; the same on the screen, on every printout and on the teacher
-   copy's keys (teacher.js writes them on the real test too). The generator's skill code follows on the screen and the
-   practice printouts: view.skill(item) if the unit gives one, else the item's family code(s). */
+   copy's keys (teacher.js writes them on the real test too). The ID alone (8 Nov 2026): the kind code that followed it
+   ("U10·3 · solveAdd/graphAdd") printed on the student's test and cued the method, so nothing follows it anywhere. */
 var UNO = (/u(\d+)$/.exec(U.id || '') || [])[1] || '', QORD = [];
 (function(){ var c = 0; G0.sections.forEach(function(s, si){ QORD[si] = s.items.map(function(){ return ++c; }); }); })();
 function qidOf(si, ii, item){
   if (item && item.bank && K.Bank) return K.Bank.qid(item);                          /* a lesson item: "U9·L3·7" */
   var n = QORD[si] && QORD[si][ii]; if (!n) return null;
-  var sk = ''; try { sk = V.skill ? V.skill(item) || '' : ''; } catch(e){}
-  if (!sk && item) sk = famKey(item);
-  return {id: 'U' + UNO + '·' + n, sk: typeof sk === 'string' ? sk : ''};
+  return {id: 'U' + UNO + '·' + n};
 }
 /* a kind of question — a FAMILY: the family code(s) of its parts ("solveAdd/graphAdd"), what the teacher approves or disapproves
-   (approvals.js, 8 Nov 2026) and the skill code beside the ID when the unit gives none */
+   (approvals.js, 8 Nov 2026); never shown beside an ID */
 function famKey(item){ var fs = []; partsOf(item).forEach(function(p){ var f = p && (p.fam || (p === item.part ? item.fam : '')); if (typeof f === 'string' && f && fs.indexOf(f) < 0) fs.push(f); }); if (!fs.length && typeof item.fam === 'string') fs.push(item.fam); return fs.join('/'); }
 function famOff(item){ return !!(AP && item && !item.bank && AP.famHidden(famKey(item))); }
-function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
+function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span></div>' : ''; }
 function qidOfItem(it){ var p = String(it.pos || '').split('.').map(Number); return qidOf(p[0], p[1], it.item); }
 var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss|lesson-[a-z0-9.+-]+))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts; a lesson (7 Nov 2026) */
 var LHASH = /^#lesson-([a-z0-9.+-]+)$/i, LSEED = 0;            /* the site's link to a day's lesson, #lesson-9.03: a new set of it */
