@@ -28,7 +28,9 @@ function version(it, p) {
   const own = it.type === 'parts' || it.type === 'solo';
   const head = [call(V.stem, it), call(V.figure, it), own ? call(V.line, p) : ''].map(bare).join(' | ');
   const opts = Array.isArray(p.opts) ? p.opts.map((o, k) => bare(V.opt ? call(V.opt, p, k) : o)).sort().join(' ; ') : '';
-  return head + ' || ' + opts;
+  /* a graph the student builds (kind nline, 7 Nov 2026): its number line's numbers are what the student works on too */
+  const line = p.kind === 'nline' && p.line ? ' | ' + [p.line.lo, p.line.st, p.line.n].join(' ') : '';
+  return head + line + ' || ' + opts;
 }
 const seen = new Map(), t0 = Date.now();
 for (let seed = 1; seed <= SEEDS; seed++) {

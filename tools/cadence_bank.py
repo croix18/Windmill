@@ -374,6 +374,13 @@ def read_key(item):
         m = re.fullmatch(r"graph: (open|closed) circle at (\S+), shaded to the (left|right)", c)
         if m:
             at = m.group(2)
+            # 7 Nov 2026 (Croix: "make them graph inequalities with an open or closed dot and an arrow instead of just
+            # describing them"): the student builds the graph on Cadence's own blank number line (kit kind nline) — when that
+            # line can be read exactly from Cadence's figure; otherwise the four described graphs stay a choice, counted
+            nl = nline_part(item, m.group(1) == "closed", at, m.group(3), parts)
+            if nl:
+                parts.append(nl); continue
+            NLINE_KEPT[0] += 1
             opts = [f"{oc} circle at {at}, shaded to the {lr}" for oc in ("Open", "Closed") for lr in ("left", "right")]
             parts.append(select_part(f"{m.group(1).capitalize()} circle at {at}, shaded to the {m.group(3)}", opts, "Which graph?")); continue
         m = re.fullmatch(r"(?:the )?(?:longest straight line inside the box|distance|length|answer) is about (.+)", c)
@@ -445,6 +452,43 @@ def read_key(item):
             else:
                 p["label"] = names.get(p["type"], "Answer")
     return {"parts": parts, "dropped": dropped}
+
+
+NLINE_KEPT = [0]
+def nline_part(item, closed, at, side, parts):
+    """Cadence's "graph: open circle at 4, shaded to the right" on its blank number line → an nline part {type: 'nline', line:
+    {lo, st, n}, graph: {c, closed, dir}, v, key, label}, or None when the line cannot be read exactly. The line is read from
+    Cadence's figure itself: its labels (every tick labelled, as its figText says) evenly spaced in value and in x, the ends
+    the figText names; the boundary must be one of its ticks."""
+    ft, fig = item.get("ft") or "", item.get("fig") or ""
+    m = re.fullmatch(r"a blank number line from (\S+) to (\S+) with every tick labeled", ft)
+    if not m or not fig:
+        return None
+    num = lambda t: float(t.replace("\u2212", "-").replace("\u2013", "-"))
+    try:
+        lo_t, hi_t = num(m.group(1)), num(m.group(2))
+        labs = sorted((float(x), num(t)) for x, t in re.findall(r'<text x="([\d.]+)"[^>]*>([^<]+)</text>', fig))
+        ticks = sorted(set(float(x) for x in re.findall(r'<line x1="([\d.]+)" y1="[\d.]+" x2="\1" y2="[\d.]+"', fig)))
+        c = num(at)
+    except ValueError:
+        return None
+    if len(labs) < 5 or len(labs) > 21 or len(ticks) != len(labs):
+        return None
+    xs, vs = [l[0] for l in labs], [l[1] for l in labs]
+    dx, dv = xs[1] - xs[0], vs[1] - vs[0]
+    if dv <= 0 or any(abs((xs[i] - xs[i - 1]) - dx) > 1e-6 or abs((vs[i] - vs[i - 1]) - dv) > 1e-9 for i in range(1, len(xs))):
+        return None
+    if any(abs(t - x) > 1e-6 for t, x in zip(ticks, xs)) or abs(vs[0] - lo_t) > 1e-9 or abs(vs[-1] - hi_t) > 1e-9:
+        return None
+    k = (c - vs[0]) / dv
+    if abs(k - round(k)) > 1e-9 or not (0 <= round(k) <= len(vs) - 1):
+        return None
+    ks = lambda v: str(int(round(v))) if abs(v - round(v)) < 1e-9 else repr(round(v, 9))
+    prev = [p for p in parts if p["type"] == "inequality"]
+    v = (re.match(r"\s*([a-z])\b", prev[-1]["key"]) or [None, "x"])[1] if prev else "x"
+    word = ("Closed" if closed else "Open") + " dot at " + ks(c) + ", arrow " + side
+    return {"type": "nline", "line": {"lo": ks(vs[0]), "st": ks(dv), "n": len(vs) - 1}, "graph": {"c": ks(c), "closed": closed, "dir": side},
+            "v": v, "key": word, "label": "Graph the solution on the number line."}
 
 
 def judgeable(item):
@@ -765,6 +809,8 @@ def build_lesson(course, lid, raw, n_target, taken, shown, stats):
             spec, why = judgeable(it)
             if why:
                 stats["excluded"][why] = stats["excluded"].get(why, 0) + 1
+                if why == "explanation" and re.search(r"number line|circle at|shaded", it["a"], re.I):
+                    stats.setdefault("graphExplained", []).append(it["a"][:160])   # a number-line graph described in words: reported
                 continue
             hit = r43_hit(it, shown)
             if hit:
@@ -936,7 +982,10 @@ def main():
                 lessons_out[lid] = {"id": lid, "title": R["title"], "unit": R["unit"], "codes": R["codes"], "labels": R["labels"],
                                     "focus": R["why"], "rigorBank": any(R["rigor"].values()), "count": len(items),
                                     "regular": nreg, "rigor": nrig, "items": items}
-                rep = {"items": len(items), "regular": nreg, "rigor": nrig, "excluded": st["excluded"], "sharedWithAnotherLesson": st["shared"]}
+                rep = {"items": len(items), "regular": nreg, "rigor": nrig, "excluded": st["excluded"], "sharedWithAnotherLesson": st["shared"],
+                       "graphs": graph_counts(items)}
+                if st.get("graphExplained"):
+                    rep["graphExplainedSample"] = st["graphExplained"][:5]
                 if st["r43"]:
                     rep["ruling43Sample"] = st["r43"][:5]
                 report["units"].setdefault(f"{course}:u{u}", {}).setdefault("lessons", {})[lid] = rep
@@ -992,6 +1041,13 @@ def main():
     sys.exit(1 if failed or report["failures"] else 0)
 
 
+def graph_counts(items):
+    """the number-line graphs to draw among a lesson's items: built by the student (nline), or kept as a choice of four"""
+    built = sum(1 for x in items for p in x["answer"].get("parts", []) if p["type"] == "nline")
+    kept = sum(1 for x in items for p in x["answer"].get("parts", []) if p["type"] == "select" and p.get("label") == "Which graph?")
+    return {"nline": built, "choice": kept}
+
+
 def readme_text(c, u, head, build, mp, lessons, ex_tot, r43files, r43probs, n):
     L = [f"# {c['code']} Unit {u} — the lesson bank from Cadence", "",
          f"Made by Windmill `tools/cadence_bank.py` from Cadence `{head[:12]}` (build {build}), tier \"{c['tierName']}\", on "
@@ -1017,7 +1073,10 @@ def readme_text(c, u, head, build, mp, lessons, ex_tot, r43files, r43probs, n):
           "`explanation` — a key that is an explanation in words or a graph to draw (the page cannot check it); `words` — a key",
           "whose value is a word or phrase; `select` — a choice the key names that the stem does not list; `ruling 43` — the stem",
           "repeats a piece of mathematics the unit's lessons show or its paper test prints.",
-          "", "Ruling 43 read: " + (", ".join(r43files) or "nothing") + (". Not readable: " + "; ".join(r43probs) if r43probs else "") + "."]
+          ""] + ([f"Graphs to draw (Cadence's \"graph: open circle at …, shaded to the …\" keys): {sum(graph_counts(x['items'])['nline'] for x in lessons.values())} "
+          "built by the student on the number line (the kit's `nline` part: the point, an open or closed dot, the arrow), "
+          f"{sum(graph_counts(x['items'])['choice'] for x in lessons.values())} kept as a choice of four described graphs (Cadence's line could not be read exactly).", ""]
+          if any(sum(graph_counts(x['items']).values()) for x in lessons.values()) else []) + ["Ruling 43 read: " + (", ".join(r43files) or "nothing") + (". Not readable: " + "; ".join(r43probs) if r43probs else "") + "."]
     return "\n".join(L) + "\n"
 
 

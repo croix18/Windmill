@@ -27,6 +27,10 @@ const cfg = JSON.parse(fs.readFileSync(path.join(dir, 'unit.json'), 'utf8'));
 const raw = f => fs.readFileSync(path.join(bankDir, f));
 const BANK = JSON.parse(raw('cadence.json')), MAP = JSON.parse(raw('map.json'));
 const U = require(path.join(dir, 'unit.js'));
+/* a graph to build (kit kind nline, 7 Nov 2026): its line read from Cadence's figure, the boundary on one of its ticks */
+const NLK = require('../nline.js');
+const nlOk = p => { if (!p.line || !p.graph || typeof p.graph.closed !== 'boolean' || !['left', 'right'].includes(p.graph.dir)) return false; const S = NLK.spec(p); return S.n >= 4 && S.st > 0 && NLK.idx(S, p.graph.c) >= 0; };
+const hasNl = x => !!(x.answer && x.answer.parts && x.answer.parts.some(p => p.type === 'nline'));
 
 /* ---------------------------------------------------------------- A. the bank */
 const want = {}; raw('BANK.sha256').toString().split('\n').filter(Boolean).forEach(l => { const [h, f] = l.trim().split(/\s+/); want[f] = h; });
@@ -47,7 +51,7 @@ Object.entries(BANK.lessons).forEach(([lid, L]) => {
     if (A.kind === 'choice') { if (!(b.choices && b.choices[A.key])) fail(w + ': the key is not a choice'); }
     else if (A.kind === 'multi') { if (!(b.choices && A.key.length >= 2 && A.key.every(k => b.choices[k]))) fail(w + ': a select-all key outside its choices'); }
     else if (A.kind === 'match') { if (!(b.rows && b.cols && A.key.length === b.rows.length && A.key.every(k => b.cols[k]))) fail(w + ': a matching key outside its grid'); }
-    else if (A.kind === 'free') { if (!(A.parts && A.parts.length) || A.parts.some(p => p.type === 'select' ? !(p.optsS && p.optsS[p.key]) : !(p.key && seg(p.keyS) && ['number', 'expression', 'equation', 'inequality', 'sci'].includes(p.type)))) fail(w + ': a part without a key of a known type'); }
+    else if (A.kind === 'free') { if (!(A.parts && A.parts.length) || A.parts.some(p => p.type === 'select' ? !(p.optsS && p.optsS[p.key]) : p.type === 'nline' ? !nlOk(p) : !(p.key && seg(p.keyS) && ['number', 'expression', 'equation', 'inequality', 'sci'].includes(p.type)))) fail(w + ': a part without a key of a known type'); }
     else fail(w + ': answer kind ' + A.kind);
   });
 });
@@ -95,7 +99,7 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
   if (!scopeKeys.length) fail('C: the page has no lesson choices (was it built with the bank?)');
   const scopeFor = lid => (scopeKeys.find(([k, ls]) => ls.length === 1 && ls[0] === lid) || scopeKeys.find(([k, ls]) => ls.includes(lid)) || [null])[0];
   /* C: every item, light and dark */
-  let drawn = 0, figs = 0;
+  let drawn = 0, figs = 0, nls = 0;
   for (const scheme of ['light', 'dark']) {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, colorScheme: scheme });
     for (const { lid } of scopesOf()) {
@@ -107,6 +111,7 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
         out.sw = document.documentElement.scrollWidth; out.fb = document.querySelectorAll('[data-tex-fallback]').length;
         out.unpainted = [...document.querySelectorAll('.m[data-tex]')].filter(m => !m.shadowRoot).length;
         cards.forEach(c => { const q = c.querySelector('.qid .qn'); out.ids.push(q ? q.textContent : '');
+          if (c.querySelector(':scope .nlw svg.nlg')) out.ids[out.ids.length - 1] += '|nl';
           const f = c.querySelector(':scope > .bkfig svg'); if (f) { const r = f.getBoundingClientRect(), box = f.closest('.bkfig').getBoundingClientRect();
             out.ids[out.ids.length - 1] += '|fig'; if (r.width < 60 || r.height < 20) out.bad.push(q.textContent + ' figure ' + Math.round(r.width) + '×' + Math.round(r.height));
             if (box.right > document.documentElement.clientWidth + 1) out.bad.push(q.textContent + ' figure box past the page');
@@ -118,32 +123,41 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
       if (r.sw > 390) fail(`C ${scheme}: ${lid}: the page scrolls sideways (${r.sw} px)`);
       if (r.fb || r.unpainted) fail(`C ${scheme}: ${lid}: ${r.fb} TeX runs fell back, ${r.unpainted} not drawn`);
       r.bad.forEach(x => fail(`C ${scheme}: ${lid}: ${x}`));
-      L.items.forEach((x, k) => { const got = r.ids.find(s => s.split('|')[0] === idOf(x)); if (!got) fail(`C ${scheme}: ${lid}: no card with ID ${idOf(x)}`); else if (!!x.fig !== got.endsWith('|fig')) fail(`C ${scheme}: ${lid}: ${idOf(x)} figure ${x.fig ? 'missing' : 'unexpected'}`); else if (x.fig) figs++; });
-      if (scheme === 'dark' && L.items.some(x => x.fig) && !/invert/.test(r.filter || '')) fail(`C dark: ${lid}: the figures are not drawn light on dark`);
+      L.items.forEach((x, k) => { const got = r.ids.find(s => s.split('|')[0] === idOf(x)); if (!got) return fail(`C ${scheme}: ${lid}: no card with ID ${idOf(x)}`);
+        if (hasNl(x)) { if (!/\|nl/.test(got) || /\|fig/.test(got)) fail(`C ${scheme}: ${lid}: ${idOf(x)} is a graph to build: ${/\|nl/.test(got) ? 'Cadence\'s blank line is drawn too' : 'no number line to build on'}`); else nls++; }
+        else if (!!x.fig !== /\|fig/.test(got)) fail(`C ${scheme}: ${lid}: ${idOf(x)} figure ${x.fig ? 'missing' : 'unexpected'}`); else if (x.fig) figs++; });
+      if (scheme === 'dark' && L.items.some(x => x.fig && !hasNl(x)) && !/invert/.test(r.filter || '')) fail(`C dark: ${lid}: the figures are not drawn light on dark`);
       p._errs.forEach(e => fail(`C ${scheme}: ${lid}: ${e}`));
       await p.close();
     }
     await ctx.close();
   }
-  console.log('bank: drawn ' + drawn + ' cards (light and dark), ' + figs + ' figures');
+  console.log('bank: drawn ' + drawn + ' cards (light and dark), ' + figs + ' figures, ' + nls + ' graphs to build');
   /* D: 30 items through the page */
   const R = rng(4243 + unitNo), all = []; Object.values(BANK.lessons).forEach(L => L.items.forEach(x => all.push(x)));
   const pick = []; while (pick.length < Math.min(30, all.length)) { const x = all[Math.floor(R() * all.length)]; if (!pick.includes(x) && scopeFor(x.lesson)) pick.push(x); }
-  const byLesson = {}; pick.forEach(x => (byLesson[x.lesson] = byLesson[x.lesson] || []).push(x));
+  const byLesson = {};
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  let typed = 0, ladder = false, similar = false, end = false;
+  let typed = 0, nlBuilt = 0, ladder = false, similar = false, end = false;
+  /* graphs to build are among them: six of a bank's, answered through the page */
+  all.filter(hasNl).slice(0, 6).forEach(x => { if (!pick.includes(x) && scopeFor(x.lesson)) pick.push(x); });
+  pick.forEach(x => (byLesson[x.lesson] = byLesson[x.lesson] || []).push(x));
   for (const [lid, xs] of Object.entries(byLesson)) {
     const sc = scopeFor(lid), p = await open(ctx, sc, 31, xs.map(x => x.id));
     /* the key per box: from the bank, by card ID and part */
     const plan = await p.evaluate(() => {
       const out = []; document.querySelectorAll('#paper .q[data-q]:not(.xq)').forEach(card => {
-        const qid = (card.querySelector('.qid .qn') || {}).textContent; card.querySelectorAll('[data-host]').forEach((h, i) => out.push({ qid, id: h.dataset.host, i, text: !!document.getElementById('a' + h.dataset.host), multi: !!h.querySelector('input[type=checkbox]') })); });
+        const qid = (card.querySelector('.qid .qn') || {}).textContent; card.querySelectorAll('[data-host]').forEach((h, i) => out.push({ qid, id: h.dataset.host, i, text: !!document.getElementById('a' + h.dataset.host), nl: !!h.querySelector('.nlw'), multi: !!h.querySelector('input[type=checkbox]') })); });
       return out; });
     for (const s of plan) {
       const x = xs.find(y => idOf(y) === s.qid); if (!x) { fail('D: ' + lid + ': no item for card ' + s.qid); continue; }
       const A = x.answer;
       let ok;
-      if (s.text) { const part = A.kind === 'free' ? A.parts[partIndex(s.id)] : null;
+      if (s.nl) { const part = A.kind === 'free' ? A.parts[partIndex(s.id)] : null; if (!part || part.type !== 'nline') { fail('D: ' + s.qid + ': a number line with no graph key'); continue; }
+        const Sp = NLK.spec(part), i = NLK.idx(Sp, part.graph.c);
+        await p.focus('#nlp' + s.id); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight');
+        await p.click('[data-nl="' + s.id + '"][data-nld="' + (part.graph.closed ? 'closed' : 'open') + '"]'); await p.click('[data-nl="' + s.id + '"][data-nla="' + part.graph.dir + '"]'); nlBuilt++; }
+      else if (s.text) { const part = A.kind === 'free' ? A.parts[partIndex(s.id)] : null;
         const k = part && part.type !== 'select' ? String(part.key) : null; if (k == null) { fail('D: ' + s.qid + ': a box with no typed key'); continue; }
         await p.fill('#a' + s.id, k); typed++; }
       else {
@@ -224,7 +238,7 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
       p._errs.forEach(e => fail('F: ' + e)); await p.close(); } }
   await ctx.close(); await b.close(); server.close();
   if (kpad) console.log('bank: keypad ' + kpad);
-  console.log('bank: ' + pick.length + ' items answered through the page (' + typed + ' typed boxes); ladder ' + ladder + ', similar ' + similar + ', end panel ' + end);
+  console.log('bank: ' + pick.length + ' items answered through the page (' + typed + ' typed boxes, ' + nlBuilt + ' graphs built); ladder ' + ladder + ', similar ' + similar + ', end panel ' + end);
   if (fails.length) { console.log('BANK CHECK FAILED: ' + fails.length); process.exit(1); }
   console.log('BANK CHECK PASSED');
 })().catch(e => { console.error(e); process.exit(1); });

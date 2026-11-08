@@ -15,13 +15,30 @@ const fails = []; const fail = m => { fails.push(m); };
 function itemsOf(seed) {
   const g = U.generate(seed), out = []; let qn = 0;
   g.sections.forEach((sec, si) => sec.items.forEach((it, ii) => { qn++;
-    if (it.type === 'parts') it.parts.forEach((p, pi) => out.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : 'text', x: p, pos: si + '.' + ii + '.' + pi }));
-    else if (it.type === 'solo') out.push({ id: String(qn), kind: 'text', x: it.part, pos: si + '.' + ii + '.-1' });
+    if (it.type === 'parts') it.parts.forEach((p, pi) => out.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text', x: p, pos: si + '.' + ii + '.' + pi }));
+    else if (it.type === 'solo') out.push({ id: String(qn), kind: it.part.kind === 'nline' ? 'nline' : 'text', x: it.part, pos: si + '.' + ii + '.-1' });
     else out.push({ id: String(qn), kind: it.type === 'multi' ? 'multi' : 'mc', x: it, pos: si + '.' + ii + '.-1' });
   }));
   return out;
 }
+/* a graph the student builds (kit kind nline, 7 Nov 2026): the point by the keyboard (Home, then → a step at a time), the dot
+   and the arrow by their own buttons — the way a student without a mouse does it */
+const NLK = require('../nline.js');
+async function nlFill(p, id, part, g) {
+  const Sp = NLK.spec(part), i = NLK.idx(Sp, g.c);
+  await p.focus('#nlp' + id); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight');
+  if (g.closed != null) await p.click('[data-nl="' + id + '"][data-nld="' + (g.closed ? 'closed' : 'open') + '"]');
+  if (g.dir) await p.click('[data-nl="' + id + '"][data-nla="' + g.dir + '"]');
+}
+const nlWrong = part => { const Sp = NLK.spec(part), g = NLK.graphOf(part), i = NLK.idx(Sp, g.c); return { c: NLK.kstr(NLK.val(Sp, i < Sp.n ? i + 1 : i - 1)), closed: g.closed, dir: g.dir }; };
+/* a wrong answer of any kind: 987654 typed, a graph one tick off, the first choice */
+async function wrongOf(p, it) {
+  if (it.kind === 'text') await p.fill('#a' + it.id, '987654');
+  else if (it.kind === 'nline') await nlFill(p, it.id, it.x, nlWrong(it.x));
+  else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id);
+}
 async function answer(p, it) {
+  if (it.kind === 'nline') return nlFill(p, it.id, it.x, NLK.graphOf(it.x));
   if (it.kind === 'text') await p.fill('#a' + it.id, U.keyText(it.x));
   else for (const k of (it.kind === 'mc' ? [it.x.correct] : it.x.correct)) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [it.id, k]);
 }
@@ -134,7 +151,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await p.click('[data-another="' + T[0].id + '"]'); { const a = await active(p); if (!/^a\S*x\d+\|/.test(a)) fail('Try a similar one: focus is ' + a); }
   /* 4b. Try another after a choice question got right on a later try: the new one's choices can be ticked (23 Oct 2026:
      a select-all got right on the second try opened its "another" locked — the right answer's lock reached into the box) */
-  { const C = itemsOf(seed).find(x => x.kind !== 'text'); if (!C) fail('no choice question to test Try another on');
+  { const C = itemsOf(seed).find(x => x.kind === 'mc' || x.kind === 'multi'); if (!C) fail('no choice question to test Try another on');
     else { const wrong = C.kind === 'mc' ? [(C.x.correct + 1) % C.x.opts.length] : [C.x.opts.findIndex((_, k) => !C.x.correct.includes(k))];
       for (const k of wrong) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [C.id, k]);
       await check(p, C.id); for (const k of wrong) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [C.id, k]);
@@ -164,7 +181,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const a = await active(p); if (!/next/.test(a) && !/"next"/.test(a)) { const nx = await p.$('[data-next="' + it.id + '"]'); if (nx) fail('right answer: focus is ' + a + ', not Next'); } }
   /* 8. tap targets and the keypad */
   await p.focus('#a' + T[2].id);
-  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore, .hslot button, .rung-next button, .rung-walk button')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
+  const small = await p.evaluate(() => Array.from(document.querySelectorAll('.more button, .chk, .mode button, .keys button, .walk .wclose, #bMore, .hslot button, .rung-next button, .rung-walk button, .nsb button, .nlpt')).filter(e => e.offsetParent).map(e => [e.textContent, Math.round(e.getBoundingClientRect().height)]).filter(x => x[1] < 44));
   if (small.length) fail('tap targets under 44px: ' + JSON.stringify(small.slice(0, 5)));
   const tabbable = await p.evaluate(() => Array.from(document.querySelectorAll('.keys button')).filter(b => b.tabIndex >= 0).length); if (tabbable) fail(tabbable + ' keypad keys are tab stops');
   /* 9. Finish marks a typed answer that was never checked */
@@ -244,7 +261,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* 12. every Show me how on a set, and every Hint's first step: no "null", "undefined" or "NaN" anywhere a student can read */
   await fresh(p, 780);
   { const i5 = itemsOf(780);
-    for (const it of i5) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id); await check(p, it.id);
+    for (const it of i5) { await wrongOf(p, it); await check(p, it.id);
       await rungTo(p, it.id, 3); }
     const txt = await p.evaluate(() => document.getElementById('paper').innerText);
     const m = /\b(null|undefined|NaN)\b/.exec(txt); if (m) fail('"' + m[1] + '" on the page: …' + txt.slice(Math.max(0, m.index - 80), m.index + 20).replace(/\s+/g, ' ')); }
@@ -316,7 +333,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       /* every flow with it on: wrong answers and their feedback, Hint (wrong choice, two wrong numbers, Show this step), Show me how,
          pictures, Try another, a right answer, Finish, the results, the confirm, test mode and its "can't read", the misses menu */
       const its = itemsOf(790), TT = its.filter(i => i.kind === 'text'), MM = its.filter(i => i.kind === 'mc');
-      for (const it of its) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
+      for (const it of its) { if (it.kind === 'text' || it.kind === 'nline') await wrongOf(p, it); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
       for (const it of TT.slice(0, 6)) {
         const steps = U.walk(it.x, 'text') || []; if (!steps.length) continue;
         await rungTo(p, it.id, 2); await p.click('[data-walk="' + it.id + '"]');
@@ -372,15 +389,15 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     const pr = await p.evaluate(() => ({ stems: Array.from(document.querySelectorAll('#printview .pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim()),
       ids: Array.from(document.querySelectorAll('#printview .pq .pqid .qn')).map(e => e.textContent), keyIds: Array.from(document.querySelectorAll('#printview .pkey tr td.pid')).map(e => e.textContent),
-      blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length,
+      blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length, lines: document.querySelectorAll('#printview .pnl svg.nlg').length,
       keys: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }));
     if (JSON.stringify(pr.stems) !== JSON.stringify(screenStems)) fail('print: the worksheet questions are not the screen questions');
     if (JSON.stringify(pr.ids) !== JSON.stringify(screenIds)) fail('print: the worksheet IDs ' + pr.ids.slice(0, 4).join(' ') + '… are not the screen\'s');
     { const want = ip.map(it => 'U' + UN + '·' + (+it.id.replace(/\D+$/, '').replace(/\D.*$/, ''))); if (JSON.stringify(pr.keyIds) !== JSON.stringify(want)) fail('print: the key\'s IDs ' + pr.keyIds.slice(0, 4).join(' ') + '… are not its questions\' (' + want.slice(0, 4).join(' ') + '…)'); }
-    const nText = ip.filter(i => i.kind === 'text').length, nMc = ip.length - nText;
-    if (pr.blanks !== nText || pr.groups !== nMc) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists for ' + nText + ' / ' + nMc + ' parts');
+    const nText = ip.filter(i => i.kind === 'text').length, nNl = ip.filter(i => i.kind === 'nline').length, nMc = ip.length - nText - nNl;
+    if (pr.blanks !== nText || pr.groups !== nMc || pr.lines !== nNl) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists / ' + pr.lines + ' number lines for ' + nText + ' / ' + nMc + ' / ' + nNl + ' parts');
     if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
-    ip.forEach((it, k) => { const want = it.kind === 'text' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
+    ip.forEach((it, k) => { const want = it.kind === 'text' || it.kind === 'nline' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
       const got = pr.keys[k] ? pr.keys[k][1] : ''; if (got.replace(/\s+/g, '') !== want.replace(/\s+/g, '')) fail('print: key ' + it.id + ' is "' + got + '", the page marks "' + want + '"'); });
     /* make-up tests: on a student page there are none (Croix, 21 Oct 2026: "I don't want the students to be able to print
        the make up tests") — not in the menu, and a forged request prints nothing; on the teacher copy, three forms, each a
@@ -672,7 +689,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.reload(); await p.waitForTimeout(200); if (!(await p.evaluate(() => document.documentElement.classList.contains('lg')))) fail('Larger text is not remembered after a reload');
     const over = async (where) => { const r = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth, wide: Array.from(document.querySelectorAll('#paper .ex, #paper .solhead')).filter(e => e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).overflowX === 'visible').length }));
       if (r.sw > r.iw + 1) fail(where + ': the page scrolls sideways (' + r.sw + ' px in ' + r.iw + ')'); if (r.wide) fail(where + ': ' + r.wide + ' lines of mathematics overflow without scrolling'); };
-    for (const it of itemsOf(780)) { if (it.kind === 'text') await p.fill('#a' + it.id, '987654'); else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id); await check(p, it.id); await rungTo(p, it.id, 3); }
+    for (const it of itemsOf(780)) { await wrongOf(p, it); await check(p, it.id); await rungTo(p, it.id, 3); }
     await over('larger text, every worked solution open');
     await more(p); await p.click('#bBig'); await p.waitForTimeout(60); await over('every worked solution open');
     await p.reload(); await p.waitForTimeout(150); if (await p.evaluate(() => document.documentElement.classList.contains('lg'))) fail('Larger text came back after it was turned off');
@@ -785,6 +802,132 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (de.length) fail('dark page errors: ' + de.slice(0, 3).join(' | '));
     await dc.close();
     console.log('I. true dark and Appearance checked'); }
+  /* J. the graph a student builds (kit kind nline, 7 Nov 2026; Croix: "make them graph inequalities with an open or closed dot and
+     an arrow instead of just describing them"): a tap on a tick places the point, a drag moves it, ← → Home End move it by the
+     keyboard; Dot and Arrow are radiogroups that work by keyboard; the ray draws as soon as a point and a direction exist; the
+     key is ✓ on the first try; each one thing off gets its own line, in the order boundary, dot, arrow; Hint 3 ends on the graph
+     drawn; no keypad; 44 px; no sideways scroll at 390; print hides the controls, gives the student paper the blank line and its
+     10 mm band, and the key (and the teacher copy's test key) the graph drawn; the dark theme's strokes ≥ 3:1 on the paper. */
+  { const sd = [11, 4821, 12, 13, 14, 15].find(x => itemsOf(x).some(i => i.kind === 'nline'));
+    if (sd == null) console.log('J. no graph to build on this unit — skipped');
+    else {
+      /* a page whose clock runs saves its set as it is left; fresh() only changes the hash on the same set, so the save came after
+         the storage was cleared — J leaves the page first, so every start is a fresh set */
+      const freshJ = async (pg, s0) => { await pg.goto('about:blank'); await fresh(pg, s0); };
+      const NI = itemsOf(sd).filter(i => i.kind === 'nline'), it = NI[0], id = it.id, Sp = NLK.spec(it.x), key = NLK.graphOf(it.x), ki = NLK.idx(Sp, key.c);
+      const ans = async (pg, s0) => ((await pg.evaluate(([pre, s1]) => JSON.parse(localStorage.getItem(pre + 'set.' + s1 + '.all') || 'null'), [U.id + '.', s0 || sd])) || { ans: {} }).ans[id] || {};
+      const zone = (pg, i) => pg.evaluate(([id, i]) => { const z = document.querySelector('#nlp' + id + ' .nzone[data-i="' + i + '"]'); z.scrollIntoView({ block: 'center' }); const r = z.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height }; }, [id, i]);
+      await p.setViewportSize({ width: 390, height: 844 }); await freshJ(p, sd);
+      /* untouched: the line, two radiogroups, nothing checked, nothing drawn */
+      const u0 = await p.evaluate(id => { const w = document.querySelector('[data-nlw="' + id + '"]'), pt = document.getElementById('nlp' + id);
+        return { w: !!w, role: pt && pt.getAttribute('role'), groups: w ? Array.from(w.querySelectorAll('[role=radiogroup]')).map(g => g.getAttribute('aria-label')) : [], checked: w ? w.querySelectorAll('[aria-checked=true]').length : -1,
+          dot: !!(pt && pt.querySelector('.ncl, .nop, .npend')), ray: !!(pt && pt.querySelector('.nray')), h: pt ? pt.getBoundingClientRect().height : 0,
+          btnH: w ? Math.min.apply(null, Array.from(w.querySelectorAll('.nsb button')).map(b => b.getBoundingClientRect().height)) : 0, words: w ? Array.from(w.querySelectorAll('.nsb button')).map(b => b.textContent.trim()) : [],
+          labels: pt ? Array.from(pt.querySelectorAll('.nlb')).map(t => t.textContent) : [], input: w ? w.querySelectorAll('input').length : -1 }; }, id);
+      if (!u0.w || u0.role !== 'slider') fail('J: no number line to build on for ' + id + ': ' + JSON.stringify(u0));
+      if (JSON.stringify(u0.groups) !== '["Dot","Arrow"]' || JSON.stringify(u0.words) !== '["Open","Closed","Left","Right"]') fail('J: the controls are ' + JSON.stringify(u0.groups) + ' ' + JSON.stringify(u0.words));
+      if (u0.checked || u0.dot || u0.ray) fail('J: an untouched line shows a choice or a mark: ' + JSON.stringify(u0));
+      if (u0.h < 44 || u0.btnH < 44) fail('J: targets under 44 px: the line ' + Math.round(u0.h) + ', the buttons ' + Math.round(u0.btnH));
+      if (u0.input) fail('J: the graph has a text box (no typing is needed)');
+      { const want = NLK.model(it.x).labels.map(l => l.s); if (JSON.stringify(u0.labels) !== JSON.stringify(want)) fail('J: the labels ' + u0.labels.join(' ') + ' are not the line\'s ' + want.join(' ')); }
+      /* a tap places the point; no arrow yet, so no ray; the pending point is drawn */
+      const tapI = ki >= 2 ? ki - 2 : ki + 2; let z = await zone(p, tapI); if (z.h < 44) fail('J: a tick\'s tap zone is ' + Math.round(z.h) + ' px tall');
+      await p.mouse.click(z.x, z.y); let a = await ans(p);
+      if (a.c !== NLK.kstr(NLK.val(Sp, tapI))) fail('J: a tap on tick ' + tapI + ' placed ' + JSON.stringify(a));
+      { const m = await p.evaluate(id => { const pt = document.getElementById('nlp' + id); return { pend: !!pt.querySelector('.npend'), ray: !!pt.querySelector('.nray'), focus: document.activeElement === pt, now: pt.getAttribute('aria-valuenow') }; }, id);
+        if (!m.pend || m.ray) fail('J: after a tap: the point is ' + (m.pend ? '' : 'not ') + 'drawn, ' + (m.ray ? 'a ray already' : 'no ray') + ' (no arrow chosen yet)');
+        if (!m.focus || m.now !== a.c) fail('J: after a tap the slider is ' + JSON.stringify(m)); }
+      /* a drag moves it */
+      { const z0 = await zone(p, tapI), z1 = await zone(p, ki); await p.mouse.move(z0.x, z0.y); await p.mouse.down(); await p.mouse.move((z0.x + z1.x) / 2, z0.y, { steps: 3 }); await p.mouse.move(z1.x, z1.y, { steps: 3 }); await p.mouse.up();
+        a = await ans(p); if (a.c !== key.c) fail('J: a drag to tick ' + ki + ' left the point at ' + a.c); }
+      /* the keyboard moves it: → ← one step, Home and End the ends */
+      await p.focus('#nlp' + id);
+      for (const [k, want] of [['ArrowRight', ki + 1], ['ArrowLeft', ki], ['Home', 0], ['End', Sp.n], ['Home', 0]]) { await p.keyboard.press(k); a = await ans(p); if (a.c !== NLK.kstr(NLK.val(Sp, Math.min(Sp.n, want)))) fail('J: ' + k + ' put the point at ' + a.c + ', not ' + NLK.val(Sp, want)); }
+      for (let k = 0; k < ki; k++) await p.keyboard.press('ArrowRight');
+      /* the controls by keyboard: Tab reaches each group's one stop, the arrows choose */
+      await p.keyboard.press('Tab'); { const f = await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-nld')); if (f !== 'open') fail('J: Tab from the line reaches ' + f + ', not the Dot group'); }
+      await p.keyboard.press(key.closed ? 'ArrowRight' : 'Space'); a = await ans(p);   /* → moves to Closed and chooses it; Space chooses the one in focus */ if (a.closed !== key.closed) fail('J: the arrow keys in Dot gave ' + a.closed);
+      { const dotOk = await p.evaluate(([id, c]) => { const pt = document.getElementById('nlp' + id); return !!pt.querySelector(c ? '.ncl' : '.nop') && !pt.querySelector('.npend'); }, [id, key.closed]); if (!dotOk) fail('J: the dot is not drawn ' + (key.closed ? 'closed' : 'open')); }
+      await p.keyboard.press('Tab'); { const f = await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-nla')); if (f !== 'left') fail('J: Tab from Dot reaches ' + f + ', not the Arrow group'); }
+      await p.keyboard.press(key.dir === 'right' ? 'ArrowRight' : 'Home'); a = await ans(p); if (a.dir !== key.dir) fail('J: the keys in Arrow gave ' + a.dir);
+      { const r = await p.evaluate(id => { const pt = document.getElementById('nlp' + id), ray = pt.querySelector('.nray'), dot = pt.querySelector('.ncl, .nop'); return ray ? { x1: +ray.getAttribute('x1'), x2: +ray.getAttribute('x2'), cx: +dot.getAttribute('cx'), head: !!pt.querySelector('.nrh') } : null; }, id);
+        if (!r || !r.head || Math.abs(r.x1 - r.cx) > 0.2 || (key.dir === 'right') !== (r.x2 > r.x1)) fail('J: the ray is not drawn from the point to the ' + key.dir + ': ' + JSON.stringify(r)); }
+      { const sy = await p.$eval('#nls' + id, e => e.textContent), want = 'Boundary at ' + NLK.fmt(key.c) + ', ' + (key.closed ? 'closed' : 'open') + ' dot, arrow to the ' + key.dir + '.'; if (sy !== want) fail('J: the screen reader hears "' + sy + '", not "' + want + '"'); }
+      /* no keypad for a graph, on a touch screen either; no sideways scroll */
+      if (await p.evaluate(() => { const k = document.querySelector('.keys'); return !!(k && !k.hidden && k.offsetParent); })) fail('J: a keypad shows for a graph');
+      if (await p.evaluate(() => document.documentElement.scrollWidth) > 391) fail('J: the page scrolls sideways at 390 with the graph built');
+      await check(p, id);
+      { const f = await p.$eval('#fb' + id, e => e.textContent); if (!/Correct on the first try/.test(f)) fail('J: the key built is not ✓ on the first try: ' + f.slice(0, 100)); }
+      { const lk = await p.evaluate(id => ({ dis: Array.from(document.querySelectorAll('[data-nlw="' + id + '"] .nsb button')).every(b => b.disabled), aria: document.getElementById('nlp' + id).getAttribute('aria-disabled') }), id);
+        if (!lk.dis || lk.aria !== 'true') fail('J: a right graph is not locked: ' + JSON.stringify(lk)); }
+      /* each one thing off has its own line, in order: boundary, dot, arrow — then the key is right on a later try */
+      await freshJ(p, sd);
+      const offs = [['boundary', nlWrong(it.x)], ['dot', Object.assign({}, key, { closed: !key.closed })], ['arrow', Object.assign({}, key, { dir: key.dir === 'left' ? 'right' : 'left' })],
+        ['boundary', Object.assign(nlWrong(it.x), { closed: !key.closed, dir: key.dir === 'left' ? 'right' : 'left' })], ['dot', Object.assign({}, key, { closed: !key.closed, dir: key.dir === 'left' ? 'right' : 'left' })]];
+      const linesSeen = {};
+      for (const [which, g] of offs) {
+        await nlFill(p, id, it.x, g); await check(p, id);
+        const r = await p.evaluate(([id, pos, g]) => { const P = pos.split('.').map(Number), x = Unit.generate(+location.hash.replace(/\D+/g, '')).sections[P[0]].items[P[1]], pt = x.type === 'parts' ? x.parts[P[2]] : x.part;
+          const f = Kit.NL.judge(pt, g, { prevOk: false }, Unit.judge.nline), d = document.createElement('div'); d.innerHTML = (f.what || [])[0] || ''; return { which: f.which, want: d.textContent.replace(/\s+/g, ' ').trim(), card: document.getElementById('fb' + id).textContent.replace(/\s+/g, ' ').trim() }; }, [id, it.pos, g]);
+        if (r.which !== which) fail('J: a graph with the ' + which + ' off is judged on the ' + r.which);
+        if (!/^✗ Not yet/.test(r.card) || r.card.indexOf(r.want) < 0) fail('J: the ' + which + ' card is "' + r.card.slice(0, 120) + '", not its line "' + r.want.slice(0, 120) + '"');
+        (linesSeen[which] = linesSeen[which] || []).push(r.want);
+      }
+      if (new Set([linesSeen.boundary[0], linesSeen.dot[0], linesSeen.arrow[0]]).size !== 3) fail('J: the boundary, dot and arrow lines are not three different lines');
+      if (linesSeen.boundary[1] !== linesSeen.boundary[0] && !/^That point is on/.test(linesSeen.boundary[0])) fail('J: with everything off, the card does not name the boundary first');
+      /* the ladder: Hint 1 the boundary, Hint 2 the dot, Hint 3 ends on the graph drawn */
+      await rungTo(p, id, 3);
+      { const L = await p.evaluate(id => ({ r1: (document.querySelector('#rg' + id + '-1 .rung-note') || {}).textContent || '', r2: (document.querySelector('#rg' + id + '-2') || {}).textContent || '',
+          drawn: !!document.querySelector('#rg' + id + '-3 .key .nlkey svg.nlg .nray') && !!document.querySelector('#rg' + id + '-3 .key .nlkey svg.nlg .ncl, #rg' + id + '-3 .key .nlkey svg.nlg .nop'), opts: document.querySelectorAll('#rg' + id + '-3 .choices').length }), id);
+        if (!/boundary/i.test(L.r1)) fail('J: Hint 1 is not the boundary: ' + L.r1.slice(0, 80)); if (!/open dot/.test(L.r2)) fail('J: Hint 2 is not the dot: ' + L.r2.slice(0, 80));
+        if (!L.drawn || L.opts) fail('J: Hint 3 does not end on the finished graph drawn'); }
+      await nlFill(p, id, it.x, key); await check(p, id);
+      if (!/✓/.test(await p.$eval('#fb' + id, e => e.textContent))) fail('J: the key after the misses is not ✓');
+      /* "Try a similar one": a fresh graph on its own line */
+      { const b0 = await p.$('[data-another="' + id + '"]'); if (!b0) fail('J: no "Try a similar one" on the graph'); else { await b0.click(); await p.waitForTimeout(60);
+        const x1 = await p.evaluate(id => { const w = document.querySelector('#ag' + id + ' .nlw'); return w ? { id: w.dataset.nlw, focus: document.activeElement && document.activeElement.id } : null; }, id);
+        if (!x1 || x1.focus !== 'nlp' + x1.id) fail('J: "Try a similar one" did not open a fresh graph with the line in focus: ' + JSON.stringify(x1)); } }
+      /* print: the worksheet's blank line with its band, the controls hidden, the key drawn */
+      await freshJ(p, sd); await more(p); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(80);
+      await p.emulateMedia({ media: 'print' });
+      { const pr = await p.evaluate(() => { const pv = document.getElementById('printview'), band = pv.querySelector('.pnl .pnlband'), ln = pv.querySelector('.pnl svg.nlg');
+          return { lines: pv.querySelectorAll('.pnl svg.nlg').length, marks: pv.querySelectorAll('.pnl svg .ncl, .pnl svg .nop, .pnl svg .nray, .pnl svg .npend').length, band: band ? band.getBoundingClientRect().height : 0, ctl: pv.querySelectorAll('.nctl, .nsb, [role=radiogroup]').length,
+            ctlSheet: Array.from(document.querySelectorAll('.sheet .nctl')).map(e => getComputedStyle(e).display), ink: ln ? getComputedStyle(ln).color : '', keyDrawn: pv.querySelectorAll('.pkey .nlkey svg .nray').length, ans: pv.querySelectorAll('.pq .pnl').length,
+            instr: Array.from(pv.querySelectorAll('.ppart')).filter(pp => pp.querySelector('.pnl')).map(pp => pp.querySelector('.line .st').textContent.trim()) }; });
+        if (pr.lines !== NI.length || pr.marks) fail('J: the worksheet prints ' + pr.lines + ' blank lines for ' + NI.length + ' graphs, ' + pr.marks + ' marks on them');
+        if (Math.abs(pr.band - 37.8) > 1.5) fail('J: the band to graph on is ' + pr.band.toFixed(1) + ' px, not 10 mm');
+        if (pr.ctl || pr.ctlSheet.some(d => d !== 'none')) fail('J: the controls print: ' + JSON.stringify(pr));
+        if (pr.ink.replace(/\s/g, '') !== 'rgb(0,0,0)') fail('J: the printed line is ' + pr.ink + ', not black ink');
+        if (pr.keyDrawn !== NI.length) fail('J: the key draws ' + pr.keyDrawn + ' graphs of ' + NI.length);
+        if (pr.instr.some(t => t !== 'Graph the solution on the number line.')) fail('J: the printed instruction is ' + JSON.stringify(pr.instr)); }
+      await p.emulateMedia({ media: 'screen' }); await p.click('#pvClose');
+      /* the teacher copy: the key's graph under the item on screen; its printed test has the blank lines, its key the graphs drawn */
+      if (await p.evaluate(() => !!window.TEACHER_TEST)) {
+        const tk = await p.evaluate(id => !!document.querySelector('[data-host="' + id + '"] .nltk .nlkey svg .nray'), id); if (!tk) fail('J: the teacher copy does not show the key\'s graph under ' + id);
+        await more(p); await p.click('#bPrint'); await p.click('[data-print="mk"]'); await p.click('[data-print="mk2"]'); await p.waitForTimeout(120); await p.emulateMedia({ media: 'print' });
+        const tp = await p.evaluate(() => ({ blank: Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform)')).map(f => [f.querySelectorAll('.pnl svg.nlg').length, f.querySelectorAll('.pnl .ncl, .pnl .nop, .pnl .nray, .nltk').length, f.querySelectorAll('.pnl .pnlband').length]),
+          keys: Array.from(document.querySelectorAll('#printview .pkeyform')).map(k => k.querySelectorAll('.nlkey svg .nray').length) }));
+        tp.blank.forEach((b, k) => { if (!b[0] || b[1] || b[2] !== b[0]) fail('J: test form ' + 'AB'[k] + ' prints ' + JSON.stringify(b) + ' (lines, marks, bands)'); if (tp.keys[k] !== b[0]) fail('J: key ' + 'AB'[k] + ' draws ' + tp.keys[k] + ' graphs for ' + b[0]); });
+        await p.emulateMedia({ media: 'screen' }); await p.click('#pvClose');
+      }
+      /* a touch screen: a tap places it, and no keypad */
+      { const tc = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 }), t = await tc.newPage(); t.on('pageerror', e => errs.push(e.message));
+        await freshJ(t, sd); const zt = await zone(t, ki); await t.touchscreen.tap(zt.x, zt.y); await t.waitForTimeout(40);
+        const at = await ans(t); if (at.c !== key.c) fail('J: a tap on a touch screen placed ' + JSON.stringify(at));
+        await t.tap('[data-nl="' + id + '"][data-nld="open"]');
+        if (await t.evaluate(() => { const k = document.querySelector('.keys'); return !!(k && !k.hidden && k.offsetParent); })) fail('J: a keypad shows for a graph on a touch screen');
+        if (await t.evaluate(() => document.documentElement.scrollWidth) > 391) fail('J: the touch page scrolls sideways');
+        await tc.close(); }
+      /* the dark theme: the line, the ticks, the words, the dot and the ray ≥ 3:1 on the paper */
+      { const dc = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' }), d = await dc.newPage(); await freshJ(d, sd); await nlFill(d, id, it.x, key);
+        const cs = await d.evaluate(id => { const pt = document.getElementById('nlp' + id), bg = getComputedStyle(document.querySelector('.sheet')).backgroundColor, out = [];
+          pt.querySelectorAll('.nax, .ntk, .ntk2, .nlb, .nray, .nrh, .ncl, .nop').forEach(e => { const c = getComputedStyle(e); out.push([e.getAttribute('class'), /nlb|nrh|ncl/.test(e.getAttribute('class')) ? c.fill : c.stroke]); }); return { bg, out }; }, id);
+        const rgb = c => (String(c).match(/[\d.]+/g) || []).map(Number), lum = v => { const f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }; return .2126 * f(v[0]) + .7152 * f(v[1]) + .0722 * f(v[2]); };
+        const bg = rgb(cs.bg), low = cs.out.filter(([k, c]) => { const v = rgb(c), x = lum(v), y = lum(bg); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) < 3; });
+        if (!cs.out.length || low.length) fail('J: dark: ' + low.length + ' of ' + cs.out.length + ' marks under 3:1 on ' + cs.bg + ': ' + JSON.stringify(low.slice(0, 3)));
+        await dc.close(); }
+      console.log('J. the graph a student builds: ' + NI.length + ' on set ' + sd + ', tap, drag, keys, controls, ✓, three lines, the ladder, print, touch, dark');
+    } }
   if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
   await b.close(); server.close();

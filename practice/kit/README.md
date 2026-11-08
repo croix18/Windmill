@@ -269,10 +269,40 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
   screen the keypad's = < ≤ ≥ > (44 px, two rows at 390 px), "<" in at the caret, and an inequality's key typed tight with its
   sign tapped ("c<-16.5" for U10·L4·58) ✓ on the first try.
 
+## A graph the student builds (7 Nov 2026)
+Croix: *"I'd like the practice tests and tests to make them graph inequalities with an open or closed dot and an arrow instead of
+just describing them. Adjust the practice tests and the tests to reflect this."* A part of kind **`nline`** (`nline.js`) asks for
+the graph of a one-variable inequality, built, not chosen:
+- **The authoring shape:** `{kind: 'nline', line: {lo, st, n}, graph: {c, closed, dir}}` (`dir` `'left' | 'right'`; numbers or exact
+  strings). The line is drawn as M7 Unit 10's number lines are (ten steps, a label on every tick — on every whole number when the
+  step is ½ — an arrowhead at each end). The student's answer is the same triple; `keyText` is `nline:c|open|right`.
+- **On the screen:** the line, its tap zone per tick the line's full height (≥ 44 px on a phone); a tap places the point, a drag
+  moves it, ← → move it a step and Home / End to the ends (the line is a `role=slider`). Under it **Dot · Open | Closed** and
+  **Arrow · Left | Right**, a word and a glyph each, 44 px radiogroups (Tab reaches each group's one stop, the arrows move and
+  choose). The ray draws from the point to the edge as soon as a point and a direction exist; a point with no dot yet is the one
+  live thing (turquoise with the ink's edge). A visually hidden live line says "Boundary at 3, open dot, arrow to the right." No
+  typing, so no keypad. Strokes are the pen (`currentColor`): white on the dark paper, a 2 px ring for open, filled for closed.
+- **Judging:** right only when all three match. Not finished is *Not counted yet* ("Choose which way the arrow points."). When
+  wrong, the card names ONE thing, in the order **boundary → dot → arrow**; a unit gives its own words with
+  `judge.nline(part, which, answer, ctx)` (M7 Unit 10 names the wrong operation's or a lost sign's boundary, and the arrow read
+  from the unwritten side), else the kit's three lines. The rungs follow the same order (a unit's `rungs`, else the kit's), and
+  Hint 3 ends on the graph drawn. Unlimited help; the point only on a clean first check (unchanged).
+- **Paper:** the worksheet and every printed test form print the part's line ("Graph the solution on the number line.") over the
+  empty number line with a 10 mm band — nothing else; the keys (the worksheet's, the make-ups', the ruling-49 test's) draw the
+  graph in ink with its words ("Open dot at −7, arrow left"). The teacher copy shows the key's graph under the item on screen.
+- **Bank items:** Cadence's "graph: open circle at 4, shaded to the right" keys on its blank number line are exported as `nline`
+  parts by `tools/cadence_bank.py` (the line read from Cadence's own figure, exactly, or the four described graphs stay a choice
+  and are counted); the page then hides Cadence's blank line, since the part draws its own.
+- **Checked:** `check/page.js` part J (tap, drag, keys, both radiogroups, the live ray, ✓, the three lines in order, the ladder,
+  "Try a similar one", print with the band and the drawn key, the teacher copy's test and key, a touch screen with no keypad,
+  ≥ 3:1 in dark, 44 px, no sideways scroll at 390); `check/bank.js` builds a bank's graphs through the page; `check/variety.js`
+  counts a graph's line among its numbers.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
 | `core.js` | `slot(unit, seed, slotName)`, `draw(unit, seed, slot, build, ok)`, `fnv1a`, `hint.mul/div/add/sub/sq` (one smaller step of arithmetic, never the final answer), and `Ans` (the answer normaliser: `parse`, `canon`, `form`, `equiv`) |
+| `nline.js` | the number-line graph a student builds (kind `nline`): the line, the widget, judging, paper; pure, so a unit's Node checks use it |
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
 | `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |

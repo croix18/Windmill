@@ -35,7 +35,7 @@ var K = window.Kit = window.Kit || {}, U = window.Unit, B = window.CADENCE_BANK,
 if (!U || !B || !MAP || !B.lessons) return;
 var V = U.view, O = {}, LET = 'ABCDEFGH';
 Object.keys(V).forEach(function(k){ O[k] = V[k]; });
-var OJ = {text: U.judge.text, mc: U.judge.mc, multi: U.judge.multi}, OSOL = U.solution, ORUNGS = U.rungs, OWALK = U.walk, OKEY = U.key, OKT = U.keyText;
+var OJ = {text: U.judge.text, mc: U.judge.mc, multi: U.judge.multi, nline: U.judge.nline}, OSOL = U.solution, ORUNGS = U.rungs, OWALK = U.walk, OKEY = U.key, OKT = U.keyText;
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 var UNO = (/u(\d+)$/.exec(U.id || '') || [])[1] || String(B.unit || '');
 
@@ -62,6 +62,7 @@ function segHtml0(segs){
 function segPlain(segs){ return (segs || []).map(function(g){ return typeof g === 'string' ? g.replace(/<[^>]*>/g, ' ') : texText(g[0]); }).join('').replace(/\s+/g, ' ').trim(); }
 function figHtml(b){
   if (!b.fig) return '';
+  if (hasNline(b)) return '';                               /* a graph to build: the part draws its own number line (kit nline.js), Cadence's blank one is not shown */
   var svg = String(b.fig).replace(/^<svg\b/, '<svg role="img" aria-label="' + esc(b.figText || 'Figure') + '"');
   /* never drawn smaller than 90% of Cadence's own size (its labels are 10 px there): a figure that would be scrolls sideways */
   var vb = /viewBox="[\d.\s-]*?\s([\d.]+)\s+[\d.]+"/.exec(b.fig), w = vb ? Math.round(+vb[1] * 0.9) : 0, wide = w > 380;
@@ -152,8 +153,11 @@ function formLabel(bp, b, onlyOne){
   if (t === 'equation' && bp.equiv) return 'As an equation';
   return '';
 }
+function hasNline(b){ return !!(b.answer && b.answer.parts && b.answer.parts.some(function(p){ return p.type === 'nline'; })); }
 function partOf(b, bp, pi, label){
   var line = bp.labelS ? segHtml(bp.labelS) : esc(bp.label || '');
+  /* "graph the solution on the number line" (7 Nov 2026): the student builds it — the point, an open or closed dot, the arrow */
+  if (bp.type === 'nline') return {bank: b, bp: bp, bpi: pi, kind: 'nline', label: label, lineHtml: line, line: bp.line, graph: bp.graph, v: bp.v || 'x', fam: 'L' + b.lesson};
   if (bp.type === 'select'){
     return {bank: b, bp: bp, bpi: pi, kind: 'mc', label: label, lineHtml: line, opts: bp.optsS.map(segHtml), correct: bp.key, fam: 'L' + b.lesson};
   }
@@ -263,6 +267,7 @@ function judgePart(p, typed){
   return {v: 'wrong', what: []};
 }
 U.judge.text = function(p, typed, ctx){ return p && p.bank ? judgePart(p, typed) : OJ.text(p, typed, ctx); };
+U.judge.nline = function(p, which, g, ctx){ return p && p.bank ? '' : (OJ.nline ? OJ.nline(p, which, g, ctx) : ''); };   /* a bank graph: the kit's own three lines */
 U.judge.mc = function(x, k){ return x && x.bank ? {v: +k === x.correct ? 'right' : 'wrong', what: []} : OJ.mc(x, k); };
 U.judge.multi = function(x, ks, tries){
   if (!(x && x.bank)) return OJ.multi(x, ks, tries);
@@ -309,12 +314,13 @@ U.rungs = function(x, type, ctx){ return x && x.bank ? rungsOf(x.bank) : (ORUNGS
 U.walk = function(x, type, ctx){ return x && x.bank ? null : OWALK(x, type, ctx); };
 
 /* ------------------------------------------------ the keys a check types, the sameness key, the view */
-function keyTextOf(p){ var bp = p.bp; if (!bp) return ''; return bp.type === 'select' ? '' : String(bp.key); }
+function keyTextOf(p){ var bp = p.bp; if (!bp) return ''; return bp.type === 'select' ? '' : bp.type === 'nline' ? K.NL.keyText(bp.graph) : String(bp.key); }
 U.key = function(p){ return p && p.bank ? 'bank:' + p.bank.id + ':' + (p.bpi == null ? '' : p.bpi) : OKEY(p); };
 U.keyText = function(p){ return p && p.bank ? keyTextOf(p) : (OKT ? OKT(p) : ''); };
 function keyHtmlOf(p){
   var bp = p.bp; if (!bp) return '';
   if (bp.type === 'select') return p.opts ? p.opts[p.correct] : '';
+  if (bp.type === 'nline') return K.NL.keyHtml(p);
   return (bp.pre ? esc(bp.pre) + ' ' : '') + segHtml(bp.keyS || [String(bp.key)]) + (bp.unit ? ' ' + esc(bp.unit) : '');
 }
 V.stem = function(it){ return it && it.bank ? it.stemHtml : O.stem(it); };
@@ -373,8 +379,9 @@ K.Bank = {
   at: function(id, base){
     var b = BYID[id]; if (!b) return null;
     var it = kitItem(b);
-    if (it.type === 'parts'){ var pi = base.x && base.x.bpi != null ? base.x.bpi : 0, pt = it.parts[Math.min(pi, it.parts.length - 1)]; return {type: pt.kind === 'mc' ? 'mc' : 'text', part: pt, x: pt, item: it}; }
-    if (it.type === 'solo') return {type: 'text', part: it.part, x: it.part, item: it};
+    var tt = function(pt){ return pt.kind === 'mc' ? 'mc' : pt.kind === 'nline' ? 'nline' : 'text'; };
+    if (it.type === 'parts'){ var pi = base.x && base.x.bpi != null ? base.x.bpi : 0, pt = it.parts[Math.min(pi, it.parts.length - 1)]; return {type: tt(pt), part: pt, x: pt, item: it}; }
+    if (it.type === 'solo') return {type: tt(it.part), part: it.part, x: it.part, item: it};
     return {type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it};
   },
   /* the title and the eyebrow in a lesson choice: "GRADE 7 MATH · UNIT 9 · LESSON 9.03 PRACTICE", the lesson's title */

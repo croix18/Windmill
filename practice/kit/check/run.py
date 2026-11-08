@@ -32,7 +32,7 @@ if any(os.path.exists(os.path.join(d, "cadence.json")) for d in (os.path.join(UD
 # the same hash build.py checks
 import hashlib
 h = hashlib.sha256()
-for f in ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else []): h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())   # the same list as build.py
+for f in ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else []): h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())   # the same list as build.py
 for f in cfg["scripts"] + cfg.get("css", []): h.update(open(os.path.join(UD, f), encoding="utf-8").read().encode())
 for f in ["lexend-regular.woff2", "lexend-bold.woff2", "dm-sans.woff2", "dm-serif-display.woff2"]: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())   # the page's fonts (7 Nov 2026), as build.py's FONTS
 BANKD = next((d for d in (os.path.join(UD, "bank"), os.path.join(os.path.dirname(UD), "bank")) if all(os.path.exists(os.path.join(d, f)) for f in ("cadence.json", "map.json", "BANK.sha256"))), None)

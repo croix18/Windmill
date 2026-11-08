@@ -150,9 +150,77 @@ function choicesHtml(x, id, lab, multi){
 function partHtml(p, id, solo, lab, lone){
   var line = solo ? '' : '<div class="line" id="ln' + id + '">' + (p.label && !lone ? '<b class="lab">' + p.label + '.</b>' : '<b class="lab" aria-hidden="true"></b>') + '<span class="st">' + V.line(p) + '</span>' + (p.label ? '<span class="pt">1 pt</span>' : '') + '</div>';
   if (p.kind === 'mc') return '<div class="prt mcp" data-host="' + id + '">' + line + choicesHtml(p, id, lab, false) + '</div>';
+  if (p.kind === 'nline') return '<div class="prt nlp' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + nlHtml(p, id, lab) + '</div>';
   return '<div class="prt' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + inputHtml(p, id, lab) + tailHtml(id) + '</div>';
 }
-function textType(p){ return p.kind === 'mc' ? 'mc' : 'text'; }
+function textType(p){ return p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text'; }
+/* ---- a number-line graph the student builds (kind 'nline', kit/nline.js; 7 Nov 2026, Croix: "make them graph inequalities with
+   an open or closed dot and an arrow instead of just describing them"): the line with a tap zone per tick (or drag, or ← → on
+   the keyboard), then Dot · Open | Closed and Arrow · Left | Right; the ray draws as soon as a point and a direction exist. No
+   typing, so no keypad. The answer is {c, closed, dir}; Check and the ladder are the kit's, as for any part. The teacher copy
+   shows the key's graph under it. */
+var NL = K.NL;
+function nlHtml(p, id, lab){
+  var tk = teacherPage() ? '<div class="nltk" translate="no"><span class="kl">Key</span>' + NL.keyHtml(p) + '</div>' : '';
+  return NL.widget(id, p, S && S.ans[id], {label: 'Boundary point, question ' + lab}) + '<div class="ckrow"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></div>' + tk + tailHtml(id);
+}
+function nlPaint(it){
+  var w = document.querySelector('[data-nlw="' + it.id + '"]'); if (!w) return;
+  var g = NL.norm(S.ans[it.id]), R = S.res[it.id], lock = !!(R && R.v === 'right'), pt = $('nlp' + it.id), Sp = NL.spec(it.x), i = g.c == null ? -1 : NL.idx(Sp, g.c);
+  pt.innerHTML = NL.svg(it.x, g, {mode: 'live'});
+  if (i >= 0){ pt.setAttribute('aria-valuenow', NL.kstr(g.c)); pt.setAttribute('aria-valuetext', NL.fmt(g.c)); } else { pt.removeAttribute('aria-valuenow'); pt.setAttribute('aria-valuetext', 'No point yet'); }
+  pt.setAttribute('aria-disabled', String(lock)); w.classList.toggle('locked', lock);
+  var cur = {d: g.closed == null ? null : g.closed ? 'closed' : 'open', a: g.dir};
+  ['d', 'a'].forEach(function(k){ var bs = w.querySelectorAll('[data-nl' + k + ']'), any = false;
+    Array.prototype.forEach.call(bs, function(b){ var on = b.getAttribute('data-nl' + k) === cur[k]; any = any || on; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; b.disabled = lock; });
+    if (!any && bs[0]) bs[0].tabIndex = 0; });
+  var sy = $('nls' + it.id); if (sy) sy.textContent = NL.say(it.x, g);
+}
+function nlSet(id, patch){
+  var it = byId(id); if (!it || it.type !== 'nline') return;
+  var R = S.res[id]; if (R && R.v === 'right') return;
+  var g = NL.norm(S.ans[id]); Object.keys(patch).forEach(function(k){ g[k] = patch[k]; }); g = NL.norm(g);
+  if (sameAns(NL.norm(S.ans[id]), g) && S.ans[id]) return;
+  S.ans[id] = {c: g.c, closed: g.closed, dir: g.dir};
+  if (!S.running && !S.done && !it.extra) start();
+  if (FLASH[id]){ delete FLASH[id]; paintItem(it); }
+  nlPaint(it); save(); paintProgress(); paintScore(true);
+}
+var NLDRAG = null;
+function nlAt(pt, ev){ var it = byId(pt.dataset.nl), svg = pt.querySelector('svg'); if (!it || !svg) return; var r = svg.getBoundingClientRect(); if (!r.width) return;
+  var i = NL.tickAt(it.x, (ev.clientX - r.left) / r.width * NL.W); nlSet(it.id, {c: NL.kstr(NL.val(NL.spec(it.x), i))}); }
+document.addEventListener('pointerdown', function(e){
+  var pt = e.target && e.target.closest && e.target.closest('.nlpt'); if (!pt || pt.getAttribute('aria-disabled') === 'true') return;
+  if (e.button != null && e.button > 0) return;
+  e.preventDefault(); pt.focus({preventScroll: true}); nlAt(pt, e);
+  try { pt.setPointerCapture(e.pointerId); } catch(x){} NLDRAG = {pt: pt, id: e.pointerId};
+});
+document.addEventListener('pointermove', function(e){ if (NLDRAG && e.pointerId === NLDRAG.id) nlAt(NLDRAG.pt, e); });
+document.addEventListener('pointerup', function(e){ if (NLDRAG && e.pointerId === NLDRAG.id) NLDRAG = null; });
+document.addEventListener('pointercancel', function(){ NLDRAG = null; });
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest && e.target.closest('[data-nld],[data-nla]'); if (!b || b.disabled) return;
+  if (b.hasAttribute('data-nld')) nlSet(b.dataset.nl, {closed: b.getAttribute('data-nld') === 'closed'}); else nlSet(b.dataset.nl, {dir: b.getAttribute('data-nla')});
+});
+document.addEventListener('keydown', function(e){
+  var t = e.target; if (!t || !t.closest) return;
+  var pt = t.closest('.nlpt');
+  if (pt && pt === t){
+    var it = byId(pt.dataset.nl); if (!it || pt.getAttribute('aria-disabled') === 'true') return;
+    var Sp = NL.spec(it.x), g = NL.norm(S.ans[it.id]), i = g.c == null ? -1 : NL.idx(Sp, g.c), mid = Math.round(Sp.n / 2), j = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') j = i < 0 ? mid : Math.min(Sp.n, i + 1);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') j = i < 0 ? mid : Math.max(0, i - 1);
+    else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = Sp.n;
+    else if ((e.key === ' ' || e.key === 'Enter') && i < 0) j = mid;
+    if (j == null) return; e.preventDefault(); nlSet(it.id, {c: NL.kstr(NL.val(Sp, j))}); return;
+  }
+  var rb = t.closest('[data-nld],[data-nla]'); if (!rb) return;
+  var grp = Array.prototype.slice.call(rb.parentNode.querySelectorAll('[role=radio]')), k = grp.indexOf(rb);
+  var to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (k + 1) % grp.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (k + grp.length - 1) % grp.length : e.key === 'Home' ? 0 : e.key === 'End' ? grp.length - 1 : -1;
+  if (to < 0 || grp[to].disabled) return; e.preventDefault(); grp[to].click(); grp[to].focus();
+});
+/* the place a student is sent to in a question: its box, its first choice, or its number line */
+function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input') || host.querySelector('.nlpt'); }
 function render(){
   DS = build(); ITEMS = []; EX = {}; RULES = {};
   var h = [], qn = 0;
@@ -170,7 +238,7 @@ function render(){
           ITEMS.push({id: id, lab: lone ? String(qn) : id, sec: di, type: textType(p), x: p, item: it, pos: posKey(d.si, d.ii, pi), sib: sib, sibPart: pi > 0 ? it.parts[0] : null, aShown: !d.keep || d.keep[0]});
           q.push(partHtml(p, id, false, lone ? String(qn) : id, lone)); });
       } else if (it.type === 'solo'){
-        pts++; var id = String(qn); ITEMS.push({id: id, lab: id, sec: di, type: 'text', x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true});
+        pts++; var id = String(qn); ITEMS.push({id: id, lab: id, sec: di, type: textType(it.part), x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true});
         q.push('<div class="stem" id="ln' + id + '"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span><span class="pt">1 pt</span></div>' + fig(it) + partHtml(it.part, id, true, id));
       } else {
         pts++; var id2 = String(qn), multi = it.type === 'multi';
@@ -208,7 +276,7 @@ function paintHead(){
 function atPos(g, pos){
   var p = pos.split('.').map(Number), sec = g.sections[p[0]], it = sec && sec.items[p[1]]; if (!it) return null;
   if (it.type === 'parts'){ var pt = it.parts[p[2]]; return pt ? {type: textType(pt), part: pt, x: pt, item: it} : null; }
-  if (it.type === 'solo') return {type: 'text', part: it.part, x: it.part, item: it};
+  if (it.type === 'solo') return {type: textType(it.part), part: it.part, x: it.part, item: it};
   return {type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it};
 }
 function mountExtra(base){
@@ -238,18 +306,18 @@ function another(baseId){
     if (!nb) return;
     M0.n++; M0.bank = nb; seenB.push(nb); if (seenB.length > 40) seenB.shift(); save();
     mountExtra(b0); paintItem(b0);
-    var nidB = baseId + 'x' + M0.n, inpB = $('a' + nidB) || document.querySelector('input[name="q' + nidB + '"]'), elB = $('ag' + baseId);
+    var nidB = baseId + 'x' + M0.n, inpB = $('a' + nidB) || document.querySelector('input[name="q' + nidB + '"]') || $('nlp' + nidB), elB = $('ag' + baseId);
     if (elB && elB.scrollIntoView) elB.scrollIntoView({block: 'nearest'}); if (inpB) inpB.focus({preventScroll: true});
     return;
   }
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
   var seen = M0.seen || (M0.seen = []); if (was && seen.indexOf(was) < 0) seen.push(was);          /* never numbers served before (7 Nov 2026, item 2) */
-  var ansOf = function(x){ try { return U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2;
+  var ansOf = function(x){ try { return x && x.kind === 'nline' ? NL.keyText(NL.graphOf(x)) : U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2;
   do { s = randomSeed(); tries++; k2 = atPos(U.generate(s), b0.pos).x; k = U.key(k2); } while ((s === seed || k === base || k === was || (seen.indexOf(k) >= 0 && tries < 40) || (baseAns != null && ansOf(k2) === baseAns)) && tries < 60);
   seen.push(k); if (seen.length > 40) seen.shift();   /* never the same question again — nor the same answer (30 Oct 2026: a Hint that ended "5 tanks" was followed by a fresh one whose answer was 5) */
   M0.seed = s; save();
   mountExtra(b0); paintItem(b0);
-  var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]');
+  var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]') || $('nlp' + nid);
   var el = $('ag' + baseId); if (el && el.scrollIntoView) el.scrollIntoView({block: 'nearest'});
   if (inp) inp.focus({preventScroll: true});                                           /* [R1-2] */
 }
@@ -257,7 +325,7 @@ function another(baseId){
 /* ------------------------------------------------ marking and coaching */
 function byIdBase(id){ for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
 function byId(id){ return byIdBase(id) || EX[id] || null; }
-function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a && a.length) : a != null && String(a).trim() !== ''; }
+function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : a != null && String(a).trim() !== ''; }
 /* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
    printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
 /* what the coach may know about a part: the student's part (a) and whether it is right yet, whether this is a fresh one
@@ -268,6 +336,7 @@ function ctxOf(it){
   return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, prevOk: prevOk, aShown: it.aShown, extra: !!it.extra, mode: S.mode} : {aShown: it.aShown, extra: !!it.extra, mode: S.mode};
 }
 function judgeAns(it, a, tries){
+  if (it.type === 'nline'){ try { return NL.judge(it.x, a, ctxOf(it), U.judge.nline); } catch(e){ return {v: 'unread', what: ['Place the point, then choose a dot and an arrow.']}; } }
   if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
   try {
     if (it.type === 'text'){ a = tidy(a); return equivUp(it, a, U.judge.text(it.x, a, ctxOf(it))); }
@@ -338,7 +407,7 @@ function check(id){
 var TAG = {right: '<span class="tag ok">✓ Correct</span>', form: '<span class="tag fm">Almost</span>', wrong: '<span class="tag no">✗ Not yet</span>', unread: '<span class="tag fm">Not counted yet</span>'};
 function flash(it, f){
   FLASH[it.id] = 1;
-  $('fb' + it.id).innerHTML = f.v === 'blank' ? '<div class="fbx"><p>' + (it.type === 'text' ? 'Type an answer first.' : 'Pick an answer first.') + '</p></div>'
+  $('fb' + it.id).innerHTML = f.v === 'blank' ? '<div class="fbx"><p>' + (it.type === 'text' ? 'Type an answer first.' : it.type === 'nline' ? 'Tap the number line to place the point first.' : 'Pick an answer first.') + '</p></div>'
     : '<div class="fbx"><p>' + TAG.unread + ' ' + (f.what[0] || '') + '</p></div>';
 }
 /* a choice's named misconception (7 Nov 2026, item 4; the survey after Diagnostic Questions: every distractor exposes one
@@ -376,12 +445,13 @@ function cardHtml(it, R, f){
   return '<div class="fbx">' + body + '</div>';
 }
 function keyHtml(it){
+  if (it.type === 'nline') return NL.keyHtml(it.x);
   if (it.type === 'mc') return '<b>' + LET[it.x.correct] + '.</b> ' + V.opt(it.x, it.x.correct);
   if (it.type === 'multi') return it.x.correct.map(function(k){ return '<b>' + LET[k] + '.</b> ' + V.opt(it.x, k); }).join('&nbsp;&nbsp; ');
   return V.key(it.x);
 }
-function solOf(it){ try { var a = authored(it); return a && a.steps ? a.steps : U.solution(it.x, it.type, ctxOf(it)); } catch(e){ return null; } }
-function authored(it){ try { return U.rungs ? U.rungs(it.x, it.type, ctxOf(it)) || null : null; } catch(e){ return null; } }
+function solOf(it){ try { var a = authored(it); return a && a.steps ? a.steps : U.solution(it.x, it.type, ctxOf(it)) || (it.type === 'nline' ? NL.rungs(it.x).steps : null); } catch(e){ return it.type === 'nline' ? NL.rungs(it.x).steps : null; } }
+function authored(it){ try { var a = U.rungs ? U.rungs(it.x, it.type, ctxOf(it)) || null : null; return a || (it.type === 'nline' ? NL.rungs(it.x) : null); } catch(e){ return it.type === 'nline' ? NL.rungs(it.x) : null; } }
 function picOf(it){ try { return V.picture(it.x, it.type) || ''; } catch(e){ return ''; } }
 function stepsHtml(it, R){
   var sol = solOf(it), n = sol ? sol.length : 0, shown = Math.min(R.steps || 0, n);
@@ -413,6 +483,7 @@ function ruleOf(it){                                       /* the coach's rule f
   try {
     var probe = function(a){ var f = U.judge.text(it.x, a, ctxOf(it)); return f && f.rule || ''; };
     if (it.type === 'text') r = probe('987654') || probe('-987654') || probe('0');
+    else if (it.type === 'nline') r = '';
     else if (it.type === 'mc'){ for (var k = 0; k < it.x.opts.length && !r; k++) if (k !== it.x.correct){ var f = U.judge.mc(it.x, k); r = f && f.rule || ''; } }
     else { var g = U.judge.multi(it.x, [], 1); r = g && g.rule || ''; }
   } catch(e){}
@@ -498,10 +569,11 @@ function paintItem(it){
     btn.classList.toggle('go', R.v !== 'right' && !mo.querySelector('button.go')); }
   /* a right answer locks this question's own choices — not the "Try another" mounted inside its box (23 Oct 2026: a
      student who got a select-all right on her second try asked for another; it opened locked, and she could not touch it) */
-  if (it.type !== 'text') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
+  if (it.type !== 'text' && it.type !== 'nline') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
 }
 function paintChoices(it, R){
-  if (it.type === 'text') return;
+  if (it.type === 'nline') nlPaint(it);
+  if (it.type === 'text' || it.type === 'nline') return;
   it.x.opts.forEach(function(o, k){
     var ch = $('ch' + it.id + LET[k]); if (!ch) return; ch.classList.remove('picked-no', 'is-key');
     if (!R) return;
@@ -579,10 +651,10 @@ document.addEventListener('click', function(e){
   var b = t.closest('[data-check]'); if (b){ check(b.dataset.check); return; }
   var rg = t.closest('[data-rung]'); if (rg){ openRung(byId(rg.dataset.rung), +rg.dataset.to); return; }
   var nx = t.closest('[data-next]'); if (nx){ var to = byId(nx.dataset.to), host = to && hostOf(to);
-    if (host){ host.scrollIntoView({block: 'center', behavior: 'smooth'}); var f = $('a' + to.id) || host.querySelector('.ch input'); if (f) f.focus({preventScroll: true}); } return; }
+    if (host){ host.scrollIntoView({block: 'center', behavior: 'smooth'}); var f = fieldOf(host, to.id); if (f) f.focus({preventScroll: true}); } return; }
   var an = t.closest('[data-another]'); if (an){ another(an.dataset.another); return; }
   var mv = t.closest('[data-moveon]'); if (mv){ var mb = byId(mv.dataset.moveon), mn = mb && nextOpen(mb), mh = mn && hostOf(mn);
-    if (mh){ mh.scrollIntoView({block: 'center', behavior: 'smooth'}); var mf = $('a' + mn.id) || mh.querySelector('.ch input'); if (mf) mf.focus({preventScroll: true}); }
+    if (mh){ mh.scrollIntoView({block: 'center', behavior: 'smooth'}); var mf = fieldOf(mh, mn.id); if (mf) mf.focus({preventScroll: true}); }
     else { var bf = $('bFinish'); if (bf && !bf.hidden) bf.focus(); }
     return; }
   var wa = t.closest('[data-walk]'); if (wa){ walkStart(byId(wa.dataset.walk)); var wl = $('wl' + wa.dataset.walk); if (wl && wl.scrollIntoView) wl.scrollIntoView({block: 'nearest'}); return; }
@@ -590,7 +662,7 @@ document.addEventListener('click', function(e){
   var wn = t.closest('[data-wnum]'); if (wn){ walkNum(wn.dataset.wnum); return; }
   var wg = t.closest('[data-wgive]'); if (wg){ walkGive(wg.dataset.wgive); return; }
   var wc = t.closest('[data-wclose]'); if (wc){ var itc = byId(wc.dataset.wclose); S.walkOpen[itc.id] = false; save(); paintItem(itc); var hb = document.querySelector('[data-walk="' + itc.id + '"]'); if (hb) hb.focus({preventScroll: true}); return; }
-  var jm = t.closest('[data-jump]'); if (jm){ var ji = byId(jm.dataset.jump), jh = ji && hostOf(ji); if (jh){ jh.scrollIntoView({block: 'center'}); var jf = $('a' + ji.id) || jh.querySelector('.ch input'); if (jf) jf.focus({preventScroll: true}); } return; }
+  var jm = t.closest('[data-jump]'); if (jm){ var ji = byId(jm.dataset.jump), jh = ji && hostOf(ji); if (jh){ jh.scrollIntoView({block: 'center'}); var jf = fieldOf(jh, ji.id); if (jf) jf.focus({preventScroll: true}); } return; }
   var nw = t.closest('[data-new]'); if (nw){ var sc = nw.dataset.scope || scope;
     var go = function(){ goSet(randomSeed(), sc, 'practice'); };                     /* [R2-N2] the results' buttons always practise with checking */
     if (started() && !S.done) ask('Leave this set? It stays saved on this device.', 'Leave', go); else go(); return; }
@@ -828,6 +900,7 @@ function earnedOf(rec){                                   /* a set saved before 
 function restoreOne(it){
   var a = S.ans[it.id]; if (a == null) return;
   if (it.type === 'text'){ var el = $('a' + it.id); if (el){ el.value = a; setPreview(el); } }
+  else if (it.type === 'nline') nlPaint(it);
   else (it.type === 'mc' ? [a] : a).forEach(function(v){ var x = document.querySelector('input[name="q' + it.id + '"][value="' + v + '"]'); if (x) x.checked = true; });
 }
 function restore(){ ITEMS.forEach(restoreOne); }
@@ -882,8 +955,8 @@ function pq(d, qn){
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
   var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : blank(p)) + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart">' + blank(it.part) + '</div>';
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : blank(p)) + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? NL.blankHtml(it.part) : blank(it.part)) + '</div>';
   else h += '<div class="ppart">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -906,6 +979,7 @@ function keyListHtml(){
 function yourAnswer(it){
   var a = S.ans[it.id];
   if (it.type === 'text') return a == null || String(a).trim() === '' ? '' : esc(a);
+  if (it.type === 'nline') return NL.empty(a) ? '' : NL.svg(it.x, a, {mode: 'key', cls: 'nl-small'}) + '<span class="nlkw">' + esc(NL.say(it.x, a)) + '</span>';
   if (it.type === 'mc') return a == null ? '' : '<b>' + LET[+a] + '.</b> ' + V.opt(it.x, +a);
   return (a || []).map(function(k){ return '<b>' + LET[+k] + '.</b> ' + V.opt(it.x, +k); }).join('; ');
 }
@@ -954,7 +1028,7 @@ function collect(){                                        /* the items of DS, a
       var shown = it.parts.filter(function(p, pi){ return !d.keep || d.keep[pi]; }).length, lone = shown === 1 && it.parts.length > 1;
       it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; var id = qn + p.label;
         ITEMS.push({id: id, lab: lone ? String(qn) : id, sec: di, type: textType(p), x: p, item: it, pos: posKey(d.si, d.ii, pi), aShown: true}); });
-    } else if (it.type === 'solo'){ var id1 = String(qn); ITEMS.push({id: id1, lab: id1, sec: di, type: 'text', x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
+    } else if (it.type === 'solo'){ var id1 = String(qn); ITEMS.push({id: id1, lab: id1, sec: di, type: textType(it.part), x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
     else { var id2 = String(qn); ITEMS.push({id: id2, lab: id2, sec: di, type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it, pos: posKey(d.si, d.ii, -1), aShown: true}); }
   }); });
 }
@@ -968,8 +1042,8 @@ function pqTest(d, qn){
   var h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span>' + one + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : '<div class="pwork"></div>') + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart"><div class="pwork"></div></div>';
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>') + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? NL.blankHtml(it.part) : '<div class="pwork"></div>') + '</div>';
   else h += '<div class="ppart">' + choices(it) + '</div>';
   return h + '</div>';
 }

@@ -19,7 +19,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 
 # a lesson's practice from Cadence (7 Nov 2026): the unit's bank/ (Windmill tools/cadence_bank.py) — the student page's own
 # folder, or for a teacher copy its unit's — is inlined, as everything is: the page loads nothing
@@ -131,6 +131,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
   <div id="paper"></div>
 </main>
 <script>{rk('core.js')}</script>
+<script>{rk('nline.js')}</script>
 <script>{rk('bilingual.js')}</script>
 """ + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
