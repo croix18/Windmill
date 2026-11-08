@@ -455,6 +455,7 @@ def read_key(item):
 
 
 NLINE_KEPT = [0]
+GRAPH_MC_KEPT = [0]
 def nline_part(item, closed, at, side, parts):
     """Cadence's "graph: open circle at 4, shaded to the right" on its blank number line → an nline part {type: 'nline', line:
     {lo, st, n}, graph: {c, closed, dir}, v, key, label}, or None when the line cannot be read exactly. The line is read from
@@ -491,9 +492,70 @@ def nline_part(item, closed, at, side, parts):
             "v": v, "key": word, "label": "Graph the solution on the number line."}
 
 
+GRAPH_OPT = re.compile(r"^\s*(Open|Closed) circle at (\S+?),? shaded (?:to the )?(left|right)\.?\s*$", re.I)
+
+
+def q2_line(c):
+    """a number line by the practice test's Q2 conventions for a boundary with no figure of Cadence's: ten steps of 1 (a whole
+    number) or ½ (a half), the boundary in the middle — five steps from either end, on a tick; None for any other boundary"""
+    if abs(c - round(c)) < 1e-9:
+        st = 1.0
+    elif abs(2 * c - round(2 * c)) < 1e-9:
+        st = 0.5
+    else:
+        return None
+    ks = lambda v: str(int(round(v))) if abs(v - round(v)) < 1e-9 else repr(round(v, 9))
+    return {"lo": ks(c - 5 * st), "st": ks(st), "n": 10}
+
+
+def mc_nline(item):
+    """A Cadence choice item whose four options are described graphs ("Open circle at −8, shaded right" — "Which number line
+    shows the solution?") → (an nline part keyed from the right option, the stem without its question), or (None, 'kept') when
+    the boundary cannot sit on a tick, or (None, None) when it is not that kind of item. The line is Cadence's figure when it
+    has one, else q2_line."""
+    opts, key = item.get("opts") or [], item.get("key")
+    if item["rt"] not in ("mc", "etc") or len(opts) < 2 or not isinstance(key, int):
+        return None, None
+    ms = [GRAPH_OPT.match(re.sub(r"<[^>]*>", "", o)) for o in opts]
+    if not all(ms):
+        return None, None
+    m = ms[key]
+    closed, at, side = m.group(1).lower() == "closed", m.group(2), m.group(3).lower()
+    nl = nline_part(item, closed, at, side, []) if item.get("fig") else None
+    if not nl:
+        try:
+            c = float(at.replace("\u2212", "-").replace("\u2013", "-"))
+        except ValueError:
+            return None, "kept"
+        line = q2_line(c)
+        if not line:
+            return None, "kept"
+        ks = lambda v: str(int(round(v))) if abs(v - round(v)) < 1e-9 else repr(round(v, 9))
+        nl = {"type": "nline", "line": line, "graph": {"c": ks(c), "closed": closed, "dir": side},
+              "key": ("Closed" if closed else "Open") + " dot at " + ks(c) + ", arrow " + side, "label": "Graph the solution on the number line."}
+    tex = [g[0] for g in item["qS"] if isinstance(g, list)]
+    v = next((x for t in tex for x in re.findall(r"(?<![a-z\\])([a-z])(?![a-z])", t)), "x")
+    nl["v"] = v
+    # the stem keeps what comes before its question ("Solve the inequality. −0.2d < 1.6"): the question goes, the part asks it
+    qS = list(item["qS"])
+    while qS and isinstance(qS[-1], str) and (re.search(r"(Which|What) (number line|graph)[^?]*\?\s*$", qS[-1], re.I) or not re.sub(r"<br\s*/?>|\s", "", qS[-1])):
+        last = re.sub(r"(?:<br\s*/?>|\s)*(Which|What) (number line|graph)[^?]*\?\s*$", "", qS[-1], flags=re.I)
+        last = re.sub(r"(?:<br\s*/?>|\s)+$", "", last)
+        qS.pop()
+        if last:
+            qS.append(last); break
+    qP = re.sub(r"\s*(Which|What) (number line|graph)[^?]*\?\s*$", "", item["qP"], flags=re.I).rstrip()
+    return {"part": nl, "qS": qS, "qP": qP}, None
+
+
 def judgeable(item):
     """→ (answer spec, None) or (None, kind left out)"""
     rt = item["rt"]
+    g, kept = mc_nline(item)
+    if g:                                                        # 7 Nov 2026: a graph to build, not a description to pick
+        return {"kind": "free", "parts": [g["part"]], "dropped": [], "stemS": g["qS"], "stemP": g["qP"], "fromChoice": True}, None
+    if kept:
+        GRAPH_MC_KEPT[0] += 1
     if rt in ("mc", "etc"):
         return {"kind": "choice", "key": item["key"]}, None
     if rt == "ms":
@@ -838,17 +900,19 @@ def build_lesson(course, lid, raw, n_target, taken, shown, stats):
 
 def item_out(course, lid, it, spec, partsegs):
     o = {"id": hid(course, lid, it), "lesson": lid, "codes": [it["c"]], "gen": it["gi"], "seed": it["s"], "rigor": bool(it["hr"]),
-         "rt": it["rt"], "stem": it["qS"], "plain": it["qP"]}
+         "rt": it["rt"], "stem": spec.get("stemS", it["qS"]), "plain": spec.get("stemP", it["qP"])}
     if it["fig"]:
         o["fig"] = it["fig"]; o["figText"] = it["ft"]
     if it.get("instS"):
         o["inst"] = it["instS"]
-    if it["rt"] in ("mc", "etc", "ms"):
+    if it["rt"] in ("mc", "etc", "ms") and spec["kind"] != "free":
         o["choices"] = [{"t": s, "ok": (k in it["key"]) if isinstance(it["key"], list) else k == it["key"]} for k, s in enumerate(it["optsS"])]
         o["choicesPlain"] = it["optsP"]
     if it["rt"] == "match":
         o["cols"] = it["colsS"]; o["rows"] = it["rowsS"]; o["colsPlain"] = it["cols"]; o["rowsPlain"] = it["rows"]
     ans = {"kind": spec["kind"]}
+    if spec.get("fromChoice"):
+        o["fromChoice"] = it["optsP"]                             # Cadence's described graphs, kept for the record (not shown)
     if spec["kind"] in ("choice", "multi", "match"):
         ans["key"] = spec["key"]
     else:
@@ -1045,7 +1109,9 @@ def graph_counts(items):
     """the number-line graphs to draw among a lesson's items: built by the student (nline), or kept as a choice of four"""
     built = sum(1 for x in items for p in x["answer"].get("parts", []) if p["type"] == "nline")
     kept = sum(1 for x in items for p in x["answer"].get("parts", []) if p["type"] == "select" and p.get("label") == "Which graph?")
-    return {"nline": built, "choice": kept}
+    kept += sum(1 for x in items if x["answer"]["kind"] == "choice" and x.get("choicesPlain") and all(GRAPH_OPT.match(c) for c in x["choicesPlain"]))
+    fromc = sum(1 for x in items if x.get("fromChoice"))
+    return {"nline": built, "choice": kept, "fromChoice": fromc}
 
 
 def readme_text(c, u, head, build, mp, lessons, ex_tot, r43files, r43probs, n):
@@ -1075,7 +1141,9 @@ def readme_text(c, u, head, build, mp, lessons, ex_tot, r43files, r43probs, n):
           "repeats a piece of mathematics the unit's lessons show or its paper test prints.",
           ""] + ([f"Graphs to draw (Cadence's \"graph: open circle at …, shaded to the …\" keys): {sum(graph_counts(x['items'])['nline'] for x in lessons.values())} "
           "built by the student on the number line (the kit's `nline` part: the point, an open or closed dot, the arrow), "
-          f"{sum(graph_counts(x['items'])['choice'] for x in lessons.values())} kept as a choice of four described graphs (Cadence's line could not be read exactly).", ""]
+          f"{sum(graph_counts(x['items'])['choice'] for x in lessons.values())} kept as a choice of described graphs (no tick for the boundary). "
+          f"Of those built, {sum(graph_counts(x['items'])['fromChoice'] for x in lessons.values())} were Cadence choice items (\"Which number line shows the solution?\" with four described graphs): "
+          "the question goes from the stem, the part asks it, and the line is Cadence's figure or, with none, ten steps of 1 or ½ with the boundary in the middle.", ""]
           if any(sum(graph_counts(x['items']).values()) for x in lessons.values()) else []) + ["Ruling 43 read: " + (", ".join(r43files) or "nothing") + (". Not readable: " + "; ".join(r43probs) if r43probs else "") + "."]
     return "\n".join(L) + "\n"
 

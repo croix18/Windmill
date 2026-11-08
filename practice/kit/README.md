@@ -292,7 +292,10 @@ the graph of a one-variable inequality, built, not chosen:
   graph in ink with its words ("Open dot at −7, arrow left"). The teacher copy shows the key's graph under the item on screen.
 - **Bank items:** Cadence's "graph: open circle at 4, shaded to the right" keys on its blank number line are exported as `nline`
   parts by `tools/cadence_bank.py` (the line read from Cadence's own figure, exactly, or the four described graphs stay a choice
-  and are counted); the page then hides Cadence's blank line, since the part draws its own.
+  and are counted); so are Cadence's choice items whose options are all described graphs ("Which number line shows the
+  solution? A. Closed circle at 2, shaded right …"): the question leaves the stem, the part asks it, keyed from the right
+  option, on Cadence's figure or, with none, ten steps of 1 or ½ with the boundary in the middle (a boundary off every tick
+  stays a choice, counted). The page then hides Cadence's blank line, since the part draws its own.
 - **Checked:** `check/page.js` part J (tap, drag, keys, both radiogroups, the live ray, ✓, the three lines in order, the ladder,
   "Try a similar one", print with the band and the drawn key, the teacher copy's test and key, a touch screen with no keypad,
   ≥ 3:1 in dark, 44 px, no sideways scroll at 390); `check/bank.js` builds a bank's graphs through the page; `check/variety.js`
