@@ -613,3 +613,7 @@ button:not(.go):not([aria-pressed=true]):not([aria-expanded=true]):hover{backgro
 @media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .bkfig svg{filter:invert(1) hue-rotate(180deg) brightness(1.04)} }
 @media screen{ :root[data-theme="dark"] .bkfig svg{filter:invert(1) hue-rotate(180deg) brightness(1.04)} }
 @media print{ .bkfig{overflow:visible;margin-left:16pt;max-width:none} .bkfin{width:3.2in;min-width:0!important} .bkfig.bkwide .bkfin{width:5.6in;min-width:0!important} .bkfig svg{filter:none!important;max-height:3.4in} .st table.ftab{display:table} .m.mdisp{overflow:visible} }
+/* a lesson item's keypad (7 Nov 2026, Croix on his phone at U10·L4·58: "I can't answer that" — no < or >): its 14 keys
+   (− / a/b ^ ( ) π × √ = < ≤ ≥ >) are two even rows of 7 on a 390 px phone, using a little of the sheet’s margin (fewer per row on a narrower one, never sideways); 44 px keys */
+@media (max-width:480px){ .keys.kbank,.prt:not(.solo)>.keys.kbank{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:4px;margin-left:-7px;margin-right:-7px}
+  .keys.kbank button{width:auto;min-width:44px;padding:7px 0} }

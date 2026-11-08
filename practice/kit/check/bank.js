@@ -12,7 +12,9 @@
       Check pressed is ✓ on the first try; a wrong number is not; the help ladder opens its three rungs and Hint 3 is
       Cadence's worked solution; "Try a similar one" mounts another item of the same lesson; the end panel offers "Another set
       from this lesson" and "The whole practice test";
-   E. print: the worksheet and its key keep every card's ID.
+   E. print: the worksheet and its key keep every card's ID;
+   F. on a touch screen a lesson item's keypad has = < ≤ ≥ > (44 px keys, two rows at 390 px), "<" goes in at the caret, and
+      an inequality's key typed without spaces with its sign tapped ("c<-16.5" for U10·L4·58) is ✓ first try.
    The page is set to a chosen set of items through the device's own memory (bank.js remembers a set's items per device), so
    every item can be drawn without anything on the page that is there for the check. */
 const path = require('path'), fs = require('fs'), crypto = require('crypto');
@@ -185,7 +187,43 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
     if (!(btn.includes('Another set from this lesson') && btn.includes('The whole practice test'))) fail('D: the end panel offers ' + JSON.stringify(btn)); else end = true;
     p._errs.forEach(e => fail('D: ' + e));
     await p.close(); }
+  /* F. the keypad of a lesson item on a touch screen (7 Nov 2026, Croix on his phone at U10·L4·58 "c/−5 > 3.3": "I can't
+     answer that" — the keys had ≤ ≥ but no < or >): = < ≤ ≥ > shown with the rest, 44 px, two rows at 390 px; "<" taps in
+     at the caret; and an inequality's (or an equation's) key typed with its sign tapped from the keypad is ✓ first try */
+  let kpad = '';
+  { const one = x => x.answer.kind === 'free' && x.answer.parts.length === 1 && scopeFor(x.lesson);
+    const rel = x => (/(<=|>=|≤|≥|<|>|=)/.exec(String(x.answer.parts[0].key)) || [])[1];
+    const xk = all.find(x => x.id === '73ae9fb22b' && one(x)) || all.find(x => one(x) && x.answer.parts[0].type === 'inequality' && rel(x) === '<') || all.find(x => one(x) && x.answer.parts[0].type === 'inequality')
+      || all.find(x => one(x) && x.answer.parts[0].type === 'equation') || all.find(x => one(x) && x.answer.parts[0].type !== 'select');
+    if (xk) { const p = await open(ctx, scopeFor(xk.lesson), 33, [xk.id]);
+      if (!(await p.evaluate(() => matchMedia('(pointer: coarse)').matches))) fail('F: the touch context is not pointer: coarse');
+      const id = await p.evaluate(() => document.querySelector('#paper [data-host]').dataset.host);
+      await p.evaluate(id => { const e = document.getElementById('a' + id); e.scrollIntoView({ block: 'center' }); e.focus(); }, id); await p.waitForTimeout(60);
+      const k = await p.evaluate(() => { const kk = document.querySelector('.keys'); if (!kk || kk.hidden || !kk.offsetParent) return null;
+        const v = [...kk.querySelectorAll('button')].filter(b => !b.hidden && b.offsetParent);
+        return { labels: v.map(b => b.dataset.k), small: v.filter(b => b.getBoundingClientRect().width < 44 || b.getBoundingClientRect().height < 44).length,
+          rows: new Set(v.map(b => Math.round(b.getBoundingClientRect().top))).size, sw: document.documentElement.scrollWidth }; });
+      if (!k) fail('F: no keypad on ' + idOf(xk) + ' on a touch screen');
+      else { kpad = k.labels.join(' ');
+        ['=', '<', '≤', '≥', '>'].forEach(l => { if (k.labels.indexOf(l) < 0) fail('F: the keypad of ' + idOf(xk) + ' has no "' + l + '" (' + kpad + ')'); });
+        if (k.labels.indexOf('<') > k.labels.indexOf('≤') || k.labels.indexOf('≥') > k.labels.indexOf('>')) fail('F: the keys are not in the order < ≤ ≥ > (' + kpad + ')');
+        if (k.small) fail('F: ' + k.small + ' keys under 44 px'); if (k.rows > 2) fail('F: the keypad is ' + k.rows + ' rows at 390 px'); if (k.sw > 390) fail('F: the keypad makes the page scroll sideways (' + k.sw + ' px)');
+        await p.evaluate(id => { const e = document.getElementById('a' + id); e.value = 'ab'; e.setSelectionRange(1, 1); }, id);
+        await p.click('.keys button[data-k="<"]:not([hidden])'); const got = await p.$eval('#a' + id, e => [e.value, e.selectionStart, document.activeElement === e]);
+        if (got[0] !== 'a<b' || got[1] !== 2 || !got[2]) fail('F: "<" at the caret gave ' + JSON.stringify(got) + ', not ["a<b",2,true]');
+        /* the key without its spaces ("c<-16.5"), its sign tapped from the keypad */
+        const key = String(xk.answer.parts[0].key), r = rel(xk), tight = key.replace(/\s+/g, '').replace('<=', '≤').replace('>=', '≥');
+        if (r) { const sign = r === '<=' ? '≤' : r === '>=' ? '≥' : r, at = tight.indexOf(sign);
+          await p.fill('#a' + id, tight.slice(0, at)); await p.evaluate(id => { const e = document.getElementById('a' + id); e.setSelectionRange(e.value.length, e.value.length); }, id);
+          await p.click('.keys button[data-k="' + sign + '"]:not([hidden])'); await p.type('#a' + id, tight.slice(at + 1));
+          const typed = await p.$eval('#a' + id, e => e.value); if (typed !== tight) fail('F: typed "' + typed + '", not "' + tight + '"');
+          await p.evaluate(id => document.querySelector('[data-check="' + id + '"]').click(), id);
+          const ok = await p.evaluate(id => { const h = document.querySelector('[data-host="' + id + '"]'); return h.classList.contains('is-right') && /first try/.test(h.querySelector('.fb').textContent); }, id);
+          if (!ok) fail('F: "' + tight + '" for ' + idOf(xk) + ' (key "' + key + '") is not ✓ first try: ' + (await p.$eval('#fb' + id, e => e.textContent)).slice(0, 120));
+          else kpad += '; ' + idOf(xk) + ' "' + tight + '" ✓'; } }
+      p._errs.forEach(e => fail('F: ' + e)); await p.close(); } }
   await ctx.close(); await b.close(); server.close();
+  if (kpad) console.log('bank: keypad ' + kpad);
   console.log('bank: ' + pick.length + ' items answered through the page (' + typed + ' typed boxes); ladder ' + ladder + ', similar ' + similar + ', end panel ' + end);
   if (fails.length) { console.log('BANK CHECK FAILED: ' + fails.length); process.exit(1); }
   console.log('BANK CHECK PASSED');

@@ -629,6 +629,7 @@ document.addEventListener('focusin', function(e){
   if (keys.target === t && !keys.hidden) return;
   /* only the keys this kind of answer uses (a unit's keypad entry may name its kinds); none → no keypad */
   var kind = t.dataset.kind || '', shown = 0;
+  keys.classList.toggle('kbank', kind === 'bank');                                           /* a lesson item's 14 keys: two even rows on a phone (kit.css) */
   Array.prototype.forEach.call(keys.children, function(b){ var ks = b.dataset.kinds; b.hidden = kind === 'bank' ? !(ks && ks.split(' ').indexOf('bank') >= 0) : !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
   if (!shown){ hideKeys(); keys.target = null; return; }
   var y0 = t.getBoundingClientRect().top;

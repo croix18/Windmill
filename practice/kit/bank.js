@@ -389,7 +389,8 @@ K.Bank = {
   keypad: [{label: '−', say: 'minus', ins: function(){ return '-'; }, kinds: ['bank']}, {label: '/', say: 'fraction bar', kinds: ['bank']}, {label: 'a/b', say: 'a fraction', tpl: 'frac', kinds: ['bank']},
     {label: '^', say: 'power', kinds: ['bank']}, {label: '(', say: 'open parenthesis', kinds: ['bank']}, {label: ')', say: 'close parenthesis', kinds: ['bank']},
     {label: 'π', say: 'pi', kinds: ['bank']}, {label: '×', say: 'times', ins: function(){ return '*'; }, kinds: ['bank']}, {label: '√', say: 'square root', kinds: ['bank']},
-    {label: '≤', say: 'less than or equal to', kinds: ['bank']}, {label: '≥', say: 'greater than or equal to', kinds: ['bank']}],
+    {label: '=', say: 'equals', kinds: ['bank']},
+    {label: '<', say: 'less than', kinds: ['bank']}, {label: '≤', say: 'less than or equal to', kinds: ['bank']}, {label: '≥', say: 'greater than or equal to', kinds: ['bank']}, {label: '>', say: 'greater than', kinds: ['bank']}],
   _judge: judgePart, _lessons: LES, _byId: BYID, _scopes: SC, _kitItem: kitItem, _texText: texText
 };
 })();

@@ -243,7 +243,8 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
   Cadence's key (`parts`: "shorter base 11 cm; longer base 16 cm" is two boxes, "Step 3; the correct expression is …" a choice
   of step and a box, a matching grid one choice per row), `mc` or `multi` — and wraps the unit interface (view, judge,
   solution, rungs, walk, key, keyText) so a bank item is answered by it and anything else by the unit, unchanged. So the coach
-  card, first-try scoring, the IDs, the keypad (its own keys: − / a/b ^ ( ) π × √ ≤ ≥), Larger text and print work as for
+  card, first-try scoring, the IDs, the keypad (its own keys: − / a/b ^ ( ) π × √ = < ≤ ≥ >, every one on every lesson item's box; on a phone two even rows of
+  7 at 390 px, using a little of the sheet's margin), Larger text and print work as for
   native questions. The ID is **U9·L3·7**: the unit, the lesson, the item's place in the lesson's bank.
 - **The help ladder** for a bank item: Hint 1 · What to notice is the skill's name and the first sentence of Cadence's
   solution; Hint 2 · The first step is the solution's next step (its final "= …" kept back when it would be the answer); Hint 3
@@ -264,7 +265,9 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
   plan (the course's `build/assets/windmill/spine.js`) in the map, resolved; at least 20 items per `cadence` lesson; every item
   of every lesson drawn at 390 px in light and dark — no error, no request, no sideways scroll, every TeX run drawn, a figure
   wherever the item has one, light on dark in dark, its ID; 30 items at random answered through the page with Cadence's key,
-  ✓ on the first try; a wrong answer not; the three rungs; a similar one; the end panel; the print keeping the IDs.
+  ✓ on the first try; a wrong answer not; the three rungs; a similar one; the end panel; the print keeping the IDs; on a touch
+  screen the keypad's = < ≤ ≥ > (44 px, two rows at 390 px), "<" in at the caret, and an inequality's key typed tight with its
+  sign tapped ("c<-16.5" for U10·L4·58) ✓ on the first try.
 
 ## Files
 | Kit (`practice/kit/`) | |
@@ -280,7 +283,7 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
-| `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page |
+| `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
