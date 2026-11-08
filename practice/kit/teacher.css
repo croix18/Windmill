@@ -1,0 +1,143 @@
+/* Practice-test kit — the teacher copy's own styles (kit/teacher.js), added by build.py to a teacher build only: the bar, the
+   paper of the real test, Tests A and B, Approve questions. The kit's tokens (kit.css :root, light and true dark); the bar and
+   the panels in the site's DM Sans, the paper and the questions in Lexend, as on the sheet. Coral only for what is wrong. */
+
+/* ---- the bar (8 Nov 2026): one line of words, then two groups — the printing (Form A | Form B · Print test · Test + key · Key
+   only) and the two tools (Tests A and B · Approve questions) */
+.teacherbar{margin:0 0 16px;padding:12px 14px 14px;border:1px solid var(--rule);border-radius:14px;background:var(--field);font:14px/1.35 var(--chrome)}
+.teacherbar .tbtxt{margin:0 0 10px;color:var(--mut)} .teacherbar .tbtxt b{color:var(--ink);font-weight:700}
+.teacherbar .tbrow{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.teacherbar .tbgrp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.teacherbar button{min-height:44px;padding:9px 14px;font:600 14px/1 var(--chrome);border-radius:10px;background:var(--paper);border-color:var(--rule)}
+.teacherbar button.go{background:var(--go);border-color:var(--go);color:var(--goInk)}
+.teacherbar button.go:hover{background:var(--goHi);border-color:var(--goHi)}
+.tbseg,.tvtabs{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--field2)}
+.teacherbar .tbseg button,.tvtabs button{min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mut);padding:8px 15px;font:600 14px/1 var(--chrome)}
+.teacherbar .tbseg button[aria-checked=true],.tvtabs button[aria-selected=true]{color:var(--ink);font-weight:700;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+.teacherbar .tbseg button:not([aria-checked=true]):hover,.tvtabs button:not([aria-selected=true]):hover{background:var(--field)}
+.teacherbar .tbnote{margin:10px 0 0;font-size:13px;color:var(--mut)}
+.teacherbar .tbnote[hidden]{display:none}
+@media (max-width:480px){ .teacherbar{padding:10px 10px 12px} .teacherbar .tbrow{gap:8px} .teacherbar button{padding:9px 12px} .teacherbar .tbseg button{padding:8px 12px} }
+@media print{ .teacherbar{display:none!important} }
+
+/* ---- the real test on paper (19 Oct 2026) */
+.tpage .ppts{float:right;font-weight:500;font-size:13px}
+.tpage .pwork{margin:4px 0 0}
+.tpage .pans{margin-top:4px}
+.tpage .pft{font:italic 12.5px/1.4 var(--ui);color:#444;margin:-4px 0 10px}
+.tpage .kwhy{font-size:13px;color:#333;margin-top:3px}
+.tpage .kerr{font-size:12.5px;color:#444;margin-top:4px}
+.tpage .kflag{font-size:12px;font-weight:700;letter-spacing:.04em;color:#7a2e0e;margin-top:4px}
+.tpage .kft{font-size:12.5px;color:#333}
+.tpage .katex{font-size:1.05em} .tpage .ptab .katex{font-size:1.12em}
+.tpage .tfig{display:block;margin:8px 0 4px var(--i1);max-width:100%;height:auto}
+.tpage .ptrack td,.tpage .ptrack th{padding:5px 8px}
+.ptrk{break-inside:avoid;page-break-inside:avoid}   /* the score tracker stays whole, with its heading */
+
+/* ---- the teacher's panels: the kit's #printview, in the page's own theme (a print preview stays dark ink on white) */
+body.tview>.watch,body.tview>.result,body.tview>.sheet{display:none!important}
+body.tview{background:var(--ground)}
+#printview.tv{--ground:inherit;--paper:inherit;--ink:inherit;--mut:inherit;--rule:inherit;--field:inherit;--pen:inherit;--ok:inherit;--no:inherit;--tr:inherit;
+  color-scheme:inherit;color:var(--ink);max-width:48rem;margin:0 auto;padding:0 0 48px;font-family:var(--chrome)}
+#printview.tv-approve{max-width:58rem}
+#printview.tv svg.nlg{color:var(--pen)}
+#printview.tv .pq,#printview.tv .tvedq,#printview.tv .aprow,#printview.tv button,#printview.tv input,#printview.tv textarea,#printview.tv select,#printview.tv .tved{scroll-margin-top:96px}   /* never under the sticky bar */
+#printview.tv button:focus-visible,#printview.tv input:focus-visible,#printview.tv select:focus-visible,#printview.tv textarea:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.tvbar{position:sticky;top:0;z-index:5;margin:0 -16px 16px;padding:12px 16px 10px;background:var(--bar);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--barLine)}
+.tvtop{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.tvh{font:400 26px/1.15 var(--display);margin:0;color:var(--ink)}
+.tvsum{font:600 13.5px/1.2 var(--chrome);color:var(--mut);white-space:nowrap}
+.tvst{font:600 13px/1.2 var(--chrome);color:var(--mut)} .tvst:empty{display:none} .tvst.bad{color:var(--no)}
+.tvacts{display:flex;gap:8px;margin-left:auto}
+.tvacts button,.tvfoot button,.tvconfirm button{min-height:44px;padding:9px 18px;font:600 14px/1 var(--chrome);border-radius:10px}
+.tvnote{margin:8px 0 0;font:13px/1.35 var(--chrome);color:var(--mut)} .tvnote[hidden]{display:none}
+@media (max-width:480px){ .tvbar{padding:10px 16px 8px} .tvtop{gap:8px 10px} .tvh{font-size:22px} .tvtabs button{padding:8px 12px} .tvacts button{padding:9px 13px}
+  .tvsum,.tvst{order:5} .tvsum{flex:1 1 auto} #printview.tv .pname .pline.short{flex:0 1 7em;min-width:2.4em} }
+
+/* ---- Tests A and B: the paper as it prints; under each question its key and a strip of actions (none of it prints) */
+#printview.tv .ppage{--ground:#fff;--paper:#fff;--ink:#000;--mut:#444;--rule:#999;--field:#f2f4f7;--field2:#e8ebf0;--pen:#1a3f95;--ok:#1b7a45;--no:#AD3B28;--noTint:rgba(255,194,181,.45);--tr:#6b3fa0;
+  --link:#0F6B74;--focus:#0F6B74;--seg:#fff;--navyLine:#17324D;--go:#17324D;--goHi:#22476B;--goInk:#fff;--teal:#127A85;--edge:#999;color-scheme:light;color:#000;border-radius:14px}
+#printview.tv .ppage svg.nlg{color:#000}
+.tvkey{display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline;margin:10px 0 0 var(--i1);font:13.5px/1.45 var(--ui);color:#333}
+.tvkey .kl,.tvkeyed .kl{font:700 10.5px/1 var(--chrome);letter-spacing:.08em;text-transform:uppercase;color:#555;border:1px solid #c9ced6;border-radius:4px;padding:3px 5px;margin-right:2px;align-self:center}
+.tvkey .tvk b{font-weight:700}
+.tvkey .katex{font-size:1em}
+.tvstrip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0 var(--i1);padding-top:10px;border-top:1px dashed #c9ced6;font:600 13.5px/1.2 var(--chrome)}
+.tvstrip button{min-height:44px;padding:8px 14px;font:600 13.5px/1 var(--chrome);border-radius:10px;background:#fff;border:1px solid #c3c9d2;color:#17324D}
+.tvstrip button:hover{background:#f2f4f7}
+.tvon{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 14px 0 11px;border-radius:10px;background:#f2f4f7;cursor:pointer;color:#17324D}
+.tvon input{width:20px;height:20px;margin:0;flex:none;accent-color:#127A85}
+.tvtag,.tvflag{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 4px 0 14px;border-radius:999px;font:600 13px/1.2 var(--chrome)}
+.tvtag{background:#dff7f4;color:#0F4F57}
+.tvflag{background:var(--noTint);color:#8F2E1D}
+.tvtag button,.tvflag button{min-height:40px;border:0;background:transparent;padding:6px 10px;border-radius:999px;text-decoration:underline;text-underline-offset:2px}
+.tvtag button{color:#0F6B74} .tvflag button{color:#8F2E1D}
+.tvtag button:hover,.tvflag button:hover{background:rgba(255,255,255,.7)}
+.pq.tvchg{box-shadow:-4px 0 0 -1px #40E0D0;padding-left:0}
+.pq.pqout{margin:0 0 20px;padding:10px 12px 12px;border-radius:12px;background:#f2f4f7}
+.tvout{display:flex;gap:10px;align-items:baseline;font:14px/1.4 var(--ui);color:#4a5563}
+.tvout .qn{font:600 11px/1 var(--chrome);color:#0F6B74;white-space:nowrap}
+.tvoutw{flex:1 1 auto;min-width:0;text-decoration:line-through;text-decoration-color:#9aa3ae}
+.tvoutl{font:700 11.5px/1 var(--chrome);letter-spacing:.06em;text-transform:uppercase;color:#4a5563;white-space:nowrap}
+.pqout .tvstrip{margin:8px 0 0;padding-top:0;border-top:0}
+/* Edit, on a random form: the words, each part's line, each choice and each key editable in place; the math as the kit writes it */
+.pq.tvediting{padding:12px;margin-inline:-12px;border-radius:12px;background:#f7f9fb;box-shadow:inset 0 0 0 1.5px #127A85}
+.tved{display:inline-block;min-width:3em;min-height:1.6em;padding:2px 6px;margin:-2px 0;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 1.5px #9fb3c0;white-space:normal;outline:none;cursor:text}
+.tved:focus{box-shadow:inset 0 0 0 2px #0F6B74,0 0 0 3px rgba(64,224,208,.4)}
+.stem .tved{flex:1 1 auto}
+.tved .m{white-space:normal;background:rgba(64,224,208,.18);border-radius:3px;padding:0 2px}
+.pch .tved{flex:1 1 auto}
+.tvkeyed{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0 var(--i2);font:15px/1.4 var(--ui)}
+.tvkeyed .nlkey{width:min(100%,16rem)}
+.tvstays{margin:6px 0 0 var(--i2);font:13px/1.4 var(--chrome);color:#4a5563}
+.tvedbar{display:flex;gap:8px;margin:14px 0 0}
+.tvedbar button{min-height:44px;padding:9px 18px;font:600 14px/1 var(--chrome);border-radius:10px}
+/* Edit, on the fixed paper: the paper redrawn above, the TeX below */
+.tvedq{margin:0 -12px 26px;padding:12px;border-radius:12px;background:#f7f9fb;box-shadow:inset 0 0 0 1.5px #127A85}
+.tvprev .pq{margin-bottom:10px}
+.tvfields{display:grid;gap:10px;font-family:var(--chrome)}
+.tvf{display:grid;gap:5px;font:700 11.5px/1.2 var(--chrome);letter-spacing:.06em;text-transform:uppercase;color:#4a5563}
+.tvf textarea,.tvf input,.tvchr input[type=text]{width:100%;max-width:none;font:15px/1.4 var(--chrome);letter-spacing:0;text-transform:none;color:#000;background:#fff;border:1px solid #b9c0ca;border-radius:8px;padding:9px 11px;min-height:44px}
+.tvf textarea{resize:vertical;min-height:3.4em}
+.tvpart{display:grid;gap:8px;padding-left:12px;border-left:2px solid #d5dae1}
+.tvch{border:0;margin:0;padding:0;display:grid;gap:6px}
+.tvch legend{font:700 11.5px/1.2 var(--chrome);letter-spacing:.06em;text-transform:uppercase;color:#4a5563;margin-bottom:5px}
+.tvchr{display:flex;gap:8px;align-items:center}
+.tvright{display:inline-flex;align-items:center;gap:6px;min-height:44px;min-width:3.6em;padding:0 10px;border-radius:8px;background:#fff;border:1px solid #d0d5dc;font:700 14px var(--chrome);color:#17324D;cursor:pointer}
+.tvright input{width:18px;height:18px;margin:0;accent-color:#127A85}
+.tvhint{margin:0;font:13px/1.3 var(--chrome);color:#4a5563}
+.tvbad{margin:0;font:600 13px/1.3 var(--chrome);color:#AD3B28} .tvbad[hidden]{display:none}
+.tvfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 0}
+.tvconfirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 14px/1.35 var(--chrome);color:var(--ink)} .tvconfirm[hidden]{display:none}
+@media (max-width:480px){ .tvstrip,.tvkey{margin-left:0} .pq.tvediting,.tvedq{margin-inline:-8px;padding:10px 8px} }
+@media print{ .tvbar,.tvfoot,.tvstrip,.tvkey,.pq.pqout,.tvedbar,.tvfields{display:none!important} .pq.tvchg{box-shadow:none} .tved{box-shadow:none;background:none;padding:0} }
+
+/* ---- Approve questions: a card per kind of question (or lesson item), drawn as students see it, its answer, Approved | Disapproved */
+.apbody{padding:0 2px}
+.apsum{margin:2px 0 4px;font:15px/1.4 var(--chrome);color:var(--ink)} .apsum b{font-weight:700}
+.apwhy{margin:0 0 6px;font:13.5px/1.4 var(--chrome);color:var(--mut)}
+.apsec{margin:26px 0 10px;font:700 12px/1.3 var(--chrome);letter-spacing:.12em;text-transform:uppercase;color:var(--link)}
+.aplesson{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:16px 0 14px}
+.aplesson label{font:700 11.5px/1.2 var(--chrome);letter-spacing:.12em;text-transform:uppercase;color:var(--link)}
+.aplesson select{flex:1 1 18rem;min-width:0;max-width:42rem;min-height:44px;font:600 14px/1.2 var(--chrome);color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:10px}
+.aprow{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:14px 22px;align-items:start;margin:0 0 12px;padding:16px 18px;background:var(--paper);border-radius:16px;box-shadow:var(--shadow)}
+.apcard{min-width:0}
+.apid{margin:0 0 6px;font:600 11px/1.3 var(--chrome);letter-spacing:.03em;color:var(--link)} .apid .qsk{font-weight:400}
+.apq{font:16px/1.45 var(--ui);color:var(--ink)}
+.apq .stem{display:block} .apq .prt{margin:10px 0 0} .apq .choices{margin:8px 0 0} .apq .ch{cursor:default;min-height:30px;padding:3px 6px}
+.apq .nlw{max-width:22rem;margin-top:6px} .apq .bkfig{margin-left:0;max-width:100%} .apq .rt-inst{margin-top:4px}
+.apkey{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;margin:12px 0 0;padding-top:10px;border-top:1px solid var(--rule);font:14px/1.45 var(--ui);color:var(--mut)}
+.apkey .kl{font:700 10.5px/1 var(--chrome);letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border:1px solid var(--rule);border-radius:4px;padding:3px 5px;align-self:center}
+.apkey .apk{color:var(--ink)} .apkey .nlkey{width:min(100%,13rem)} #printview.tv .apkey .nlkw{color:var(--mut)}
+.apctl{display:flex;flex-direction:column;gap:10px}
+.apseg{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--field)}
+.apseg button{flex:1 1 0;min-height:44px;min-width:0;border:0;border-radius:999px;background:transparent;color:var(--mut);font:600 14px/1 var(--chrome);padding:8px 10px}
+.apseg button[aria-pressed=true]{color:var(--ink);font-weight:700;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+.apseg button:not([aria-pressed=true]):not([disabled]):hover{background:var(--field2)}
+.apseg button[disabled]{opacity:.55;cursor:default}
+.apmore{min-height:44px;font:600 13.5px/1 var(--chrome);border-radius:10px;background:var(--paper);border-color:var(--rule)}
+.apoff{margin:0;font:13px/1.35 var(--chrome);color:var(--mut)}
+.aprow.off{background:color-mix(in srgb,var(--paper) 55%,transparent);box-shadow:inset 0 0 0 1px var(--rule)}
+.aprow.off .apcard{opacity:.45}
+@media (max-width:700px){ .aprow{grid-template-columns:minmax(0,1fr);padding:14px} .apctl{flex-direction:row;flex-wrap:wrap;align-items:center} .apseg{flex:1 1 15rem} .apoff{flex-basis:100%} }
+@media print{ #printview.tv-approve{display:none!important} }

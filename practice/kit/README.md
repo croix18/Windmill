@@ -317,6 +317,8 @@ the graph of a one-variable inequality, built, not chosen:
   `check/page.js` part K checks the chip per scope and the lesson line against the cards.
 
 ## 7 Nov 2026 — edits layer (`edits.js`)
+*Superseded on 8 Nov 2026 (the next section): of all this, only Hide is left, as **Disapproved**.*
+
 Croix: *"I also want the ability across the board to edit test questions."* — from the cockpit on mrshaffer.org, without a
 rebuild. The ruling: **the edits are a layer, stored in the site's Worker (`items.js`, `GET /api/items/<course>/<unit>`) and
 applied by the kit when a page is drawn; the course repositories stay the source of truth.**
@@ -352,6 +354,59 @@ applied by the kit when a page is drawn; the course repositories stay the source
   its section, ✓ with its key and ✗ otherwise; "More questions"; a set saved before the edits keeping its composition; the
   address failing → the plain page; on a teacher copy the printed test and key with the edit, "Edited" and "Added".
 
+## 8 Nov 2026 — approve, and Tests A and B (`approvals.js`, `teacher.js`)
+Croix, of the edits layer: *"I don't want to edit the practice questions that generate, I just want to be able to approve or
+disapprove and be able to tweak tests a and b. Otherwise, I don't need that massive setup in the cockpit. It was very messy in
+there."* The ruling: **the generated questions are approved or disapproved, never reworded; a unit's test is two pinned forms,
+A and B, that can be tweaked; both live on the unit's teacher copy, where the tests print. Nothing of it is on the cockpit
+but two ways in.**
+- **Gone:** a family's wording as a template, points per part, Hint 1, notes, his own questions, a lesson item's stem and key,
+  the cockpit's Test questions section and its `?kedit=1` preview, the teacher bar's line about edits, the 2 Nov *Choose
+  questions…* panel (now the editor's *On the test*), and the random units' *1–5 forms* buttons (make-ups stay under ⋯ → Print).
+- **Approve questions** (the teacher bar): every **kind** of question of the practice test — a family, `ui.js` `famKey`, found
+  over sets 1–240 — by section, each with a sample drawn as students see it (static: no box, no Check) and its answer, *Another
+  example*, and **Approved | Disapproved** (`aria-pressed`, 44 px); a tab **Lesson sets** (a unit with a bank) does the same for
+  every lesson item, by lesson. Every one is approved until he says otherwise. A press saves at once — `PUT
+  /teacher/api/items/<course>/<unit>/approval/<family|bank>/<target>` `{approved}` — with a quiet *Saved* or *Couldn't save —
+  try again* (the row goes back). A disapproved row dims and says it is left out of new sets.
+- **Disapproved** means what 7 Nov's Hide meant: out of **new** practice sets, misses rounds and *Try a similar one* (`ui.js`
+  `keepIt`, `similarOk`: where every kind of a place is disapproved there is no fresh one), out of new lesson sets (`bank.js`),
+  and out of new random test forms; a set already saved on a device keeps its questions (`S.eh`; a lesson set's saved items).
+  `approvals.js` reads `GET /api/items/<course>/<unit>` on the site — at most 1.5 s, the device's copy offline — and honours
+  only `hidden: true`, from any answer or any copy a device kept on 7 Nov (`practice.edits.<unit>`): a wording or a question of
+  his own from then is never used.
+- **Tests A and B** (the teacher bar; *Edit test* where the paper has one form): the unit test's two forms, **pinned** and kept
+  on the site — `GET`/`PUT /teacher/api/tests/<course>/<unit>`, both behind the teacher password — so the same test prints from
+  any computer, today or as a make-up next week. A random unit (ruling 49) pins two sets on first use, from two different
+  seeds, no disapproved kind (that place drawn again from another set; a place with no approved kind left off); a fixed unit
+  (Forms A/B from `unit.py`) pins the build's paper. The editor shows a form as it prints (`ui.js` draws a random form with the
+  make-ups' own builders), and under each question its key and **On the test** (unticked: off both forms, the test and the
+  key; the rest renumber; the points and the score tracker follow — the tracker keeps its benchmarks), **New version** (random:
+  the same place from another set, a key unlike this one and unlike the form's others, never a disapproved kind), **Edit**
+  (random: in place on the paper — the words, each part's line, each choice and each typed key editable, the figures not; a
+  graph or a choice's letter stays, and says so; saved as the kit's own markup, `span i b sup sub br` with a class and nothing
+  else — fixed: the TeX of the words, each part's words and answer, each choice and which is right, the paper redrawn as it is
+  typed; an answer changed drops that part's printed notes), **Undo** (back to the form's original) and per form **Start
+  over** (asked once more). A pinned question whose kind has been disapproved since is flagged, with *New version*. Printing
+  — from the bar (Form A | Form B · Print test · Test + key · Key only) or the editor — is the pinned, tweaked form; the key is
+  drawn from the same questions and says how many were changed. The student's sheet never prints a set number.
+- **Offline, or as a download:** the last copy kept on this browser (`teacher.tests.<course>.<unit>`), else the build's own, and
+  one line: *Changes are only on this computer.* Back on the site, changes made offline go up when the site's copy has not
+  changed since (otherwise the site's wins, and the bar says so). A pick kept on the browser on 2 Nov
+  (`teacher.pick.<course>.<unit>`) moves up once.
+- **The cockpit:** no section; each unit with a teacher copy has *Tests A·B* and *Approve* beside its links, to
+  `…/practice/?open=tests` and `?open=approve` (a query: the page's `#` is its set and lesson router).
+- **The student page carries only the filter.** The bar, the panels, their styles (`teacher.css`, added by `build.py` to a
+  teacher build) and `window.PracticeKit` (what `ui.js` lends the teacher's tools to draw with) are on the teacher copy only.
+- **Checked:** `check/page.js` part L (`check/approve_page.js`, a mocked `/api/items` and `/teacher/api/items`): a disapproved
+  kind out of a new set and kept in a saved one, no fresh one of it, a two-kind place's fresh ones, a disapproved lesson item
+  out of a new lesson set, 7 Nov's copy read for its hidden rows only, the address down; the panel's rows and its PUTs, a
+  failed save; the student page with none of the teacher's tools. Part M (`check/tests_page.js`, teacher copies, a mocked
+  `/teacher/api/tests`): pinned and sent up; the same forms after a reload; New version on one question and its key rows only;
+  On the test renumbering with the points and the tracker; Edit (in place, and the fixed paper's TeX) on the printed words and
+  key; Undo; Start over; a flagged kind; a hostile spec drawn clean; offline and back; `?open=tests`. `check/teacher_check.js`
+  runs the paper's builders under Node, as before.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -366,8 +421,9 @@ applied by the kit when a page is drawn; the course repositories stay the source
 | `check/norm.js` | the answer normaliser's cases (≥ 60; the ones that must not be equivalent too). `run.py` runs it second |
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
-| `edits.js` | the teacher's edits from the site (7 Nov 2026, above): templates, hidden families, points, Hint 1, lesson-item edits, his own questions; the cockpit's preview |
-| `check/edits.js`, `check/edits_page.js` | the edits layer under Node (every family's template round trip) and in the browser (page.js part L) |
+| `approvals.js` | which kinds of question and lesson items are disapproved, from the site (8 Nov 2026, above); was 7 Nov's `edits.js` |
+| `teacher.js`, `teacher.css` | the teacher copy: the bar, the real test's paper, Tests A and B, Approve questions (8 Nov 2026, above); `teacher.css` is in teacher builds only |
+| `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
@@ -517,6 +573,8 @@ declares them, so a check passes in `teacher_gen.py` exactly when it passes in t
 variable bases — the first teacher copy of a test with algebra in it).
 
 ## The printed test: a random set on paper (25 Oct 2026)
+*Since 8 Nov 2026 a random unit's test is its two pinned forms, Tests A and B (above), not 1–5 fresh forms; what follows is
+still the shape of every printed form.*
 Since ruling 49 the unit test is the teacher copy's bar → *1–5 forms*, each form a random set of the page. Building A7 Unit 6
 showed that print was the make-up worksheet with a test's name on it, so Croix said *"Fix it. I give you permission"* to
 this list: the student's sheet printed "Set N", and the student page opens any set with its worked answers (`#set-N`), so

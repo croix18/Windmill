@@ -84,7 +84,8 @@
   function fitLater(el){ fitQ.push(el); if (!fitRaf) fitRaf = (window.requestAnimationFrame || setTimeout)(function(){ fitRaf = 0; var q = fitQ; fitQ = []; q.forEach(fit); }); }
   window.addEventListener('resize', function(){ var all = document.querySelectorAll('.m[data-disp]'); for (var i = 0; i < all.length; i++) fitLater(all[i]); });
   var queued = false;
-  function run(){ queued = false; if (!ready) return; var all = document.querySelectorAll('.m'); for (var i = 0; i < all.length; i++) if (!all[i].shadowRoot) paint(all[i]); }
+  /* a span being edited on the teacher copy (teacher.js, Tests A and B: [data-tex-off]) keeps its own HTML in sight until it is saved */
+  function run(){ queued = false; if (!ready) return; var all = document.querySelectorAll('.m'); for (var i = 0; i < all.length; i++) if (!all[i].shadowRoot && !(all[i].closest && all[i].closest('[data-tex-off]'))) paint(all[i]); }
   function schedule(){ if (queued) return; queued = true; (window.requestAnimationFrame || setTimeout)(run); }
   function start(){
     ready = true; run();

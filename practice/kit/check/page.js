@@ -9,7 +9,9 @@ const { chromium } = require('playwright');
 const dir = path.resolve(process.argv[2] || '.'), U = require(path.join(dir, 'unit.js'));
 /* served over http (as on Google Sites), so the browser behaves as it will for students: storage events between tabs, etc. */
 const http = require('http'), fs = require('fs');
-const server = http.createServer((q, r) => { if (/^\/api\/items\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"edits":[],"custom":[],"v":""}'); }   /* the site's edits (edits.js): none, as the site answers a unit without any */ let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
+const server = http.createServer((q, r) => { if (/^\/api\/items\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"edits":[],"custom":[],"v":""}'); }   /* the site's approvals (approvals.js): none disapproved, as the site answers a unit without any */
+  if (/^\/teacher\/api\/(tests|items)\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); return r.end(/tests/.test(q.url) ? '{"store":false,"spec":null,"updated":null}' : '{"store":false,"edits":[]}'); }   /* a teacher copy served at a site address (part F's way back): the site before its store, as teacher.js reads it */
+  let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
 let url = '';
 const fails = []; const fail = m => { fails.push(m); };
 function itemsOf(seed) {
@@ -474,29 +476,36 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('#pvClose');
     const after = await p.evaluate(() => ({ h: location.hash, n: document.querySelectorAll('.q').length, first: document.querySelector('.q .stem .st').textContent}));
     if (after.h !== before.h || after.n !== before.n || after.first !== before.first) fail('make-up: the page changed after printing make-ups');
-    /* ruling 49 (22 Oct 2026): a teacher copy of a unit with no fixed forms has a bar that prints THE TEST as n random sets,
-       headed "Test · Form A" (never "Make-up", never "Practice Test"; the set number on the key only, 25 Oct 2026), each key
-       on its own page */
+    /* the bar (8 Nov 2026, teacher.js): Form A | Form B · Print test · Test + key · Key only — the PINNED forms (Tests A and B; off
+       the site, kept on this browser). A random unit's (ruling 49) is its two pinned sets: headed "… · Form A · …" (never
+       "Make-up", never "Practice Test"; the set number on the key only, 25 Oct 2026), the key on its own page */
     const random = await p.evaluate(() => !!(window.TEACHER_TEST && window.TEACHER_TEST.random));
+    await p.waitForFunction(() => window.TEACHER && window.TEACHER.ready && window.TEACHER.ready(), null, { timeout: 8000 }).catch(() => fail('the teacher copy did not get ready'));
+    if (await p.isVisible('.teacherbar [data-tforms]')) fail('the teacher bar still has the 1–5 forms buttons');
     if (random) {
-      if (!(await p.isVisible('.teacherbar [data-tforms="2"]'))) fail('ruling 49: the teacher bar has no "2 forms" button');
-      await p.click('.teacherbar [data-tforms="2"]'); await p.waitForTimeout(150);
-      const rt = await p.evaluate(formShape);
-      if (rt.heads.length !== 2 || rt.nk !== 2) fail('ruling 49: ' + rt.heads.length + ' forms / ' + rt.nk + ' keys for 2');
-      shapeFails(rt, 'ruling 49');
-      rt.heads.forEach((h, k) => { if (!h.includes(' · Form ' + 'AB'[k] + ' · ') || /^(Make-up|Test) ·/.test(h)) fail('ruling 49: a test form is headed "' + h + '"'); });
-      rt.khead.forEach((h, k) => { if (!h.startsWith('Answer key — Form ' + 'AB'[k]) || !/Set \d+/.test(h)) fail('ruling 49: a key is headed "' + h + '"'); });
-      rt.titles.forEach(t => { if (/Practice|Make-up/i.test(t) || !/ Test$/.test(t)) fail('ruling 49: a printed test is titled "' + t + '"'); });
-      /* ruling 54: a section is named, never numbered — question 1 sat under a section "1." (A7 Unit 6, 25 Oct 2026) */
-      const secs = await p.evaluate(() => Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .psec .bt')).map(e => e.textContent.trim()));
-      secs.forEach(s => { if (/^(\d+|[IVX]+|Part \w+)[.:]/i.test(s)) fail('ruling 54: a printed section is numbered: "' + s + '"'); });
-      await p.click('#pvClose');
-    } else if (await p.isVisible('.teacherbar [data-tforms]')) fail('ruling 49: a unit with fixed forms shows the random-set bar');
-    else {   /* the real test's paper (teacher.js): the same IDs as the page, on the test and on its key, a left-out question keeping its gap */
-      const tt = await p.evaluate(() => { const T = window.TEACHER; if (!T || !T.testHtml) return null; const f = T.forms[0], keep = T.pick(); const d = document.createElement('div');
+      if (!(await p.isVisible('.teacherbar [data-tprint="tk"]')) || !(await p.isVisible('.teacherbar [data-form="B"]'))) fail('the teacher bar has no Form A | Form B · Test + key');
+      const both = [];
+      for (const f of ['A', 'B']) {
+        await p.click('.teacherbar [data-form="' + f + '"]'); await p.click('.teacherbar [data-tprint="tk"]'); await p.waitForTimeout(200);
+        const one = await p.evaluate(formShape); both.push(one);
+        if (one.heads.length !== 1 || one.nk !== 1) fail('Form ' + f + ': ' + one.heads.length + ' forms / ' + one.nk + ' keys for 1');
+        shapeFails(one, 'Form ' + f);
+        one.heads.forEach(h => { if (!h.includes(' · Form ' + f + ' · ') || /^(Make-up|Test) ·/.test(h)) fail('Form ' + f + ' is headed "' + h + '"'); });
+        one.khead.forEach(h => { if (!h.startsWith('Answer key — Form ' + f) || !/Set \d+/.test(h)) fail('Form ' + f + '\'s key is headed "' + h + '"'); });
+        one.titles.forEach(t => { if (/Practice|Make-up/i.test(t) || !/ Test$/.test(t)) fail('a printed test is titled "' + t + '"'); });
+        /* ruling 54: a section is named, never numbered — question 1 sat under a section "1." (A7 Unit 6, 25 Oct 2026) */
+        const secs = await p.evaluate(() => Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .psec .bt')).map(e => e.textContent.trim()));
+        secs.forEach(s => { if (/^(\d+|[IVX]+|Part \w+)[.:]/i.test(s)) fail('ruling 54: a printed section is numbered: "' + s + '"'); });
+        await p.click('#pvClose');
+      }
+      if (JSON.stringify(both[0].stems) === JSON.stringify(both[1].stems)) fail('Forms A and B print the same questions');
+      await p.click('.teacherbar [data-form="A"]');
+    } else {   /* the real test's paper (teacher.js): the same IDs as the page, on the test and on its key, a left-out question keeping its gap */
+      const tt = await p.evaluate(() => { const T = window.TEACHER; if (!T || !T.testHtml || !T.pick) return null; const f = T.forms[0], keep = T.pick(); const d = document.createElement('div');
         d.innerHTML = T.testHtml(f); const ids = Array.from(d.querySelectorAll('.pqid .qn')).map(e => e.textContent); d.innerHTML = T.keyHtml(f); const kids = Array.from(d.querySelectorAll('td.pid')).map(e => e.textContent);
         T.pick(keep.map((x, i) => i !== 1)); d.innerHTML = T.testHtml(f); const gap = Array.from(d.querySelectorAll('.pqid .qn')).map(e => e.textContent); T.pick(keep); return { ids, kids, gap, n: keep.length, unit: window.TEACHER_TEST.unit }; });
-      if (tt) { const want = Array.from({ length: tt.n }, (_, j) => 'U' + tt.unit + '·' + (j + 1));
+      if (!tt) fail('the teacher copy\'s paper has no builders');
+      else { const want = Array.from({ length: tt.n }, (_, j) => 'U' + tt.unit + '·' + (j + 1));
         if (JSON.stringify(tt.ids) !== JSON.stringify(want)) fail('the real test prints the IDs ' + tt.ids.slice(0, 4).join(' ') + '…');
         if (!tt.kids.length || tt.kids.some(x => want.indexOf(x) < 0) || tt.kids[0] !== want[0]) fail('the real test\'s key has the IDs ' + tt.kids.slice(0, 4).join(' '));
         if (tt.gap[1] !== want[2]) fail('a left-out question renumbered the IDs: ' + tt.gap.slice(0, 3).join(' '));
@@ -949,8 +958,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     } }
   if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
-  /* L. the edits layer (edits.js, 7 Nov 2026): a mocked site's edits on the screen, on paper and on the teacher copy's test */
-  await require('./edits_page.js')(b, url, U, dir, fail);
+  /* L. approvals (approvals.js, 8 Nov 2026) and M. the teacher copy's Tests A and B (teacher.js), against a mocked site (page.route) */
+  await require('./approve_page.js')(b, url, U, dir, fail);
+  if (/^teacher$/.test(path.basename(dir))) await require('./tests_page.js')(b, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

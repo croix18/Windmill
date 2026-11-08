@@ -371,38 +371,6 @@ input[type=text],textarea,.wnum input{font-size:16px}
 /* make-up tests */
 .pform .ptest{font-size:22px} .pkeyform .psec{margin-top:0}
 
-/* ---- the teacher copy (19 Oct 2026): the bar and the real test on paper (kit/teacher.js) ---- */
-.teacherbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:0 0 14px;padding:12px 14px;border:1.5px solid var(--navyLine);border-radius:10px;background:var(--field2);font-family:var(--ui);font-size:14px;line-height:1.4}
-.teacherbar .tbtxt{flex:1 1 20rem}
-.teacherbar .tbbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.teacherbar .tblab{font-weight:600;margin-right:2px}
-.teacherbar .tbform{font-weight:600} .teacherbar select{font:600 14px var(--ui);min-height:40px;padding:6px 8px;border-radius:8px;border:1px solid var(--rule);background:var(--field);color:var(--ink)}
-.teacherbar button{min-height:40px;padding:8px 14px}
-.tpage .ppts{float:right;font-weight:500;font-size:13px}
-.tpage .pwork{margin:4px 0 0}
-.tpage .pans{margin-top:4px}
-.tpage .pft{font:italic 12.5px/1.4 var(--ui);color:#444;margin:-4px 0 10px}
-.tpage .kwhy{font-size:13px;color:#333;margin-top:3px}
-.tpage .kerr{font-size:12.5px;color:#444;margin-top:4px}
-.tpage .kflag{font-size:12px;font-weight:700;letter-spacing:.04em;color:#7a2e0e;margin-top:4px}
-.tpage .kft{font-size:12.5px;color:#333}
-.tpage .katex{font-size:1.05em} .tpage .ptab .katex{font-size:1.12em}
-.tpage .tfig{display:block;margin:8px 0 4px var(--i1);max-width:100%;height:auto}
-.tpage .ptrack td,.tpage .ptrack th{padding:5px 8px}
-.ptrk{break-inside:avoid;page-break-inside:avoid}   /* the score tracker stays whole, with its heading */
-@media print{ .teacherbar{display:none!important} }
-
-/* the teacher copy's question picker (2 Nov 2026) */
-.tpick .tpsec{font:600 15px var(--ui);margin:18px 0 6px;color:var(--mut)}
-.tpick .tpq{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-family:var(--ui);font-size:15px;line-height:1.35}
-.tpick .tpq:hover{background:color-mix(in srgb,var(--ink) 5%,transparent)}
-.tpick .tpq input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--teal)}
-.tpick .tpn{min-width:2.2em}
-.tpick .tps{flex:1}
-.tpick .tpf{color:var(--mut);font-style:normal;font-size:13px}
-.tpick .tpp{flex:none;color:var(--mut);font-size:13px;padding-top:2px}
-.tpick .tpq.off .tps, .tpick .tpq.off .tpn{text-decoration:line-through;color:var(--mut)}
-
 /* ==== the site's family, 7 Nov 2026 (the site review; Croix: "Ok sounds well thought out. Proceed.") ====
    The palette is at the top. Lexend stays on the sheet (ruling 46: the questions, the answers, the coach, the buttons); the
    title is set in the site's DM Serif Display and the bar and the eyebrow in its DM Sans, so the chrome matches the site.
@@ -665,11 +633,3 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 .nlp.solo .nlsolo{margin-top:6px} .nlp.solo .nlsolo .st{font-weight:600}
 .scopechip{display:inline-flex;align-items:center;font:normal 600 12.5px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;margin:4px 8px 2px 0;vertical-align:middle}
 @media print{ .scopechip{display:none} }
-
-/* the edits layer (edits.js, 7 Nov 2026): on the teacher copy, a question changed on the cockpit says so, quietly */
-.qed{display:inline-block;margin-left:.4em;padding:0 .45em;border-radius:999px;font:600 .72rem/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.02em;background:rgba(64,224,208,.22);color:var(--ink,#17324D);border:1px solid rgba(15,107,116,.45);vertical-align:1px}
-.qed.miss{background:rgba(255,127,106,.16);border-color:rgba(173,59,40,.55)}
-.kpts{font-weight:400;font-size:.85em;opacity:.8;white-space:nowrap}
-.ked{font-size:.78em;opacity:.75}
-.tbed{display:block;margin-top:.25em}
-@media print{.qed{border:1px solid #000;background:none;color:#000}}

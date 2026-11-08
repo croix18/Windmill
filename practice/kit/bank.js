@@ -108,10 +108,13 @@ function markUsed(lid, ids){ var u = used(lid).slice(); ids.forEach(function(id)
 function resetUsed(lid, keep){ MEM['used.' + lid] = keep.slice(); st('used.' + lid, keep.slice()); }
 
 /* ------------------------------------------------ a set: 8 items, 6 regular then 2 rigor, never repeating until the bank is used */
+/* a lesson item the teacher disapproved (approvals.js, 8 Nov 2026) is left out of new sets and of "Try a similar one"; a set this
+   device already drew keeps its items (setIds) */
+function off(id){ return !!(K.Approvals && K.Approvals.bankHidden(id)); }
 function shuffled(list, seedStr){ var r = K.rng(K.fnv1a(seedStr)), a = list.slice(); for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(r() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 function quotas(n){ return n === 1 ? [[6, 2]] : n === 2 ? [[3, 1], [3, 1]] : (function(){ var q = [], left = 8; for (var i = 0; i < n; i++){ var k = Math.round(left / (n - i)); left -= k; q.push([k - Math.round(k / 4), Math.round(k / 4)]); } return q; })(); }
 function drawLesson(lid, nReg, nRig, seed){
-  var L = LES[lid], all = L.items.filter(function(b){ return !(K.Edits && K.Edits.bankHidden(b.id)); }), reg = all.filter(function(b){ return !b.rigor; }), rig = all.filter(function(b){ return b.rigor; });
+  var L = LES[lid], all = L.items.filter(function(b){ return !off(b.id); }), reg = all.filter(function(b){ return !b.rigor; }), rig = all.filter(function(b){ return b.rigor; });
   if (!rig.length){ nReg += nRig; nRig = 0; } if (!reg.length){ nRig += nReg; nReg = 0; }
   var u = used(lid), pick = [];
   var take = function(pool, n, salt){
@@ -165,9 +168,6 @@ function partOf(b, bp, pi, label){
 }
 function kitItem(b){
   if (CACHE[b.id]) return CACHE[b.id];
-  /* the teacher's edits from the cockpit (edits.js, 7 Nov 2026): a lesson item's stem, key or hidden; his own questions come here
-     too, as items of Cadence's shape (lesson "custom") */
-  var b0 = b; if (K.Edits && K.Edits.bankItem && !b.custom) b = K.Edits.bankItem(b); if (b !== b0) b.n = b0.n;
   /* Cadence's instruction line, unless the stem already says it ("Select all that apply." over "Select all the correct answers.") */
   var said = b.inst && /select\s*(<\/?b>)?\s*all/i.test(segPlain(b.stem).replace(/<[^>]*>/g, '')) && /select\s*(<\/?b>)?\s*all/i.test(segPlain(b.inst));
   var stem = segHtml(b.stem) + (b.inst && !said ? '<div class="rt-inst">' + segHtml(b.inst) + '</div>' : ''), A = b.answer, it;
@@ -185,7 +185,6 @@ function kitItem(b){
     else if (ps.length === 1){ it = Object.assign(base, {type: 'solo', part: partOf(b, ps[0], 0, '')}); it.part.flab = formLabel(ps[0], b, true); }
     else it = Object.assign(base, {type: 'parts', parts: ps.map(function(p, i){ var q = partOf(b, p, i, 'abcdefgh'.charAt(i)); q.flab = formLabel(p, b, false); return q; })});
   }
-  if (b._ed) it._ed = b._ed;
   CACHE[b.id] = it;
   return it;
 }
@@ -242,11 +241,9 @@ function clean(a, bp){
   return s;
 }
 function formFor(bp){ return {money: !!bp.money, percent: !!bp.percent, precision: bp.precision || null, v: bp.pre ? bp.pre.replace(/\s*=\s*$/, '') : null, expect: bp.type === 'number' ? 'number' : null, simplest: true}; }
-function wordsSame(a, b){ var n = function(x){ return String(x).toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, ' ').replace(/[.!]+$/, '').trim(); }; return n(a) === n(b); }
 function judgePart(p, typed){
   var bp = p.bp, s = clean(typed, bp);
   if (!s) return {v: 'blank', what: []};
-  if (bp.type === 'text') return [bp.key].concat(bp.alts || []).some(function(k){ return wordsSame(s, k); }) ? {v: 'right', what: []} : {v: 'wrong', what: []};
   var f = formFor(bp), keys = [bp.key].concat(bp.alts || []), o = {money: f.money, percent: f.percent};
   var tt = K.Ans.parse(s, o);
   if (!tt) return {v: 'unread', what: ['I can’t read that yet. Type just your answer' + (bp.unit ? ' (the box already says ' + esc(bp.unit) + ')' : '') + '.']};
@@ -306,7 +303,7 @@ function hideEnd(segs){                                    /* a step that ends i
   return null;
 }
 function rungsOf(b){
-  var sol = b.solution || [], L = LES[b.lesson] || {}, sk = (L.skills || [])[b.sk] || '';
+  var sol = b.solution || [], L = LES[b.lesson], sk = (L.skills || [])[b.sk] || '';
   var fs = sol.length ? firstSentence(sol[0]) : {first: [], rest: []};
   var notice = (sk ? '<b>' + esc(sk.charAt(0).toUpperCase() + sk.slice(1)) + '.</b> ' : '') + segHtml(fs.first);
   var first = null;
@@ -372,9 +369,8 @@ K.Bank = {
   similar: function(baseIt, seen, inSet){
     var b = baseIt.item.bank, L = LES[b.lesson], sig = function(x){ var A = x.answer; return A.kind + ':' + (A.parts ? A.parts.map(function(p){ return p.type; }).join(',') : ''); };
     var part = baseIt.item.type === 'parts', u = used(b.lesson), want = sig(b);
-    var hid = function(x){ return !!(K.Edits && K.Edits.bankHidden(x.id)); };
-    var ok = L.items.filter(function(x){ return x.id !== b.id && !hid(x) && inSet.indexOf(x.id) < 0 && seen.indexOf(x.id) < 0 && (!part || sig(x) === want) && (part || x.answer.kind === b.answer.kind || (x.answer.kind !== 'free' && b.answer.kind !== 'free')); });
-    if (!ok.length) ok = L.items.filter(function(x){ return x.id !== b.id && !hid(x) && (!part || sig(x) === want); });
+    var ok = L.items.filter(function(x){ return x.id !== b.id && !off(x.id) && inSet.indexOf(x.id) < 0 && seen.indexOf(x.id) < 0 && (!part || sig(x) === want) && (part || x.answer.kind === b.answer.kind || (x.answer.kind !== 'free' && b.answer.kind !== 'free')); });
+    if (!ok.length) ok = L.items.filter(function(x){ return x.id !== b.id && !off(x.id) && (!part || sig(x) === want); });
     if (!ok.length) return null;
     var score = function(x){ return (x.gen === b.gen ? 4 : 0) + (x.rigor === b.rigor ? 2 : 0) + (u.indexOf(x.id) < 0 ? 1 : 0); };
     var best = Math.max.apply(null, ok.map(score)), top = ok.filter(function(x){ return score(x) === best; });
@@ -405,7 +401,6 @@ K.Bank = {
     {label: 'π', say: 'pi', kinds: ['bank']}, {label: '×', say: 'times', ins: function(){ return '*'; }, kinds: ['bank']}, {label: '√', say: 'square root', kinds: ['bank']},
     {label: '=', say: 'equals', kinds: ['bank']},
     {label: '<', say: 'less than', kinds: ['bank']}, {label: '≤', say: 'less than or equal to', kinds: ['bank']}, {label: '≥', say: 'greater than or equal to', kinds: ['bank']}, {label: '>', say: 'greater than', kinds: ['bank']}],
-  _judge: judgePart, _lessons: LES, _byId: BYID, _scopes: SC, _kitItem: kitItem, _texText: texText,
-  _clear: function(){ CACHE = {}; }                            /* the edits changed (edits.js): draw the items again */
+  _judge: judgePart, _lessons: LES, _byId: BYID, _scopes: SC, _kitItem: kitItem, _texText: texText
 };
 })();
