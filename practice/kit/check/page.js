@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 const dir = path.resolve(process.argv[2] || '.'), U = require(path.join(dir, 'unit.js'));
 /* served over http (as on Google Sites), so the browser behaves as it will for students: storage events between tabs, etc. */
 const http = require('http'), fs = require('fs');
-const server = http.createServer((q, r) => { let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
+const server = http.createServer((q, r) => { if (/^\/api\/items\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"edits":[],"custom":[],"v":""}'); }   /* the site's edits (edits.js): none, as the site answers a unit without any */ let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
 let url = '';
 const fails = []; const fail = m => { fails.push(m); };
 function itemsOf(seed) {
@@ -949,6 +949,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     } }
   if (netAsked.length) fail('the page asked the network for ' + netAsked.length + ': ' + netAsked.slice(0, 3).join(' | '));
   if (errs.length) fail('page errors: ' + errs.slice(0, 3).join(' | '));
+  /* L. the edits layer (edits.js, 7 Nov 2026): a mocked site's edits on the screen, on paper and on the teacher copy's test */
+  await require('./edits_page.js')(b, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

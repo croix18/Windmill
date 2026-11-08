@@ -4,10 +4,12 @@
    right on the first check is a point, Hint or not, and a question solved with the Hint gets a small gray bulb (the Hint
    button's own icon) instead of words; the clock pauses when the page is hidden, no tip box, no footer.
    Apple review (15 Oct 2026) changes are marked [R1-n], [R2-Nn], [J-n] (Jobs lens), [W-n] (Wozniak lens). */
-(function(){
+(function kitPage(){
 'use strict';
-var U = window.Unit, K = window.Kit, V = U.view;
-var SCHEMA = 2, PRE = U.id + '.';                       /* [W-6] one prefix per unit; versions live inside each record */
+/* the edits layer (edits.js, 7 Nov 2026): on the site the page waits for the teacher's edits (at most a moment) before it draws */
+if (window.Kit && window.Kit.Edits && window.Kit.Edits.hold(kitPage)) return;
+var U = window.Unit, K = window.Kit, V = U.view, ED = K.Edits || null;
+var SCHEMA = 2, PRE = U.id + (ED && ED.preview ? '.kedit.' : '.');     /* the cockpit's preview pane keeps nothing of the teacher's own practice */                       /* [W-6] one prefix per unit; versions live inside each record */
 var $ = function(id){ return document.getElementById(id); };
 var LET = 'ABCDEFGH';
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -37,13 +39,28 @@ function lessonScope(sc){ return !!(K.Bank && K.Bank.isLesson(sc)); }
 var UNO = (/u(\d+)$/.exec(U.id || '') || [])[1] || '', QORD = [];
 (function(){ var c = 0; G0.sections.forEach(function(s, si){ QORD[si] = s.items.map(function(){ return ++c; }); }); })();
 function qidOf(si, ii, item){
+  if (item && item.custom) return {id: 'U' + UNO + '·C' + item.custom.n, sk: ''};   /* the teacher's own question (edits.js): "U10·C1" */
   if (item && item.bank && K.Bank) return K.Bank.qid(item);                          /* a lesson item: "U9·L3·7" */
-  var n = QORD[si] && QORD[si][ii]; if (!n) return null;
+  var n = item && item._qn ? item._qn : QORD[si] && QORD[si][ii]; if (!n) return null;
   var sk = ''; try { sk = V.skill ? V.skill(item) || '' : ''; } catch(e){}
   if (!sk && item){ var fs = []; (item.type === 'parts' ? item.parts : item.type === 'solo' ? [item.part] : [item]).forEach(function(p){ var f = p && (p.fam || (p === item.part ? item.fam : '')); if (typeof f === 'string' && f && fs.indexOf(f) < 0) fs.push(f); }); if (!fs.length && typeof item.fam === 'string') fs.push(item.fam); sk = fs.join('/'); }
   return {id: 'U' + UNO + '·' + n, sk: typeof sk === 'string' ? sk : ''};
 }
-function qidHtml(q, cls){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + '</div>' : ''; }
+function qidHtml(q, cls, item){ return q ? '<div class="' + cls + '" translate="no"><span class="qn">' + q.id + '</span>' + (q.sk ? ' <span class="qsk">· ' + esc(q.sk) + '</span>' : '') + edMark(item) + '</div>' : ''; }
+/* "Edited" (teacher copy only): the question was changed from the cockpit — its wording, points, hint, a key; the teacher's own
+   questions say "Added". An edit made for a wording the question no longer has is not applied, and says so. */
+function edMark(item){
+  if (!item || !window.TEACHER_TEST) return '';
+  var ed = item._ed || (item.bank && item.bank._ed) || null;
+  if (item.custom) return ' <span class="qed" title="Added on the cockpit">Added</span>';
+  if (item._edMiss) return ' <span class="qed miss" title="An edit was made for wording this question no longer has; it is not applied. Open Test questions on the cockpit.">Edit not applied</span>';
+  return ed && ed.length ? ' <span class="qed" title="Edited on the cockpit: ' + esc(ed.join(', ')) + '">Edited</span>' : '';
+}
+/* points (edits.js): a lettered part is 1 point unless the teacher gave it more */
+function pwx(x){ var v = x && x._pts; return typeof v === 'number' && v >= 0 ? v : 1; }
+function pw(it){ return pwx(it.x); }
+function ptsOf(list){ var t = 0; list.forEach(function(it){ t += pw(it); }); return t; }
+function ptLab(n){ return n + ' pt' + (n === 1 ? '' : 's'); }
 function qidOfItem(it){ var p = String(it.pos || '').split('.').map(Number); return qidOf(p[0], p[1], it.item); }
 var HASH = new RegExp('^#set-?(\\d{1,5})(?:-(p\\d{1,2}|miss|lesson-[a-z0-9.+-]+))?$', 'i');        /* [R2-16] anchored; [W-10] any number of parts; a lesson (7 Nov 2026) */
 var LHASH = /^#lesson-([a-z0-9.+-]+)$/i, LSEED = 0;            /* the site's link to a day's lesson, #lesson-9.03: a new set of it */
@@ -58,7 +75,14 @@ var h0 = fromHash(), last = load('last') || {};
 var seed = h0 ? h0.seed : (last.seed || randomSeed()), scope = h0 ? h0.scope : (SCOPES[last.scope] ? last.scope : 'all');
 var G, ITEMS, DS, EX = {}, S, HASHV = '', FLASH = {};
 function key(){ return 'set.' + seed + '.' + scope; }
-function fresh(mode){ return {schema: SCHEMA, cv: U.contentVersion, hash: HASHV, mode: mode || 'practice', ans:{}, res:{}, more:{}, walk:{}, walkOpen:{}, acc:0, startedAt:null, running:false, done:false}; }
+function fresh(mode){ var o = {schema: SCHEMA, cv: U.contentVersion, hash: HASHV, mode: mode || 'practice', ans:{}, res:{}, more:{}, walk:{}, walkOpen:{}, acc:0, startedAt:null, running:false, done:false}; if (ED && ED.any()) o.eh = compNow(); return o; }
+/* what a NEW set leaves out and adds (edits.js): the hidden families, the teacher's own questions. A set saved on a device keeps
+   the composition it was opened with (S.eh) until "Try a new set" or "Start over"; a set saved before there were any edits had
+   none. Printing (withSet) always uses the current one. */
+var CURCOMP = false;
+function compNow(){ return {h: ED ? ED.hiddenFams() : [], c: ED ? ED.data().custom.map(function(c){ return c.id; }) : []}; }
+function comp(){ return CURCOMP || !S ? compNow() : S.eh || {h: [], c: []}; }
+function keepIt(it, C){ if (it.custom) return C.c.indexOf(it.custom.id) >= 0; return !(it._fk && C.h.indexOf(it._fk) >= 0); }
 function save(){
   if (!S) return;
   S.at = Date.now(); store(key(), S); store('last', {seed: seed, scope: scope}); if (scope === 'all') store('lastAll', seed);
@@ -94,10 +118,10 @@ function partsOf(it){ return it.type === 'parts' ? it.parts : it.type === 'solo'
 function posKey(si, ii, pi){ return si + '.' + ii + '.' + pi; }
 function famOf(o){ return (o.x || o.part || o.item).fam || 1; }
 function round2(){                                         /* the second round never repeats a round-1 question */
-  var mine = {}; G.sections.forEach(function(sec){ sec.items.forEach(function(it){ partsOf(it).forEach(function(p){ mine[U.key(p)] = 1; }); }); });
+  var mine = {}; G.sections.forEach(function(sec){ sec.items.forEach(function(it){ if (it.custom) return; partsOf(it).forEach(function(p){ mine[U.key(p)] = 1; }); }); });
   for (var t = 0; t < 40; t++){
     var g = U.generate(seed2(seed, t)), clash = false;
-    g.sections.forEach(function(sec){ sec.items.forEach(function(it){ partsOf(it).forEach(function(p){ if (mine[U.key(p)]) clash = true; }); }); });
+    g.sections.forEach(function(sec){ sec.items.forEach(function(it){ if (it.custom) return; partsOf(it).forEach(function(p){ if (mine[U.key(p)]) clash = true; }); }); });
     if (!clash) return g;
   }
   return U.generate(seed2(seed, 0));
@@ -105,8 +129,9 @@ function round2(){                                         /* the second round n
 function missRounds(){ return 1; }                        /* [R1-11][closing check] one round, so every label says how many questions it opens */
 function build(){
   G = U.generate(seed);
-  var out = [];
-  if (scope === 'all') G.sections.forEach(function(sec, si){ out.push({title: esc(sec.title), items: sec.items.map(function(it, ii){ return {it: it, keep: null, si: si, ii: ii}; })}); });
+  var out = [], C = comp(), kept = function(list){ return list.filter(function(d){ return keepIt(d.it, C); }); };
+  if (ED && ED.preview && !CURCOMP) return ED.previewSections().map(function(s){ return {title: esc(s.title), items: s.items, si: -1}; });   /* the cockpit's preview pane */
+  if (scope === 'all') G.sections.forEach(function(sec, si){ var its = kept(sec.items.map(function(it, ii){ return {it: it, keep: null, si: si, ii: ii}; })); if (its.length) out.push({title: esc(sec.title), items: its, si: si}); });
   else if (lessonScope(scope)) out = K.Bank.sections(scope, seed);                /* a lesson's set: 8 of its Cadence items */
   else if (scope === 'miss'){
     var pos = S.pos || [], rounds = missRounds(pos.length) === 1 ? [G] : [G, round2()];
@@ -114,13 +139,13 @@ function build(){
       var items = [];
       R.sections.forEach(function(sec, si){ sec.items.forEach(function(it, ii){
         var keep = partsOf(it).map(function(p, pi){ return pos.indexOf(posKey(si, ii, it.type === 'parts' ? pi : -1)) >= 0; });
-        if (keep.some(Boolean)) items.push({it: it, keep: it.type === 'parts' ? keep : null, si: si, ii: ii});
+        if (keep.some(Boolean) && keepIt(it, C)) items.push({it: it, keep: it.type === 'parts' ? keep : null, si: si, ii: ii});
       }); });
       if (items.length) out.push({title: 'Your misses' + (rounds.length > 1 ? ' — round ' + (r + 1) : ''), items: items});
     });
   } else {
     var k = +scope.slice(1) - 1;
-    [G, round2()].forEach(function(R, r){ out.push({title: esc(R.sections[k].title) + ' — round ' + (r + 1), items: R.sections[k].items.map(function(it, ii){ return {it: it, keep: null, si: k, ii: ii}; })}); });
+    [G, round2()].forEach(function(R, r){ var sec = R.sections[k]; if (!sec) return; var its = kept(sec.items.map(function(it, ii){ return {it: it, keep: null, si: k, ii: ii}; })).filter(function(d){ return !(r && d.it.custom); }); if (its.length) out.push({title: esc(sec.title) + ' — round ' + (r + 1), items: its, si: k}); });
   }
   HASHV = K.fnv1a(out.map(function(s){ return s.items.map(function(d){ return partsOf(d.it).map(function(p, pi){ return d.keep && !d.keep[pi] ? '' : U.key(p); }).join(','); }).join(';'); }).join('|') + '#' + U.contentVersion).toString(36);
   return out;
@@ -150,7 +175,7 @@ function choicesHtml(x, id, lab, multi){
 function partHtml(p, id, solo, lab, lone){
   /* a lone graph to build (a Cadence item with one part) still says what to do: its line, without a second "1 pt" */
   if (solo && p.kind === 'nline') return '<div class="prt nlp solo" data-host="' + id + '"><div class="line nlsolo"><span class="st">' + V.line(p) + '</span></div>' + nlHtml(p, id, lab) + '</div>';
-  var line = solo ? '' : '<div class="line" id="ln' + id + '">' + (p.label && !lone ? '<b class="lab">' + p.label + '.</b>' : '<b class="lab" aria-hidden="true"></b>') + '<span class="st">' + V.line(p) + '</span>' + (p.label ? '<span class="pt">1 pt</span>' : '') + '</div>';
+  var line = solo ? '' : '<div class="line" id="ln' + id + '">' + (p.label && !lone ? '<b class="lab">' + p.label + '.</b>' : '<b class="lab" aria-hidden="true"></b>') + '<span class="st">' + V.line(p) + '</span>' + (p.label ? '<span class="pt">' + ptLab(pwx(p)) + '</span>' : '') + '</div>';
   if (p.kind === 'mc') return '<div class="prt mcp" data-host="' + id + '">' + line + choicesHtml(p, id, lab, false) + '</div>';
   if (p.kind === 'nline') return '<div class="prt nlp' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + nlHtml(p, id, lab) + '</div>';
   return '<div class="prt' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + inputHtml(p, id, lab) + tailHtml(id) + '</div>';
@@ -226,26 +251,26 @@ function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input'
 function render(){
   DS = build(); ITEMS = []; EX = {}; RULES = {};
   var h = [], qn = 0;
-  if (!DS.length) h.push('<p class="how">No misses saved on this device yet. Finish a set first, then come back to practice the ones you missed.</p>');
+  if (!DS.length) h.push(ED && ED.preview ? '<p class="how">Open a question on the cockpit to see it here, as students see it.</p>' : '<p class="how">No misses saved on this device yet. Finish a set first, then come back to practice the ones you missed.</p>');
   DS.forEach(function(sec, di){
     var pts = 0;
     var body = sec.items.map(function(d){
       var it = d.it; qn++;
-      var q = ['<div class="q" data-q="' + qn + '">' + qidHtml(qidOf(d.si, d.ii, it), 'qid')];
+      var q = ['<div class="q" data-q="' + qn + '">' + qidHtml(qidOf(d.si, d.ii, it), 'qid', it)];
       if (it.type === 'parts'){
         q.push('<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it));
         var shown = it.parts.filter(function(p, pi){ return !d.keep || d.keep[pi]; }).length, lone = shown === 1 && it.parts.length > 1;
-        it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; pts++;
+        it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; pts += pwx(p);
           var id = qn + p.label, sib = pi > 0 && (!d.keep || d.keep[0]) ? qn + it.parts[0].label : null;
           ITEMS.push({id: id, lab: lone ? String(qn) : id, sec: di, type: textType(p), x: p, item: it, pos: posKey(d.si, d.ii, pi), sib: sib, sibPart: pi > 0 ? it.parts[0] : null, aShown: !d.keep || d.keep[0]});
           q.push(partHtml(p, id, false, lone ? String(qn) : id, lone)); });
       } else if (it.type === 'solo'){
-        pts++; var id = String(qn); ITEMS.push({id: id, lab: id, sec: di, type: textType(it.part), x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true});
-        q.push('<div class="stem" id="ln' + id + '"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span><span class="pt">1 pt</span></div>' + fig(it) + partHtml(it.part, id, true, id));
+        pts += pwx(it.part); var id = String(qn); ITEMS.push({id: id, lab: id, sec: di, type: textType(it.part), x: it.part, item: it, pos: posKey(d.si, d.ii, -1), aShown: true});
+        q.push('<div class="stem" id="ln' + id + '"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span><span class="pt">' + ptLab(pwx(it.part)) + '</span></div>' + fig(it) + partHtml(it.part, id, true, id));
       } else {
-        pts++; var id2 = String(qn), multi = it.type === 'multi';
+        pts += pwx(it); var id2 = String(qn), multi = it.type === 'multi';
         ITEMS.push({id: id2, lab: id2, sec: di, type: multi ? 'multi' : 'mc', x: it, item: it, pos: posKey(d.si, d.ii, -1), aShown: true});
-        q.push('<div class="stem" id="ln' + id2 + '"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span><span class="pt">1 pt</span></div>' + fig(it) + '<div class="mcp" data-host="' + id2 + '">' + choicesHtml(it, id2, id2, multi) + '</div>');
+        q.push('<div class="stem" id="ln' + id2 + '"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span><span class="pt">' + ptLab(pwx(it)) + '</span></div>' + fig(it) + '<div class="mcp" data-host="' + id2 + '">' + choicesHtml(it, id2, id2, multi) + '</div>');
       }
       q.push('</div>'); return q.join('');
     }).join('');
@@ -258,7 +283,7 @@ function render(){
      that if I open a specific lesson it would open to that section. Likewise if I open the full practice test."): a chip under the
      title names the choice from What to practice, and a lesson's line says what it is — "Lesson 10.04 · 8 questions · today's
      practice" */
-  $('total').textContent = lessonScope(scope) ? qn + ' question' + (qn === 1 ? '' : 's') + ' · today’s practice' : ITEMS.length + ' point' + (ITEMS.length === 1 ? '' : 's');
+  var PT = ptsOf(ITEMS); $('total').textContent = lessonScope(scope) ? qn + ' question' + (qn === 1 ? '' : 's') + ' · today’s practice' : PT + ' point' + (PT === 1 ? '' : 's');
   paintChip();
   paintScopes();
   Object.keys(S.more || {}).forEach(function(id){ var b = byIdBase(id); if (b) mountExtra(b); });
@@ -573,7 +598,9 @@ function paintItem(it){
      move on. No penalty question, ever: a fresh one replaces the last in the question's own box, and nothing is added to
      the set. The ladder stays beside Check for a second try. */
   var simB = function(base, go){ return '<button type="button"' + (go ? ' class="go"' : '') + ' data-another="' + base + '">Try a similar one</button>'; };
-  if (R.v && R.v !== 'right'){ b = [simB(it.extra ? it.base : it.id, true), '<button type="button" data-moveon="' + (it.extra ? it.base : it.id) + '">Move on</button>']; }
+  var one = !!(it.item && it.item.custom);                                              /* the teacher's own question (edits.js): no fresh one */
+  if (R.v && R.v !== 'right'){ b = one ? ['<button type="button" class="go" data-moveon="' + it.id + '">Move on</button>'] : [simB(it.extra ? it.base : it.id, true), '<button type="button" data-moveon="' + (it.extra ? it.base : it.id) + '">Move on</button>']; }
+  else if (one){}
   else if (!it.extra && (missed || owed) && !S.more[it.id]) b.push(simB(it.id, R.v === 'right' || all || owed));
   else if (it.extra && (R.v || R.shown)) b.push(simB(it.base, R.v === 'right' || !res(byId(it.base)).earned));
   /* the ladder's first rung sits beside Check ([D-8]); once open, the next rung's button is at the foot of the rungs */
@@ -608,7 +635,7 @@ function paintSections(){                                  /* [J-5] each section
   if (!DS) return;
   DS.forEach(function(sec, di){
     var el = $('sp' + di); if (!el) return;
-    var its = ITEMS.filter(function(x){ return x.sec === di; }), done = its.filter(function(x){ var R = S.res[x.id]; return R && R.v === 'right'; }).length;
+    var its = ITEMS.filter(function(x){ return x.sec === di; }), done = ptsOf(its.filter(function(x){ var R = S.res[x.id]; return R && R.v === 'right'; }));
     el.textContent = (S.mode === 'test' && !S.done) || (!done && !S.done) ? sec.pts + ' point' + (sec.pts === 1 ? '' : 's') : done + ' / ' + sec.pts + (done === sec.pts ? ' ✓' : '');
     el.classList.toggle('alldone', done === sec.pts);
   });
@@ -766,7 +793,7 @@ function start(){ if (S.running || S.done) return; S.running = true; S.startedAt
 function pause(){ if (!S.running) return; S.acc = elapsed(); S.running = false; S.startedAt = null; save(); paintBar(); }
 function tally(){
   var first = 0, helped = 0, done = 0, earned = 0, bySec = DS.map(function(){ return {got: 0, of: 0, help: 0, earned: 0, alone: 0}; });
-  ITEMS.forEach(function(it){ var R = S.res[it.id]; bySec[it.sec].of++; if (R && R.first === true){ first++; bySec[it.sec].got++; if (R.helped){ helped++; bySec[it.sec].help++; } else bySec[it.sec].alone++; } if (R && R.earned){ earned++; bySec[it.sec].earned++; } if (R && R.v === 'right') done++; });
+  ITEMS.forEach(function(it){ var R = S.res[it.id], w = pw(it); bySec[it.sec].of += w; if (R && R.first === true){ first += w; bySec[it.sec].got += w; if (R.helped){ helped += w; bySec[it.sec].help += w; } else bySec[it.sec].alone += w; } if (R && R.earned){ earned += w; bySec[it.sec].earned += w; } if (R && R.v === 'right') done += w; });
   return {first: first, helped: helped, done: done, earned: earned, bySec: bySec};
 }
 /* "Question 4 of 16" (7 Nov 2026, item 5): where the student is, as words and a thin navy bar in the bar area (never a ring) —
@@ -784,9 +811,9 @@ function paintProgress(){
 var progRaf = 0; window.addEventListener('scroll', function(){ if (progRaf) return; progRaf = requestAnimationFrame(function(){ progRaf = 0; if (DS) paintProgress(); }); }, {passive: true});
 document.addEventListener('focusin', function(e){ if (DS && e.target && e.target.closest && e.target.closest('#paper')) paintProgress(); });
 function paintScore(light){
-  var t = tally(), sc = $('score'), N = ITEMS.length, nb = function(s){ return '<span class="nw">' + s + '</span>'; };
-  if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered') + ' · ' + nb('marked when you finish');
-  else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = nb('<b>' + N + '</b> part' + (N === 1 ? '' : 's') + ' to answer');
+  var t = tally(), sc = $('score'), NP = ITEMS.length, N = ptsOf(ITEMS), nb = function(s){ return '<span class="nw">' + s + '</span>'; };
+  if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + NP + '</b> answered') + ' · ' + nb('marked when you finish');
+  else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = nb('<b>' + NP + '</b> part' + (NP === 1 ? '' : 's') + ' to answer');
   else sc.innerHTML = nb('<b>' + t.earned + '</b> ' + (S.mode === 'test' ? 'right' : 'earned')) + (t.helped ? bulb(t.helped) : '') + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done') + runHtml();   /* [J-2]; the points earned on your own (24 Oct 2026) */
   if (light) return;
   paintResult(t); paintScopes(); paintSections();
@@ -809,10 +836,10 @@ function hist(){ return load('hist') || {}; }
 function paintResult(t){
   var box = $('result');
   if (!S.done){ box.hidden = true; return; }
-  var N = ITEMS.length, test = S.mode === 'test';
+  var N = ptsOf(ITEMS), test = S.mode === 'test';
   var rows = DS.map(function(s, k){ return '<tr><td>' + s.title + '</td><td class="r">' + (test ? t.bySec[k].got : t.bySec[k].earned) + ' / ' + t.bySec[k].of + '</td>' + (test ? '' : '<td class="r">' + t.bySec[k].got + '</td><td class="r">' + t.bySec[k].help + '</td>') + '</tr>'; }).join('');
   var notYet = ITEMS.filter(function(it){ var R = S.res[it.id]; return !R || R.v !== 'right'; });
-  var weak = {}; DS.forEach(function(s, k){ if (scope === 'all' && t.bySec[k].of && t.bySec[k].got / t.bySec[k].of < 0.8) weak[k] = 1; });
+  var weak = {}; DS.forEach(function(s, k){ if (scope === 'all' && t.bySec[k].of && t.bySec[k].got / t.bySec[k].of < 0.8 && s.si != null && s.si >= 0 && G0.sections[s.si]) weak[s.si] = 1; });   /* by the unit's section (a section the edits empty is not drawn) */
   var nm = Object.keys(misses()).length, perfect = t.earned === N && N > 0, alone = perfect && t.first === N && !t.helped;
   /* "Try a new set" (7 Nov 2026, the site review): what New set does behind Set · Change — a new random set, this practice
      choice and this mode (My misses opens the whole test, as New set does). In "Check as I go" on the whole test it is the
@@ -876,7 +903,7 @@ function finish(){
   });
   if (S.mode !== 'test' && (S.best || 0) >= 2 && S.best > record_().n){ store('record', {n: S.best, seed: seed, at: S.finishedAt}); S.newRecord = true; }   /* the device's record run for this unit */
   var t = tally(), H = hist(), hk = scope + '.' + S.mode;
-  H[hk] = [{seed: seed, first: t.first, earned: t.earned, of: ITEMS.length, time: S.acc, at: S.finishedAt}].concat(H[hk] || []).slice(0, 5); store('hist', H);
+  H[hk] = [{seed: seed, first: t.first, earned: t.earned, of: ptsOf(ITEMS), time: S.acc, at: S.finishedAt}].concat(H[hk] || []).slice(0, 5); store('hist', H);
   save(); paintAll(); window.scrollTo(0, 0); var rb = $('result'); if (rb){ rb.setAttribute('tabindex', '-1'); rb.focus({preventScroll: true}); }
 }
 
@@ -899,14 +926,14 @@ function openSet(n, sc, mode){
   var saved = load(key());
   if (scope === 'miss' && !(saved && saved.res)){ var pos = Object.keys(misses()); if (!pos.length){ scope = 'all'; saved = load(key()); } }
   S = fresh(keepMode);
-  var loaded = !!(saved && saved.res && saved.schema === SCHEMA); if (loaded) S = earnedOf(saved);
+  var loaded = !!(saved && saved.res && saved.schema === SCHEMA); if (loaded){ S = earnedOf(saved); if (!S.eh) S.eh = {h: [], c: []}; }
   if (scope === 'miss' && !S.pos) S.pos = Object.keys(misses());
   S.more = S.more || {}; S.walk = S.walk || {}; S.walkOpen = S.walkOpen || {}; S.running = false; S.startedAt = null; FLASH = {};
   render(); paintHead();
   NOTICE = '';
   if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated since you last opened it, so it starts fresh.'; }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
   S.hash = HASHV;
-  try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
+  if (!(ED && ED.preview)) try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
   LSEED = 0;
   restore(); save(); paintAll(); window.scrollTo(0, 0);
   $('notice').textContent = NOTICE; $('notice').hidden = !NOTICE;
@@ -971,7 +998,7 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
    printout is the same set as the screen (the same items, drawn by the same view functions; the key is the same key the
    page marks with), shown first as a preview with its own Print button. With Português on, its lines print too. */
 function pq(d, qn){
-  var it = d.it, h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
+  var it = d.it, h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid', it) + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
   var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
@@ -993,7 +1020,7 @@ function worksheetHtml(){
   return h.join('');
 }
 function keyListHtml(){
-  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
+  var rows = ITEMS.map(function(it){ var q = qidOfItem(it), w = pw(it), ed = edMark(it.item).replace(/<[^>]*>/g, '').trim(); return '<tr><td class="pk">' + esc(it.lab) + (w !== 1 ? ' <span class="kpts">(' + ptLab(w) + ')</span>' : '') + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + (ed ? '<br><span class="ked">' + esc(ed) + '</span>' : '') + '</td></tr>'; }).join('');
   return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
 }
 function yourAnswer(it){
@@ -1010,7 +1037,7 @@ function verdict(it){
   return R.v === 'form' ? 'Almost' : '✗ Not yet';
 }
 function resultsHtml(){
-  var t = tally(), N = ITEMS.length, test = S.mode === 'test';
+  var t = tally(), N = ptsOf(ITEMS), test = S.mode === 'test';
   var h = printHead('Results') + '<p class="pmeta"><span class="bt">' + setLine() + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</span></p>';
   h += '<p class="pscore"><span class="bt"><b>' + t.earned + ' / ' + N + '</b> ' + (test ? 'right' : 'points earned on your own') + '</span>' + (test ? '' : '<span class="bt">' + t.first + ' / ' + N + ' right on the first try' + (t.helped ? ' ' + bulb(t.helped) : '') + '</span>') + '<span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
     (S.done ? '' : '<span class="bt">Not finished yet.</span>') + '</p>';
@@ -1035,9 +1062,9 @@ function printMenu(){
 function makeupMenu(){ ask0('How many different forms?', [['mk1', '1'], ['mk2', '2'], ['mk3', '3'], ['mk4', '4'], ['mk5', '5']]); }
 function withSet(s, fn){                                   /* run fn with the page's data drawn from set s, then put everything back */
   var o = {seed: seed, scope: scope, G: G, DS: DS, ITEMS: ITEMS, EX: EX, H: HASHV}, out;
-  seed = s; scope = 'all';
+  seed = s; scope = 'all'; CURCOMP = true;
   try { DS = build(); ITEMS = []; EX = {}; collect(); out = fn(); }
-  finally { seed = o.seed; scope = o.scope; G = o.G; DS = o.DS; ITEMS = o.ITEMS; EX = o.EX; HASHV = o.H; }
+  finally { seed = o.seed; scope = o.scope; G = o.G; DS = o.DS; ITEMS = o.ITEMS; EX = o.EX; HASHV = o.H; CURCOMP = false; }
   return out;
 }
 function collect(){                                        /* the items of DS, as render() lists them, without touching the page */
@@ -1058,9 +1085,9 @@ function collect(){                                        /* the items of DS, a
    student page opens any set with its worked answers (#set-N), so a set number on a test is its answer key. The number is on
    the teacher's key, with a score tracker by benchmark. */
 function pqTest(d, qn){
-  var it = d.it, one = '<span class="pt">1 pt</span>';
-  var h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
-  var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span>' + one + '</div>'; };
+  var it = d.it, one = function(x){ return '<span class="pt">' + ptLab(pwx(x)) + '</span>'; };
+  var h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span>' + (it.type === 'parts' ? '' : one(it.type === 'solo' ? it.part : it)) + '</div>' + fig(it) + '</div>';
+  var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span>' + one(p) + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>') + '</div>'; });
   else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + V.line(it.part) + '</span></div>' + NL.blankHtml(it.part) : '<div class="pwork"></div>') + '</div>';
@@ -1068,7 +1095,7 @@ function pqTest(d, qn){
   return h + '</div>';
 }
 function testFormHtml(label, form){
-  var T = window.TEACHER_TEST || {}, h = [], qn = 0, total = ITEMS.length;
+  var T = window.TEACHER_TEST || {}, h = [], qn = 0, total = ptsOf(ITEMS);
   /* ruling 54 (25 Oct 2026): the title says what it is ("A7 Unit 6 Test", "… Make-up Test"); the line under it, the unit's
      name, the form and the points — and "two class periods" for a two-period test; a one-period test says nothing about
      its length (Croix, 25 Oct 2026: "I don't need that text at all") — as the paper's head and teacher.js's */
@@ -1083,7 +1110,7 @@ function testFormHtml(label, form){
   (T.notes || []).map(esc).concat(U.notesPrint || U.notes || []).forEach(function(n){ var t = same(n); if (t && said.indexOf(t) < 0){ said.push(t); notes.push(n); } });
   if (notes.length) h.push('<p class="pnotes">' + notes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
   DS.forEach(function(sec, si){
-    var pts = ITEMS.filter(function(it){ return it.sec === si; }).length;
+    var pts = ptsOf(ITEMS.filter(function(it){ return it.sec === si; }));
     h.push('<h2 class="psec"><span class="bt">' + sec.title + '</span><span class="ppts">' + pts + (pts === 1 ? ' point' : ' points') + '</span></h2>');
     /* no follow-through line under a section, nor anywhere (7 Nov 2026, Croix: the line goes "across everything"; ruling 19's scoring stands) */
     sec.items.forEach(function(d){ qn++; h.push(pqTest(d, qn)); });
@@ -1092,14 +1119,14 @@ function testFormHtml(label, form){
 }
 function testKeyHtml(form, s){
   var T = window.TEACHER_TEST || {};
-  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
+  var rows = ITEMS.map(function(it){ var q = qidOfItem(it), w = pw(it), ed = edMark(it.item).replace(/<[^>]*>/g, '').trim(); return '<tr><td class="pk">' + esc(it.lab) + (w !== 1 ? ' <span class="kpts">(' + ptLab(w) + ')</span>' : '') + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + (ed ? '<br><span class="ked">' + esc(ed) + '</span>' : '') + '</td></tr>'; }).join('');
   var bySec = DS.map(function(sec, si){ var its = ITEMS.filter(function(it){ return it.sec === si; }), qs = [];
-    its.forEach(function(it){ var q = String(it.lab).replace(/[a-z]+$/, ''); if (qs.indexOf(q) < 0) qs.push(q); }); return {title: sec.title, qs: qs, pts: its.length}; });
+    its.forEach(function(it){ var q = String(it.lab).replace(/[a-z]+$/, ''); if (qs.indexOf(q) < 0) qs.push(q); }); return {title: sec.title, qs: qs, pts: ptsOf(its)}; });
   var order = T.tracker_order || [], tr = T.tracker || {};      /* the test's benchmarks, section by section, where the spec's tracker agrees with the page */
   var byBm = order.length === bySec.length && order.every(function(bm, si){ return tr[bm] === bySec[si].pts; });
   var tracker = '<div class="ptrk"><h2 class="psec"><span class="bt">Score tracker</span></h2><table class="ptab ptrack"><thead><tr><th>' + (byBm ? 'Benchmark' : 'Section') + '</th><th>Questions</th><th>Possible</th><th>Earned</th></tr></thead><tbody>' +
     bySec.map(function(b, si){ return '<tr><td>' + (byBm ? esc(order[si]) : b.title) + '</td><td>' + b.qs.join(', ') + '</td><td>' + b.pts + '</td><td></td></tr>'; }).join('') +
-    '<tr><td><b>Total</b></td><td></td><td><b>' + ITEMS.length + '</b></td><td></td></tr></tbody></table></div>';
+    '<tr><td><b>Total</b></td><td></td><td><b>' + ptsOf(ITEMS) + '</b></td><td></td></tr></tbody></table></div>';
   return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key — Form ' + form + '</span></h2><p class="pmeta"><span class="bt">Set ' + s + ' · ' + esc(SCOPES[scope]) + '</span></p>' +
     (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab pkrows"><tbody>' + rows + '</tbody></table>' + tracker + '</div>';
 }
@@ -1203,6 +1230,12 @@ $('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;   /* openSet repai
    of questions as the unit test, new numbers every set.)"): only a unit's notes — how to write an answer — and none at all hides it. */
 var notesHtml = (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
 $('intro').innerHTML = notesHtml; $('intro').hidden = !notesHtml;
+/* the cockpit's preview pane (edits.js, ?kedit=1): the questions the editor is on, drawn by this page as students see them */
+if (ED && ED.preview) window.PracticePreview = function(){ S = fresh('practice'); FLASH = {}; render(); restore(); paintAll(); $('notice').hidden = true; };
 openSet(seed, scope);
+/* a teacher copy whose real test is the build's fixed paper (Forms A/B from unit.py): the edits reach this page's sets, its
+   worksheets and make-ups, not that paper */
+if (teacherPage() && ED && ED.any() && window.TEACHER_TEST && !window.TEACHER_TEST.random) (function tb(n){ var t = document.querySelector('.teacherbar .tbtxt'); if (!t){ if (n < 80) setTimeout(function(){ tb(n + 1); }, 50); return; }
+  if (t.querySelector('.tbed')) return; var e = document.createElement('span'); e.className = 'tbed'; e.textContent = ' Your edits from the cockpit are on this page, its worksheets and its make-ups; the real test’s printed forms are the build’s fixed paper (Choose questions… leaves one out).'; t.appendChild(e); })(0);
 if (K.Bi && U.second) K.Bi.mount(U, (window.KitLang || {})[U.second.code]);   /* the second-language toggle (kit/bilingual.js), when the unit has one; after the first set is drawn */
 })();

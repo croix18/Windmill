@@ -316,6 +316,42 @@ the graph of a one-variable inequality, built, not chosen:
   A lone graph to build says its instruction line on the screen and on paper. Teacher copies the same.
   `check/page.js` part K checks the chip per scope and the lesson line against the cards.
 
+## 7 Nov 2026 — edits layer (`edits.js`)
+Croix: *"I also want the ability across the board to edit test questions."* — from the cockpit on mrshaffer.org, without a
+rebuild. The ruling: **the edits are a layer, stored in the site's Worker (`items.js`, `GET /api/items/<course>/<unit>`) and
+applied by the kit when a page is drawn; the course repositories stay the source of truth.**
+- **A question is a family**, not one instance: its numbers are generated and are never hand-edited. What is edited:
+  a family's **wording** (its stem and each lettered part's line) as a **template** — the stem the unit's view draws, cut into
+  the kit's markup and placeholders: a number, money or a percent in the text is `{{nK}}` (with its "a"/"an"), a word the set
+  drew (a parameter's string value: a name, an item) is `{{<parameter>}}`, `<i>x</i>` is `{{vK}}`, any other element (a math
+  span, a "shown" line, a fraction) is `{{mK}}` whole; `<br>` is a new line, `<b>` is `**bold**`. Filling puts the set's own
+  HTML back, so **extract → fill is the stem exactly** (`check/edits.js`, every field of every family on 300+ sets). A family
+  whose stories are worded differently has one template per **wording**, keyed by a hash of its original template; an edit
+  names the wording it was made for, and is not applied (the teacher copy says *Edit not applied*) if the unit's wording
+  changes. More than 12 wordings, or nothing but generated mathematics: **"wording not editable"**, with the reason.
+- **Also**: **hidden** (the family is left out of NEW sets: `ui.js` `build()` filters by the set's composition `S.eh`, snapshotted
+  when a set is first opened, so a set saved on a device keeps its questions — and its saved answers — until "Try a new set" or
+  "Start over"; printing always uses the current composition); **points** per lettered part (0–20; the sheet, the totals, the
+  score, the history and every printed form count them — `pw()`; 1 stays "1 pt"); **Hint 1** (the coach's "What to notice");
+  a **lesson item** from Cadence (its stem, its key, hidden: `bank.js` `kitItem` and the draw); the teacher's **own questions**
+  (number, expression, words, choice, inequality, number line) — Cadence-shaped items that `bank.js` draws, judges and helps
+  with — after the native questions of their section or in "More questions" at the end, numbered **U10·C1** (the native IDs
+  keep their places: `_qn`), part of Like the real test and every printed test, with no "Try a similar one".
+- **The page**: on the site (`/<course>/practice/unit-N/`, `/teacher/<course>/unit-N/practice/`, or `window.KIT_EDITS_BASE` in
+  the checks) `ui.js` waits for the edits — at most 1.5 s; offline, the last copy kept on the device; a failure, the plain page.
+  Off the site nothing is fetched and nothing changes. The teacher copy marks a changed question **Edited** (its own questions
+  **Added**) on the screen and in its keys' ID column; the student page and every student sheet never do. A teacher copy whose
+  real test is the build's fixed Forms A/B (M7 U4, U9; A7 U3–U5) says its edits reach the page, worksheets and make-ups only.
+- **The cockpit's preview pane** is the unit's teacher copy at `?kedit=1`: `Kit.Edits` there lists the families (`survey(1500)`),
+  the lesson items (`bank()`), fills and checks templates, and draws the question being edited with `window.PracticePreview`
+  exactly as students see it (nothing is saved under the teacher's own practice state: storage prefix `<unit>.kedit.`).
+- **Checked**: `check/edits.js` (run by `run.py`): the round trip, the survey and its not-editable list, a template applied and a
+  wrong one refused, the markup (no HTML from the teacher's words), hidden-family and points totals, custom questions of every
+  type; `check/page.js` part L (`check/edits_page.js`), with a mocked `/api/items` (page.route): an edited stem on the screen,
+  on the worksheet and its key; a hidden family absent from a new set and its points gone from the total; a custom question in
+  its section, ✓ with its key and ✗ otherwise; "More questions"; a set saved before the edits keeping its composition; the
+  address failing → the plain page; on a teacher copy the printed test and key with the edit, "Edited" and "Added".
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -330,6 +366,8 @@ the graph of a one-variable inequality, built, not chosen:
 | `check/norm.js` | the answer normaliser's cases (≥ 60; the ones that must not be equivalent too). `run.py` runs it second |
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
+| `edits.js` | the teacher's edits from the site (7 Nov 2026, above): templates, hidden families, points, Hint 1, lesson-item edits, his own questions; the cockpit's preview |
+| `check/edits.js`, `check/edits_page.js` | the edits layer under Node (every family's template round trip) and in the browser (page.js part L) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |

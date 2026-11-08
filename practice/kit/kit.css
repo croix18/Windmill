@@ -665,3 +665,11 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 .nlp.solo .nlsolo{margin-top:6px} .nlp.solo .nlsolo .st{font-weight:600}
 .scopechip{display:inline-flex;align-items:center;font:normal 600 12.5px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;margin:4px 8px 2px 0;vertical-align:middle}
 @media print{ .scopechip{display:none} }
+
+/* the edits layer (edits.js, 7 Nov 2026): on the teacher copy, a question changed on the cockpit says so, quietly */
+.qed{display:inline-block;margin-left:.4em;padding:0 .45em;border-radius:999px;font:600 .72rem/1.5 "DM Sans",system-ui,sans-serif;letter-spacing:.02em;background:rgba(64,224,208,.22);color:var(--ink,#17324D);border:1px solid rgba(15,107,116,.45);vertical-align:1px}
+.qed.miss{background:rgba(255,127,106,.16);border-color:rgba(173,59,40,.55)}
+.kpts{font-weight:400;font-size:.85em;opacity:.8;white-space:nowrap}
+.ked{font-size:.78em;opacity:.75}
+.tbed{display:block;margin-top:.25em}
+@media print{.qed{border:1px solid #000;background:none;color:#000}}
