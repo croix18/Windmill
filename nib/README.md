@@ -26,7 +26,7 @@ answers and the training log; `Nib.neaten` / `Nib.typeset` → a reading drawn i
 
 | key | written by | read by |
 | --- | --- | --- |
-| `nib-memory-v1` | corrections (Fix) and the Replicator's Teach Nib | every tool with the engine, to lean toward this writer's shapes |
+| `nib-memory-v1` | corrections (Fix) and the Replicator's Teach Nib | every tool with the engine, to lean toward this writer's shapes; kept per network (`Nib.memory.model`), so a new engine starts empty — Nib Board teaches it again from the training log's corrections (1.5.3) |
 | `nib-hand-v1` | a Replicator file opened in a tool (My handwriting) | the "My hand" view |
 | `replicator-v1` | the Replicator's own saved work (`avg`: the averaged letters) | the "My hand" view, newest of the two wins |
 | `nib-board-v1` | Nib Board: pages, corrections, settings | Nib Board |
