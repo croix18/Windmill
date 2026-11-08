@@ -301,6 +301,21 @@ the graph of a one-variable inequality, built, not chosen:
   ≥ 3:1 in dark, 44 px, no sideways scroll at 390); `check/bank.js` builds a bank's graphs through the page; `check/variety.js`
   counts a graph's line among its numbers.
 
+## Two rulings of 7 Nov 2026 (evening)
+- **7 Nov 2026 — the follow-through line is not printed or shown anywhere (Croix).** *"Can you get rid of 'if an earlier part is
+  wrong a later part still earns its point' line across everything."* The line is gone from the student pages' notes, the
+  worksheets, the teacher copies, every printed test form and make-up, and the keys (`teacher_gen.py` writes
+  `follow_through_student` empty; `ui.js` and `teacher.js` print nothing for it; each unit's `notesPrint` drops it). The policy
+  stands: ruling 19's scoring — a later part right from the student's own earlier answer in *Like the real test* — is code in the
+  units' coaches and is unchanged, and a key's own grading note (`follow_through_key`, the teacher's instruction, where a unit's
+  spec has one) still prints on the teacher's key. `check/page.js` part K fails a built page that holds "earlier part is wrong".
+- **Which practice this is, always in sight.** Croix: *"It was the switching mechanism that confused me. I would assume that if I
+  open a specific lesson it would open to that section. Likewise if I open the full practice test."* A chip under the title names
+  the choice from What to practice — "Whole practice test", the section's name, "My misses", "Lesson 10.04" — and in a lesson the
+  line under the title reads "[Lesson 10.04] 8 questions · today's practice", the chip leading it (the count is the set's).
+  A lone graph to build says its instruction line on the screen and on paper. Teacher copies the same.
+  `check/page.js` part K checks the chip per scope and the lesson line against the cards.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -477,7 +492,7 @@ make-ups — has the paper's shape (`ui.js` `testFormHtml`, `testKeyHtml`, `pqTe
   "1 pt" on every part; work space under every typed part, choice boxes for a choice; **no set number anywhere and no
   answer line.**
 - **The key, on its own page:** "Answer key — Form A", then "Set 4821 · Whole test" (the only place the number prints), the
-  key's follow-through note (`follow_through_key`), a row per part, and the **score tracker** — by benchmark when the spec's
+  key's grading note (`follow_through_key`, where the spec has one), a row per part, and the **score tracker** — by benchmark when the spec's
   `tracker` agrees with the page's points section by section (`tracker_order`), by section otherwise; questions, possible,
   earned, the total. The tracker never splits across a page.
 `check/page.js` part D checks the shape on the make-ups and on the ruling-49 test: no "Set N" on a student sheet, no answer

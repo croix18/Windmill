@@ -148,6 +148,8 @@ function choicesHtml(x, id, lab, multi){
   return q.join('');
 }
 function partHtml(p, id, solo, lab, lone){
+  /* a lone graph to build (a Cadence item with one part) still says what to do: its line, without a second "1 pt" */
+  if (solo && p.kind === 'nline') return '<div class="prt nlp solo" data-host="' + id + '"><div class="line nlsolo"><span class="st">' + V.line(p) + '</span></div>' + nlHtml(p, id, lab) + '</div>';
   var line = solo ? '' : '<div class="line" id="ln' + id + '">' + (p.label && !lone ? '<b class="lab">' + p.label + '.</b>' : '<b class="lab" aria-hidden="true"></b>') + '<span class="st">' + V.line(p) + '</span>' + (p.label ? '<span class="pt">1 pt</span>' : '') + '</div>';
   if (p.kind === 'mc') return '<div class="prt mcp" data-host="' + id + '">' + line + choicesHtml(p, id, lab, false) + '</div>';
   if (p.kind === 'nline') return '<div class="prt nlp' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + nlHtml(p, id, lab) + '</div>';
@@ -252,7 +254,12 @@ function render(){
   });
   $('paper').innerHTML = h.join('');
   $('setno').textContent = seed; $('setin').value = seed;
-  $('total').textContent = ITEMS.length + ' point' + (ITEMS.length === 1 ? '' : 's');
+  /* which practice this is, always in sight (7 Nov 2026, Croix: "It was the switching mechanism that confused me. I would assume
+     that if I open a specific lesson it would open to that section. Likewise if I open the full practice test."): a chip under the
+     title names the choice from What to practice, and a lesson's line says what it is — "Lesson 10.04 · 8 questions · today's
+     practice" */
+  $('total').textContent = lessonScope(scope) ? qn + ' question' + (qn === 1 ? '' : 's') + ' · today’s practice' : ITEMS.length + ' point' + (ITEMS.length === 1 ? '' : 's');
+  paintChip();
   paintScopes();
   Object.keys(S.more || {}).forEach(function(id){ var b = byIdBase(id); if (b) mountExtra(b); });
 }
@@ -264,6 +271,19 @@ function paintScopes(){
   var ks = Object.keys(SCOPES), test = ks.filter(function(k){ return !lessonScope(k); }), les = ks.filter(function(k){ return lessonScope(k) && (K.Bank.shown(k) || k === scope); });
   /* the lessons after the test's own choices, as their own group (a two-lesson day's choice only while it is open) */
   sc.innerHTML = les.length ? '<optgroup label="Practice test">' + test.map(opt).join('') + '</optgroup><optgroup label="Lessons" translate="no">' + les.map(opt).join('') + '</optgroup>' : test.map(opt).join('');
+}
+function scopeChip(){
+  if (scope === 'all') return 'Whole practice test';
+  if (scope === 'miss') return 'My misses';
+  if (lessonScope(scope)) return String(K.Bank.name(scope) || '').split(' · ')[0];
+  var k = +String(scope).slice(1) - 1; return G0.sections[k] ? plainText(G0.sections[k].title) : String(SCOPES[scope] || '');
+}
+function paintChip(){
+  var c = $('scopechip'), h = $('h1'); if (!h) return;
+  /* on the line under the title, before the points (its own row pushed question 1 off a phone's first screen on a teacher copy) */
+  var t = $('total'), row = t && t.parentNode;
+  if (!c){ c = document.createElement('span'); c.id = 'scopechip'; c.className = 'scopechip'; c.setAttribute('translate', 'no'); if (row) row.insertBefore(c, t); else h.parentNode.insertBefore(c, h.nextSibling); }
+  c.textContent = scopeChip(); c.setAttribute('aria-label', 'Practising: ' + scopeChip());
 }
 /* the eyebrow and the title: the unit's, or in a lesson choice the lesson's ("GRADE 7 MATH · UNIT 9 · LESSON 9.03 PRACTICE") */
 function paintHead(){
@@ -956,7 +976,7 @@ function pq(d, qn){
   var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : blank(p)) + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? NL.blankHtml(it.part) : blank(it.part)) + '</div>';
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? line(it.part, '') + NL.blankHtml(it.part) : blank(it.part)) + '</div>';
   else h += '<div class="ppart">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -1043,7 +1063,7 @@ function pqTest(d, qn){
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span>' + one + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>') + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? NL.blankHtml(it.part) : '<div class="pwork"></div>') + '</div>';
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + V.line(it.part) + '</span></div>' + NL.blankHtml(it.part) : '<div class="pwork"></div>') + '</div>';
   else h += '<div class="ppart">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -1060,13 +1080,12 @@ function testFormHtml(label, form){
      that prints the scoring lines itself (M7 Unit 10's notesPrint) does not get them twice, and the follow-through line
      prints under its sections, as on the paper (teacher.js), not again here */
   var said = [], notes = [], same = function(x){ return plainText(x).replace(/\s+/g, ' ').trim(); };
-  if (T.follow_through_student && DS.some(function(sec){ return sec.items.some(function(d){ return d.it.type === 'parts'; }); })) said.push(same(esc(T.follow_through_student)));
   (T.notes || []).map(esc).concat(U.notesPrint || U.notes || []).forEach(function(n){ var t = same(n); if (t && said.indexOf(t) < 0){ said.push(t); notes.push(n); } });
   if (notes.length) h.push('<p class="pnotes">' + notes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
   DS.forEach(function(sec, si){
     var pts = ITEMS.filter(function(it){ return it.sec === si; }).length;
     h.push('<h2 class="psec"><span class="bt">' + sec.title + '</span><span class="ppts">' + pts + (pts === 1 ? ' point' : ' points') + '</span></h2>');
-    if (T.follow_through_student && sec.items.some(function(d){ return d.it.type === 'parts'; })) h.push('<p class="pft">' + esc(T.follow_through_student) + '</p>');
+    /* no follow-through line under a section, nor anywhere (7 Nov 2026, Croix: the line goes "across everything"; ruling 19's scoring stands) */
     sec.items.forEach(function(d){ qn++; h.push(pqTest(d, qn)); });
   });
   return h.join('');

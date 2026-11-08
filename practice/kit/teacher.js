@@ -67,7 +67,6 @@
     h.push('<p class="pnotes">' + (T.two_day ? '<span class="pinote">' + esc(T.two_day) + '</span>' : '') + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
     secs.forEach(function(sec, si){
       h.push('<h2 class="psec">' + esc(sec.title) + '<span class="ppts">' + sec.points + ' points</span></h2>');   /* ruling 54: named, never numbered */
-      if (sec.items.some(function(it){ return it.parts; })) h.push('<p class="pft">' + esc(T.follow_through_student) + '</p>');
       sec.items.forEach(function(it){
         qn++;
         var q = '<div class="pq"><div class="pqh"><div class="pqid" translate="no"><span class="qn">' + qid(f, it) + '</span></div><div class="stem"><b class="num">' + qn + '.</b><span class="st">' + tex(it.stem) + '</span>' + (it.parts ? '' : '<span class="pt">1 pt</span>') + '</div>' + (it.fig || '') + '</div>';
@@ -96,8 +95,7 @@
     }); });
     var tracker = '<h2 class="psec">Score tracker</h2><table class="ptab ptrack"><thead><tr><th>Benchmark</th><th>Questions</th><th>Possible</th><th>Earned</th></tr></thead><tbody>' +
       (T.tracker_order || Object.keys(T.tracker)).map(function(bm){ var b = byBm[bm] || {qs: [], pts: 0}; return '<tr><td>' + esc(bm) + '</td><td>' + b.qs.join(', ') + '</td><td>' + b.pts + '</td><td></td></tr>'; }).join('') +
-      '<tr><td><b>Total</b></td><td></td><td><b>' + total(f) + '</b></td><td></td></tr></tbody></table>' +
-      '<p class="pft">' + esc(T.follow_through_student) + ' Nothing is weighed and nothing is arguable: apply the part’s operation to the student’s own earlier value and tick if that is what is written.</p>';
+      '<tr><td><b>Total</b></td><td></td><td><b>' + total(f) + '</b></td><td></td></tr></tbody></table>';   /* no follow-through line (7 Nov 2026, Croix) */
     return '<div class="pkey">' + head(f, true) + (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab"><tbody>' + rows.join('') + '</tbody></table>' + tracker + '</div>';
   }
   function plainStem(s0){ return String(s0).replace(/\$[^$]*\$/g, function(m){ return m.slice(1, -1).replace(/\\(text|mathrm)\{([^}]*)\}/g, '$2').replace(/(\d)\\frac\{(\d+)\}\{(\d+)\}/g, '$1 $2/$3').replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '$1/$2').replace(/\\left|\\right/g, '').replace(/\\(times|cdot)/g, '×').replace(/\\[a-zA-Z]+/g, ' ').replace(/[{}]/g, '').replace(/\s*,\s*/g, ', '); }).replace(/\*\*/g, '').replace(/\s+/g, ' ').replace(/\( /g, '(').replace(/ \)/g, ')').trim(); }

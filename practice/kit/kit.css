@@ -661,3 +661,7 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 #printview svg.nlg{color:#000} #printview .nlkw{color:#333}
 .ptab .kv .nlkey{width:2.9in}
 @media print{ .nctl,.nltk,.nsay{display:none!important} svg.nlg{color:#000} .pnlband{height:10mm} .nlpt{outline:none!important} }
+/* which practice this is (7 Nov 2026, Croix: "It was the switching mechanism that confused me"): a quiet chip under the title */
+.nlp.solo .nlsolo{margin-top:6px} .nlp.solo .nlsolo .st{font-weight:600}
+.scopechip{display:inline-flex;align-items:center;font:normal 600 12.5px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;margin:4px 8px 2px 0;vertical-align:middle}
+@media print{ .scopechip{display:none} }

@@ -802,6 +802,25 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (de.length) fail('dark page errors: ' + de.slice(0, 3).join(' | '));
     await dc.close();
     console.log('I. true dark and Appearance checked'); }
+  /* K. no follow-through line anywhere (7 Nov 2026, Croix: "Can you get rid of 'if an earlier part is wrong a later part still
+     earns its point' line across everything"): the built page — everything it can show or print is inlined in it — never holds
+     it; and which practice this is (Croix: "It was the switching mechanism that confused me"): a chip under the title names the
+     choice from What to practice, per scope, and a lesson's line is "Lesson 10.04 · 8 questions · today's practice" */
+  { const src = fs.readFileSync(path.join(dir, 'preview.html'), 'utf8'); if (/earlier part is wrong/i.test(src)) fail('K: the built page holds the follow-through line ("earlier part is wrong")');
+    const chipOf = async h => { await p.goto(url + h); await p.reload(); await p.waitForTimeout(150); return p.evaluate(() => ({ chip: (document.getElementById('scopechip') || {}).textContent || '', total: document.getElementById('total').textContent, menu: (document.querySelector('#scope option:checked') || {}).textContent || '', cards: document.querySelectorAll('#paper .q[data-q]:not(.xq)').length,
+      under: (() => { const c = document.getElementById('scopechip'), h1 = document.getElementById('h1'); return !!(c && h1 && (h1.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING) && c.getBoundingClientRect().top >= h1.getBoundingClientRect().bottom - 1); })() })); };
+    let c = await chipOf('#set-5'); if (c.chip !== 'Whole practice test' || !c.under) fail('K: the whole test\'s chip is "' + c.chip + '"' + (c.under ? '' : ', not under the title'));
+    const G = U.generate(5);
+    for (let k = 0; k < G.sections.length; k++) { c = await chipOf('#set-5-p' + (k + 1)); const want = G.sections[k].title.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'); if (c.chip !== want) fail('K: section ' + (k + 1) + '\'s chip is "' + c.chip + '", not "' + want + '"'); }
+    await p.evaluate(([pre]) => { localStorage.setItem(pre + 'misses', JSON.stringify({ '0.0.-1': 'x', '0.0.0': 'x' })); }, [U.id + '.']);
+    c = await chipOf('#set-6-miss'); if (c.chip !== 'My misses') fail('K: My misses\' chip is "' + c.chip + '"');
+    const les = await p.evaluate(() => window.Kit && Kit.Bank ? Kit.Bank.keys().filter(k => Kit.Bank.shown(k)).slice(0, 2) : []);
+    for (const k of les) { c = await chipOf('#set-5-' + k); const code = k.replace(/^lesson-/, '');
+      if (!new RegExp('^Lesson ' + code.replace(/[.+]/g, '\\$&') + '$', 'i').test(c.chip) && !/^(Lessons |[A-Z]-)/.test(c.chip)) fail('K: lesson ' + code + '\'s chip is "' + c.chip + '"');
+      if (c.chip + ' · ' + c.total !== c.chip + ' · ' + c.cards + ' question' + (c.cards === 1 ? '' : 's') + ' · today’s practice') fail('K: lesson ' + code + '\'s line is "' + c.total + '" (' + c.cards + ' cards)');
+      if (c.menu.indexOf(c.chip) !== 0) fail('K: the chip "' + c.chip + '" is not the choice in What to practice ("' + c.menu + '")'); }
+    await fresh(p, 5);
+    console.log('K. no follow-through line; the chip on the whole test, ' + G.sections.length + ' sections, My misses and ' + les.length + ' lessons'); }
   /* J. the graph a student builds (kit kind nline, 7 Nov 2026; Croix: "make them graph inequalities with an open or closed dot and
      an arrow instead of just describing them"): a tap on a tick places the point, a drag moves it, ← → Home End move it by the
      keyboard; Dot and Arrow are radiogroups that work by keyboard; the ray draws as soon as a point and a direction exist; the
