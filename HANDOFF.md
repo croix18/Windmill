@@ -8,7 +8,7 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 
 **Croix, 7 Nov:** Nib — his handwriting-to-LaTeX engine (repo `croix18/Nib`; Nib Board runs on the Promethean and his Tab S9+)
 — is the shared code the other tools will take from here, the way the courses take the build kit: `nib/nib.js` is the built
-engine (1.5.0), `nib/VERSION` the release and Nib commit, `tools/vendor_nib.py` the copy. Nib's repository stays the source
+engine (1.5.1), `nib/VERSION` the release and Nib commit, `tools/vendor_nib.py` the copy. Nib's repository stays the source
 of truth (training, tests, `docs/HANDOFF.md` there). `nib/README.md` lists the six browser-storage keys the engine and its
 pages use, so a tool that embeds it keeps its own keys and leaves the writer's memory shared. Decided today with Croix:
 students will not write by hand on any computer (no touch-screen Chromebooks), so for the practice pages the engine's value is
