@@ -25,6 +25,13 @@ a board: named colors, the papers and their thumbnails, shapes (number lines, co
 packing and the picture store. Options the classroom tools share:
 `times: false` (x is always a letter; multiply with · or brackets — Croix's class convention), `symbols: 'school'`.
 
+Inside a tool that has its own drawing (1.6.3; Deckhand's Sketch Pad and its pen over the slides use both — Deckhand's
+`tools/vendor_nib.py` takes the engine from here): `<nib-pad page="1280 960">` is a fixed page shown whole and centred,
+and `<nib-pad draw="answers">` draws only the answers over the tool's own ink, which it hands over with
+`pad.syncStrokes(list, moved)` (`answerAt` / `showAnswer` / `hideAnswer` for its taps). For a tool whose old pad wrote
+with every touch: `palm="false"` and `single`; `keep` keeps a pad alive while its card is rebuilt. With `reveal`, an
+answer waiting for a tap is drawn blurred where it goes. Nib's README, "Inside another tool", has the details.
+
 ## What it stores in the browser (per origin; Chrome's file:// pages share one)
 
 | key | written by | read by |
