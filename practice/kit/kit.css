@@ -581,10 +581,8 @@ button:not(.go):not([aria-pressed=true]):not([aria-expanded=true]):hover{backgro
 @media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .bkfig svg{filter:invert(1) hue-rotate(180deg) brightness(1.04)} }
 @media screen{ :root[data-theme="dark"] .bkfig svg{filter:invert(1) hue-rotate(180deg) brightness(1.04)} }
 @media print{ .bkfig{overflow:visible;margin-left:16pt;max-width:none} .bkfin{width:3.2in;min-width:0!important} .bkfig.bkwide .bkfin{width:5.6in;min-width:0!important} .bkfig svg{filter:none!important;max-height:3.4in} .st table.ftab{display:table} .m.mdisp{overflow:visible} }
-/* a lesson item's keypad (7 Nov 2026, Croix on his phone at U10·L4·58: "I can't answer that" — no < or >): its 14 keys
-   (− / a/b ^ ( ) π × √ = < ≤ ≥ >) are two even rows of 7 on a 390 px phone, using a little of the sheet’s margin (fewer per row on a narrower one, never sideways); 44 px keys */
-@media (max-width:480px){ .keys.kbank,.prt:not(.solo)>.keys.kbank{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:4px;margin-left:-7px;margin-right:-7px}
-  .keys.kbank button{width:auto;min-width:44px;padding:7px 0} }
+/* a lesson item's keypad (7 Nov 2026, Croix on his phone at U10·L4·58: "I can't answer that" — no < or >): since 8 Nov 2026 the
+   unit's keys (kit/keyset.js), laid out as every keypad is (the end of this file) */
 /* ==== The number-line graph a student builds (7 Nov 2026, nline.js; Croix: "make them graph inequalities with an open or closed
    dot and an arrow instead of just describing them") ====
    The line is the unit's (ticks and labels on its numbers), drawn in the pen: a tap zone the line's full height on every tick,
@@ -633,3 +631,60 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 .nlp.solo .nlsolo{margin-top:6px} .nlp.solo .nlsolo .st{font-weight:600}
 .scopechip{display:inline-flex;align-items:center;font:normal 600 12.5px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;margin:4px 8px 2px 0;vertical-align:middle}
 @media print{ .scopechip{display:none} }
+/* ==== the calculators (8 Nov 2026, calc.js; Croix: "if you can get it to load inside the practices and practice tests that would be
+   a dream come true", then "I would also like this t130xa calculator embedded as well … it should be the same as the desmos") ====
+   Calm and small: the button is the bar's own quiet button (sand), the word beside its icon — the icon alone on a phone; open,
+   it has the ink's edge (nothing live about it, so never turquoise). The panel is the ⋯ menu's surface (true dark in dark), the
+   switch the Appearance row's, the link teal ink. What the calculators draw inside their frames is their own. */
+.watch .btns .calcb{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px 9px 11px}
+.calcb svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.calcb svg .kd{fill:currentColor;stroke:none}
+.calcb[aria-expanded=true]{background:var(--field2);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+@media (max-width:480px){ .watch .btns .calcb{width:44px;padding:0} .calcb .cw{display:none} }
+.kcalc{position:fixed;z-index:30;left:auto;top:0;display:flex;flex-direction:column;min-width:372px;max-width:calc(100vw - 16px);
+  background:var(--menu);color:var(--ink);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--pop);font-family:var(--chrome)}
+.kcalc[hidden]{display:none}
+.kch{padding:6px 6px 0;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.kcalc.kcdrag,.kcalc.kcdrag .kch{cursor:grabbing} .kcalc.kcdrag iframe{pointer-events:none}
+.kcbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-left:10px}
+.kct{margin:0;font:700 15px/1.2 var(--chrome);letter-spacing:.005em;color:var(--ink)}
+.kct:focus{outline:none} .kct:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:4px}
+.kcx{min-height:44px;padding:8px 15px;border-radius:999px;font:600 14px/1 var(--chrome);color:var(--ink);background:var(--field);border:1px solid var(--rule)}
+.kcx:hover{background:var(--field2)}
+.kcrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;margin-top:6px}
+.kcsw{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--field)}
+.kcsw button{min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mut);font:600 13.5px/1 var(--chrome);padding:8px 12px;white-space:nowrap}
+.kcsw button[aria-checked=true]{color:var(--ink);font-weight:700;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+.kcsw button:not([aria-checked=true]):hover{background:var(--field2)}
+.kcl{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:0 10px;margin-left:auto;max-width:100%}
+.kcnew{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 2px;border-radius:8px;font:600 13px/1.2 var(--chrome);color:var(--link);text-decoration:none;white-space:nowrap}
+.kcnew:hover{text-decoration:underline;text-underline-offset:2px}
+.kcnew svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.kcnew:focus-visible,.kccr a:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.kcoff{font:500 12.5px/1.3 var(--chrome);color:var(--mut)} .kcoff[hidden]{display:none}
+.kcsr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.kcb{display:flex;flex-direction:column;align-items:center;padding:4px 6px 8px}
+.kcfr{display:flex;flex-direction:column;align-items:center;max-width:100%} .kcfr[hidden]{display:none}
+.kcsc{overflow:hidden;border-radius:10px;background:var(--paper);box-shadow:0 0 0 1px var(--rule)}
+.kcsc iframe{display:block;border:0;transform-origin:0 0}
+.kccr{margin:8px 0 0;font:500 12px/1.3 var(--chrome);text-align:center}
+.kccr a{color:var(--link);text-decoration:none} .kccr a:hover{text-decoration:underline;text-underline-offset:2px}
+/* a phone: the whole screen, Close at the top right, the page behind it inert (calc.js) and still */
+.kcalc.kcfull{inset:0;width:auto;height:100%;min-width:0;max-width:none;border:0;border-radius:0;box-shadow:none;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.kcalc.kcfull .kch{cursor:auto;touch-action:auto;padding:8px 10px 0}
+.kcalc.kcfull .kcb{flex:1 1 auto;min-height:0;padding:6px 6px 10px}
+html.kcalc-lock,html.kcalc-lock body{overflow:hidden}
+/* never over a print preview or the teacher's panels, and never on paper */
+body.printing>.kcalc,body.tview>.kcalc{display:none!important}
+@media print{ .kcalc,.calcb{display:none!important} }
+/* ==== the keypad, even and tidy (8 Nov 2026; Croix, of an A7 Unit 6 lesson set on his phone: "Can you fix the symbols across
+   everything so that they are even looking not like stretching across the screen. It's sloppy.") ====
+   ui.js puts the keys in rows (.krow), as few as fit beside the box and split evenly; the block starts where the box starts
+   (its left margin is set from the box). Every key is 44 × 44 (a longer label, "× 10^", its own width), never stretched; 6 px
+   between keys, 14 px where the operations meet grouping and relations in a row. The look is the keys' own, as before. */
+.keys{display:flex;flex-direction:column;align-items:flex-start;flex-wrap:nowrap;gap:6px}
+.keys .krow{display:flex;flex-wrap:nowrap;gap:6px}
+.keys button{flex:0 0 auto;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;display:inline-grid;place-items:center}
+.keys button.kwide{width:auto;padding:0 10px}
+.keys .krow>.kgap{margin-left:8px}

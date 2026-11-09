@@ -84,7 +84,7 @@ in the code; the four reports are in the Windmill HANDOFF.
 - **Progress:** each device keeps its last 25 sets in its own browser storage. Nothing is sent anywhere.
 - **Made on purpose to be absent:** no Start button, no typing-tip box, no footer, no "Help me solve this", no row of controls
   above question 1 (what to practice, Print and the set number are in the ⋯ menu), no clock in *Check as I go*, no font or
-  anything else from the network.
+  anything else from the network — but for the two calculators, each only once a student opens it (8 Nov 2026, below).
 
 ## The look: mrshaffer.org's family (7 Nov 2026)
 Croix asked *"What would you change about the practice tests?"*, was given five changes, and said *"Ok sounds well thought out.
@@ -123,7 +123,7 @@ Proceed."* The page is a practice test on mrshaffer.org, so it now looks like th
 - **Fonts:** Lexend stays on the sheet (ruling 46 — questions, answers, coach, buttons); the title is the site's DM Serif Display,
   the bar and the eyebrow its DM Sans. All four faces are in `vendor/fonts/` (cut by `make_fonts.py`; SIL OFL 1.1, the licences
   beside them) and `build.py` inlines them as data URIs — the Google Fonts `<link>` is gone; the page loads nothing (`page.js` F
-  fails any request off the page). Lexend's 500 draws as its Regular and 600 as its Bold; no faux weights.
+  fails any request off the page; the calculators, opened only by a student, are part N's — 8 Nov 2026, below). Lexend's 500 draws as its Regular and 600 as its Bold; no faux weights.
 - **A quiet top:** the eyebrow, the title, the points, the unit's `notes` as a small muted line, then the mode toggle and **⋯**.
   ⋯ is a button (`aria-haspopup`, `aria-expanded`) whose menu holds *What to practice*, **Print** and **Set N · Change** — the
   same controls with the same ids and functions as before. Enter opens it with focus inside; Escape, a tap outside, or any of
@@ -246,8 +246,8 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
   Cadence's key (`parts`: "shorter base 11 cm; longer base 16 cm" is two boxes, "Step 3; the correct expression is …" a choice
   of step and a box, a matching grid one choice per row), `mc` or `multi` — and wraps the unit interface (view, judge,
   solution, rungs, walk, key, keyText) so a bank item is answered by it and anything else by the unit, unchanged. So the coach
-  card, first-try scoring, the IDs, the keypad (its own keys: − / a/b ^ ( ) π × √ = < ≤ ≥ >, every one on every lesson item's box; on a phone two even rows of
-  7 at 390 px, using a little of the sheet's margin), Larger text and print work as for
+  card, first-try scoring, the IDs, the keypad (of its own keys − / a/b ^ ( ) π × √ = < ≤ ≥ >, the unit's — the same on every lesson
+  item of the unit; since 8 Nov 2026, "The keypad, even and tidy" below), Larger text and print work as for
   native questions. The ID is **U9·L3·7**: the unit, the lesson, the item's place in the lesson's bank.
 - **The help ladder** for a bank item: Hint 1 · What to notice is the skill's name and the first sentence of Cadence's
   solution; Hint 2 · The first step is the solution's next step (its final "= …" kept back when it would be the answer); Hint 3
@@ -269,8 +269,8 @@ and *"have it pull Cadence questions … Cadence already tracks by unit and less
   of every lesson drawn at 390 px in light and dark — no error, no request, no sideways scroll, every TeX run drawn, a figure
   wherever the item has one, light on dark in dark, its ID; 30 items at random answered through the page with Cadence's key,
   ✓ on the first try; a wrong answer not; the three rungs; a similar one; the end panel; the print keeping the IDs; on a touch
-  screen the keypad's = < ≤ ≥ > (44 px, two rows at 390 px), "<" in at the caret, and an inequality's key typed tight with its
-  sign tapped ("c<-16.5" for U10·L4·58) ✓ on the first try.
+  screen the keypad is the unit's keys (44 px, even rows at 390 px), a key in at the caret, and where the unit has inequalities
+  = < ≤ ≥ > among them and an inequality's key typed tight with its sign tapped ("c<-16.5" for U10·L4·58) ✓ on the first try.
 
 ## A graph the student builds (7 Nov 2026)
 Croix: *"I'd like the practice tests and tests to make them graph inequalities with an open or closed dot and an arrow instead of
@@ -414,6 +414,87 @@ but two ways in.**
   key; Undo; Start over; a flagged kind; a hostile spec drawn clean; offline and back; `?open=tests`. `check/teacher_check.js`
   runs the paper's builders under Node, as before.
 
+## 8 Nov 2026 — the FAST calculator (`calc.js`)
+Croix, of the Desmos scientific calculator students get on the Florida FAST math test: *"if you can get it to load inside the
+practices and practice tests that would be a dream come true."* Then, of Alden Bradford's TI-30Xa emulator: *"I would also like
+this t130xa calculator embedded as well … it should be the same as the desmos."* The ruling: **every practice page and teacher
+copy — the whole practice test, its sections and every lesson set — has a Calculator in its top bar, with the two calculators in
+one panel. They are the kit's only outside requests, each made only when a student opens that calculator:**
+- **FAST (Desmos):** `https://desmosforassessment.cambiumtds.com/TDSCalculator.html?mode=tds_dc_scirestricted`
+- **TI-30Xa:** `https://aldenbradford.com/calculator_emulator/`
+
+Until then the page holds the two addresses as text in `calc.js` and nothing else: no iframe, no link, no prefetch, so a student
+who never opens a calculator makes no request at all (`page.js` F still fails any request off the page in every other flow).
+- **The button** (`#bCalc`, written by `build.py` into the bar's buttons, before Pause and Finish): the bar's own quiet button, a
+  calculator icon and the word on a wide screen, the icon alone on a phone, 44 px, `aria-expanded` and `aria-controls`; open, it
+  has the ink's edge (nothing live about it, so never turquoise).
+- **The panel:** a switch in its header, **FAST (Desmos) | TI-30Xa** (a radiogroup — the arrows move and choose); FAST is the
+  first pick, and the last pick is remembered on the device (`practice.calc.pick`). Each calculator's iframe is made the first
+  time it is picked — `referrerpolicy="no-referrer"`, `title="FAST calculator (Desmos scientific)"` or `"TI-30Xa calculator"`,
+  its exact address — and after that closing only hides the panel and switching only hides the other one, so a student's work
+  in either stays while the page is open. Each has its own natural size: the FAST one 360 × 560, as on the test; the TI-30Xa
+  389 × 636 (the emulator's 315.6 × 600 picture 28 px into its page, with room for a scrollbar). In a short window the FAST one
+  gets shorter (Desmos lays itself out again) and the TI-30Xa is drawn smaller, whole.
+- **The header** holds the title, Close, the switch and an always-visible **Open in a new tab** (`target="_blank"`,
+  `rel="noopener noreferrer"`) to the calculator shown. Whether either site lets itself be framed could not be checked from the
+  build's sandbox, which cannot reach them: if one refuses, its frame shows the browser's error and the link is the way through.
+  Offline (`navigator.onLine` false) one line beside the link says *The calculator needs the internet.*; a frame first opened
+  offline loads again when the device is back online.
+- **Wide screens:** a floating window, as the test's own calculator is — dragged by its header, docked at the right side at
+  first, never over the top bar, its place remembered on the device (`practice.calc.pos`, from its nearer side) and kept on the
+  screen when the window changes size. It floats over the page, as the test's does; a student drags it where it helps.
+- **Phones** (≤ 600 px wide or ≤ 460 px tall): a full-height sheet with Close; the page behind it is inert while it is open.
+- **Keyboard:** opening puts focus on the panel's header; Tab goes Close → the switch → the link → the calculator; Escape (in the
+  panel, or on the button) closes it and gives focus back to the button. The panel and the button are `translate="no"`.
+- **Never printed:** the button and the panel are hidden in `@media print` and never show over a print preview or the teacher's
+  panels; the worksheets, keys and tests print exactly as before.
+- **Embedded, never copied:** each calculator is its author's page in a frame, by its address. No file of either — not the
+  emulator's code (GPL-3.0, github.com/AldenMB/calculator_emulator) nor its photo of the calculator, which is Texas Instruments'
+  — is in Windmill or a course repository. Under the TI-30Xa the panel credits it: *TI-30Xa emulator by Alden Bradford*,
+  linking to its page.
+- **The look:** the ⋯ menu's surface (true dark in dark: a neutral near-black with white words, never navy), the Appearance
+  row's switch, teal ink for the links, DM Sans as the bar. What the calculators draw inside their frames is their own.
+- **Checked:** `check/page.js` part N (`check/calc_page.js`), both addresses answered by small stand-in pages (`page.route`): no
+  iframe and no request to either host before it is picked, and nothing in the built page that could fetch one; the button
+  (44 px, the word on a wide screen, the icon alone on a phone); the FAST frame's exact address, attributes and 360 × 560, asked
+  once with no Referer, docked at the right under the bar; focus on the header; Tab order; Escape back to the button; the same
+  frame again with what was typed in it; the TI-30Xa made only when picked, with its credit, both frames kept through switching
+  and neither loaded again, the new-tab link following the calculator shown, the pick after a reload; dragging (never over the
+  bar, remembered across closing and a reload, kept inside a smaller window); the phone's sheet at 390 (whole screen, the page
+  inert, Close 44 px back to the button); the offline line beside the link; print (neither prints, a worksheet's pages the same
+  with the panel open, nothing over a print preview); true dark; a lesson set. On student pages and teacher copies alike.
+
+## 8 Nov 2026 — the keypad, even and tidy (`ui.js`, `keyset.js`)
+Croix, of an A7 Unit 6 lesson set on his phone: *"Can you fix the symbols across everything so that they are even looking not
+like stretching across the screen. It's sloppy."* His screenshot: a lesson item's fourteen keys (− / a/b ^ ( ) π × √ = < ≤ ≥ >)
+in a row of twelve and a row of two, edge to edge, on a perimeter question. The ruling, for every keypad (practice tests and
+lesson sets, student pages and teacher copies):
+- **Even rows, never ragged.** `ui.js` puts the keys in as few rows as fit between the box's left edge and its row's right edge,
+  and splits them evenly, the longer rows first (14 keys at 390 px in two rows are 7 + 7; 9 are 5 + 4); one row whenever they
+  fit, as on a tablet. Each key keeps its fixed size — 44 × 44, a longer label ("× 10^") its own width — and is never stretched
+  to fill the width; the block starts where the box starts. A turned phone lays the keys out again.
+- **Grouped, in one order:** operations first (− × / a/b ^ √ π), then grouping and relations (( ) = < ≤ ≥ >), 6 px between keys
+  and 14 px where the two groups meet in a row. A unit's own key the kit does not know goes at the end of the operations.
+- **Only the unit's keys.** A lesson item's box shows the keys any answer of its unit can use: the union over the unit's
+  practice-test families (their keys as a student types them, `Unit.keyText`, sets 1–600) and its lesson items from Cadence
+  (each typed part's key), worked out by `keyset.js` when the page is built and inlined as `window.KIT_KEYSET`. Decided per
+  unit, never per question: a key shown only when a question's answer needs it would give the answer away. A symbol brings its
+  family (any of < ≤ ≥ > all four, a fraction bar the fraction template, either parenthesis both), and a key a unit's answers
+  might need is kept. So A7 Unit 6's lesson items have √ alone, and M7 Unit 10's keep − / a/b ( ) = < ≤ ≥ >. The practice
+  test's own boxes keep the unit's own keys for each kind of answer (16 Oct 2026, "Keypad by kind"), in the new order and rows,
+  less any that no answer of the unit uses (`ui.js`: M7 Unit 4's × and /, which none of its answers has; "× 10^" counts as × and
+  ^, "xⁿ" as a power; the decimal point is in `KIT_KEYSET` for this, though it is no lesson item's key; a key the list does not
+  speak of is kept).
+- **Unchanged:** the keypad only on a touch screen, above the box, never covering it or its Check row and never moving it;
+  44 px keys that insert at the caret and are not tab stops; the fraction template; the keys' own look, light and dark.
+- **Checked:** `check/page.js` part O (`check/keys_page.js`): the unit's keys worked out again on their own (sets 1–1500 and every
+  lesson item) and equal to the page's and to a lesson item's keypad; no practice-test key that no answer uses; < ≤ ≥ > wherever
+  the unit has an inequality; at 320, 360, 390, 412 and 768 px on a lesson item's box and the practice test's boxes, rows of
+  even length, as few as fit, one when they fit, starting at the box and ending inside its row, every key 44 × 44 and the same
+  width at every width, the order and the gaps, no sideways scroll; and a lesson item's key typed with its symbols tapped from
+  the keypad, ✓ on the first try.
+  `check/bank.js` F: the unit's keys on a lesson item, even rows at 390, a key at the caret, and an inequality's sign tapped.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -429,8 +510,11 @@ but two ways in.**
 | `check/lock.js` | set stability (see above) |
 | `check/variety.js` | the variety floor (ruling 49): over set numbers 1–20000 every question part comes in at least `floor` versions (unit.json `"variety"`; default 100; `--all` counts all 99,999; `--list` prints every part). A version is the question's numbers and symbols as the page shows them, words left out: a new name, object or letter, or the same choices shuffled, is not a new version. A part that cannot be wider is allowed there, with its reason |
 | `approvals.js` | which kinds of question and lesson items are disapproved, from the site (8 Nov 2026, above); was 7 Nov's `edits.js` |
+| `calc.js` | the Calculator in the top bar: the FAST (Desmos) and TI-30Xa panel, each calculator's frame made only when a student picks it (8 Nov 2026, above) |
+| `keyset.js` | a unit's keys — the keypad keys any of its answers can use — for its lesson items, run by `build.py` under Node (8 Nov 2026, above) |
 | `teacher.js`, `teacher.css` | the teacher copy: the bar, the real test's paper, Tests A and B, Approve questions (8 Nov 2026, above); `teacher.css` is in teacher builds only |
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
+| `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |

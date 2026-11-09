@@ -723,14 +723,58 @@ document.addEventListener('toggle', function(e){ var d = e.target; if (d && d.da
    (pointer: coarse) — a keyboard has these keys. The unit's keys for the box's kind (−, /, ^, ( ), π, ×·, ≤ …), and beside a
    fraction bar the fraction template, which writes ()/() with the caret in the top; each inserts at the caret. 44 px keys,
    above the box in the page's flow, so they never cover the box or its Check row. A unit with no keypad at all gets the
-   kit's: − / a/b ^ ( ) π ×. */
+   kit's: − / a/b ^ ( ) π ×.
+   Even and tidy (8 Nov 2026; Croix, of an A7 Unit 6 lesson set on his phone: "Can you fix the symbols across everything so that
+   they are even looking not like stretching across the screen. It's sloppy."): the keys are in one stable order, operations
+   first (− × / a/b ^ √ π), then grouping and relations (( ) = < ≤ ≥ >), a little more space between the two groups where they
+   share a row; every key keeps its own fixed size (44 × 44, a wider label its own width) and is never stretched; the block
+   starts where the box starts, and the keys go into as few rows as fit beside the box, split evenly (14 keys in two rows are
+   7 + 7, nine are 5 + 4: never a long row and a stray key), one row whenever they fit. A lesson item's keys are the unit's
+   (bank.js, from build.py's KIT_KEYSET): the same on every lesson item of the unit, so a key never hints at an answer; and
+   the practice test's own keys (by kind, as before) are only those an answer of the unit can use. */
 var KEYPAD = (U.keypad == null ? [{label: '−', say: 'minus', ins: function(){ return '-'; }}, {label: '/', say: 'fraction bar'}, {label: '^', say: 'power'}, {label: '(', say: 'open parenthesis'}, {label: ')', say: 'close parenthesis'}, {label: 'π', say: 'pi'}, {label: '×', say: 'times', ins: function(){ return '*'; }}] : U.keypad).slice();
 (function(){ var fi = -1; KEYPAD.forEach(function(k, i){ if (fi < 0 && k.label === '/' && /fraction/i.test(k.say || '')) fi = i; });
   if (fi >= 0 && !KEYPAD.some(function(k){ return k.tpl; })) KEYPAD.splice(fi + 1, 0, {label: 'a/b', say: 'a fraction', tpl: 'frac', kinds: KEYPAD[fi].kinds}); })();
-if (K.Bank) KEYPAD = KEYPAD.concat(K.Bank.keypad);              /* a lesson item's box: its own keys, after the unit's (bank.js) */
+if (K.Bank) KEYPAD = KEYPAD.concat(K.Bank.keypad);              /* a lesson item's box: the unit's keys, after the unit's own (bank.js) */
+/* only the unit's keys (8 Nov 2026): a key no answer of the unit can use is left out (window.KIT_KEYSET, build.py; "× 10^" needs × and ^,
+   "xⁿ" a power, the fraction template a fraction bar); a key the list does not speak of is kept */
+var KSET = window.KIT_KEYSET || null, KNOWN = ['−', '×', '/', 'a/b', '^', '√', 'π', '.', '(', ')', '=', '<', '≤', '≥', '>'];
+function used(k){ if (!KSET) return true; var need = k.label === '× 10^' ? ['×', '^'] : k.label === 'xⁿ' ? ['^'] : [k.label]; return need.every(function(x){ return KNOWN.indexOf(x) < 0 || KSET.indexOf(x) >= 0; }); }
+KEYPAD = KEYPAD.filter(used);
+/* the one order: operations, then grouping and relations; a key the kit does not know goes at the end of the operations */
+var KORDER = ['−', '×', '× 10^', '/', 'a/b', '^', 'xⁿ', '√', 'π', '.', '(', ')', '=', '<', '≤', '≥', '>'], KREL = KORDER.indexOf('(');
+function krank(k){ var i = KORDER.indexOf(k.label); return i < 0 ? KREL - 0.5 : i; }
+KEYPAD = KEYPAD.map(function(k, i){ return [k, i]; }).sort(function(a, b){ return krank(a[0]) - krank(b[0]) || a[1] - b[1]; }).map(function(x){ return x[0]; });
 function coarse(){ try { return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); } catch(e){ return false; } }
 var keys = document.createElement('div'); keys.className = 'keys'; keys.hidden = true;
-KEYPAD.forEach(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else b.textContent = k.label; if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; keys.appendChild(b); });   /* [R1-9] not a tab stop */
+var KEYBTNS = KEYPAD.map(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else { b.textContent = k.label; if (k.label.length > 2) b.className = 'kwide'; } if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; b.dataset.g = krank(k) < KREL ? 'op' : 'rel'; keys.appendChild(b); return b; });   /* [R1-9] not a tab stop */
+/* the rows: the keys this box shows, in as few rows as fit between the box's left edge and the row's right edge, split evenly */
+var KGAP = 6, KGROUP = 14;
+function px(v){ return parseFloat(v) || 0; }
+function layoutKeys(t){
+  var vis = KEYBTNS.filter(function(b){ return !b.hidden; });
+  keys.textContent = ''; var flat = document.createElement('div'); flat.className = 'krow'; keys.appendChild(flat);
+  KEYBTNS.forEach(function(b){ b.classList.remove('kgap'); flat.appendChild(b); });
+  keys.style.marginLeft = '0px';
+  var host = keys.parentNode, hr = host.getBoundingClientRect(), hs = getComputedStyle(host), x0 = hr.left + px(hs.paddingLeft) + px(hs.borderLeftWidth);
+  var ir = t.getBoundingClientRect(), row = t.closest('.ans') || t.parentNode, rr = row.getBoundingClientRect();
+  var left = Math.max(0, Math.round(ir.left - x0)); keys.style.marginLeft = left + 'px';
+  var W = Math.floor(Math.min(Math.max(rr.right, ir.right), x0 + host.clientWidth - px(hs.paddingLeft) - px(hs.paddingRight)) - (x0 + left));
+  var w = vis.map(function(b){ return b.getBoundingClientRect().width; }), g = vis.map(function(b){ return b.dataset.g; }), n = vis.length;
+  var fits = function(a, z){ var s = 0; for (var i = a; i < z; i++) s += w[i] + (i > a ? (g[i] !== g[i - 1] ? KGROUP : KGAP) : 0); return s <= W + 0.5; };
+  var sizes = [n];
+  for (var r = 1; r <= n; r++){
+    var q = Math.floor(n / r), extra = n % r, sz = [], a = 0, ok = true;
+    for (var j = 0; j < r; j++) sz.push(q + (j < extra ? 1 : 0));
+    for (j = 0; j < r && ok; j++){ ok = fits(a, a + sz[j]); a += sz[j]; }
+    sizes = sz; if (ok) break;
+  }
+  keys.textContent = ''; var at = 0;
+  sizes.forEach(function(m){ var rw = document.createElement('div'); rw.className = 'krow';
+    for (var i = at; i < at + m; i++){ if (i > at && g[i] !== g[i - 1]) vis[i].classList.add('kgap'); rw.appendChild(vis[i]); }
+    at += m; keys.appendChild(rw); });
+  var last = keys.lastChild || keys.appendChild(document.createElement('div')); KEYBTNS.forEach(function(b){ if (b.hidden) last.appendChild(b); });   /* the keys this box does not show stay in the keypad */
+}
 keys.addEventListener('pointerdown', function(e){ var kb = e.target.closest && e.target.closest('[data-k]'); if (kb) e.preventDefault(); });
 keys.addEventListener('click', function(e){
   var kb = e.target.closest && e.target.closest('[data-k]'), lab = kb && kb.dataset.k, el = keys.target; if (!lab || !el || el.readOnly) return;
@@ -750,13 +794,15 @@ document.addEventListener('focusin', function(e){
   if (keys.target === t && !keys.hidden) return;
   /* only the keys this kind of answer uses (a unit's keypad entry may name its kinds); none → no keypad */
   var kind = t.dataset.kind || '', shown = 0;
-  keys.classList.toggle('kbank', kind === 'bank');                                           /* a lesson item's 14 keys: two even rows on a phone (kit.css) */
-  Array.prototype.forEach.call(keys.children, function(b){ var ks = b.dataset.kinds; b.hidden = kind === 'bank' ? !(ks && ks.split(' ').indexOf('bank') >= 0) : !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
+  KEYBTNS.forEach(function(b){ var ks = b.dataset.kinds; b.hidden = kind === 'bank' ? !(ks && ks.split(' ').indexOf('bank') >= 0) : !!ks && ks.split(' ').indexOf(kind) < 0; if (!b.hidden) shown++; });
   if (!shown){ hideKeys(); keys.target = null; return; }
   var y0 = t.getBoundingClientRect().top;
   var row = t.closest('.ans') || t.parentNode; keys.target = t; row.parentNode.insertBefore(keys, row); keys.hidden = false;
+  layoutKeys(t);
   var dy = t.getBoundingClientRect().top - y0; if (dy) window.scrollBy(0, dy);
 });
+/* a turned phone or a resized window: the same keys, laid out again for the new width, the box kept where it was */
+window.addEventListener('resize', function(){ var t = keys.target; if (keys.hidden || !t || !document.body.contains(t)) return; var y0 = t.getBoundingClientRect().top; layoutKeys(t); var dy = t.getBoundingClientRect().top - y0; if (dy) window.scrollBy(0, dy); });
 function hideKeys(){ if (keys.hidden) return; var a = document.activeElement, y0 = a && a.getBoundingClientRect ? a.getBoundingClientRect().top : null; keys.hidden = true; if (y0 != null){ var dy = a.getBoundingClientRect().top - y0; if (dy) window.scrollBy(0, dy); } }
 document.addEventListener('input', function(e){
   var t = e.target;

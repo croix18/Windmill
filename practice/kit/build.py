@@ -10,7 +10,7 @@ and writes, in the unit folder:
               Netlify Drop, or opening locally.
 Order: kit/core.js, kit/bilingual.js, kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
 end with test.js and kit/teacher.js), the lesson bank and kit/bank.js (if any), kit/approvals.js (the disapproved questions, from the
-site, 8 Nov 2026), kit/ui.js. A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
+site, 8 Nov 2026), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
 import re
 import hashlib, json, os, sys
@@ -21,7 +21,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 
@@ -64,10 +64,21 @@ def bank_script():
         les[lid] = {"title": L["title"], "skills": [L["labels"].get(c, "") for c in codes], "items": items}
     m = {"order": mp["order"], "lessons": {c: {k: r[k] for k in ("status", "cadence", "title") if k in r} for c, r in mp["lessons"].items()}}
     dump = lambda x: json.dumps(x, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    return f"<script>window.CADENCE_BANK={dump({'unit': bank['unit'], 'lessons': les})};window.CADENCE_MAP={dump(m)};</script>\n"
+    return f"<script>window.CADENCE_BANK={dump({'unit': bank['unit'], 'lessons': les})};window.CADENCE_MAP={dump(m)};window.KIT_KEYSET={dump(keyset())};</script>\n"
+# a lesson item's keys (8 Nov 2026; Croix: "Can you fix the symbols across everything so that they are even looking not like
+# stretching across the screen. It's sloppy."): the unit's keys — the keys any answer of the unit can use, its practice-test
+# families and its lesson items alike (kit/keyset.js, under Node, as the checks run the unit) — never all fourteen everywhere
+def keyset():
+    import subprocess
+    r = subprocess.run(["node", os.path.join(KIT, "keyset.js"), UD], capture_output=True, text=True)
+    try: ks = json.loads(r.stdout)
+    except ValueError: ks = None
+    if r.returncode or not isinstance(ks, list): sys.exit("REFUSED: the unit's keys could not be worked out (kit/keyset.js): " + (r.stderr or r.stdout).strip()[:300])
+    return ks
 # the page's own fonts (7 Nov 2026, the site review: the page joins mrshaffer.org's family — Croix: "Ok sounds well thought
 # out. Proceed."): Lexend for the sheet (ruling 46), DM Serif Display for the title, DM Sans for the bar and the eyebrow.
-# Inlined as data URIs, never a <link>: the page is a claude.ai artifact and a Google Sites download too, and loads nothing.
+# Inlined as data URIs, never a <link>: the page is a claude.ai artifact and a Google Sites download too, and loads nothing
+# (the one exception: a calculator, its author's page in a frame, when a student opens it — calc.js, 8 Nov 2026).
 FONTS = [("Lexend", "400", "lexend-regular.woff2", "100 549"), ("Lexend", "700", "lexend-bold.woff2", "550 900"),
          ("DM Sans", "400 700", "dm-sans.woff2", "400 700"), ("DM Serif Display", "400", "dm-serif-display.woff2", "400")]
 def fonts_css():
@@ -116,7 +127,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
   <a class="back" id="back" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="backl">Unit</span></a>
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
   <div class="score" id="score"></div>
-  <div class="btns"><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
+  <div class="btns"><button type="button" class="calcb" id="bCalc" aria-expanded="false" aria-label="Calculator" translate="no"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.75" width="14" height="18.5" rx="2.6"/><rect x="8" y="5.75" width="8" height="3.5" rx=".9"/><circle class="kd" cx="8.9" cy="12.7" r="1.05"/><circle class="kd" cx="12" cy="12.7" r="1.05"/><circle class="kd" cx="15.1" cy="12.7" r="1.05"/><circle class="kd" cx="8.9" cy="16.7" r="1.05"/><circle class="kd" cx="12" cy="16.7" r="1.05"/><circle class="kd" cx="15.1" cy="16.7" r="1.05"/></svg><span class="cw">Calculator</span></button><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
   <div class="confirm" id="confirm" role="alertdialog" aria-live="assertive" hidden></div>
 </div><div class="qbar"><span class="qof" id="qof"></span><span class="bar" aria-hidden="true"><i id="prog"></i></span></div></div>
 <div class="result" id="result" hidden></div>
@@ -137,7 +148,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <script>{rk('core.js')}</script>
 <script>{rk('nline.js')}</script>
 <script>{rk('bilingual.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('ui.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
 # holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
 tf = os.path.join(UD, "test_forms.js")

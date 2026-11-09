@@ -664,7 +664,9 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     tc.on('request', r => { const u = r.url(); if (!/^(http:\/\/127\.0\.0\.1|data:|blob:|about:)/.test(u)) netAsked.push(u); }); t.on('pageerror', e => errs.push(e.message));
     await fresh(t, 4821);
     if (!(await t.evaluate(() => matchMedia('(pointer: coarse)').matches))) fail('keypad check: the touch context is not pointer: coarse');
-    const KP = (U.keypad || []).length;
+    /* the unit's own keys that an answer of the unit uses (8 Nov 2026: ui.js leaves the others out — kit/keyset.js, KIT_KEYSET) */
+    const KS = await t.evaluate(() => window.KIT_KEYSET || null), KN = ['−', '×', '/', 'a/b', '^', '√', 'π', '.', '(', ')', '=', '<', '≤', '≥', '>'];
+    const KP = (U.keypad || []).filter(k => !KS || (k.label === '× 10^' ? ['×', '^'] : k.label === 'xⁿ' ? ['^'] : [k.label]).every(x => KN.indexOf(x) < 0 || KS.indexOf(x) >= 0)).length;
     const boxes = itemsOf(4821).filter(i => i.kind === 'text');
     let tested = false;
     for (const it of boxes) {
@@ -973,6 +975,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* L. approvals (approvals.js, 8 Nov 2026) and M. the teacher copy's Tests A and B (teacher.js), against a mocked site (page.route) */
   await require('./approve_page.js')(b, url, U, dir, fail);
   if (/^teacher$/.test(path.basename(dir))) await require('./tests_page.js')(b, url, U, dir, fail);
+  /* N. the calculators (calc.js, 8 Nov 2026): the FAST one and the TI-30Xa, both addresses answered by stand-ins (page.route) */
+  await require('./calc_page.js')(b, url, U, dir, fail);
+  /* O. the keypad, even and tidy, with the unit's keys (8 Nov 2026) */
+  await require('./keys_page.js')(b, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

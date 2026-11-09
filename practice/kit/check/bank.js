@@ -202,8 +202,11 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
     p._errs.forEach(e => fail('D: ' + e));
     await p.close(); }
   /* F. the keypad of a lesson item on a touch screen (7 Nov 2026, Croix on his phone at U10·L4·58 "c/−5 > 3.3": "I can't
-     answer that" — the keys had ≤ ≥ but no < or >): = < ≤ ≥ > shown with the rest, 44 px, two rows at 390 px; "<" taps in
-     at the caret; and an inequality's (or an equation's) key typed with its sign tapped from the keypad is ✓ first try */
+     answer that" — the keys had ≤ ≥ but no < or >). Since 8 Nov 2026 (Croix: "Can you fix the symbols across everything so that
+     they are even looking not like stretching across the screen. It's sloppy.") a lesson item's keys are the unit's (kit/keyset.js,
+     the page's KIT_KEYSET; check/keys_page.js works them out again): exactly those, 44 px, in even rows at 390 px; a key taps in
+     at the caret; and where the unit has them, an inequality's (or an equation's) key typed with its sign tapped from the keypad
+     is ✓ first try (= < ≤ ≥ > are on the keypad of a unit with inequalities) */
   let kpad = '';
   { const one = x => x.answer.kind === 'free' && x.answer.parts.length === 1 && scopeFor(x.lesson);
     const rel = x => (/(<=|>=|≤|≥|<|>|=)/.exec(String(x.answer.parts[0].key)) || [])[1];
@@ -214,20 +217,26 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
       const id = await p.evaluate(() => document.querySelector('#paper [data-host]').dataset.host);
       await p.evaluate(id => { const e = document.getElementById('a' + id); e.scrollIntoView({ block: 'center' }); e.focus(); }, id); await p.waitForTimeout(60);
       const k = await p.evaluate(() => { const kk = document.querySelector('.keys'); if (!kk || kk.hidden || !kk.offsetParent) return null;
-        const v = [...kk.querySelectorAll('button')].filter(b => !b.hidden && b.offsetParent);
+        const v = [...kk.querySelectorAll('button')].filter(b => !b.hidden && b.offsetParent), rows = {};
+        v.forEach(b => { const t = Math.round(b.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
         return { labels: v.map(b => b.dataset.k), small: v.filter(b => b.getBoundingClientRect().width < 44 || b.getBoundingClientRect().height < 44).length,
-          rows: new Set(v.map(b => Math.round(b.getBoundingClientRect().top))).size, sw: document.documentElement.scrollWidth }; });
-      if (!k) fail('F: no keypad on ' + idOf(xk) + ' on a touch screen');
+          rows: Object.keys(rows).sort((a, b) => a - b).map(t => rows[t]), sw: document.documentElement.scrollWidth, set: window.KIT_KEYSET || null }; });
+      const set = await p.evaluate(() => window.KIT_KEYSET ? window.KIT_KEYSET.filter(k => k !== '.') : null);   /* the decimal point is no lesson item's key */
+      if (!set) fail('F: the page has no KIT_KEYSET (the unit\'s keys, build.py)');
+      else if (!set.length) { if (k) fail('F: the unit\'s answers use no keypad key, yet ' + idOf(xk) + ' shows ' + k.labels.join(' ')); else kpad = '(none: the unit\'s answers need no keypad key)'; }
+      else if (!k) fail('F: no keypad on ' + idOf(xk) + ' on a touch screen');
       else { kpad = k.labels.join(' ');
-        ['=', '<', '≤', '≥', '>'].forEach(l => { if (k.labels.indexOf(l) < 0) fail('F: the keypad of ' + idOf(xk) + ' has no "' + l + '" (' + kpad + ')'); });
+        if (JSON.stringify([...k.labels].sort()) !== JSON.stringify([...set].sort())) fail('F: the keypad of ' + idOf(xk) + ' is ' + kpad + ', not the unit\'s keys ' + set.join(' '));
+        if (set.indexOf('<') >= 0) ['=', '<', '≤', '≥', '>'].forEach(l => { if (set.indexOf(l) >= 0 && k.labels.indexOf(l) < 0) fail('F: the keypad of ' + idOf(xk) + ' has no "' + l + '" (' + kpad + ')'); });
         if (k.labels.indexOf('<') > k.labels.indexOf('≤') || k.labels.indexOf('≥') > k.labels.indexOf('>')) fail('F: the keys are not in the order < ≤ ≥ > (' + kpad + ')');
-        if (k.small) fail('F: ' + k.small + ' keys under 44 px'); if (k.rows > 2) fail('F: the keypad is ' + k.rows + ' rows at 390 px'); if (k.sw > 390) fail('F: the keypad makes the page scroll sideways (' + k.sw + ' px)');
-        await p.evaluate(id => { const e = document.getElementById('a' + id); e.value = 'ab'; e.setSelectionRange(1, 1); }, id);
-        await p.click('.keys button[data-k="<"]:not([hidden])'); const got = await p.$eval('#a' + id, e => [e.value, e.selectionStart, document.activeElement === e]);
-        if (got[0] !== 'a<b' || got[1] !== 2 || !got[2]) fail('F: "<" at the caret gave ' + JSON.stringify(got) + ', not ["a<b",2,true]');
+        if (k.small) fail('F: ' + k.small + ' keys under 44 px'); if (Math.max(...k.rows) - Math.min(...k.rows) > 1 || k.rows.some((n, i) => i && n > k.rows[i - 1])) fail('F: the keypad\'s rows are uneven at 390 px: ' + k.rows.join(' + ')); if (k.sw > 390) fail('F: the keypad makes the page scroll sideways (' + k.sw + ' px)');
+        const lab = k.labels.find(l => l !== 'a/b'), ins = lab === '−' ? '-' : lab === '×' ? '*' : lab;
+        if (lab) { await p.evaluate(id => { const e = document.getElementById('a' + id); e.value = 'ab'; e.setSelectionRange(1, 1); }, id);
+          await p.click('.keys button[data-k="' + lab + '"]:not([hidden])'); const got = await p.$eval('#a' + id, e => [e.value, e.selectionStart, document.activeElement === e]);
+          if (got[0] !== 'a' + ins + 'b' || got[1] !== 1 + ins.length || !got[2]) fail('F: "' + lab + '" at the caret gave ' + JSON.stringify(got) + ', not ' + JSON.stringify(['a' + ins + 'b', 1 + ins.length, true])); }
         /* the key without its spaces ("c<-16.5"), its sign tapped from the keypad */
         const key = String(xk.answer.parts[0].key), r = rel(xk), tight = key.replace(/\s+/g, '').replace('<=', '≤').replace('>=', '≥');
-        if (r) { const sign = r === '<=' ? '≤' : r === '>=' ? '≥' : r, at = tight.indexOf(sign);
+        if (r && set.indexOf(r === '<=' ? '≤' : r === '>=' ? '≥' : r) >= 0) { const sign = r === '<=' ? '≤' : r === '>=' ? '≥' : r, at = tight.indexOf(sign);
           await p.fill('#a' + id, tight.slice(0, at)); await p.evaluate(id => { const e = document.getElementById('a' + id); e.setSelectionRange(e.value.length, e.value.length); }, id);
           await p.click('.keys button[data-k="' + sign + '"]:not([hidden])'); await p.type('#a' + id, tight.slice(at + 1));
           const typed = await p.$eval('#a' + id, e => e.value); if (typed !== tight) fail('F: typed "' + typed + '", not "' + tight + '"');
