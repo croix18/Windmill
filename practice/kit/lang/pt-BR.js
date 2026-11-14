@@ -114,6 +114,9 @@ var T = {
   'Question # of #': 'Questão # de #',
   /* one question at a time (pager.js, 14 Nov 2026): the number, the flag, Back and Next, the map, the list after Finish (a question's Right, Not right or Blank stays in English, as its ✓ or ✗ says it) */
   'Flag for review': 'Marcar para revisão',
+  'Start': 'Começar',
+  'Keep going': 'Continuar',
+  'Answered so far: # of #': 'Respondidas até agora: # de #',
   'Back': 'Voltar',
   'Next': 'Próxima',
   'Score summary': 'Resumo da nota',

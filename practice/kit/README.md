@@ -579,6 +579,14 @@ My misses and every lesson set — shows one question at a time**, in the releas
   turquoise ring on the one on the screen, each labelled ("Question 2, answered, flagged"). On a phone (≤ 600 px) it is a
   drawer, one line until opened — "Questions: 5 of 16 answered, 1 flagged".
 - **Check as I go** marks on the question's own screen, as before; **Like the real test** says nothing until Finish.
+- **A start, then the question alone** (Croix, 14 Nov 2026: "Yeah let's build it!"): the page's header — the title, the
+  practice chip, the unit's typing tip, how to practice and the ⋯ menu — shows once, on a start screen with **Start** (**Keep
+  going** and "Answered so far: 3 of 17" when the set has answers). Then each screen is the question card: how to practice and
+  the ⋯ menu sit at the top of the map card under it, and the typing tip is also at the top of the ⋯ menu. A lesson link opens
+  its first question past the start; a set opened from inside the page (Try a new set, Practice my misses) opens question 1.
+- **One readout, no section totals on a question's screen:** the question's number on its card and the map's count; the bar
+  keeps its score line and thin progress line, not "Question 4 of 16" too. The section's name stays over the question; its
+  total ("14 points") is hidden there, as each question says its own "1 pt". Print and the summary are unchanged.
 - **One way forward** (Croix, 14 Nov 2026: "I don't want sloppy work"): the coach's Next ↓ after a right answer and its Move on
   after a miss are not shown with the pager — its Next does what they did (the next question not right yet, the focus in its
   box) and takes the focus after a right answer; otherwise it opens the next question. The end panel's "Not right yet" links
@@ -607,6 +615,12 @@ My misses and every lesson set — shows one question at a time**, in the releas
   and Português for the pager's words. **Parts A–Q check what they always have with every question on one screen:** the
   checks' switch, `window.KIT_PAGER_OFF`, set in every browser context before a page loads by `check/page.js` and
   `check/bank.js` (nothing on a page sets it), leaves the page exactly as it was before the pager.
+
+## 14 Nov 2026 — every choice of a question in one type (`check/mctype.js`)
+M7 Unit 10 question 6 set "m > −16.5" as plain text beside "m > −4/3" typeset. A choice that is only math and carries math
+markup (a variable, a fraction, a power, a root) is one math span, which tex.js sets in KaTeX, and the math-only choices of a
+question are all math spans or none; a sentence may carry math inside it. The cause was the unit's content (M7 Unit 10
+`unit.js` `view.opt`, family mcFrac); `check/mctype.js` (page.js part S) holds every unit to it over sets 1–300.
 
 ## Files
 | Kit (`practice/kit/`) | |

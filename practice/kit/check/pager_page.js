@@ -1,6 +1,9 @@
 /* Practice-test kit, page.js part R: one question at a time, as on the FAST (pager.js, 14 Nov 2026), as students have it — the
    checks' switch (window.KIT_PAGER_OFF, which parts A–Q set) is off here. On the whole test and on a lesson set:
-   - one question on the screen, its number ("Question 4 of 16", in the bar too), Back and Next, focus on the question's number
+   - a start screen with the header once (Start; Keep going when the set has answers), then the question alone — the mode switch
+     and the ⋯ menu under it, the typing tip in the ⋯ menu, one progress readout (the number, not the bar too), the section's
+     name without its total;
+   - one question on the screen, its number ("Question 4 of 16"), Back and Next, focus on the question's number
      after each; the map: a labelled button per question ("Question 2, answered, flagged"), the one on screen marked;
    - Flag for review; the question and the flags, with the answers, after a reload (the set's own saved record);
    - a coach's Next ↓ and Move on open the question they go to, with the focus in its box, as before;
@@ -43,10 +46,13 @@ module.exports = async function (newContext, url, U, dir, fail) {
       sum: document.body.classList.contains('pg-sum'), rev: document.body.classList.contains('pg-rev'), result: vis($('result')), paper: vis($('paper')),
       back: vis($('pgBack')), map: vis(document.querySelector('.pgmap')), grid: vis($('pgGrid')), chip: vis($('pgChip')) ? $('pgChip').textContent : '',
       rows: [...document.querySelectorAll('#pgRows .pgrow')].map(r => r.className.replace(/^pgrow /, '')), sx: document.documentElement.scrollWidth - window.innerWidth,
-      fbs: [...document.querySelectorAll('#paper .fb')].map(f => f.innerText.trim()).filter(Boolean).length, score: $('score').textContent };
+      fbs: [...document.querySelectorAll('#paper .fb')].map(f => f.innerText.trim()).filter(Boolean).length, score: $('score').textContent,
+      start: vis($('pgStart')), startWord: own('pgStart'), h1: vis($('h1')), intro: vis($('intro')), ctlInMap: !!document.querySelector('.pgmap > .ctl') && vis(document.querySelector('.pgmap > .ctl')),
+      qofVis: vis($('qof')), pts: on ? [...on.closest('section.part').querySelectorAll('.sechead .pts')].some(vis) : null, secName: on ? vis(on.closest('section.part').querySelector('.sechead h2')) : null };
   });
   const fresh = async (p, hash) => { await p.goto(url + hash); await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await p.goto('about:blank'); await p.goto(url + hash); await p.waitForTimeout(200); };
   const tap = async (p, sel) => { await p.click(sel); await p.waitForTimeout(60); };
+  const begin = async p => { if (await p.isVisible('#pgStart')) await tap(p, '#pgStart'); };
   const finish = async p => { await tap(p, '#bFinish'); await tap(p, '#cy'); };
   const errs = [];
   const ctx = await newContext({ viewport: { width: 1280, height: 800 } }), p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
@@ -55,13 +61,20 @@ module.exports = async function (newContext, url, U, dir, fail) {
   const Q = byQ(11), N = Object.keys(Q).length;
   await fresh(p, '#set-11');
   let L = await look(p);
+  /* the start: the header once, with Start; then the question alone — the controls under it, one readout, no section total */
+  if (!L.start || L.startWord !== 'Start' || !L.h1 || L.paper || L.shown.length) F('the first screen is not the start: ' + JSON.stringify({ start: L.start, word: L.startWord, h1: L.h1, paper: L.paper }));
+  await tap(p, '#pgStart'); L = await look(p);
+  if (L.h1 || L.intro || !L.ctlInMap || L.focus !== 'pgQ') F('after Start the header is still over the question, or the controls are not under it: ' + JSON.stringify({ h1: L.h1, intro: L.intro, ctlInMap: L.ctlInMap, focus: L.focus }));
+  if (L.qofVis) F('two progress readouts: the bar still says "' + L.qof + '" over the question’s number');
+  if (L.pts || !L.secName) F('the section’s total over a one-question screen: total ' + L.pts + ', name ' + L.secName);
+  if (U.notes && U.notes.length && !(await p.$('#mMenu .pgtip .pinote'))) F('the unit’s typing tip is not in the ⋯ menu');
   if (L.n !== N) F('set 11 has ' + L.n + ' questions on the page, the unit draws ' + N);
-  if (L.shown.join() !== '1' || L.badge !== 'Question 1 of ' + N || L.qof !== 'Question 1 of ' + N || L.cur !== 0 || !L.prevOff || L.next !== 'Next' || !L.map)
+  if (L.shown.join() !== '1' || L.badge !== 'Question 1 of ' + N || L.cur !== 0 || !L.prevOff || L.next !== 'Next' || !L.map)
     F('the first screen is not question 1 alone: ' + JSON.stringify({ shown: L.shown, badge: L.badge, qof: L.qof, cur: L.cur, prevOff: L.prevOff, next: L.next, map: L.map }));
   if (L.labels.length !== N || L.labels.some((t, i) => t !== 'Question ' + (i + 1) + ', not answered')) F('the map’s labels: ' + L.labels.slice(0, 3).join(' | '));
   if (L.secs !== 1) F(L.secs + ' sections on the screen');
   await tap(p, '#pgNext'); L = await look(p);
-  if (L.shown.join() !== '2' || L.badge !== 'Question 2 of ' + N || L.qof !== 'Question 2 of ' + N || L.focus !== 'pgQ' || L.cur !== 1) F('Next did not open question 2 with the focus on its number: ' + JSON.stringify(L).slice(0, 300));
+  if (L.shown.join() !== '2' || L.badge !== 'Question 2 of ' + N || L.focus !== 'pgQ' || L.cur !== 1) F('Next did not open question 2 with the focus on its number: ' + JSON.stringify(L).slice(0, 300));
   for (const it of Q[2]) await answer(p, it); await p.waitForTimeout(80);
   L = await look(p); if (L.labels[1] !== 'Question 2, answered') F('question 2 answered, the map says "' + L.labels[1] + '"');
   await tap(p, '#pgFlag'); L = await look(p);
@@ -71,6 +84,8 @@ module.exports = async function (newContext, url, U, dir, fail) {
   await tap(p, '#pgPrev'); L = await look(p);
   if (L.shown.join() !== String(Math.min(4, N - 1)) || L.focus !== 'pgQ') F('Back did not open the question before');
   await p.reload(); await p.waitForTimeout(250); L = await look(p);
+  if (!L.start || L.startWord !== 'Keep going') F('a set with answers reopens on "' + L.startWord + '", not Keep going');
+  await begin(p); L = await look(p);
   if (L.shown.join() !== String(Math.min(4, N - 1)) || L.labels[1] !== 'Question 2, answered, flagged') F('after a reload: question ' + L.shown.join() + ' on the screen, the map says "' + L.labels[1] + '"');
   /* a coach's Next ↓ after a right answer opens the next question not right yet, the focus in its box */
   await tap(p, '#pgGrid [data-pgi="1"]');
@@ -90,7 +105,7 @@ module.exports = async function (newContext, url, U, dir, fail) {
   /* every key typed through the pager, Next to the end, Finish there: every point, then the summary and a question reviewed */
   if (!teacher) {
     const Q2 = byQ(4821), N2 = Object.keys(Q2).length; let parts = 0;
-    await fresh(p, '#set-4821');
+    await fresh(p, '#set-4821'); await begin(p);
     for (let q = 1; q <= N2; q++) {
       L = await look(p); if (L.shown.join() !== String(q)) { F('stepping through set 4821: question ' + L.shown.join() + ' where ' + q + ' was due'); break; }
       for (const it of Q2[q]) { await answer(p, it); await check(p, it.id); parts++; }
@@ -109,7 +124,7 @@ module.exports = async function (newContext, url, U, dir, fail) {
     await p.reload(); await p.waitForTimeout(250); L = await look(p); if (!L.sum) F('a finished set reloads to its question, not its summary');
   }
   /* Like the real test: nothing marked before Finish; then Not right and Blank */
-  await fresh(p, '#set-12'); await tap(p, '.mode [data-mode="test"]');
+  await fresh(p, '#set-12'); await tap(p, '.mode [data-mode="test"]'); await begin(p);
   { const Q3 = byQ(12), first = Q3[1][0];
     if (first.kind === 'text') await p.fill('#a' + first.id, '987654'); else await answer(p, first);
     await tap(p, '#pgNext'); await tap(p, '#pgPrev');
@@ -123,20 +138,22 @@ module.exports = async function (newContext, url, U, dir, fail) {
   if (lessons.length) {
     await fresh(p, '#' + lessons[0]); L = await look(p);
     const M = L.n;
+    if (L.start) F('#' + lessons[0] + ' stopped at the start screen');
     if (!M || L.shown.join() !== '1' || L.badge !== 'Question 1 of ' + M || L.labels.length !== M) F('#' + lessons[0] + ' did not open its first question: ' + JSON.stringify({ shown: L.shown, badge: L.badge, n: M }));
-    await tap(p, '#pgNext'); await tap(p, '#pgFlag'); await p.reload(); await p.waitForTimeout(250); L = await look(p);
+    await tap(p, '#pgNext'); await tap(p, '#pgFlag'); await p.reload(); await p.waitForTimeout(250); await begin(p); L = await look(p);
     if (L.shown.join() !== '2' || L.flag !== 'true') F('a lesson set after a reload: question ' + L.shown.join() + ', flag ' + L.flag);
     await finish(p); L = await look(p);
     if (!L.sum || L.rows.length !== M) F('a lesson set’s summary: ' + L.rows.length + ' rows for ' + M + ' questions');
     await tap(p, '#pgRows [data-pgr="1"]'); L = await look(p); if (!L.rev || L.shown.join() !== '2') F('a lesson question opened from the summary: ' + L.shown.join());
   }
   /* print: every question and section, none of the pager; a print preview or a teacher's view hides the map */
-  await fresh(p, '#set-11'); await tap(p, '#pgNext');
+  await fresh(p, '#set-11'); await begin(p); await tap(p, '#pgNext');
   await p.emulateMedia({ media: 'print' });
   { const r = await p.evaluate(() => { const vis = e => getComputedStyle(e).display !== 'none';
       return { cards: [...document.querySelectorAll('#paper .q[data-q]:not(.xq)')].filter(vis).length, secs: [...document.querySelectorAll('#paper section.part')].filter(vis).length,
-        all: document.querySelectorAll('#paper section.part').length, chrome: [...document.querySelectorAll('.pghead,.pgnav,.pgmap,.pglist')].filter(vis).length }; });
-    if (r.cards !== N || r.secs !== r.all || r.chrome) F('print: ' + JSON.stringify(r)); }
+        all: document.querySelectorAll('#paper section.part').length, chrome: [...document.querySelectorAll('.pghead,.pgnav,.pgmap,.pglist,.pgstart')].filter(vis).length,
+        pts: [...document.querySelectorAll('#paper .sechead .pts')].filter(vis).length, h1: vis(document.getElementById('h1')) }; });
+    if (r.cards !== N || r.secs !== r.all || r.chrome || r.pts !== r.all || !r.h1) F('print: ' + JSON.stringify(r)); }
   await p.emulateMedia({ media: 'screen' });
   for (const c of teacher ? ['printing', 'tview'] : ['printing']) { const shown = await p.evaluate(c => { document.body.classList.add(c); const v = getComputedStyle(document.querySelector('.pgmap')).display !== 'none'; document.body.classList.remove(c); return v; }, c);
     if (shown) F('the map shows over ' + (c === 'tview' ? 'a teacher’s view' : 'a print preview')); }
@@ -153,7 +170,7 @@ module.exports = async function (newContext, url, U, dir, fail) {
   /* a phone: no sideways scroll, every figure inside the screen, the map a drawer, 44 px targets — the test and a lesson set */
   const pc = await newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }), m = await pc.newPage(); m.on('pageerror', e => errs.push(e.message));
   for (const hash of ['#set-4821'].concat(lessons.length && !teacher ? ['#' + lessons[lessons.length - 1]] : [])) {
-    await fresh(m, hash); const n = (await look(m)).n;
+    await fresh(m, hash); if (await m.isVisible('#pgStart')) await m.tap('#pgStart'); const n = (await look(m)).n;
     for (let q = 1; q <= n; q++) {
       const r = await m.evaluate(() => { const on = [...document.querySelectorAll('#paper .q[data-q]:not(.xq)')].find(c => getComputedStyle(c).display !== 'none');
         const out = [...on.querySelectorAll('svg, img, table, canvas')].filter(e => e.getClientRects().length && !e.closest('.tw, .keys, [hidden]')).map(e => e.getBoundingClientRect()).filter(b => b.width && (b.right > innerWidth + 0.5 || b.left < -0.5)).length;

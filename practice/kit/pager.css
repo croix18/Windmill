@@ -14,6 +14,14 @@
   body.pg.pg-sum #paper,body.pg.pg-sum .pghead,body.pg.pg-sum .pgnav,body.pg.pg-done .pgmap,body.pg.pg-none .pghead,body.pg.pg-none .pgnav,body.pg.pg-none .pgmap{display:none}
   body.pg:not(.pg-sum) .pglist{display:none}
   body.pg.pg-rev>.result{display:none}
+  /* the start, then the question alone (14 Nov 2026): the header once; one readout in the bar; a section's name without its total */
+  body.pg.pg-start #paper,body.pg.pg-start .pghead,body.pg.pg-start .pgnav,body.pg.pg-start .pgmap{display:none}
+  body.pg:not(.pg-start) .pgstart{display:none}
+  body.pg.pg-q main.sheet>.head,body.pg.pg-q main.sheet>#intro{display:none}
+  body.pg.pg-q .pghead{margin-top:0;padding-top:0;border-top:0}
+  body.pg #qof{display:none}
+  body.pg.pg-rev main.sheet>.ctl{display:none}
+  body.pg #paper .sechead .pts{display:none}
   body.pg #paper [data-next],body.pg #paper [data-moveon]{display:none!important}   /* one way forward: the pager's Next (pager.js) */
   body.pg.pg-sum .qbar{visibility:hidden}                         /* the summary has no question on screen */
 }
@@ -90,3 +98,14 @@
 .pgrv{font:600 13.5px/1.2 var(--chrome);white-space:nowrap} .pgrow.ok .pgrv{color:var(--ok)} .pgrow.no .pgrv,.pgrow.na .pgrv{color:var(--no)}
 .pgchev{width:16px;height:16px;background:var(--mut);-webkit-mask:var(--pgR) center/contain no-repeat;mask:var(--pgR) center/contain no-repeat}
 @media (max-width:400px){ .pgrow{gap:8px;grid-template-columns:24px 1.6rem minmax(0,1fr) auto 14px} }
+
+/* the start: Start (or Keep going, with how far the set is) under the header */
+.pgstart{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
+.pgstart .go{min-height:48px;min-width:10rem;padding:12px 22px;border-radius:10px;font:600 16px/1.2 var(--chrome)}
+.pgresume{margin:0;flex:1 1 100%;font:500 15px/1.4 var(--chrome);color:var(--ink)}
+/* how to practice and the ⋯ menu at the top of the map card, under the question */
+.pgmap>.ctl{margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid var(--rule)}
+@media (max-width:600px){ .pgmap>.ctl{margin:10px 0 2px;padding-bottom:10px} }
+.pgtip{margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.pgtip .pinote{display:block;font:400 13.5px/1.45 var(--ui);color:var(--mut)}
+@media print{ .pgstart,.pgtip{display:none!important} }

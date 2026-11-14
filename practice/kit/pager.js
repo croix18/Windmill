@@ -35,6 +35,13 @@ K.Pager = function(api){
   var map = make('section', 'sheet pgmap', '<button type="button" class="pgmt" id="pgMt" aria-expanded="false" aria-controls="pgGrid"></button><div class="pgmh"><h2 class="bt" id="pgMh">Questions</h2><ul class="pglg" aria-hidden="true"><li><i class="a"></i><span class="bt">Answered</span></li>' +
     '<li><i class="f"></i><span class="bt">Flagged</span></li><li><i class="c"></i><span class="bt">On screen</span></li></ul></div>' +
     '<nav class="pgm" id="pgGrid" aria-labelledby="pgMh"></nav>', {'aria-labelledby': 'pgMh'});
+  /* the start (Croix, 14 Nov 2026: "Yeah let's build it!"): the page's header — the title, the typing tip, how to practice and
+     the ⋯ menu — once, with Start (Keep going when the set has answers); then each screen is the question alone. How to practice
+     and the ⋯ menu move to the top of the map card, under the question; the unit's typing tip is in the ⋯ menu too. */
+  var start = make('div', 'pgstart', '<p class="pgresume bt" id="pgResume" hidden></p><button type="button" class="go" id="pgStart">Start</button>');
+  var ctl = sheet.querySelector('.ctl'), ctlHome = ctl ? ctl.nextSibling : null, intro = $('intro'), menu = $('mMenu');
+  if (intro && menu && !intro.hidden && intro.innerHTML.trim()){ var tip = make('div', 'pgtip', intro.innerHTML); menu.insertBefore(tip, menu.firstChild); }
+  paper.parentNode.insertBefore(start, $('notice') ? $('notice').nextSibling : paper);
   paper.parentNode.insertBefore(head, paper);
   paper.parentNode.insertBefore(nav, paper.nextSibling);
   nav.parentNode.insertBefore(list, nav.nextSibling);
@@ -42,6 +49,9 @@ K.Pager = function(api){
   document.body.classList.add('pg');
 
   var cards = [], secs = [], ofItem = {}, first = null, cur = 0, view = 'quiz', lastS = null, lastKey = '', lastDone = false;
+  /* a lesson link (#lesson-6.05, the calendar's) opens that set's first question, past the start */
+  var lessonLink = /^#lesson-/i.test(location.hash || '');
+  window.addEventListener('hashchange', function(){ lessonLink = /^#lesson-/i.test(location.hash || ''); }, true);
   /* the questions on the paper (a fresh "A similar one" is part of its question): read again whenever the paper was drawn again */
   function index(){
     var qs = Array.prototype.slice.call(paper.querySelectorAll('.q[data-q]:not(.xq)'));
@@ -75,8 +85,12 @@ K.Pager = function(api){
     cards.forEach(function(c){ c.classList.toggle('pg-on', c === on); });
     secs.forEach(function(s){ s.classList.toggle('pg-on', s === sec); });
     b.classList.toggle('pg-none', !N); b.classList.toggle('pg-done', fin);
-    b.classList.toggle('pg-sum', fin && view === 'sum'); b.classList.toggle('pg-rev', fin && view !== 'sum');
+    b.classList.toggle('pg-sum', fin && view === 'sum'); b.classList.toggle('pg-rev', fin && view === 'quiz');
+    b.classList.toggle('pg-start', view === 'start' && !!N); b.classList.toggle('pg-q', view === 'quiz' && !!N);
+    if (ctl){ var home = view === 'quiz' && N && !fin ? map : sheet; if (ctl.parentNode !== home){ if (home === map) map.insertBefore(ctl, map.firstChild); else sheet.insertBefore(ctl, ctlHome && ctlHome.parentNode === sheet ? ctlHome : start); } }
     if (!N) return;
+    if (view === 'start'){ var S0 = api.S(), na = cards.filter(function(c, i){ return answeredQ(i); }).length, going = na > 0 || (S0 && S0.pg && S0.pg.cur > 0);
+      setText($('pgStart'), going ? 'Keep going' : 'Start'); $('pgResume').hidden = !going; if (going) setText($('pgResume'), 'Answered so far: ' + na + ' of ' + N); }
     setText($('pgQt'), 'Question ' + (cur + 1) + ' of ' + N);
     var chip = $('pgChip');
     if (fin){ var vd = verdict(cur); chip.className = 'pgchip ' + vd.v; setText(chip, vd.word); chip.hidden = false; } else chip.hidden = true;
@@ -119,7 +133,9 @@ K.Pager = function(api){
       if (!S.pg || typeof S.pg !== 'object') S.pg = {cur: 0, flag: {}};             /* a new set, or this one started over */
       else if (lastS && k === lastKey) S.pg.cur = cur;                                  /* the same set from another tab: this tab stays put */
       if (!S.pg.flag || typeof S.pg.flag !== 'object') S.pg.flag = {};
-      cur = clamp(S.pg.cur); view = S.done ? 'sum' : 'quiz'; lastS = S; lastKey = k;
+      var was = lastS; cur = clamp(S.pg.cur);
+      view = S.done ? 'sum' : !was ? (lessonLink ? 'quiz' : 'start') : k === lastKey && view === 'start' ? 'start' : 'quiz';
+      lastS = S; lastKey = k;
     } else if (!!S.done !== lastDone) view = S.done ? 'sum' : 'quiz';                  /* Finish: the score, with every question under it */
     lastDone = !!S.done; cur = clamp(cur);
     apply();
@@ -154,6 +170,7 @@ K.Pager = function(api){
     else { var f = $('bFinish'); if (f && !f.hidden) f.click(); }                        /* ui.js asks, in the bar, as its Finish does */
   });
   $('pgBack').addEventListener('click', summary);
+  $('pgStart').addEventListener('click', function(){ go(cur, true); });
   $('pgFlag').addEventListener('click', function(){
     var S = api.S(), q = qOf(cur); if (!S || !S.pg || !q) return;
     if (S.pg.flag[q]) delete S.pg.flag[q]; else S.pg.flag[q] = 1;

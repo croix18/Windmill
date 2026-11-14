@@ -1000,6 +1000,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./set_page.js')(b, url, U, dir, fail);
   /* R. one question at a time, as on the FAST (pager.js, 14 Nov 2026): the test and a lesson set, as students have them */
   await require('./pager_page.js')(rawContext, url, U, dir, fail);
+  /* S. every choice of a question in one type (14 Nov 2026): a choice that is only math is one math span, alike in a question */
+  require('./mctype.js')(U, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }
