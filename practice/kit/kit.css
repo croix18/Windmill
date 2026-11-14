@@ -315,6 +315,7 @@ body.printing{background:var(--ground)}
 .pchoices{margin:6px 0 4px var(--i2)} .pch{display:flex;gap:8px;align-items:baseline;margin:4px 0}
 .pbox{width:13px;height:13px;border:1.5px solid #000;border-radius:50%;flex:none;transform:translateY(1px)} .pbox.sq{border-radius:2px}
 .pch .cl{font-weight:700}
+.pkeep{break-inside:avoid;page-break-inside:avoid} .psec{break-after:avoid;page-break-after:avoid}   /* a section's name is never the last line of a page: it goes over with its first question (14 Nov 2026) */
 .pbreak{break-before:page;page-break-before:always;height:1px}
 .pmeta{font:14px/1.35 var(--ui);color:#333;margin:4px 0 10px}
 .pscore{font:15px/1.45 var(--ui);margin:8px 0 14px} .pscore>span{display:block}

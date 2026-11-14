@@ -1067,7 +1067,8 @@ function worksheetHtml(){
   var h = [printHead(setLine())], qn = 0;
   var pnotes = U.notesPrint || U.notes;                       /* paper is not a keyboard: a unit may give notes for print */
   if (pnotes && pnotes.length) h.push('<p class="pnotes">' + pnotes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
-  DS.forEach(function(sec){ h.push('<h2 class="psec"><span class="bt">' + sec.title + '</span></h2>'); sec.items.forEach(function(d){ qn++; h.push(pq(d, qn)); }); });
+  /* a section's name never prints alone at the foot of a page: it is kept with its first question (.pkeep; Croix, 14 Nov 2026) */
+  DS.forEach(function(sec){ h.push('<div class="pkeep"><h2 class="psec"><span class="bt">' + sec.title + '</span></h2>'); sec.items.forEach(function(d, i){ qn++; h.push(pq(d, qn) + (i ? '' : '</div>')); }); if (!sec.items.length) h.push('</div>'); });
   return h.join('');
 }
 function keyListHtml(){
@@ -1215,9 +1216,12 @@ function testFormHtml(label, form){
   if (notes.length) h.push('<p class="pnotes">' + notes.map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join(' ') + '</p>');
   DS.forEach(function(sec, si){
     var pts = ITEMS.filter(function(it){ return it.sec === si; }).length;
-    h.push('<h2 class="psec"' + (sec.si != null ? ' data-si="' + sec.si + '"' : '') + '><span class="bt">' + sec.title + '</span>' + (pts ? '<span class="ppts">' + pts + (pts === 1 ? ' point' : ' points') + '</span>' : '') + '</h2>');
+    /* a section's name never prints alone at the foot of a page (Croix, 14 Nov 2026: "The tests are littered with that and I hate
+       it"): the name and its first question are one block (.pkeep), which moves to the next page whole */
+    h.push('<div class="pkeep"><h2 class="psec"' + (sec.si != null ? ' data-si="' + sec.si + '"' : '') + '><span class="bt">' + sec.title + '</span>' + (pts ? '<span class="ppts">' + pts + (pts === 1 ? ' point' : ' points') + '</span>' : '') + '</h2>');
     /* no follow-through line under a section, nor anywhere (7 Nov 2026, Croix: the line goes "across everything"; ruling 19's scoring stands) */
-    sec.items.forEach(function(d){ if (d.out){ h.push('<div class="pq pqout" data-k="' + d.k + '"></div>'); return; } qn++; h.push(pqTest(d, qn)); });
+    sec.items.forEach(function(d, i){ if (d.out) h.push('<div class="pq pqout" data-k="' + d.k + '"></div>'); else { qn++; h.push(pqTest(d, qn)); } if (!i) h.push('</div>'); });
+    if (!sec.items.length) h.push('</div>');
   });
   return h.join('');
 }

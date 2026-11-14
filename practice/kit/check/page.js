@@ -470,6 +470,11 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       mk.tracker.forEach((t, k) => { if (!t || t.total !== nParts[k]) fail(word + ': key ' + 'ABCDE'[k] + ' has ' + (t ? 'a score tracker totalling ' + t.total : 'no score tracker') + ' for ' + nParts[k] + ' parts'); });
     };
     const mk = await p.evaluate(formShape);
+    /* a section's name is never left alone at the foot of a page (14 Nov 2026): on every form it is in one unbreakable block
+       with its first question */
+    const loose = await p.evaluate(() => Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform) .psec')).filter(h => { const k = h.parentElement;
+      return !(k.classList.contains('pkeep') && k.firstElementChild === h && k.querySelector('.pq') && /avoid/.test(getComputedStyle(k).breakInside)); }).map(h => h.textContent.trim()));
+    if (loose.length) fail('make-up: a section name can print alone at the foot of a page: ' + loose.slice(0, 3).join(' | '));
     if (mk.nf !== 3 || mk.nk !== 3) fail('make-up: ' + mk.nf + ' forms / ' + mk.nk + ' keys for 3');
     if (mk.names.some(n => n !== 1)) fail('make-up: a form without a name line');
     shapeFails(mk, 'make-up');

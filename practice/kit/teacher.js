@@ -114,8 +114,9 @@ function testHtml(f, spec, editor){
   var h = [head(f, false, spec)], qn = 0;
   h.push('<p class="pnotes">' + (T.two_day ? '<span class="pinote">' + esc(T.two_day) + '</span>' : '') + (T.notes || []).map(function(n){ return '<span class="pinote">' + esc(n) + '</span>'; }).join('') + '</p>');
   fixedSecs(f, spec, editor).forEach(function(sec){
-    h.push('<h2 class="psec" data-si="' + sec.si + '">' + esc(sec.title) + (sec.points ? '<span class="ppts">' + sec.points + ' points</span>' : '') + '</h2>');   /* ruling 54: named, never numbered */
-    sec.items.forEach(function(d){ if (d.out){ h.push('<div class="pq pqout" data-k="' + d.k + '"></div>'); return; } qn++; h.push(qHtml(d.it, qn, d.k)); });
+    h.push('<div class="pkeep"><h2 class="psec" data-si="' + sec.si + '">' + esc(sec.title) + (sec.points ? '<span class="ppts">' + sec.points + ' points</span>' : '') + '</h2>');   /* ruling 54: named, never numbered */
+    sec.items.forEach(function(d, i){ if (d.out) h.push('<div class="pq pqout" data-k="' + d.k + '"></div>'); else { qn++; h.push(qHtml(d.it, qn, d.k)); } if (!i) h.push('</div>'); });   /* the section's name stays with its first question (.pkeep, 14 Nov 2026) */
+    if (!sec.items.length) h.push('</div>');
   });
   return h.join('');
 }

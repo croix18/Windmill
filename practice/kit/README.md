@@ -520,6 +520,12 @@ as a choice of four. Paper only; the page a student answers on never offers it.
   unit's own wrong answers (a line: the three other graphs); the same set prints the same paper twice; a plain make-up is
   untouched; the bar's switch on and off. page.js also refuses the new menu, and a forged request, on a student page.
 
+## 14 Nov 2026 — a section's name stays with its first question on paper
+Croix, of "The Pythagorean Theorem" printed as the last line of a page with its questions over the page: *"The tests are
+littered with that and I hate it."* On every printed test, make-up and worksheet the section's name and its first question
+are one block (`.pkeep`, `break-inside: avoid`), so the name goes to the next page with the question. A wrapper, not only
+`break-after: avoid` on the heading, because not every browser honors that. `check/page.js` checks the block on every form.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
