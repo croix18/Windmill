@@ -23,7 +23,20 @@ alone at the foot of a page: *"The tests are littered with that and I hate it."*
   which helps with part (a).
 - **Section names:** on every printed test, make-up and worksheet the name and its first question are one block (`.pkeep`).
   Units rebuilt on this kit have it (A7 Unit 6, M7 Unit 10); the others get it at their next rebuild.
-- **Not done:** the site (mrshaffer-site) was not republished in this session; the teacher copies on it are the old ones until it is.
+- **Set numbers, valid and accurate** (Croix, 14 Nov, 8:48 am: *"ensure all the test codes are valid and accurate. Harden that
+  system across the whole project"*; asked which codes, he chose the set numbers on the keys). The audit: every published
+  teacher copy's make-ups, each key's number opened on the teacher copy and the student page — the same questions and
+  answers on all seven units. Hardened in the kit (README, "set numbers, valid and accurate"): a version and a five-character
+  check code after the set number on every key, and at the foot of a teacher copy's ⋯ menu for the open set; a pinned form's
+  key names each question from another set, edited or left off; a link or typed number that is not a set says so; the lock
+  holds 600 sets (1–300 and 300 from 301 to 99999) and a browser is held to it; `check/set_page.js` (page.js part Q).
+- **Every unit rebuilt on this kit, every check passing:** A7 Units 3, 4, 5, 6 and M7 Units 4, 8, 9, 10, student pages and
+  teacher copies. **Not M7 Unit 5:** its own `phone_check.js` fails ("no Hint button", "no Show me how" at 360 px) and
+  failed the same way on `a7ac789` before this session — it still looks for the buttons the 7 Nov help ladder replaced.
+  Its page is not built and not on the site. Not fixed here.
+- **The site** has the rebuilt pages of the units it publishes (A7 3–6; M7 4, 9, 10). M7 Unit 8 is still on hold.json.
+- **Building here:** matplotlib must be 3.10.x (3.11 breaks `kit/lib/mathimg.py`, as noted below), and a `kit/figs` cache
+  made under 3.11 makes `test_kit.py` fail its Your Turn layout test under 3.10 until it is deleted.
 
 ## Where things stand (7 Nov 2026: Nib's engine lands in the kit) — read with the 30 Oct section
 
