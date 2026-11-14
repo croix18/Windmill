@@ -989,6 +989,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./keys_page.js')(b, url, U, dir, fail);
   /* P. an all-multiple-choice test (14 Nov 2026): a teacher copy of a unit that gives its wrong answers */
   if (/^teacher$/.test(path.basename(dir)) && typeof U.choices === 'function') await require('./mc_page.js')(b, url, U, dir, fail);
+  /* Q. set numbers are valid and accurate (14 Nov 2026): the lock in this browser, bad links and numbers, the check code on every key */
+  await require('./set_page.js')(b, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

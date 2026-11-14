@@ -526,6 +526,31 @@ littered with that and I hate it."* On every printed test, make-up and worksheet
 are one block (`.pkeep`, `break-inside: avoid`), so the name goes to the next page with the question. A wrapper, not only
 `break-after: avoid` on the heading, because not every browser honors that. `check/page.js` checks the block on every form.
 
+## 14 Nov 2026 — set numbers, valid and accurate (`ui.js`, `teacher.js`, `check/lock.js`, `check/set_page.js`)
+Croix: *"ensure all the test codes are valid and accurate. Harden that system across the whole project"* — asked which codes,
+he chose the set numbers on the keys, which reopen a test's exact questions and answers. The audit that day: every published
+teacher copy's make-ups (A7 Units 3–6, M7 Units 4, 9, 10), each key's number opened on the teacher copy and on the student
+page — the same questions and answers every time. What was loose, and is now held:
+- **A check code on every key.** After the set number: the unit's version and five characters (no 0, O, 1 or I) worked out
+  from the unit, its `contentVersion` and every question and answer of that paper — "Set 4821 · Whole test · version 4 ·
+  check K7Q2F". A teacher copy shows the open set's code in the ⋯ menu ("Set 4821 · check K7Q2F · Change"). The same code
+  means the same questions and answers. A key whose code is not its set's today was printed before the unit was rebuilt
+  (a version bump changes every code), or from a form that was changed.
+- **A changed form says how.** A pinned form (Tests A and B) names, on its key, each question drawn from another set with
+  that set, each one edited, and each one left off: "· 2 questions changed (Q3 from set 911; Q7 edited) · left off: U6·12".
+  A make-up that leaves out a disapproved kind says how many it left out.
+- **A number that is not a set says so.** A link like `#set-0`, `#set-123456` or `#set-12x` used to open the last set, or
+  another, with no word; now the page says the link is not a set and which set this is. The set box takes 1 to 99999 in
+  digits only — "48.5" used to open set 48 and "4.8e3" set 4800.
+- **The lock holds 600 sets,** not 300: 1–300 and 300 spread from 301 to 99999 (a make-up's set is any number up to 99999),
+  and each of four sets is made twice and must be the same. A lock from before is checked on its 300, then widened.
+- **Every device makes the same set:** the page check holds a real browser to the lock's 600.
+- **Checked** by `check/set_page.js` (page.js part Q, every page): the lock in the browser; bad links and numbers; each
+  key's code worked out again in Node; on a teacher copy three make-ups reopened by their numbers (questions, answers, code)
+  and a pinned form's left-off and other-set notes.
+What a set number still cannot do, and the key now shows instead: reopen a paper printed from an older version of the unit
+(the code differs), or a form with changed questions (named on the key).
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -545,6 +570,7 @@ are one block (`.pkeep`, `break-inside: avoid`), so the name goes to the next pa
 | `keyset.js` | a unit's keys — the keypad keys any of its answers can use — for its lesson items, run by `build.py` under Node (8 Nov 2026, above) |
 | `teacher.js`, `teacher.css` | the teacher copy: the bar, the real test's paper, Tests A and B, Approve questions (8 Nov 2026, above); `teacher.css` is in teacher builds only |
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
+| `check/set_page.js` | page.js part Q (set numbers valid and accurate, 14 Nov 2026, above), on every page |
 | `check/mc_page.js` | page.js part P (an all-multiple-choice test, 14 Nov 2026, above), on a teacher copy of a unit with `Unit.choices` |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |

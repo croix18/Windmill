@@ -59,6 +59,7 @@ function hashOf(sd, sc){ return '#set-' + sd + (sc === 'all' ? '' : '-' + sc); }
 /* ------------------------------------------------ saved state [W-6]: one record per set and practice choice */
 migrate();
 var h0 = fromHash(), last = load('last') || {};
+var BADSET = !h0 && /^#set/i.test(location.hash || '') ? String(location.hash).slice(0, 24) : '';   /* a link that names no set (14 Nov 2026): said, not swallowed */
 var seed = h0 ? h0.seed : (last.seed || randomSeed()), scope = h0 ? h0.scope : (SCOPES[last.scope] ? last.scope : 'all');
 var G, ITEMS, DS, EX = {}, S, HASHV = '', FLASH = {};
 function key(){ return 'set.' + seed + '.' + scope; }
@@ -265,6 +266,8 @@ function render(){
   });
   $('paper').innerHTML = h.join('');
   $('setno').textContent = seed; $('setin').value = seed;
+  /* a teacher copy shows the open set's check code beside "Set number", to hold against a printed key (14 Nov 2026) */
+  if (teacherPage()){ var sc0 = $('setchk'); if (!sc0){ sc0 = document.createElement('span'); sc0.id = 'setchk'; sc0.className = 'setchk'; sc0.setAttribute('translate', 'no'); var sn = $('setno'); sn.parentNode.insertBefore(sc0, sn.nextSibling); } sc0.textContent = scope === 'all' ? ' · check ' + setCheck() : ''; }
   /* which practice this is, always in sight (7 Nov 2026, Croix: "It was the switching mechanism that confused me. I would assume
      that if I open a specific lesson it would open to that section. Likewise if I open the full practice test."): a chip under the
      title names the choice from What to practice, and a lesson's line says what it is — "Lesson 10.04 · 8 questions · today's
@@ -984,6 +987,7 @@ function openSet(n, sc, mode){
   try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
   LSEED = 0;
   restore(); save(); paintAll(); window.scrollTo(0, 0);
+  if (BADSET){ NOTICE = '“' + BADSET + '” is not a set (a set number is 1 to 99999). This is set ' + seed + '.'; BADSET = ''; }
   $('notice').textContent = NOTICE; $('notice').hidden = !NOTICE;
   var h1 = $('h1'); if (h1 && document.activeElement && document.activeElement !== document.body && !(document.activeElement.closest && document.activeElement.closest('#paper'))) { h1.setAttribute('tabindex', '-1'); h1.focus({preventScroll: true}); }
 }
@@ -1018,7 +1022,9 @@ $('scope').addEventListener('change', function(){ var v = this.value; if (v === 
   var go = function(){ goSet(to, v); };
   if (started() && !S.done) ask('Switch to “' + SCOPES[v] + '”? This set stays saved on this device.', 'Switch', go); else go();
   $('scope').value = scope; });
-$('setgo').addEventListener('click', function(){ var v = Math.floor(+$('setin').value); if (v >= 1 && v <= 99999){ moreClose(); goSet(v, scope); } else { $('setin').value = seed; } });
+function setBad(t){ var b = $('setbad'); if (!b){ b = document.createElement('span'); b.id = 'setbad'; b.className = 'setbad'; b.setAttribute('role', 'alert'); $('setin').parentNode.appendChild(b); } b.textContent = t; b.hidden = !t; if (t) $('setin').setAttribute('aria-invalid', 'true'); else $('setin').removeAttribute('aria-invalid'); }
+$('setgo').addEventListener('click', function(){ var v = okSetText($('setin').value); if (v){ setBad(''); moreClose(); goSet(v, scope); } else { setBad('A set number is 1 to 99999. This is still set ' + seed + '.'); $('setin').select(); } });   /* a number that is not one says so (14 Nov 2026): "48.5" was set 48, "4.8e3" set 4800, and anything else was dropped without a word */
+$('setin').addEventListener('input', function(){ setBad(''); });
 $('setin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('setgo').click(); } });
 function newSet(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Leave this set for a new one? This one stays saved on this device.', 'New set', go); else go(); }
 $('bNew').addEventListener('click', function(){ moreClose(); newSet(); });
@@ -1029,9 +1035,11 @@ $('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your a
    25 Oct 2026). Teacher copies only. */
 window.PracticePrint = {forms: function(n, label, mc){ if (teacherPage()) showPrint((mc ? 'mc' : 'mk') + Math.min(5, Math.max(1, n | 0)), label || 'Test'); }};
 /* the teacher copy's tools (teacher.js: Approve questions, Tests A and B) draw with this page: a teacher page only */
-if (teacherPage()) window.PracticeKit = {famKey: famKey, partsOf: partsOf, textType: textType, keyHtml: function(it){ return keyHtml(it); }, sample: sampleOf, form: pinnedForm, canMC: canMC, mcOf: mcOf,
+if (teacherPage()) window.PracticeKit = {famKey: famKey, partsOf: partsOf, textType: textType, keyHtml: function(it){ return keyHtml(it); }, sample: sampleOf, form: pinnedForm, canMC: canMC, mcOf: mcOf, check: setCheck, checkCode: checkCode,
   qid: function(si, ii, item){ return qidOf(si, ii, item); }, plain: plainText, LET: LET, sections: G0.sections.map(function(s, si){ return {title: s.title, si: si, n: s.items.length}; })};
-window.addEventListener('hashchange', function(){ var h = fromHash(); if (h && (h.seed !== seed || h.scope !== scope)) openSet(h.seed, h.scope); });
+window.addEventListener('hashchange', function(){ var h = fromHash();
+  if (!h && /^#set/i.test(location.hash || '')){ BADSET = String(location.hash).slice(0, 24); openSet(seed, scope); return; }   /* a bad set link on an open page: this set stays, and says why */
+  if (h && (h.seed !== seed || h.scope !== scope)) openSet(h.seed, h.scope); });
 window.addEventListener('storage', function(e){                                       /* [R2-N4] two tabs on one set stay in step — without writing back [B1] */
   if (e.key !== PRE + key() || !e.newValue) return;
   var rec; try { rec = JSON.parse(e.newValue); } catch(x){ return; }
@@ -1073,7 +1081,7 @@ function worksheetHtml(){
 }
 function keyListHtml(){
   var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
-  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
+  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + checkLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
 }
 function yourAnswer(it){
   var a = S.ans[it.id];
@@ -1138,6 +1146,33 @@ function collect(){                                        /* the items of DS, a
 function vStem(it){ return it && it._est != null ? it._est : V.stem(it); }
 function vLine(p){ return p && p._eln != null ? p._eln : V.line(p); }
 function vOpt(x, k){ return x && x._eopt && x._eopt[k] != null ? x._eopt[k] : V.opt(x, k); }
+/* ---- a set number is a promise (Croix, 14 Nov 2026: "ensure all the test codes are valid and accurate. Harden that system
+   across the whole project" — the set numbers on the keys, which reopen a test's exact questions and answers).
+   - THE CHECK CODE: five characters worked out from the unit, its contentVersion and every question and answer of the paper
+     in ITEMS (setCheck). Every key prints it after its set number, with the version; a teacher copy shows the open set's
+     beside "Set number". The same code means the same questions and the same answers. A key whose code is not the code of
+     its set as it opens today was printed from another version of the unit, or from a form that was changed — and a
+     changed form says how on its key (teacher.js: which question came from which set, which was edited, which left off;
+     here: how many a make-up left out because their kind is disapproved).
+   - A set number is 1 to 99999, digits only: a link or a typed number that is not one says so (it used to open the last
+     set, or another, and say nothing).
+   check/lock.js holds the sets steady; check/set_page.js checks all of this in a browser. */
+var CHECK_ABC = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';       /* no 0 O 1 I: read aloud, copied by hand */
+function checkCode(s){ var n = K.fnv1a(s), o = ''; for (var i = 0; i < 5; i++){ o += CHECK_ABC.charAt(n % 32); n = Math.floor(n / 32); } return o; }
+function setCheck(){
+  return checkCode(U.id + '#' + U.contentVersion + '#' + ITEMS.map(function(it){
+    var x = it.x, a;
+    try { a = it.type === 'nline' ? NL.keyText(NL.graphOf(x)) : it.type === 'mc' ? 'c:' + vOpt(x, x.correct) : it.type === 'multi' ? 'm:' + x.correct.map(function(k){ return vOpt(x, k); }).join('|') : x._ekey != null ? x._ekey : V.key(x); }
+    catch(e){ a = '?'; }
+    return U.key(x) + '=' + a + (it.item && it.item._est != null ? '~' + it.item._est : '') + (x._eln != null ? '~' + x._eln : '');
+  }).join(';'));
+}
+function checkLine(){ return ' · version ' + esc(String(U.contentVersion)) + ' · check ' + setCheck(); }
+function okSetText(t){ var m = /^\s*(\d{1,5})\s*$/.exec(String(t)); return m && +m[1] >= 1 ? +m[1] : 0; }
+function leftOut(){                                         /* how many of the set's questions this paper does not have (a disapproved kind) */
+  var all = 0, on = 0; try { G.sections.forEach(function(sec){ all += sec.items.length; }); DS.forEach(function(sec){ on += sec.items.filter(function(d){ return !d.out; }).length; }); } catch(e){ return ''; }
+  return all > on ? ' · ' + (all - on) + (all - on === 1 ? ' question' : ' questions') + ' left out (disapproved)' : '';
+}
 /* ---- an all-multiple-choice test (Croix, 14 Nov 2026: "I'd like the retakes that I print up to be all multiple choice").
    A teacher copy's make-up tests and its Tests A and B can print with every part as a choice of four: a typed part's three
    wrong answers are the unit's own mistakes (Unit.choices(part) → the wrong answers as its key would show them, the likeliest
@@ -1247,7 +1282,7 @@ function makeupHtml(n, label, mc){
   while (seeds.length < n && guard++ < 50){ var r = randomSeed(); if (seeds.indexOf(r) < 0) seeds.push(r); }
   var forms;
   ALLMC = !!mc && canMC();                                   /* every part a choice of four (14 Nov 2026) */
-  try { forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope]) + (ALLMC ? ' · All multiple choice' : '')), form: LET[k], seed: s}; }); }); }
+  try { forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope]) + leftOut() + (ALLMC ? ' · All multiple choice' : '') + checkLine()), form: LET[k], seed: s}; }); }); }
   finally { ALLMC = false; }
   var h = forms.map(function(f, k){ return (k ? '<div class="pbreak"></div>' : '') + '<div class="pform tpage" data-form="' + f.form + '">' + f.ws + '</div>'; }).join('');
   h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform tpage"' + (mc && canMC() ? ' data-mc="1"' : '') + '>' + f.key + '</div>'; }).join('');
@@ -1262,7 +1297,7 @@ function pinnedForm(secs, o){
   var keep = {DS: DS, ITEMS: ITEMS, EX: EX}, out;
   try {
     DS = secs; ITEMS = []; EX = {}; collect(); ALLMC = !!o.mc && canMC();
-    out = {test: testFormHtml(o.label || 'Test', o.form), key: testKeyHtml(o.form, o.meta || ''), points: ITEMS.length,
+    out = {test: testFormHtml(o.label || 'Test', o.form), key: testKeyHtml(o.form, (o.meta || '') + checkLine()), points: ITEMS.length, check: setCheck(),
       rows: ITEMS.map(function(it){ return {k: it.k, lab: it.lab, type: it.type, label: it.x && it.x.label || '', key: keyHtml(it)}; })};
   } finally { DS = keep.DS; ITEMS = keep.ITEMS; EX = keep.EX; ALLMC = false; }
   return out;

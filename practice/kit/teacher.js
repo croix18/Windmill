@@ -324,7 +324,15 @@ function draw(f, editor){
     s.items.push({it: itemOf(F, p.k), keep: null, si: p.si, ii: p.ii, k: p.k, out: !on});
   });
   var n = changedOn(f);
-  return PK.form(secs, {label: 'Test', form: f, meta: 'Set ' + F.seed + ' · Whole test' + (n ? ' · ' + n + (n === 1 ? ' question' : ' questions') + ' changed' : '') + (mc ? ' · All multiple choice' : ''), mc: mc});
+  /* the key says exactly how the paper differs from its set (14 Nov 2026: a set number must be accurate): the printed number of
+     each question drawn from another set, with that set; of each one edited; and the ID of each one left off */
+  var how = [], off = [], qn = 0;
+  TP.forEach(function(p){
+    if (SPEC.pick[p.k] === false){ off.push(qidOf(p.k)); return; }
+    qn++; var q = F.q[p.k], src = srcOf(F, p.k);
+    if (src !== F.seed) how.push('Q' + qn + ' from set ' + src + (q && q.ed ? ', edited' : '')); else if (q && q.ed) how.push('Q' + qn + ' edited');
+  });
+  return PK.form(secs, {label: 'Test', form: f, meta: 'Set ' + F.seed + ' · Whole test' + (n ? ' · ' + n + (n === 1 ? ' question' : ' questions') + ' changed' + (how.length ? ' (' + how.join('; ') + ')' : '') : '') + (off.length ? ' · left off: ' + off.join(', ') : '') + (mc ? ' · All multiple choice' : ''), mc: mc});
 }
 function nOn(){ return SPEC.pick.filter(function(x){ return x !== false; }).length; }
 
@@ -730,6 +738,7 @@ API.ready = function(){ return READY; }; API.mode = function(){ return MODE; }; 
 API.print = function(kind, f){ whenReady(function(){ showPrint(kind || 'tk', f || FORM, bar.querySelector('[data-tprint]'), null); }); };
 API.open = function(which){ if (which === 'approve') openApprove(bar.querySelector('[data-topen="approve"]')); else whenReady(function(){ openTests(FORM, bar.querySelector('[data-topen="tests"]')); }); };
 API.clean = clean; API.draw = function(f){ return draw(f || FORM, false); };
+API.spec = function(){ return SPEC; };                   /* the pinned forms as held on this page, for the checks (check/set_page.js) */
 /* which questions are on the test: read, or set for this page (the checks) — the editor's On the test saves */
 API.pick = function(v){ if (v && SPEC) SPEC.pick = TP.map(function(p){ return v[p.k] !== false; }); return SPEC ? SPEC.pick.slice() : TP.map(function(){ return true; }); };
 
