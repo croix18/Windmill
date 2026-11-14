@@ -1027,9 +1027,9 @@ $('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your a
 /* Ruling 49 (22 Oct 2026): on a unit whose test is a random set of this page, the teacher bar (teacher.js) prints the
    TEST as n forms — the make-up printing, headed "Test · Form A" instead of "Make-up" (the set number on the key only,
    25 Oct 2026). Teacher copies only. */
-window.PracticePrint = {forms: function(n, label){ if (teacherPage()) showPrint('mk' + Math.min(5, Math.max(1, n | 0)), label || 'Test'); }};
+window.PracticePrint = {forms: function(n, label, mc){ if (teacherPage()) showPrint((mc ? 'mc' : 'mk') + Math.min(5, Math.max(1, n | 0)), label || 'Test'); }};
 /* the teacher copy's tools (teacher.js: Approve questions, Tests A and B) draw with this page: a teacher page only */
-if (teacherPage()) window.PracticeKit = {famKey: famKey, partsOf: partsOf, textType: textType, keyHtml: function(it){ return keyHtml(it); }, sample: sampleOf, form: pinnedForm,
+if (teacherPage()) window.PracticeKit = {famKey: famKey, partsOf: partsOf, textType: textType, keyHtml: function(it){ return keyHtml(it); }, sample: sampleOf, form: pinnedForm, canMC: canMC, mcOf: mcOf,
   qid: function(si, ii, item){ return qidOf(si, ii, item); }, plain: plainText, LET: LET, sections: G0.sections.map(function(s, si){ return {title: s.title, si: si, n: s.items.length}; })};
 window.addEventListener('hashchange', function(){ var h = fromHash(); if (h && (h.seed !== seed || h.scope !== scope)) openSet(h.seed, h.scope); });
 window.addEventListener('storage', function(e){                                       /* [R2-N4] two tabs on one set stay in step — without writing back [B1] */
@@ -1104,13 +1104,13 @@ function teacherPage(){ return !!window.TEACHER_TEST; }
 function printMenu(){
   var test = S.mode === 'test' && !S.done;
   ask0('What do you want to print?', [
-    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key']].concat(teacherPage() ? [['mk', 'Make-up tests']] : []).concat([
+    ['ws', 'Worksheet'], ['wk', 'Worksheet + answer key']].concat(teacherPage() ? [['mk', 'Make-up tests']].concat(canMC() ? [['mc', 'Make-up tests, all multiple choice']] : []) : []).concat([
     ['res', 'My results', test ? 'In “Like the real test” the results print after Finish.' : '']]));
 }
 /* Make-up tests (Croix, 18 Oct 2026: "print tests or make ups directly from here… I'll need it to print the answer key too"):
    one to five forms, each a different set of the WHOLE unit, headed as a test with a name line and its form letter; every
    form's answer key follows on its own page, labelled with the form letter and set number so the teacher keeps the keys. */
-function makeupMenu(){ ask0('How many different forms?', [['mk1', '1'], ['mk2', '2'], ['mk3', '3'], ['mk4', '4'], ['mk5', '5']]); }
+function makeupMenu(mc){ var k = mc ? 'mc' : 'mk'; ask0('How many different forms?', [[k + '1', '1'], [k + '2', '2'], [k + '3', '3'], [k + '4', '4'], [k + '5', '5']]); }
 function withSet(s, fn){                                   /* run fn with the page's data drawn from set s, then put everything back */
   var o = {seed: seed, scope: scope, G: G, DS: DS, ITEMS: ITEMS, EX: EX, H: HASHV}, out;
   seed = s; scope = 'all'; CURCOMP = true;
@@ -1137,6 +1137,52 @@ function collect(){                                        /* the items of DS, a
 function vStem(it){ return it && it._est != null ? it._est : V.stem(it); }
 function vLine(p){ return p && p._eln != null ? p._eln : V.line(p); }
 function vOpt(x, k){ return x && x._eopt && x._eopt[k] != null ? x._eopt[k] : V.opt(x, k); }
+/* ---- an all-multiple-choice test (Croix, 14 Nov 2026: "I'd like the retakes that I print up to be all multiple choice").
+   A teacher copy's make-up tests and its Tests A and B can print with every part as a choice of four: a typed part's three
+   wrong answers are the unit's own mistakes (Unit.choices(part) → the wrong answers as its key would show them, the likeliest
+   first: its coach's mistake models, so every wrong choice is what a named slip gives); a number line to graph becomes four
+   graphs — the key, its arrow turned round, its dot changed, and both (Croix chose "pick from 4 graphs"). The right choice's
+   place comes from the question itself (mcOrder), so the paper and its key, printed a week apart, agree. A choice that reads
+   as the key, or as another choice, is dropped here whatever the unit gave; a part left with fewer than three wrong choices
+   prints as it was written, with its work space. A choice question, and a select-all, are untouched. Paper only: the page a
+   student answers on never offers it. */
+var ALLMC = false;
+function canMC(){ return typeof U.choices === 'function'; }
+function mcHash(s){ var h = 2166136261; for (var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mcOrder(n, s){                                     /* 0..n-1 in an order fixed by the words s */
+  var a = [], h = mcHash(s), i, j, t; for (i = 0; i < n; i++) a.push(i);
+  for (i = n - 1; i > 0; i--){ h = (Math.imul(h, 1664525) + 1013904223) >>> 0; j = (h >>> 8) % (i + 1); t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function mcSame(h){ return plainText(h).replace(/\s+/g, '').replace(/−/g, '-'); }
+function mcOf(p){
+  if (!p || p.kind === 'mc' || !canMC()) return null;
+  var all, tag;
+  try {
+    if (p.kind === 'nline'){
+      var g = NL.graphOf(p), turn = g.dir === 'left' ? 'right' : 'left';
+      if (!NL.complete(g)) return null;
+      all = [g, {c: g.c, closed: g.closed, dir: turn}, {c: g.c, closed: !g.closed, dir: g.dir}, {c: g.c, closed: !g.closed, dir: turn}]
+        .map(function(x){ return '<span class="pnlc">' + NL.svg(p, x, {mode: 'key'}) + '</span>'; });
+      tag = 'nline:' + NL.keyText(g);
+    } else {
+      var key = p._ekey != null ? p._ekey : V.key(p), seen = [mcSame(key)], wrong = [];
+      (U.choices(p) || []).forEach(function(h){ var t = typeof h === 'string' ? mcSame(h) : ''; if (!t || seen.indexOf(t) >= 0 || wrong.length >= 3) return; seen.push(t); wrong.push(h); });
+      if (wrong.length < 3) return null;
+      all = [key].concat(wrong); tag = seen[0];
+    }
+  } catch(e){ return null; }
+  var ord = mcOrder(4, String(U.key(p)) + '|' + (p.label || '') + '|' + tag);
+  return {opts: ord.map(function(k){ return all[k]; }), correct: ord.indexOf(0), nline: p.kind === 'nline'};
+}
+function mcChoices(p){                                      /* a part's four choices on the paper, or '' when it stays as written */
+  var m = ALLMC ? mcOf(p) : null; if (!m) return '';
+  return (m.nline ? '' : '<div class="pwork pwmc"></div>') + '<div class="pchoices pmc ' + (m.nline ? 'pgr' : 'p2') + '">' + m.opts.map(function(o, k){ return '<div class="pch"><span class="pbox"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + o + '</span></div>'; }).join('') + '</div>';
+}
+function mcKey(it){                                         /* its row on the key: the letter, then the answer */
+  var m = ALLMC && (it.type === 'text' || it.type === 'nline') ? mcOf(it.x) : null;
+  return m ? '<b>' + LET[m.correct] + '.</b> ' + (m.nline ? NL.keyHtml(it.x) : m.opts[m.correct]) : '';
+}
 /* A printed test form — a ruling-49 test or a make-up — has the paper's shape (A7 Unit 6's review, 25 Oct 2026): the points
    on the head, on every section and on every part; the show-your-work and follow-through lines the paper prints (from the
    teacher copy's TEACHER_TEST); work space and no answer line (house rule 2). The student's sheet carries NO set number: the
@@ -1147,8 +1193,8 @@ function pqTest(d, qn){
   var h = '<div class="pq"' + (d.k != null ? ' data-k="' + d.k + '"' : '') + '><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + vStem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + vLine(p) + '</span>' + one + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + vOpt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart" data-p="' + pi + '">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>') + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart" data-p="0">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + vLine(it.part) + '</span></div>' + NL.blankHtml(it.part) : '<div class="pwork"></div>') + '</div>';
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart" data-p="' + pi + '">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : mcChoices(p) || (p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>')) + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart" data-p="0">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + vLine(it.part) + '</span></div>' + (mcChoices(it.part) || NL.blankHtml(it.part)) : mcChoices(it.part) || '<div class="pwork"></div>') + '</div>';
   else h += '<div class="ppart" data-p="0">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -1177,7 +1223,7 @@ function testFormHtml(label, form){
 }
 function testKeyHtml(form, meta){
   var T = window.TEACHER_TEST || {};
-  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
+  var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + (mcKey(it) || keyHtml(it)) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
   var bySec = DS.map(function(sec, si){ var its = ITEMS.filter(function(it){ return it.sec === si; }), qs = [];
     its.forEach(function(it){ var q = String(it.lab).replace(/[a-z]+$/, ''); if (qs.indexOf(q) < 0) qs.push(q); }); return {title: sec.title, si: sec.si, qs: qs, pts: its.length}; }).filter(function(b){ return b.pts; });
   /* the test's benchmarks, section by section, where the spec's tracker agrees with the unit's own sections (their points on
@@ -1191,13 +1237,16 @@ function testKeyHtml(form, meta){
   return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key — Form ' + form + '</span></h2>' + (meta ? '<p class="pmeta"><span class="bt">' + meta + '</span></p>' : '') +
     (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab pkrows"><tbody>' + rows + '</tbody></table>' + tracker + '</div>';
 }
-function makeupHtml(n, label){
+function makeupHtml(n, label, mc){
   label = label || 'Make-up';                              /* 'Test' on a ruling-49 teacher copy: the unit test IS a random set of this page */
   var seeds = [seed], guard = 0;
   while (seeds.length < n && guard++ < 50){ var r = randomSeed(); if (seeds.indexOf(r) < 0) seeds.push(r); }
-  var forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope])), form: LET[k], seed: s}; }); });
+  var forms;
+  ALLMC = !!mc && canMC();                                   /* every part a choice of four (14 Nov 2026) */
+  try { forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope]) + (ALLMC ? ' · All multiple choice' : '')), form: LET[k], seed: s}; }); }); }
+  finally { ALLMC = false; }
   var h = forms.map(function(f, k){ return (k ? '<div class="pbreak"></div>' : '') + '<div class="pform tpage" data-form="' + f.form + '">' + f.ws + '</div>'; }).join('');
-  h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform tpage">' + f.key + '</div>'; }).join('');
+  h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform tpage"' + (mc && canMC() ? ' data-mc="1"' : '') + '>' + f.key + '</div>'; }).join('');
   return h;
 }
 /* ---- what the teacher copy's own tools draw with (teacher.js, 8 Nov 2026: Approve questions, Tests A and B) — on a teacher page
@@ -1208,10 +1257,10 @@ function makeupHtml(n, label){
 function pinnedForm(secs, o){
   var keep = {DS: DS, ITEMS: ITEMS, EX: EX}, out;
   try {
-    DS = secs; ITEMS = []; EX = {}; collect();
+    DS = secs; ITEMS = []; EX = {}; collect(); ALLMC = !!o.mc && canMC();
     out = {test: testFormHtml(o.label || 'Test', o.form), key: testKeyHtml(o.form, o.meta || ''), points: ITEMS.length,
       rows: ITEMS.map(function(it){ return {k: it.k, lab: it.lab, type: it.type, label: it.x && it.x.label || '', key: keyHtml(it)}; })};
-  } finally { DS = keep.DS; ITEMS = keep.ITEMS; EX = keep.EX; }
+  } finally { DS = keep.DS; ITEMS = keep.ITEMS; EX = keep.EX; ALLMC = false; }
   return out;
 }
 /* a question as students see it, with nothing to answer: its words, its figure, each part's line, its choices, a number line
@@ -1233,12 +1282,12 @@ function ask0(text, opts){                                   /* the print choice
   var f = c.querySelector('[data-print]:not([disabled])'); if (f) f.focus();
 }
 function showPrint(kind, label){
-  if (/^mk/.test(kind) && !teacherPage()) return;            /* no make-up tests on a student page, whatever asks */
+  if (/^m[kc]/.test(kind) && !teacherPage()) return;         /* no make-up tests on a student page, whatever asks */
   closeAsk();
   var pv = $('printview'); if (!pv){ pv = document.createElement('div'); pv.id = 'printview'; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-label', 'Print preview'); document.body.appendChild(pv); }
-  if (kind === 'mk'){ makeupMenu(); return; }
-  var mk = /^mk(\d)$/.exec(kind);
-  var body = mk ? makeupHtml(+mk[1], label) : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
+  if (kind === 'mk' || kind === 'mc'){ makeupMenu(kind === 'mc'); return; }
+  var mk = /^m([kc])(\d)$/.exec(kind);
+  var body = mk ? makeupHtml(+mk[2], label, mk[1] === 'c') : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
   pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button><span class="pvhint bt">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage">' + body + '</div>';
   pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
   $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };

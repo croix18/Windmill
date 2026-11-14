@@ -623,6 +623,10 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 .key:has(.nlkey) .kv{flex:1 1 100%;min-width:0} .key .kv .nlkey,.wfin .nlkey{display:block;width:min(100%,24rem)}
 @media (max-width:480px){ .nlp .nlw,.nlp>.ckrow,.nltk{margin-left:0} .nseg{flex-basis:100%} }
 /* paper: the line alone with the band to graph on; the key drawn in ink */
+/* an all-multiple-choice test (14 Nov 2026): a typed part's four choices two by two under a short work space; four graphs two by two */
+.pwork.pwmc{height:40px}
+.pchoices.pmc{display:grid;grid-template-columns:1fr 1fr;column-gap:22px;max-width:6.2in;break-inside:avoid}
+.pchoices.pgr .pch{align-items:center} .pchoices.pgr .cv{flex:1 1 auto;min-width:0} .pnlc{display:block;max-width:2.7in} .pnlc svg.nlg{color:#000}
 .pnl{margin:4px 0 6px var(--i2);max-width:4.6in} .pnlband{height:10mm} .pnl svg.nlg{color:#000}
 #printview svg.nlg{color:#000} #printview .nlkw{color:#333}
 .ptab .kv .nlkey{width:2.9in}

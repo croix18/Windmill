@@ -495,6 +495,31 @@ lesson sets, student pages and teacher copies):
   the keypad, ✓ on the first try.
   `check/bank.js` F: the unit's keys on a lesson item, even rows at 390, a key at the caret, and an inequality's sign tapped.
 
+## 14 Nov 2026 — an all-multiple-choice test on paper (`ui.js`, `teacher.js`)
+Croix: *"I'd like the retakes that I print up to be all multiple choice."* A teacher copy can print a test with every part
+as a choice of four. Paper only; the page a student answers on never offers it.
+- **Where:** ⋯ → Print → **Make-up tests, all multiple choice** (1–5 new sets, as Make-up tests), and on a random-test unit
+  the bar's **All multiple choice** switch, which makes Print test, Test + key and Key only print the pinned form (Tests A
+  and B) that way. The switch is off on every load, and the editor's paper is never changed by it.
+- **A typed part** prints a short work space, then A–D two by two: its key and three wrong answers from the unit —
+  `Unit.choices(part)` → the wrong answers as the key would show them, the likeliest first. A unit builds them from its
+  coach's mistake models, so each wrong choice is what a named slip gives. The kit drops one that reads as the key or as
+  another choice, whatever the unit gave; a part left with fewer than three prints as it was written.
+- **A number line to graph** prints four graphs two by two: the key, its arrow turned round, its dot changed, and both
+  (Croix chose "pick from 4 graphs" over keeping the graphing or leaving those questions off). The kit draws them; a unit
+  gives nothing for them.
+- **A choice question and a select-all** are untouched.
+- **The right choice's place** comes from the question itself (`mcOrder`: its key and its words, hashed), not from chance,
+  so a paper and a key printed a week apart agree.
+- **The key** gives the letter and the answer, and says "All multiple choice" beside its set number; the student's sheet
+  says neither.
+- **A unit without `Unit.choices`** is not offered it. The unit's own check must show three wrong answers for every typed
+  part over thousands of sets, none the answer (A7 Unit 6 and M7 Unit 10: `mc_check.js`).
+- **Checked** by `check/mc_page.js` (page.js part P, teacher copies): every part of three forms is a choice; each key
+  letter's choice is the answer of that form's own set, worked out again from the set number; the other three are the
+  unit's own wrong answers (a line: the three other graphs); the same set prints the same paper twice; a plain make-up is
+  untouched; the bar's switch on and off. page.js also refuses the new menu, and a forged request, on a student page.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -514,6 +539,7 @@ lesson sets, student pages and teacher copies):
 | `keyset.js` | a unit's keys — the keypad keys any of its answers can use — for its lesson items, run by `build.py` under Node (8 Nov 2026, above) |
 | `teacher.js`, `teacher.css` | the teacher copy: the bar, the real test's paper, Tests A and B, Approve questions (8 Nov 2026, above); `teacher.css` is in teacher builds only |
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
+| `check/mc_page.js` | page.js part P (an all-multiple-choice test, 14 Nov 2026, above), on a teacher copy of a unit with `Unit.choices` |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
@@ -545,6 +571,8 @@ judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: rig
           part (a) of its own), aShown, mode}
    part.imode: an inputmode for the phone's keyboard ('decimal' for a box that never needs a space, a slash or a minus)
 rungs?(x, type, ctx) → {notice, first, steps}   // the help ladder's three rungs, any of them (else derived)
+choices?(part) → [html]                        // a typed part's wrong answers as its key would show them, the likeliest first, three
+                                                // or more: an all-multiple-choice paper (14 Nov 2026); never the answer
 solution(x, type, ctx) → [{say, ex}]          // every ex equals the answer (checked); ctx as judge's — a part (b) can keep part (a)'s
                                                 // number out of its lines until part (a) is right
 walk(x, type, ctx) → steps: {type: 'choice', ask, opts: [{label, ok, why}], then?, pic} | {type: 'num', ask, ans, hint, then?}

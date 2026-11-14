@@ -29,6 +29,11 @@
      - Offline, or as a downloaded file: the last copy kept on this browser (or the build's own), and one line saying changes
        are only on this computer; back on the site, changes made offline go up if the site's copy has not changed since.
 
+   ALL MULTIPLE CHOICE (Croix, 14 Nov 2026: "I'd like the retakes that I print up to be all multiple choice"): a switch in the
+   bar, on a random-test unit that gives its wrong answers (Unit.choices; ui.js mcOf). On, Print test, Test + key and Key only
+   print the pinned form with every typed part as a choice of four and every number line as four graphs; the key gives the
+   letters and says so beside its set number. It is off on every load, and the editor's paper is never changed by it.
+
    APPROVE QUESTIONS: every kind of question of the practice test (a family) and every lesson item from Cadence, Approved |
    Disapproved, saved at once (PUT /teacher/api/items/<course>/<unit>/approval/<kind>/<target>, {approved}); approvals.js reads
    the list on every page. */
@@ -307,7 +312,9 @@ function freshSpec(){
 }
 function changedOn(f){ var F = SPEC.forms[f], n = 0; TP.forEach(function(p){ if (SPEC.pick[p.k] === false) return; var q = F.q[p.k]; if ((q && (q.seed || q.ed)) || (!FIXED && srcOf(F, p.k) !== F.seed)) n++; }); return n; }
 /* a form drawn: the paper (editor: with the empty places of the questions left off) and its key */
+var MCON = false;                                           /* the bar's "All multiple choice" (14 Nov 2026): what prints, never the editor's paper; off on every load */
 function draw(f, editor){
+  var mc = MCON && !editor && !FIXED;
   if (FIXED) return {test: testHtml(f, SPEC, editor), key: keyHtml(f, SPEC), points: total(f, SPEC)};
   var F = SPEC.forms[f], secs = [];
   TP.forEach(function(p){
@@ -316,7 +323,7 @@ function draw(f, editor){
     s.items.push({it: itemOf(F, p.k), keep: null, si: p.si, ii: p.ii, k: p.k, out: !on});
   });
   var n = changedOn(f);
-  return PK.form(secs, {label: 'Test', form: f, meta: 'Set ' + F.seed + ' · Whole test' + (n ? ' · ' + n + (n === 1 ? ' question' : ' questions') + ' changed' : '')});
+  return PK.form(secs, {label: 'Test', form: f, meta: 'Set ' + F.seed + ' · Whole test' + (n ? ' · ' + n + (n === 1 ? ' question' : ' questions') + ' changed' : '') + (mc ? ' · All multiple choice' : ''), mc: mc});
 }
 function nOn(){ return SPEC.pick.filter(function(x){ return x !== false; }).length; }
 
@@ -365,7 +372,7 @@ var TESTS_LABEL = FORMS.length > 1 ? 'Tests A and B' : 'Edit test';
 bar.innerHTML = '<p class="tbtxt"><b>Teacher copy</b> · Never share this page with students.</p>' +
   '<div class="tbrow"><div class="tbgrp">' +
   (FORMS.length > 1 ? '<div class="tbseg" role="radiogroup" aria-label="Which form">' + FORMS.map(function(f, i){ return '<button type="button" role="radio" data-form="' + f + '" aria-checked="' + (i === 0) + '" tabindex="' + (i === 0 ? 0 : -1) + '">' + esc(formWord(f)) + '</button>'; }).join('') + '</div>' : '') +
-  '<button type="button" class="go" data-tprint="test">Print test</button><button type="button" data-tprint="tk">Test + key</button><button type="button" data-tprint="key">Key only</button></div>' +
+  '<button type="button" class="go" data-tprint="test">Print test</button><button type="button" data-tprint="tk">Test + key</button><button type="button" data-tprint="key">Key only</button>' + (!FIXED && PK.canMC && PK.canMC() ? '<button type="button" data-tmc aria-pressed="false">All multiple choice</button>' : '') + '</div>' +
   '<div class="tbgrp"><button type="button" data-topen="tests" aria-haspopup="dialog">' + TESTS_LABEL + '</button><button type="button" data-topen="approve" aria-haspopup="dialog">Approve questions</button></div></div>' +
   '<p class="tbnote" id="tbNote" hidden></p>';
 var sheet = document.querySelector('.sheet'); if (sheet) sheet.insertBefore(bar, sheet.firstChild);
@@ -382,6 +389,7 @@ function paintBar(){ var n = $('tbNote'), t = noteLine(); n.textContent = t; n.h
 bar.addEventListener('click', function(e){
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.form){ setForm(b.dataset.form); return; }
+  if (b.hasAttribute('data-tmc')){ MCON = !MCON; b.setAttribute('aria-pressed', String(MCON)); b.textContent = (MCON ? '✓ ' : '') + 'All multiple choice'; return; }
   if (b.dataset.tprint){ var k = b.dataset.tprint; whenReady(function(){ showPrint(k, FORM, b, null); }); return; }
   if (b.dataset.topen === 'tests') whenReady(function(){ openTests(FORM, b); });
   if (b.dataset.topen === 'approve') openApprove(b);
