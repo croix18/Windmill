@@ -32,11 +32,13 @@ and `<nib-pad draw="answers">` draws only the answers over the tool's own ink, w
 with every touch: `palm="false"` and `single`; `keep` keeps a pad alive while its card is rebuilt. With `reveal`, an
 answer waiting for a tap is drawn blurred where it goes. Nib's README, "Inside another tool", has the details.
 
-Scribbling out (1.6.5): on a `<nib-pad>`, a pen or marker stroke scribbled back and forth (or round and round) over writing
+Scribbling out (1.6.5–1.6.6): on a `<nib-pad>`, a pen or marker stroke scribbled back and forth (or round and round) over writing
 rubs out what it lies over, as one step of Undo, and fires `nib:scribble` (`{erased, hidden, step}`; `pad.undoScribble(step)`
 is a note's Undo); `scribble="false"` turns it off. A tool with its own ink asks the engine: `Nib.scribble.of(points, z)`
 (is this stroke a scribble) and `Nib.scribble.erase(scribble, items, z)` (which of its strokes it takes) — Deckhand's pen
-over the slides does. An answer keeps the look it was first drawn with: `getState()` carries it (`looks`), so a tool that
+over the slides does. A tool that puts a scribble's pieces back together itself (the pen off the glass for a moment at a
+turn) times them by the pointer events' own `timeStamp`s, as the pad does since 1.6.6: a page busy between the pieces
+hears the second touch late, and timed by the clock instead, one scribble becomes two strokes of ink. An answer keeps the look it was first drawn with: `getState()` carries it (`looks`), so a tool that
 saves the pad's state draws each answer as it was when it is opened again.
 
 ## What it stores in the browser (per origin; Chrome's file:// pages share one)
