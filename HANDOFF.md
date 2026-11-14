@@ -4,6 +4,27 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (14 Nov 2026: retakes can print all multiple choice; section names stay with their questions)
+
+Croix, 14 Nov morning: *"Id like the retakes that I print up to be all multiple choice."*, then, of a section name printed
+alone at the foot of a page: *"The tests are littered with that and I hate it."* Both are in `practice/kit` (README, the two
+14 Nov sections) and vendored into A7 and M7.
+- **All multiple choice, on paper only.** ⋯ → Print → "Make-up tests, all multiple choice", and on a random-test unit the
+  bar's "All multiple choice" switch for Tests A and B (off on every load). A typed part prints A–D: its key and three wrong
+  answers from the unit (`Unit.choices(part)`, built from the coach's mistake models). A number line prints four graphs — the
+  key, the arrow turned, the dot changed, both: Croix chose "pick from 4 graphs". Choice and select-all questions are untouched.
+  The right choice's place is hashed from the question, so a paper and a key printed apart agree.
+- **Units that have it:** A7 Unit 6 and M7 Unit 10 (Croix chose the current unit of each course first). Each has
+  `mc_check.js` in its `unit.json` checks: 3,000 sets, three wrong answers per typed part, none the answer. **Every other unit
+  still needs `Unit.choices` and its check** before the option appears on its teacher copy; a unit without it is not offered it.
+- **Told to Croix, his to rule on:** an all-choice retake is easier than the written test (a guess is 1 in 4); A7's
+  grid-side and street-distance parts have fewer than three modelled mistakes, so about 6% of their wrong choices are a
+  length one or two units from the answer; on M7's solve-then-graph questions the four graphs share the right boundary,
+  which helps with part (a).
+- **Section names:** on every printed test, make-up and worksheet the name and its first question are one block (`.pkeep`).
+  Units rebuilt on this kit have it (A7 Unit 6, M7 Unit 10); the others get it at their next rebuild.
+- **Not done:** the site (mrshaffer-site) was not republished in this session; the teacher copies on it are the old ones until it is.
+
 ## Where things stand (7 Nov 2026: Nib's engine lands in the kit) — read with the 30 Oct section
 
 **Croix, 7 Nov:** Nib — his handwriting-to-LaTeX engine (repo `croix18/Nib`; Nib Board runs on the Promethean and his Tab S9+)
