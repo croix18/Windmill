@@ -19,6 +19,14 @@ should apply."*
   draws 36 places, 9 a reporting category, each with a regular and a harder question. "Like the real test" — an answer before
   moving on, nothing ahead to open, flag and come back, End Test once every question is seen, a harder question after a right
   answer and a regular one after a wrong one — from FLDOE's computer-adaptive testing FAQ and the test administration manuals.
+- **Levels (14 Nov, later):** Croix asked what Cadence needs to reach the real test's question levels and chose a difficulty
+  number per generator, a starting estimate, and a dial. In **Cadence**: `tools/difficulty_model.js`, `tools/difficulty.js`,
+  `data/difficulty_g8.json`, `notes/DIFFICULTY_G8.md`, its HANDOFF's difficulty section. Here: `tools/cadence_fast.py` works
+  each banked item's estimate (`d`, `band` 1–5) in Cadence's page with Cadence's model and banks each benchmark across its
+  bands; the site's test moves a level 1–5 up and down. **The dial is not built** — 337 of 355 generators give draws within
+  3 points of each other, so it cannot be a choice among a generator's draws; Cadence `briefs/BRIEF_DIFFICULTY_DIALS.md`.
+  The calculator question below is answered by FLDOE's item specifications in Cadence (available for the entire
+  assessment in grades 6–8).
 - **Open, for Croix:** (1) FLDOE's blueprint marks which Grade 8 benchmarks' items have the calculator; as read by a tool it
   was MA.8.NSO.1.1 alone, which was not trusted without the PDF in hand — the page keeps the calculator open all through.
   (2) No scale score: the report counts right answers. (3) Two levels of difficulty only. (4) Grade 7 for M7: add its

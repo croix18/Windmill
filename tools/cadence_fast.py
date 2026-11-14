@@ -36,6 +36,12 @@ build, an explanation in words, a number with a drop-down, a choice without four
 will not carry. Ruling 43 (a practice problem never repeats a lesson's own numbers) is not applied: this is a test over the
 year, not a lesson's practice.
 
+HOW HARD (14 Nov 2026, afternoon). Every item carries `d`, Cadence's starting estimate of the percent of Florida Grade 8
+students who would answer it correctly, and `band`, 1 (easiest) to 5 (hardest) — worked out in Cadence's page by Cadence's own
+model (cadence tools/difficulty_model.js) from its table (data/difficulty_g8.json, which must be the page's build). A
+benchmark's items are banked in equal shares from each band it has, so the site's adaptive test has an item near every level
+the benchmark can give. Estimates, not measurements: Cadence has no student data.
+
 --check rebuilds in memory and exits 1 if the committed bank differs (a Cadence change, or this tool's)."""
 import argparse, collections, datetime as dt, hashlib, importlib.util, json, os, re, sys
 from fractions import Fraction
@@ -62,8 +68,9 @@ BLUEPRINT = {
 # of a benchmark's items, at most this share of each kind (the 2025 released test: 20 mc, 8 numeric, 4 grid, 3 select-all, 1 drop-down)
 SHARE = {"mc": 0.50, "numeric": 0.25, "ms": 0.125, "grid": 0.125}
 
-EXPORT_JS = r'''([course, codes, cap, budget]) => {
+EXPORT_JS = r'''([course, codes, cap, budget, DIFF]) => {
   setCourseFilter(course);
+  const CD = window.CadenceDifficulty;
   const keyOf = (c, p) => `${c}::${p.q}::${p.ft || ""}::${p.opts ? [...p.opts].sort().join("|") : p.rows ? p.rows.join("|") : ""}`;
   const seg = (s, o) => CTEX.segments(String(s == null ? "" : s), o || {}).map(g => g.math ? [g.tex, g.display ? 1 : 0] : g.text);
   const out = {};
@@ -78,6 +85,8 @@ EXPORT_JS = r'''([course, codes, cap, budget]) => {
         const it = {c, hr, s, gi: p._genIdx, k, rt: p.rt || "ee", q: p.q, a: p.a, sol: p.s || "", fig: p.fig || null, ft: p.ft || "",
           qS: seg(String(p.q).replace(/\n/g, "<br>"), {display: true}), qP: plain(p.q), aP: plain(p.a), aS: seg(p.a),
           solS: String(p.s || "").split("\n").filter(x => x.trim()).map(x => seg(x))};
+        // how hard: Cadence's own starting estimate for this very item (cadence tools/difficulty_model.js; its table gives the benchmark's anchor and center)
+        if (CD && DIFF[c]) { const f = CD.features(p, plain(p.q), hr); it.d = CD.estimate(DIFF[c].anchor, DIFF[c].center, f); it.band = CD.band(it.d); }
         if (p.inst) it.instS = seg(p.inst);
         if (p.opts) { it.opts = p.opts; it.optsS = p.opts.map(o => seg(o)); it.optsP = p.opts.map(o => plain(o)); it.key = p.key; }
         if (p.rt === "match") { it.cols = p.cols; it.rows = p.rows; it.key = p.key; it.colsS = p.cols.map(x => seg(x)); it.rowsS = p.rows.map(x => seg(x)); it.colsP = p.cols.map(x => plain(x)); it.rowsP = p.rows.map(x => plain(x)); }
@@ -216,7 +225,18 @@ def build(args):
     cat_of = {b: c["id"] for c in bp["categories"] for b in c["benchmarks"]}
     C = cb.Cadence(os.path.join(args.cadence, "cadence.html"))
     meta = C.meta()
-    raw = C.p.evaluate(EXPORT_JS, [bp["tier"], codes, args.cap, args.budget])
+    # 14 Nov 2026, afternoon (Croix chose: a difficulty number for every generator, a starting estimate, the same question easier
+    # or harder): every item carries Cadence's estimate of the percent of Florida students who would answer it correctly, and
+    # its band 1 (easiest) to 5 — worked out in Cadence's page by Cadence's own model, from Cadence's own table.
+    dtable = json.load(open(os.path.join(args.cadence, "data", "difficulty_g8.json"), encoding="utf-8"))
+    if dtable.get("build") != meta.get("build"):
+        sys.exit(f"cadence_fast: Cadence's difficulty table is for build {dtable.get('build')}, the page is build {meta.get('build')}: run node tools/difficulty.js in Cadence")
+    C.p.add_script_tag(path=os.path.join(args.cadence, "tools", "difficulty_model.js"))
+    DIFF = {c: {"anchor": b["anchor"], "center": b["center"]} for c, b in dtable["benchmarks"].items()}
+    missing = [c for c in codes if c not in DIFF]
+    if missing:
+        sys.exit("cadence_fast: no difficulty anchor for " + ", ".join(missing))
+    raw = C.p.evaluate(EXPORT_JS, [bp["tier"], codes, args.cap, args.budget, DIFF])
     C.close()
     if C.errors:
         sys.exit("cadence_fast: Cadence's page threw: " + C.errors[0])
@@ -230,7 +250,7 @@ def build(args):
             except Out as e:
                 out[str(e)] += 1; continue
             x = {"id": hashlib.sha1(f"fast|{args.course}|{it['c']}|{int(it['hr'])}|{it['s']}|{it['k']}".encode()).hexdigest()[:10],
-                 "b": code, "c": cat_of[code], "rigor": bool(it["hr"]), "gen": it["gi"], "seed": it["s"], "type": o["type"],
+                 "b": code, "c": cat_of[code], "rigor": bool(it["hr"]), "gen": it["gi"], "seed": it["s"], "d": it["d"], "band": it["band"], "type": o["type"],
                  "stem": it["qS"], "plain": it["qP"]}
             if it.get("instS"):
                 x["inst"] = it["instS"]
@@ -246,13 +266,20 @@ def build(args):
                 x["rowsPlain"] = it["rowsP"]; x["colsPlain"] = it["colsP"]
             x["answer"] = it["aS"]; x["answerPlain"] = it["aP"]; x["solution"] = it["solS"]
             pool.append(x)
-        # two levels (14 Nov 2026: the test adapts, as the FAST does — a right answer brings a harder question): Cadence's
-        # regular items and its high-rigor ones. Up to 2/5 of a benchmark's items are high rigor; what a level cannot fill, the other does.
-        reg, rig = [x for x in pool if not x["rigor"]], [x for x in pool if x["rigor"]]
-        n_rig = min(len(rig), round(args.per * 0.4)); n_reg = min(len(reg), args.per - n_rig); n_rig = min(len(rig), args.per - n_reg)
-        picked = choose(reg, n_reg) + choose(rig, n_rig)
+        # by band (the test adapts, as the FAST does: it gives the item that fits how the student is doing): an equal share
+        # of the benchmark's items from each band it has, each share in the kinds' mix; then the room left, from whatever is left
+        by_band = {k: [x for x in pool if x["band"] == k] for k in range(1, 6)}
+        picked, rest = [], []
+        for k in range(1, 6):
+            sel = choose(by_band[k], args.per // 5)
+            ids = {x["id"] for x in sel}
+            picked += sel; rest += [x for x in by_band[k] if x["id"] not in ids]
+        if len(picked) < args.per:
+            picked += choose(rest, args.per - len(picked))
+        picked.sort(key=lambda x: (x["band"], x["rigor"], x["seed"], x["gen"]))
         kinds = collections.Counter(x["type"] for x in picked)
         stats[code] = {"label": R["label"], "drawn": len(R["items"]), "kept": len(pool), "banked": len(picked), "kinds": dict(kinds), "rigor": sum(1 for x in picked if x["rigor"]), "hasRigor": bool(R.get("rigor")),
+                       "bands": [sum(1 for x in picked if x["band"] == k) for k in range(1, 6)], "anchor": DIFF[code]["anchor"],
                        "figures": sum(1 for x in picked if x.get("fig")), "out": dict(out)}
         if len(picked) < args.least:
             problems.append(f"{code}: {len(picked)} items, fewer than {args.least}")
@@ -262,6 +289,8 @@ def build(args):
         problems.append("two items share an id")
     bank = {"v": 1, "course": args.course, "grade": bp["grade"], "tier": bp["tier"],
             "blueprint": {"source": TDS, "items": bp["items"], "categories": bp["categories"]},
+            "difficulty": {"what": "d: Cadence's starting estimate of the percent of Florida Grade 8 students who would answer the item correctly; band: 1 (easiest) to 5 (hardest). An estimate, not a measurement.",
+                           "model": "cadence tools/difficulty_model.js", "cuts": dtable["cuts"], "anchoredTo": dtable["released"]},
             "source": {"cadence": cb.git_head(args.cadence), "build": meta.get("build"), "windmill": cb.git_head(os.path.dirname(HERE)), "per": args.per},
             "n": len(items), "items": items}
     return bank, stats, problems
@@ -274,13 +303,14 @@ def readme(bank, stats, sha):
          f"- {bank['n']} items, at most {bank['source']['per']} a benchmark; `bank.json` sha256 `{sha}`",
          f"- The blueprint: {bank['blueprint']['source']}. A test has {bank['blueprint']['items']} questions: "
          + ", ".join(f"{c['count']} of {c['name']} ({c['range'][0]}–{c['range'][1]}% of the test)" for c in bank["blueprint"]["categories"]) + ".", "",
-         "| Benchmark | Cadence's name | Drawn | Could be asked | Banked | High rigor | mc | numeric | select-all | grid | With a picture | Left out |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "| Benchmark | Cadence's name | Anchor | Drawn | Could be asked | Banked | Bands 1 · 2 · 3 · 4 · 5 | High rigor | mc | numeric | select-all | grid | With a picture | Left out |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for code, s in stats.items():
         k = s["kinds"]
-        L.append(f"| {code} | {s['label']} | {s['drawn']} | {s['kept']} | {s['banked']} | {s['rigor'] if s['rigor'] else ('none in Cadence' if not s['hasRigor'] else 'none the screen can ask')} | {k.get('mc', 0)} | {k.get('numeric', 0)} | {k.get('ms', 0)} | {k.get('grid', 0)} | {s['figures']} | "
+        L.append(f"| {code} | {s['label']} | {s['anchor']}% | {s['drawn']} | {s['kept']} | {s['banked']} | {' · '.join(str(n) for n in s['bands'])} | {s['rigor'] if s['rigor'] else ('none in Cadence' if not s['hasRigor'] else 'none the screen can ask')} | {k.get('mc', 0)} | {k.get('numeric', 0)} | {k.get('ms', 0)} | {k.get('grid', 0)} | {s['figures']} | "
                  + ("; ".join(f"{n} {w}" for w, n in sorted(s["out"].items(), key=lambda kv: -kv[1])) or "none") + " |")
-    L += ["", "High rigor: Cadence's own harder items for the benchmark. The test adapts with them: a right answer brings the next benchmark's high-rigor question.",
+    L += ["", "Anchor and bands: Cadence's starting estimate of how hard each item is (Cadence `tools/difficulty_model.js`, `notes/DIFFICULTY_G8.md`): the percent of Florida students expected to answer correctly, anchored to the 2025 released test; band 1 is the easiest, 5 the hardest. Estimates, not measurements. The test adapts by band.",
+          "High rigor: Cadence's own high-rigor bank for the benchmark.",
           "Left out means Cadence drew it and the FAST screen cannot show or check it (see the tool's own notes)."]
     return "\n".join(L) + "\n"
 
