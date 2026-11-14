@@ -72,7 +72,7 @@ module.exports = async function partQ(b, url, U, dir, fail) {
       const o = await q.evaluate(() => { const n = s => s.replace(/\s+/g, ' ').trim();
         return { chk: (document.getElementById('setchk') || { textContent: '' }).textContent, stems: Array.from(document.querySelectorAll('#paper .q')).filter(e => e.querySelector('.stem .st')).map(e => n(e.querySelector('.stem .st').textContent) + '||' + Array.from(e.querySelectorAll('.line .st')).map(x => n(x.textContent)).join('|')) }; });
       if (JSON.stringify(o.stems) !== JSON.stringify(f.stems)) fail('Q: ' + F + ': set ' + seed + ' opened on the page is not the printed paper');
-      if (o.chk !== ' · check ' + m[4]) fail('Q: ' + F + ': set ' + seed + ' opened on the page shows "' + o.chk + '", the key says check ' + m[4]);
+      if (o.chk !== 'Set ' + seed + ' · version ' + U.contentVersion + ' · check ' + m[4]) fail('Q: ' + F + ': set ' + seed + ' opened on the page shows "' + o.chk + '", the key says check ' + m[4]);
       await q.click('#bMore'); await q.click('#bPrint'); await q.click('[data-print="wk"]'); await q.waitForTimeout(150);
       const keys = await q.evaluate(() => Array.from(document.querySelectorAll('#printview .pkey table.ptab tr')).map(t => t.cells[1].textContent.replace(/\s+/g, ' ').trim()));
       if (JSON.stringify(keys) !== JSON.stringify(f.keys)) fail('Q: ' + F + ': set ' + seed + ' opened on the page has other answers than the printed key');

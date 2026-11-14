@@ -533,7 +533,7 @@ teacher copy's make-ups (A7 Units 3–6, M7 Units 4, 9, 10), each key's number o
 page — the same questions and answers every time. What was loose, and is now held:
 - **A check code on every key.** After the set number: the unit's version and five characters (no 0, O, 1 or I) worked out
   from the unit, its `contentVersion` and every question and answer of that paper — "Set 4821 · Whole test · version 4 ·
-  check K7Q2F". A teacher copy shows the open set's code in the ⋯ menu ("Set 4821 · check K7Q2F · Change"). The same code
+  check K7Q2F". A teacher copy shows the open set's code at the foot of the ⋯ menu ("Set 4821 · version 4 · check K7Q2F"). The code is its own piece and is never translated (A7 Units 3–4 and M7 Unit 4 keep Português). The same code
   means the same questions and answers. A key whose code is not its set's today was printed before the unit was rebuilt
   (a version bump changes every code), or from a form that was changed.
 - **A changed form says how.** A pinned form (Tests A and B) names, on its key, each question drawn from another set with

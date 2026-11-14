@@ -267,7 +267,7 @@ function render(){
   $('paper').innerHTML = h.join('');
   $('setno').textContent = seed; $('setin').value = seed;
   /* a teacher copy shows the open set's check code beside "Set number", to hold against a printed key (14 Nov 2026) */
-  if (teacherPage()){ var sc0 = $('setchk'); if (!sc0){ sc0 = document.createElement('span'); sc0.id = 'setchk'; sc0.className = 'setchk'; sc0.setAttribute('translate', 'no'); var sn = $('setno'); sn.parentNode.insertBefore(sc0, sn.nextSibling); } sc0.textContent = scope === 'all' ? ' · check ' + setCheck() : ''; }
+  if (teacherPage()){ var sc0 = $('setchk'); if (!sc0){ sc0 = document.createElement('p'); sc0.id = 'setchk'; sc0.className = 'setchk'; sc0.setAttribute('translate', 'no'); $('mMenu').appendChild(sc0); } sc0.textContent = scope === 'all' ? 'Set ' + seed + ' · version ' + U.contentVersion + ' · check ' + setCheck() : ''; sc0.hidden = scope !== 'all'; }   /* its own line at the foot of the ⋯ menu, never translated */
   /* which practice this is, always in sight (7 Nov 2026, Croix: "It was the switching mechanism that confused me. I would assume
      that if I open a specific lesson it would open to that section. Likewise if I open the full practice test."): a chip under the
      title names the choice from What to practice, and a lesson's line says what it is — "Lesson 10.04 · 8 questions · today's
@@ -1081,7 +1081,7 @@ function worksheetHtml(){
 }
 function keyListHtml(){
   var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + keyHtml(it) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
-  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + checkLine() + '</span></p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
+  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key</span></h2><p class="pmeta"><span class="bt">' + setLine() + '</span>' + checkLine() + '</p><table class="ptab"><tbody>' + rows + '</tbody></table></div>';
 }
 function yourAnswer(it){
   var a = S.ans[it.id];
@@ -1167,7 +1167,7 @@ function setCheck(){
     return U.key(x) + '=' + a + (it.item && it.item._est != null ? '~' + it.item._est : '') + (x._eln != null ? '~' + x._eln : '');
   }).join(';'));
 }
-function checkLine(){ return ' · version ' + esc(String(U.contentVersion)) + ' · check ' + setCheck(); }
+function checkLine(){ return '<span class="pchk" translate="no"> · version ' + esc(String(U.contentVersion)) + ' · check ' + setCheck() + '</span>'; }   /* its own piece, never translated: a code is not words */
 function okSetText(t){ var m = /^\s*(\d{1,5})\s*$/.exec(String(t)); return m && +m[1] >= 1 ? +m[1] : 0; }
 function leftOut(){                                         /* how many of the set's questions this paper does not have (a disapproved kind) */
   var all = 0, on = 0; try { G.sections.forEach(function(sec){ all += sec.items.length; }); DS.forEach(function(sec){ on += sec.items.filter(function(d){ return !d.out; }).length; }); } catch(e){ return ''; }
@@ -1260,7 +1260,7 @@ function testFormHtml(label, form){
   });
   return h.join('');
 }
-function testKeyHtml(form, meta){
+function testKeyHtml(form, meta, chk){
   var T = window.TEACHER_TEST || {};
   var rows = ITEMS.map(function(it){ var q = qidOfItem(it); return '<tr><td class="pk">' + esc(it.lab) + '</td><td class="kv">' + (mcKey(it) || keyHtml(it)) + '</td><td class="pid" translate="no">' + (q ? q.id : '') + '</td></tr>'; }).join('');
   var bySec = DS.map(function(sec, si){ var its = ITEMS.filter(function(it){ return it.sec === si; }), qs = [];
@@ -1273,7 +1273,7 @@ function testKeyHtml(form, meta){
   var tracker = '<div class="ptrk"><h2 class="psec"><span class="bt">Score tracker</span></h2><table class="ptab ptrack"><thead><tr><th>' + (byBm ? 'Benchmark' : 'Section') + '</th><th>Questions</th><th>Possible</th><th>Earned</th></tr></thead><tbody>' +
     bySec.map(function(b){ return '<tr><td>' + (byBm ? esc(order[b.si]) : b.title) + '</td><td>' + b.qs.join(', ') + '</td><td>' + b.pts + '</td><td></td></tr>'; }).join('') +
     '<tr><td><b>Total</b></td><td></td><td><b>' + ITEMS.length + '</b></td><td></td></tr></tbody></table></div>';
-  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key — Form ' + form + '</span></h2>' + (meta ? '<p class="pmeta"><span class="bt">' + meta + '</span></p>' : '') +
+  return '<div class="pkey"><h2 class="psec"><span class="bt">Answer key — Form ' + form + '</span></h2>' + (meta ? '<p class="pmeta"><span class="bt">' + meta + '</span>' + (chk || '') + '</p>' : '') +
     (T.follow_through_key ? '<p class="pmeta kft">' + esc(T.follow_through_key) + '</p>' : '') + '<table class="ptab pkrows"><tbody>' + rows + '</tbody></table>' + tracker + '</div>';
 }
 function makeupHtml(n, label, mc){
@@ -1282,7 +1282,7 @@ function makeupHtml(n, label, mc){
   while (seeds.length < n && guard++ < 50){ var r = randomSeed(); if (seeds.indexOf(r) < 0) seeds.push(r); }
   var forms;
   ALLMC = !!mc && canMC();                                   /* every part a choice of four (14 Nov 2026) */
-  try { forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope]) + leftOut() + (ALLMC ? ' · All multiple choice' : '') + checkLine()), form: LET[k], seed: s}; }); }); }
+  try { forms = seeds.map(function(s, k){ return withSet(s, function(){ return {ws: testFormHtml(label, LET[k]), key: testKeyHtml(LET[k], 'Set ' + s + ' · ' + esc(SCOPES[scope]) + leftOut() + (ALLMC ? ' · All multiple choice' : ''), checkLine()), form: LET[k], seed: s}; }); }); }
   finally { ALLMC = false; }
   var h = forms.map(function(f, k){ return (k ? '<div class="pbreak"></div>' : '') + '<div class="pform tpage" data-form="' + f.form + '">' + f.ws + '</div>'; }).join('');
   h += forms.map(function(f){ return '<div class="pbreak"></div><div class="pform pkeyform tpage"' + (mc && canMC() ? ' data-mc="1"' : '') + '>' + f.key + '</div>'; }).join('');
@@ -1297,7 +1297,7 @@ function pinnedForm(secs, o){
   var keep = {DS: DS, ITEMS: ITEMS, EX: EX}, out;
   try {
     DS = secs; ITEMS = []; EX = {}; collect(); ALLMC = !!o.mc && canMC();
-    out = {test: testFormHtml(o.label || 'Test', o.form), key: testKeyHtml(o.form, (o.meta || '') + checkLine()), points: ITEMS.length, check: setCheck(),
+    out = {test: testFormHtml(o.label || 'Test', o.form), key: testKeyHtml(o.form, o.meta || '', checkLine()), points: ITEMS.length, check: setCheck(),
       rows: ITEMS.map(function(it){ return {k: it.k, lab: it.lab, type: it.type, label: it.x && it.x.label || '', key: keyHtml(it)}; })};
   } finally { DS = keep.DS; ITEMS = keep.ITEMS; EX = keep.EX; ALLMC = false; }
   return out;
