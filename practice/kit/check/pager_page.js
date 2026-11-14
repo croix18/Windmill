@@ -75,15 +75,17 @@ module.exports = async function (newContext, url, U, dir, fail) {
   /* a coach's Next ↓ after a right answer opens the next question not right yet, the focus in its box */
   await tap(p, '#pgGrid [data-pgi="1"]');
   for (const it of Q[2]) await check(p, it.id); await p.waitForTimeout(60);
-  const nx = '[data-next="' + Q[2][Q[2].length - 1].id + '"]';
-  if (!(await p.$(nx))) F('no Next ↓ after question 2 was right');
-  else { await tap(p, nx); await p.waitForTimeout(250); L = await look(p); if (L.shown.join() !== '3' || !L.inCard) F('Next ↓ from question 2: question ' + L.shown.join() + ', focus ' + (L.inCard ? 'in it' : 'not in it')); }
-  /* Move on after a miss: the next question, with the focus in it */
+  const fwd = () => p.evaluate(() => [...document.querySelectorAll('[data-next],[data-moveon],#pgNext,#bFinish')].filter(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden' && (e.id !== 'bFinish')).map(e => e.id || e.textContent.trim()));
+  let fw = await fwd(); L = await look(p);
+  if (fw.join() !== 'pgNext') F('after a right answer the ways forward on screen are: ' + fw.join(' | '));
+  if (L.focus !== 'pgNext') F('after a right answer the focus is on "' + L.focus + '", not Next');
+  if (!(await p.$('[data-next="' + Q[2][Q[2].length - 1].id + '"]'))) F('no next question offered after question 2 was right');
+  await tap(p, '#pgNext'); await p.waitForTimeout(250); L = await look(p); if (L.shown.join() !== '3' || !L.inCard) F('Next after a right question 2: question ' + L.shown.join() + ', focus ' + (L.inCard ? 'in it' : 'not in it'));
+  /* Next after a miss does what Move on did: the next question, the focus in it — the only way forward on screen */
   const solo = Object.keys(Q).map(Number).find(k => k >= 3 && k < N && Q[k].length === 1 && Q[k][0].kind === 'text');
   if (solo) { await tap(p, '#pgGrid [data-pgi="' + (solo - 1) + '"]'); await p.fill('#a' + Q[solo][0].id, '987654'); await check(p, Q[solo][0].id); await p.waitForTimeout(60);
-    const mv = '[data-moveon="' + Q[solo][0].id + '"]';
-    if (!(await p.$(mv))) F('no Move on after a miss on question ' + solo);
-    else { await tap(p, mv); await p.waitForTimeout(250); L = await look(p); if (L.shown.join() !== String(solo + 1) || !L.inCard) F('Move on from question ' + solo + ': question ' + L.shown.join()); } }
+    fw = await fwd(); if (fw.join() !== 'pgNext') F('after a miss the ways forward on screen are: ' + fw.join(' | '));
+    await tap(p, '#pgNext'); await p.waitForTimeout(250); L = await look(p); if (L.shown.join() !== String(solo + 1) || !L.inCard) F('Next after a miss on question ' + solo + ': question ' + L.shown.join()); }
 
   /* every key typed through the pager, Next to the end, Finish there: every point, then the summary and a question reviewed */
   if (!teacher) {

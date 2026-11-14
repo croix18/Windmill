@@ -14,6 +14,8 @@
   body.pg.pg-sum #paper,body.pg.pg-sum .pghead,body.pg.pg-sum .pgnav,body.pg.pg-done .pgmap,body.pg.pg-none .pghead,body.pg.pg-none .pgnav,body.pg.pg-none .pgmap{display:none}
   body.pg:not(.pg-sum) .pglist{display:none}
   body.pg.pg-rev>.result{display:none}
+  body.pg #paper [data-next],body.pg #paper [data-moveon]{display:none!important}   /* one way forward: the pager's Next (pager.js) */
+  body.pg.pg-sum .qbar{visibility:hidden}                         /* the summary has no question on screen */
 }
 @media print{ .pghead,.pgnav,.pgmap,.pglist{display:none!important} }
 

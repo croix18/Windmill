@@ -578,9 +578,11 @@ My misses and every lesson set — shows one question at a time**, in the releas
 - **The map** under the sheet: a button per question, navy when answered (every part), a flag in the corner when flagged, a
   turquoise ring on the one on the screen, each labelled ("Question 2, answered, flagged"). On a phone (≤ 600 px) it is a
   drawer, one line until opened — "Questions: 5 of 16 answered, 1 flagged".
-- **Check as I go** marks on the question's own screen, as before; **Like the real test** says nothing until Finish. A coach's
-  button that goes to another question (Next ↓, Move on, the end panel's "Not right yet" links) opens that question first, then
-  puts the focus in its box, as before.
+- **Check as I go** marks on the question's own screen, as before; **Like the real test** says nothing until Finish.
+- **One way forward** (Croix, 14 Nov 2026: "I don't want sloppy work"): the coach's Next ↓ after a right answer and its Move on
+  after a miss are not shown with the pager — its Next does what they did (the next question not right yet, the focus in its
+  box) and takes the focus after a right answer; otherwise it opens the next question. The end panel's "Not right yet" links
+  open their question. The bar's "Question 4 of 16" is hidden on the summary, where no question is on the screen.
 - **Finish** gives the score: the end panel, as before, and under the title **Every question** — ✓ Right, ✗ Not right (or
   "1 of 2 right"), – Blank, with its section and ID. A tap opens the question to review (its verdict beside its number, the end
   panel out of the way); **Score summary** goes back. A finished set reopens on its summary.

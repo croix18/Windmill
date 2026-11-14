@@ -142,7 +142,13 @@ K.Pager = function(api){
   }
 
   $('pgPrev').addEventListener('click', function(){ go(cur - 1, true); });
+  /* one way forward (Croix, 14 Nov 2026: "I don't want sloppy work"): the coach's Next ↓ after a right answer and its Move on after
+     a miss are not shown here (pager.css); the pager's Next does what they did — the next question not right yet, the focus in
+     its box — and, when they would not have gone to another question, goes to the next one, as before */
+  function coachTo(){ var on = cards[cur], bs = on ? on.querySelectorAll('[data-next],[data-moveon]') : []; return bs.length ? bs[bs.length - 1] : null; }
   $('pgNext').addEventListener('click', function(){
+    var cb = view === 'quiz' && coachTo(), was = cur;
+    if (cb){ cb.click(); if (cur !== was) return; }
     if (cur < cards.length - 1) go(cur + 1, true);
     else if (done()) summary();
     else { var f = $('bFinish'); if (f && !f.hidden) f.click(); }                        /* ui.js asks, in the bar, as its Finish does */
@@ -165,6 +171,12 @@ K.Pager = function(api){
     var h = it && api.hostOf(it), c = h && h.closest ? h.closest('.q[data-q]:not(.xq)') : null, i = cards.indexOf(c);
     if (i >= 0 && (i !== cur || view !== 'quiz')) go(i, false);
   }, true);
+  /* after a right answer ui.js puts the focus on its Next ↓, which is not shown here: the pager's Next takes it */
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest ? e.target.closest('[data-check]') : null; if (!t || !cards.length) return;
+    var id = t.getAttribute('data-check');
+    setTimeout(function(){ if (document.querySelector('[data-next="' + id + '"]')) { try { $('pgNext').focus({preventScroll: true}); } catch(x){ $('pgNext').focus(); } } }, 0);
+  });
   /* answered or not, as the student types, taps a choice or builds a graph */
   var raf = 0, later = function(){ if (raf) return; raf = requestAnimationFrame(function(){ raf = 0; if (cards.length) paintMap(); }); };
   ['input', 'change', 'click', 'keyup', 'pointerup'].forEach(function(ev){ paper.addEventListener(ev, later); });
