@@ -3,7 +3,9 @@
    B. the Apple-review flows: Cancel closes the confirm; the same answer again is not another try; focus after Hint,
       Show me how, Try another, a right answer (Next) and Close; Show this step after two misses; Finish marks typed but
       unchecked answers; results buttons practise in "Check as I go"; test mode says only "can't read this yet";
-      tap targets; the keypad is not a tab stop; a bad link does not open another set; no page errors. */
+      tap targets; the keypad is not a tab stop; a bad link does not open another set; no page errors.
+   C–Q: see each part below. A–Q see every question on one screen (the checks' switch, window.KIT_PAGER_OFF); R checks the
+   pager — one question at a time, as on the FAST (pager.js, 14 Nov 2026) — as students have it (check/pager_page.js). */
 const path = require('path');
 const { chromium } = require('playwright');
 const dir = path.resolve(process.argv[2] || '.'), U = require(path.join(dir, 'unit.js'));
@@ -57,6 +59,11 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
 (async () => {
   await new Promise(res => server.listen(0, '127.0.0.1', res)); url = 'http://127.0.0.1:' + server.address().port + '/preview.html';
   const b = await chromium.launch();
+  /* one question at a time (pager.js, 14 Nov 2026): parts A–Q check what they always have, with every question on one screen —
+     the checks' switch, window.KIT_PAGER_OFF, in every context before a page loads (nothing on a page sets it) — and part R
+     (pager_page.js) checks the pager itself, as students have it, in contexts without the switch */
+  const rawContext = b.newContext.bind(b);
+  b.newContext = async o => { const c = await rawContext(o); await c.addInitScript(() => { window.KIT_PAGER_OFF = true; }); return c; };
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }), p = await ctx.newPage();
   /* KaTeX is inlined by the build; the CDN route stays only so a page built without it still checks offline */
   const VEND = path.join(__dirname, '..', 'vendor', 'katex');
@@ -991,6 +998,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   if (/^teacher$/.test(path.basename(dir)) && typeof U.choices === 'function') await require('./mc_page.js')(b, url, U, dir, fail);
   /* Q. set numbers are valid and accurate (14 Nov 2026): the lock in this browser, bad links and numbers, the check code on every key */
   await require('./set_page.js')(b, url, U, dir, fail);
+  /* R. one question at a time, as on the FAST (pager.js, 14 Nov 2026): the test and a lesson set, as students have them */
+  await require('./pager_page.js')(rawContext, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

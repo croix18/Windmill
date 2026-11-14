@@ -10,7 +10,7 @@ and writes, in the unit folder:
               Netlify Drop, or opening locally.
 Order: kit/core.js, kit/bilingual.js, kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
 end with test.js and kit/teacher.js), the lesson bank and kit/bank.js (if any), kit/approvals.js (the disapproved questions, from the
-site, 8 Nov 2026), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
+site, 8 Nov 2026), kit/pager.js (one question at a time, 14 Nov 2026; with kit/pager.css after kit.css), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
 import re
 import hashlib, json, os, sys
@@ -21,7 +21,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 
@@ -122,7 +122,7 @@ esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
 THEME_JS = "try{var t=localStorage.getItem('practice.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
 body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <style id="kit-fonts">{fonts_css()}</style>
-<style>{rk('kit.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}</style>
+<style>{rk('kit.css')}{rk('pager.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">
   <a class="back" id="back" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="backl">Unit</span></a>
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
@@ -148,7 +148,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <script>{rk('core.js')}</script>
 <script>{rk('nline.js')}</script>
 <script>{rk('bilingual.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
 # holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
 tf = os.path.join(UD, "test_forms.js")

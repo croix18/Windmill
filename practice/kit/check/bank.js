@@ -95,6 +95,9 @@ const scopesOf = () => { const out = []; MAP.order.forEach(c => { const r = MAP.
 (async () => {
   await new Promise(res => server.listen(0, '127.0.0.1', res)); url = 'http://127.0.0.1:' + server.address().port + '/preview.html';
   const b = await chromium.launch();
+  /* every item drawn and answered with every question on one screen: the checks' switch for the pager (pager.js, 14 Nov 2026),
+     whose own check is page.js part R */
+  { const raw = b.newContext.bind(b); b.newContext = async o => { const c = await raw(o); await c.addInitScript(() => { window.KIT_PAGER_OFF = true; }); return c; }; }
   const scopeKeys = await (async () => { const ctx = await b.newContext(); const p = await ctx.newPage(); await p.goto(url); const k = await p.evaluate(() => Kit.Bank ? Kit.Bank.keys().map(k => [k, Kit.Bank._scopes[k].lessons]) : []); await ctx.close(); return k; })();
   if (!scopeKeys.length) fail('C: the page has no lesson choices (was it built with the bank?)');
   const scopeFor = lid => (scopeKeys.find(([k, ls]) => ls.length === 1 && ls[0] === lid) || scopeKeys.find(([k, ls]) => ls.includes(lid)) || [null])[0];

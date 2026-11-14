@@ -565,6 +565,47 @@ page — the same questions and answers every time. What was loose, and is now h
 What a set number still cannot do, and the key now shows instead: reopen a paper printed from an older version of the unit
 (the code differs), or a form with changed questions (named on the key).
 
+## 14 Nov 2026 — one question at a time, as on the FAST (`pager.js`, `pager.css`)
+Croix: *"Can you change my practice tests to be same style that the fast practice on my page is. So one question per page in the
+same style as the actual fast test."* He chose the lesson sets too. So **every practice page — the whole practice test, a section,
+My misses and every lesson set — shows one question at a time**, in the released-test page's look and flow (mrshaffer.org
+`/a7/practice/fast-2025/`; the site's `released/kit/fast.js` and `fast.css`):
+- **The question's number** over it ("QUESTION 4 OF 16", the eyebrow's teal capitals; the bar's "Question 4 of 16" and its line
+  follow it), with **Flag for review** beside it (a quiet pill; pressed, the ink's edge and a filled flag). The section's name and
+  count, the question's ID and everything in its card are as before.
+- **Back and Next** under it (Next the navy primary). Next on the last question is **Finish**: it asks in the bar, as the bar's
+  Finish does. Each one puts the focus on the question's number, and brings it under the bar when it was out of sight.
+- **The map** under the sheet: a button per question, navy when answered (every part), a flag in the corner when flagged, a
+  turquoise ring on the one on the screen, each labelled ("Question 2, answered, flagged"). On a phone (≤ 600 px) it is a
+  drawer, one line until opened — "Questions: 5 of 16 answered, 1 flagged".
+- **Check as I go** marks on the question's own screen, as before; **Like the real test** says nothing until Finish. A coach's
+  button that goes to another question (Next ↓, Move on, the end panel's "Not right yet" links) opens that question first, then
+  puts the focus in its box, as before.
+- **Finish** gives the score: the end panel, as before, and under the title **Every question** — ✓ Right, ✗ Not right (or
+  "1 of 2 right"), – Blank, with its section and ID. A tap opens the question to review (its verdict beside its number, the end
+  panel out of the way); **Score summary** goes back. A finished set reopens on its summary.
+- **Saved:** the question on the screen and the flags are kept in the set's own record (`S.pg`), so a reload or a return opens
+  the same question with its flags; a new set, Start over and a mode switch open question 1, and so does a lesson link
+  (`#lesson-6.05`), which is always a new set. A second tab on the same set keeps its own question and shares the flags.
+- **Print is unchanged:** only the screen pages (`@media screen`); on paper every question and section prints as before and none
+  of the pager does, and the print previews and the teacher copy's own views (Approve questions, Tests A and B) are untouched.
+- **Português:** the pager's words are in `lang/pt-BR.js`; a question's Right, Not right or Blank stays in English, as its ✓ or ✗
+  says it.
+- **Its own module:** `pager.js` (loaded before `ui.js`) and `pager.css` (after `kit.css`). `ui.js` keeps everything it did and
+  has three hooks: it hands `Kit.Pager(api)` a few of its functions once, at its end; `paintAll` tells the pager the sheet was
+  painted; `paintProgress` asks it which question is on the screen.
+- **Checked:** `check/page.js` part R (`check/pager_page.js`), on student pages and teacher copies: one question and one section on
+  the screen; the number, the bar, Back, Next, the map's buttons and labels, focus on the number; Flag for review; the
+  question, answers and flags after a reload; Next ↓ and Move on opening their question with the focus in its box; every key
+  typed through the pager on set 4821, Next to the last question, Finish there: every point, the summary with every question
+  Right, one reviewed and back, and the summary again after a reload; Like the real test silent before Finish, then Not right
+  and Blank; a lesson link opening its first question, its question and flag after a reload, its summary and a review; at
+  390 × 844 every question of a test and of a lesson set with no sideways scroll and no figure past the edge, the map a drawer,
+  44 px targets; print (every question and section, none of the pager), a print preview and a teacher's view hiding the map;
+  and Português for the pager's words. **Parts A–Q check what they always have with every question on one screen:** the
+  checks' switch, `window.KIT_PAGER_OFF`, set in every browser context before a page loads by `check/page.js` and
+  `check/bank.js` (nothing on a page sets it), leaves the page exactly as it was before the pager.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -586,6 +627,8 @@ What a set number still cannot do, and the key now shows instead: reopen a paper
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
 | `check/set_page.js` | page.js part Q (set numbers valid and accurate, 14 Nov 2026, above), on every page |
 | `check/mc_page.js` | page.js part P (an all-multiple-choice test, 14 Nov 2026, above), on a teacher copy of a unit with `Unit.choices` |
+| `pager.js`, `pager.css` | one question at a time, as on the FAST: the number, Flag for review, Back and Next, the map, the summary after Finish (14 Nov 2026, above) |
+| `check/pager_page.js` | page.js part R (one question at a time, 14 Nov 2026, above), on every page, without the checks' switch that parts A–Q use |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |

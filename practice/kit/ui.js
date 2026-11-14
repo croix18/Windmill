@@ -853,6 +853,7 @@ function cards(){ return Array.prototype.slice.call(document.querySelectorAll('#
 function paintProgress(){
   var qs = cards(), N = qs.length, a = document.activeElement, cur = a && a.closest && a.closest('#paper') ? a.closest('.q[data-q]:not(.xq)') || (a.closest('.xq') && a.closest('.xq').parentNode.closest('.q[data-q]:not(.xq)')) : null;
   var i = cur ? qs.indexOf(cur) : -1;
+  if (PG) i = PG.at();                                        /* one question at a time (pager.js): the one on the screen */
   if (i < 0){ var top = document.querySelector('.watch').getBoundingClientRect().bottom + 8, lim = Math.max(top + 40, window.innerHeight * 0.35);
     for (var k = 0; k < N; k++){ var r = qs[k].getBoundingClientRect(); if (r.bottom > lim){ i = k; break; } } if (i < 0) i = N - 1; }
   var n = N ? i + 1 : 0, q = $('qof'); if (q) q.textContent = N ? 'Question ' + n + ' of ' + N : '';
@@ -1003,7 +1004,7 @@ function restoreOne(it){
   else (it.type === 'mc' ? [a] : a).forEach(function(v){ var x = document.querySelector('input[name="q' + it.id + '"][value="' + v + '"]'); if (x) x.checked = true; });
 }
 function restore(){ ITEMS.forEach(restoreOne); }
-function paintAll(){ paintScopes(); paintBar(); paintProgress(); ITEMS.forEach(paintItem); Object.keys(EX).forEach(function(k){ paintItem(EX[k]); }); paintScore(); }
+function paintAll(){ paintScopes(); paintBar(); paintProgress(); ITEMS.forEach(paintItem); Object.keys(EX).forEach(function(k){ paintItem(EX[k]); }); paintScore(); if (PG) PG.paint(); }
 $('bPause').addEventListener('click', pause);
 $('bResume').addEventListener('click', start);
 $('bFinish').addEventListener('click', function(){
@@ -1409,6 +1410,9 @@ $('eyebrow').innerHTML = U.eyebrow; $('h1').innerHTML = U.h1;   /* openSet repai
    of questions as the unit test, new numbers every set.)"): only a unit's notes — how to write an answer — and none at all hides it. */
 var notesHtml = (U.notes || []).map(function(n){ return '<span class="pinote">' + n + '</span>'; }).join('');
 $('intro').innerHTML = notesHtml; $('intro').hidden = !notesHtml;
+/* one question at a time, as on the FAST (kit/pager.js, 14 Nov 2026): it is handed what it needs, told when the sheet is painted
+   (paintAll) and asked which question is on the screen (paintProgress); none on a page built without it, or with the checks' switch */
+var PG = K.Pager ? K.Pager({S: function(){ return S; }, key: key, items: function(){ return ITEMS; }, answered: answered, byId: byId, hostOf: hostOf, nextOpen: nextOpen, save: save, progress: paintProgress}) : null;
 openSet(seed, scope);
 if (K.Bi && U.second) K.Bi.mount(U, (window.KitLang || {})[U.second.code]);   /* the second-language toggle (kit/bilingual.js), when the unit has one; after the first set is drawn */
 })();

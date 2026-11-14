@@ -1,0 +1,90 @@
+/* Practice-test kit: one question at a time, as on the FAST (pager.js, 14 Nov 2026). The released-test page's look (the site's
+   released/kit/fast.css: .qhead, .flagb, .nav, .mapc and .map, .rlist) on the kit's own tokens (kit.css), so light and true dark
+   come with them: the question's number in the eyebrow's teal capitals, Flag for review a quiet pill (pressed: the ink's edge and
+   a filled flag), Back quiet and Next the navy primary, the map's answered questions navy, the one on screen ringed in
+   turquoise, a flag in the corner of a flagged one. The icons are masks here, so each button's words are plain text (the
+   Português line under them, bilingual.js, needs that). The screen only: in print every question is on the paper as before,
+   and none of this prints. */
+:root{--pgL:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 5l-7 7 7 7'/%3E%3C/svg%3E");--pgR:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");--pgD:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");--pgFlagO:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 21V3.5'/%3E%3Cpath d='M5.5 4.5h12.5l-2.8 4.25 2.8 4.25H5.5z'/%3E%3C/svg%3E");--pgFlagF:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 21V3.5'/%3E%3Cpath fill='black' d='M5.5 4.5h12.5l-2.8 4.25 2.8 4.25H5.5z'/%3E%3C/svg%3E");--pgOk:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");--pgNo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 6.5l11 11M17.5 6.5l-11 11'/%3E%3C/svg%3E");--pgNa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 12h10'/%3E%3C/svg%3E");--pgOkTint:color-mix(in srgb,var(--ok) 11%,transparent)}
+@media screen{
+  body.pg #paper>section.part:not(.pg-on){display:none}
+  body.pg #paper .q[data-q]:not(.xq):not(.pg-on){display:none}
+  body.pg #paper>section.part.pg-on>.sechead{margin-top:14px}
+  body.pg #paper .q.pg-on{margin-bottom:0}
+  body.pg.pg-sum #paper,body.pg.pg-sum .pghead,body.pg.pg-sum .pgnav,body.pg.pg-done .pgmap,body.pg.pg-none .pghead,body.pg.pg-none .pgnav,body.pg.pg-none .pgmap{display:none}
+  body.pg:not(.pg-sum) .pglist{display:none}
+  body.pg.pg-rev>.result{display:none}
+}
+@media print{ .pghead,.pgnav,.pgmap,.pglist{display:none!important} }
+
+/* the question's number (and, after Finish, how it came out), and Flag for review */
+.pghead{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;margin:22px 0 0;padding-top:16px;border-top:1px solid var(--rule);scroll-margin-top:120px}
+.pgq{margin:0;font:700 13px/1.2 var(--chrome);letter-spacing:.12em;text-transform:uppercase;color:var(--link);font-variant-numeric:tabular-nums}
+.pgq:focus{outline:none}
+.pgchip{display:inline-block;margin-left:10px;padding:4px 9px;border-radius:999px;font:700 12px/1 var(--chrome);letter-spacing:.02em;text-transform:none;vertical-align:1px}
+.pgchip.ok{color:var(--ok);background:var(--pgOkTint)} .pgchip.no,.pgchip.na{color:var(--no);background:var(--noTint)}
+.pgflag{min-height:44px;border-radius:999px;padding:9px 15px 9px 12px;font:600 13.5px/1.2 var(--chrome)}
+.pgflag::before{content:"";display:inline-block;width:17px;height:17px;margin-right:7px;vertical-align:-4px;background:currentColor;-webkit-mask:var(--pgFlagO) center/contain no-repeat;mask:var(--pgFlagO) center/contain no-repeat}
+.pgflag[aria-pressed=true]{background:var(--field2);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
+.pgflag[aria-pressed=true]::before{-webkit-mask-image:var(--pgFlagF);mask-image:var(--pgFlagF)}
+
+/* Back, Next (Finish on the last question; Score summary after it) */
+.pgnav{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:26px;padding-top:16px;border-top:1px solid var(--rule)}
+.pgnav button{min-height:44px;min-width:7.5rem;padding:10px 16px;border-radius:10px;font:600 15px/1.2 var(--chrome)}
+.pgnav .pgnext{margin-left:auto}
+.pgprev,.pgnext{position:relative}                                   /* the arrows stand beside the words, which keep their Português line under them */
+.pgnav .pgprev{padding-left:36px} .pgnav .pgnext{padding-right:36px} .pgnav .pgnext.pgend{padding-right:16px}
+.pgprev::before,.pgnext::after{content:"";position:absolute;top:50%;width:18px;height:18px;margin-top:-9px;background:currentColor;-webkit-mask:var(--pgL) center/contain no-repeat;mask:var(--pgL) center/contain no-repeat}
+.pgprev::before{left:12px}
+.pgnext::after{right:12px;-webkit-mask-image:var(--pgR);mask-image:var(--pgR)}
+.pgnext.pgend::after{display:none}
+@media (max-width:400px){ .pgnav button{min-width:0;flex:1 1 0;padding-inline:10px} }
+@media (max-width:600px){ .pgnav #pgBack{order:-1;flex:1 1 100%} }   /* reviewing on a phone: Score summary on its own line, over Back and Next */
+
+/* the map: every question, answered or not, flagged or not, the one on screen; on a phone a drawer, one line until opened */
+.pgmap{padding-top:22px;padding-bottom:22px}
+.pgmh{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-bottom:12px}
+.pgmh h2{margin:0;font:700 16px/1.2 var(--chrome);color:var(--ink)}
+.pglg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0;padding:0;list-style:none;font:500 12.5px/1.2 var(--chrome);color:var(--mut)}
+.pglg li{display:inline-flex;align-items:center;gap:6px}
+.pglg i{display:inline-block;width:15px;height:15px;border-radius:4px;border:1.5px solid var(--rule);background:var(--paper)}
+.pglg i.a{background:var(--go);border-color:var(--go)}
+.pglg i.c{border-color:var(--hot);box-shadow:0 0 0 1.5px var(--hot)}
+.pglg i.f{border:0;border-radius:0;background:currentColor;-webkit-mask:var(--pgFlagF) center/contain no-repeat;mask:var(--pgFlagF) center/contain no-repeat}
+.pgm{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px}
+.pgm button{position:relative;min-height:44px;padding:0;border-radius:10px;border:1.5px solid var(--rule);background:var(--paper);font:700 15px/1 var(--chrome);color:var(--ink);font-variant-numeric:tabular-nums}
+.pgm button:hover{border-color:color-mix(in srgb,var(--ink) 45%,transparent)}
+.pgm button.a{background:var(--go);border-color:var(--go);color:var(--goInk)}
+.pgm button[aria-current=step]{box-shadow:0 0 0 2px var(--paper),0 0 0 4.5px var(--hot)}
+.pgm button.f::after{content:"";position:absolute;top:3px;right:3px;width:12px;height:12px;background:currentColor;-webkit-mask:var(--pgFlagF) center/contain no-repeat;mask:var(--pgFlagF) center/contain no-repeat}
+.pgmt{display:none}
+@media (max-width:640px){ .pgm{grid-template-columns:repeat(6,minmax(0,1fr))} }
+@media (max-width:600px){
+  .pgmap{margin-top:14px;padding:4px 14px}
+  .pgmap:not(.open) .pgmh,.pgmap:not(.open) .pgm,.pgmh h2{display:none}
+  .pgmap.open .pgmh{margin:2px 0 10px}
+  .pgmap.open .pgm{margin-bottom:14px}
+  .pgmt{display:block;position:relative;width:100%;min-height:48px;padding:12px 34px 12px 2px;border:0;border-radius:10px;background:transparent;font:600 14.5px/1.3 var(--chrome);color:var(--ink);text-align:left}
+  .pgmt:hover{background:transparent}
+  .pgmt::after{content:"";position:absolute;right:4px;top:50%;width:20px;height:20px;margin-top:-10px;background:currentColor;-webkit-mask:var(--pgD) center/contain no-repeat;mask:var(--pgD) center/contain no-repeat;transition:transform .15s}
+  .pgmap.open .pgmt::after{transform:rotate(180deg)}
+}
+
+/* after Finish: every question, right or not — a tap opens it to review */
+.pglist{margin-top:24px;padding-top:18px;border-top:1px solid var(--rule)}
+.pglist h2{margin:0 0 4px;font:700 16px/1.2 var(--chrome);color:var(--ink)}
+.pgnote{margin:0 0 10px;font:400 14px/1.4 var(--ui);color:var(--mut)}
+.pgrows{list-style:none;margin:0;padding:0}
+.pgrow{display:grid;grid-template-columns:26px 2rem minmax(0,1fr) auto 16px;align-items:center;gap:10px;width:100%;min-height:52px;padding:6px;border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent;text-align:left;font:500 15px/1.25 var(--chrome);color:var(--ink)}
+.pgrow:hover{background:var(--field);border-color:var(--rule)}
+.pgri{display:grid;place-items:center;width:24px;height:24px;border-radius:50%}
+.pgri::before{content:"";width:15px;height:15px;background:currentColor;-webkit-mask:var(--pgNo) center/contain no-repeat;mask:var(--pgNo) center/contain no-repeat}
+.pgrow.ok .pgri{color:var(--ok);background:var(--pgOkTint)} .pgrow.no .pgri,.pgrow.na .pgri{color:var(--no);background:var(--noTint)}
+.pgrow.ok .pgri::before{-webkit-mask-image:var(--pgOk);mask-image:var(--pgOk)} .pgrow.na .pgri::before{-webkit-mask-image:var(--pgNa);mask-image:var(--pgNa)}
+.pgrn{font-weight:700;font-variant-numeric:tabular-nums}
+.pgrs{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pgrt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pgrid{font:600 11.5px/1.2 var(--chrome);letter-spacing:.03em;color:var(--link)}
+.pgrv{font:600 13.5px/1.2 var(--chrome);white-space:nowrap} .pgrow.ok .pgrv{color:var(--ok)} .pgrow.no .pgrv,.pgrow.na .pgrv{color:var(--no)}
+.pgchev{width:16px;height:16px;background:var(--mut);-webkit-mask:var(--pgR) center/contain no-repeat;mask:var(--pgR) center/contain no-repeat}
+@media (max-width:400px){ .pgrow{gap:8px;grid-template-columns:24px 1.6rem minmax(0,1fr) auto 14px} }
