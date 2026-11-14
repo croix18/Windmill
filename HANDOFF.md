@@ -4,6 +4,26 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (14 Nov 2026, afternoon: generated practice FAST tests from Cadence, by the FAST's own rules)
+
+Croix, of the released FAST test on the site: *"I want a fast test question regeneration engine similar to my practice tests.
+Where I can build tons of practice fast tests, similar questions, etc."* — a blueprint mix, Grade 8 for A7 first, for students
+online and for him on paper, *"Use cadence. It generates graphs and pictures."* — then *"I'd like it to act how the test acts
+and follow the test rules … you have to answer each question before moving on but you can flag and come back and the whole
+thing with getting correct answers getting more difficult questions, all of that information that cambian and the state post
+should apply."*
+- **Here:** `tools/cadence_fast.py` (its own notes are the specification). It opens Cadence as `tools/cadence_bank.py` does and
+  writes `released/a7/fast-practice/bank.json` in **mrshaffer-site**: FLDOE's Grade 8 blueprint and up to 30 items a benchmark
+  (40 benchmarks, 1,200 items, up to 12 of each Cadence's high-rigor items), in the shapes the site's FAST screen checks.
+- **On the site** (its README, "The generated FAST tests"): `/a7/practice/fast/` and `/teacher/a7/fast/` (Print). A set number
+  draws 36 places, 9 a reporting category, each with a regular and a harder question. "Like the real test" — an answer before
+  moving on, nothing ahead to open, flag and come back, End Test once every question is seen, a harder question after a right
+  answer and a regular one after a wrong one — from FLDOE's computer-adaptive testing FAQ and the test administration manuals.
+- **Open, for Croix:** (1) FLDOE's blueprint marks which Grade 8 benchmarks' items have the calculator; as read by a tool it
+  was MA.8.NSO.1.1 alone, which was not trusted without the PDF in hand — the page keeps the calculator open all through.
+  (2) No scale score: the report counts right answers. (3) Two levels of difficulty only. (4) Grade 7 for M7: add its
+  blueprint to `BLUEPRINT` in the tool. (5) The FAST reference sheet is not on the page.
+
 ## Where things stand (14 Nov 2026: retakes can print all multiple choice; section names stay with their questions)
 
 Croix, 14 Nov morning: *"Id like the retakes that I print up to be all multiple choice."*, then, of a section name printed
