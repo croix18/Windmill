@@ -38,12 +38,15 @@ def practice_only(A):
 #   27  one paper over two periods    19  follow-through credit    18  the transfer flag on the key
 TWO_DAY_LINE = ("This assessment runs over two class periods. Stop when the period ends; you "
                 "will continue from where you stopped.")
-FOLLOW_THROUGH = ("If an earlier part is wrong, a later part still earns its point when the "
-                  "right operation is applied to your own earlier answer — but only if that "
-                  "work is on the page.")
+# 7 Nov 2026 (Croix): "Can you get rid of 'if an earlier part is wrong a later part still earns its point' line across
+# everything." The practice kit dropped it that day; the papers this file prints dropped it on 14 Nov 2026 (it was still
+# under every section of a printed Practice Test). Nothing a student reads carries it. Ruling 19's scoring stands, and
+# the key keeps the teacher's grading note, in the teacher's words.
+FOLLOW_THROUGH_KEY = ("Follow-through (ruling 19): a later part earns its point when the right operation is "
+                      "applied to the student's own earlier answer, with that work on the page.")
 TRANSFER_FLAG = ("TRANSFER ITEM — not on the practice test. Same benchmark, a surface nobody "
                  "rehearsed.")
-CONTINUES, FOLLOW_THROUGH_STUDENT = TWO_DAY_LINE, FOLLOW_THROUGH
+CONTINUES = TWO_DAY_LINE
 
 
 def exam_periods(U, build_dir=None):
@@ -288,7 +291,6 @@ def build_paper(U, outdir, key):
     doc.instruction("Show your work. Circle your final answer.")
     if two:
         doc.para(CONTINUES, size=10, bold=True, before=0, after=3)
-    doc.para(FOLLOW_THROUGH_STUDENT, size=9.5, italic=True, color=GRAY, before=0, after=8)
     si = 0; n = 0
     for sec in A["sections"]:
         si += 1
@@ -463,11 +465,6 @@ def build_form(U, outdir, key, form="test", student=False):
     for si, sec in enumerate(sections):
         right = f"{per_sec[si][1]} points" + (f"   {sec['benchmark']}" if key and not student else "")
         doc.section(sec["title"], right)                       # ruling 54: named, not "Part 1." (question 1 sits under it)
-        if any(it.get("parts") for it in sec["items"]):
-            # keep=True: the note rides with the section's first question. Without it a page could end
-            # on a section's title and this note, its questions all on the next page (A7 U4, M7 U4 and
-            # U9, A7 U5 — found 21 Oct 2026, when A7 U4's section 2 got shorter)
-            doc.para(FOLLOW_THROUGH, size=9.5, italic=True, color=GRAY, before=0, after=6, keep=True)
         for it in sec["items"]:
             if it.get("heading"):
                 doc.heading(it["heading"]); continue
@@ -489,7 +486,7 @@ def build_form(U, outdir, key, form="test", student=False):
             rows.append([bm, ",  ".join(str(q) for q in qs), str(pts), ""])
         rows.append([{"text": "Total", "bold": True}, "", {"text": str(total), "bold": True}, ""])
         doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5, keep=True)   # one page, with its heading
-        doc.para(FOLLOW_THROUGH + "  Nothing is weighed and nothing is arguable: apply the "
+        doc.para(FOLLOW_THROUGH_KEY + "  Nothing is weighed and nothing is arguable: apply the "
                  "part's operation to the student's own earlier value and tick if that is what is written.",
                  size=9.5, italic=True, color=GRAY, before=6, after=4)
     kind = "Practice Test" if form == "practice" else ("Test" if form == "test" else f"Test Form {form}")
