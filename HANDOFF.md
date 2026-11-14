@@ -4,6 +4,29 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (14 Nov 2026, afternoon: M7 Unit 13 built; the test's directions in Croix's words; no follow-through line on paper)
+
+Croix, 14 Nov, 11:35 am: *"Look at the order of the content on the website calendar. That should be your build order."* For
+M7 that is **13 → 5 → 7 → 11 → 6 → 12 → 8** (ruling 56). M7 Unit 13 was built this session (M7 `NOTES.md`, top): six decks,
+the practice test, the page and teacher copy; its three-reader review is running; **not on the site**.
+- **Build kit `6b9633a`:** no printed paper carries the follow-through line (it was still under every section of a printed
+  Practice Test — `kit/lib/unitbuild.py`); the key keeps the teacher's grading note (`FOLLOW_THROUGH_KEY`).
+- **Both kits `19245e8`:** the test's directions are Croix's (his wording revisions to the M7 Unit 10 test): `SHOW_WORK` and
+  `TWO_DAY_LINE` in `practice/kit/teacher_gen.py` and `kit/lib/unitbuild.py` (README, "14 Nov 2026 — the test's directions").
+  A one-period test prints the first paragraph only. On the all-multiple-choice paper a number line picked from four graphs
+  reads "Which graph shows the solution?" (`ui.js` `mcLine`; a unit may give `view.mcLine`).
+- **Vendored into M7** (build kit and practice kit; Units 4, 8, 9, 10, 13 pages and teacher copies rebuilt, every check
+  passing; Unit 10's package rebuilt). **Not into A7:** when A7 vendors, each A7 unit whose `notesPrint` carries the old
+  scoring or two-day lines must take the new words (or both wordings print), its `gen_test.py` re-run, its checks re-run.
+- **Unit 13's displays** are course code, not kit: `m7/build/u13/figs.py` (line plots, box plots, histograms, bar charts,
+  stem-and-leaf plots as figkit `shapes`) and `data.py` (the measures as checks). A7's data unit can copy them.
+- **Kit limits the Unit 13 builders hit** (not fixed): a Your Turn, a worked slide, a warm-up and the six-question set
+  cannot carry a figure; a figure shrunk to fit keeps its labels full size and the struck-label check sees only a label on
+  a LINE, not on another label; every saved figure carries a transparent frame of about 16% a side, so a display spans at
+  most ~76% of a slide; a multiple-choice board leaves a figure about 1–1.6 in of height; `shuffle_choices.py` takes
+  `uN lNN.py` (two arguments), not a path; the practice kit does not shuffle a walk's options and its division hint
+  writes "×".
+
 ## Where things stand (14 Nov 2026, afternoon: generated practice FAST tests from Cadence, by the FAST's own rules)
 
 Croix, of the released FAST test on the site: *"I want a fast test question regeneration engine similar to my practice tests.
