@@ -36,8 +36,12 @@ def practice_only(A):
 
 # Rulings on the assessment, in the words the student and the key read:
 #   27  one paper over two periods    19  follow-through credit    18  the transfer flag on the key
-TWO_DAY_LINE = ("This assessment runs over two class periods. Stop when the period ends; you "
-                "will continue from where you stopped.")
+# The test's directions are Croix's own words (14 Nov 2026, his wording revisions to the M7 Unit 10 test), the same on a
+# printed paper here as on a test the practice kit prints (practice/kit/teacher_gen.py).
+TWO_DAY_LINE = ("You will have two class periods to complete this test. Stop working when the first class "
+                "period ends. You will continue where you left off during the next class period.")
+SHOW_WORK = ("Show your work for problems that require calculations. Each numbered question or lettered "
+             "part is worth 1 point.")
 # 7 Nov 2026 (Croix): "Can you get rid of 'if an earlier part is wrong a later part still earns its point' line across
 # everything." The practice kit dropped it that day; the papers this file prints dropped it on 14 Nov 2026 (it was still
 # under every section of a printed Practice Test). Nothing a student reads carries it. Ruling 19's scoring stands, and
@@ -460,7 +464,7 @@ def build_form(U, outdir, key, form="test", student=False):
               banner="WORKED ANSWERS" if student else "ANSWER KEY")
     if two:
         doc.instruction(TWO_DAY_LINE)
-    doc.instruction("Show your work. One point for each lettered part." + (("  " + A["pi_line"]) if A.get("pi_line") else ""))
+    doc.instruction(SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else ""))
     n = 0
     for si, sec in enumerate(sections):
         right = f"{per_sec[si][1]} points" + (f"   {sec['benchmark']}" if key and not student else "")

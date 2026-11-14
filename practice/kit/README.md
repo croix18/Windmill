@@ -509,6 +509,9 @@ as a choice of four. Paper only; the page a student answers on never offers it.
   (Croix chose "pick from 4 graphs" over keeping the graphing or leaving those questions off). The kit draws them; a unit
   gives nothing for them.
 - **A choice question and a select-all** are untouched.
+- **The number line's instruction** reads *"Which graph shows the solution?"* on that paper (Croix, 14 Nov 2026: it must not say
+  "Graph the solution" where the student is choosing); a unit may give its own with `view.mcLine(part)`, and a line the teacher
+  edited on a pinned form is printed as he wrote it.
 - **The right choice's place** comes from the question itself (`mcOrder`: its key and its words, hashed), not from chance,
   so a paper and a key printed a week apart agree.
 - **The key** gives the letter and the answer, and says "All multiple choice" beside its set number; the student's sheet
@@ -519,6 +522,17 @@ as a choice of four. Paper only; the page a student answers on never offers it.
   letter's choice is the answer of that form's own set, worked out again from the set number; the other three are the
   unit's own wrong answers (a line: the three other graphs); the same set prints the same paper twice; a plain make-up is
   untouched; the bar's switch on and off. page.js also refuses the new menu, and a forged request, on a student page.
+
+## 14 Nov 2026 — the test's directions
+Croix's wording revisions to the M7 Unit 10 test, *"General Test Directions — Replace with"*: every printed test (`teacher_gen.py`
+`SHOW_WORK`, the teacher copy's `notes`) opens with **"Show your work for problems that require calculations. Each numbered
+question or lettered part is worth 1 point."** (it was "Show your work. One point for each lettered part."), and a two-period
+test only adds, after it, **"You will have two class periods to complete this test. Stop working when the first class period
+ends. You will continue where you left off during the next class period."** (`TWO_DAY_LINE`, `two_day`; it was "This assessment
+runs over two class periods. Stop when the period ends; you will continue from where you stopped."). A one-period test (every
+A7 test, ruling 51) prints the first paragraph only. `teacher.js` now prints the scoring line first and the two-period line
+after it, as `ui.js` already did. A unit whose `notesPrint` carries these lines must carry the new words, or both wordings print:
+every course's teacher copies regenerate `test.js` (`gen_test.py`) after this kit is vendored.
 
 ## 14 Nov 2026 — a section's name stays with its first question on paper
 Croix, of "The Pythagorean Theorem" printed as the last line of a page with its questions over the page: *"The tests are
@@ -603,6 +617,7 @@ judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: rig
           part (a) of its own), aShown, mode}
    part.imode: an inputmode for the phone's keyboard ('decimal' for a box that never needs a space, a slash or a minus)
 rungs?(x, type, ctx) → {notice, first, steps}   // the help ladder's three rungs, any of them (else derived)
+view.mcLine?(part) → html                      // a number line's instruction on an all-multiple-choice paper (default "Which graph shows the solution?")
 choices?(part) → [html]                        // a typed part's wrong answers as its key would show them, the likeliest first, three
                                                 // or more: an all-multiple-choice paper (14 Nov 2026); never the answer
 solution(x, type, ctx) → [{say, ex}]          // every ex equals the answer (checked); ctx as judge's — a part (b) can keep part (a)'s
