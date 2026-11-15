@@ -22,6 +22,7 @@ from .htmlkit import HtmlDeck
 from . import tekit
 from . import slotmark
 from . import names
+from . import align as _align
 from . import ixlplan
 from .tekit import TE
 from .profile import C
@@ -731,8 +732,11 @@ def _fill_deck(D, L):
             # sentence) keeps the close spacing, which is tried second
             if airy and not note.get("fig"):
                 D.cursor += 0.22
-            for mrow in note["math"]:
-                D.math_row(mrow, surface="slidemid", gap=0.42 if airy else 0.3, slots=True)
+            if _align.setting(note, L):     # a run of relations on one column of signs (lib/align.py)
+                D.math_rows(note["math"], surface="slidemid", gap=0.42 if airy else 0.3, slots=True, align=True)
+            else:
+                for mrow in note["math"]:
+                    D.math_row(mrow, surface="slidemid", gap=0.42 if airy else 0.3, slots=True)
             if airy:
                 D.cursor += 0.1
         if note.get("text"):
@@ -794,7 +798,9 @@ def _fill_deck(D, L):
                 rows = [f"${r[0]}$" if isinstance(r, tuple) else r for r in w["rows"]]
                 reserve = (0.2 + 0.62 if w.get("answer") else 0.2) + (0.5 * len(w.get("items") or []))
                 D.figure_steps(dict(w["fig"], reserve=max(w["fig"].get("reserve", 0.7), reserve)), rows,
-                               size=23, rgap=0.3, surface="slidemid")
+                               size=23, rgap=0.3, surface="slidemid", **({"align": True} if _align.setting(w, L) else {}))
+            elif _align.setting(w, L):
+                D.worked_rows(w["rows"], slots=True, align=True)
             else:
                 for row in w["rows"]:
                     if isinstance(row, tuple):
@@ -807,6 +813,8 @@ def _fill_deck(D, L):
             if w.get("items"):
                 D.items(w["items"], size=23, slots=True)
         yt = ex.get("your_turn")
+        if yt and _align.setting(yt, L):
+            yt = dict(yt, _align=True)      # its answer slide's steps lined up on their signs (lib/align.py)
         if yt:
             # A Your Turn says what to do. The grey line used to ("Same steps, your numbers."), and a
             # Your Turn that was only an expression leaned on it: such a one now carries its Example's
@@ -822,6 +830,8 @@ def _fill_deck(D, L):
     N = C.WB_COUNT
     assert len(wb) == N, f"{L['code']}: whiteboard round must be {N} questions, got {len(wb)}"
     for qi, q in enumerate(wb):
+        if _align.setting(q, L):
+            q = dict(q, _align=True)        # its answer slide's steps lined up on their signs (lib/align.py)
         last = qi == N - 1
         title = f"Whiteboards   ·   Question {qi + 1} of {N}"
         subq = "Take your time. Boards up when you have written it." if last else "Boards up on three."
@@ -904,14 +914,14 @@ def _yt_body(D, yt, yt_ask, reveal, top, surf):
     if fig:
         fig = dict(fig, reserve=max(fig.get("reserve", 0.7), _answer_room(D, yt)))
         if reveal and steps:
-            D.figure_steps(fig, steps)
+            D.figure_steps(fig, steps, **_al(yt))
         else:
             D.figure(fig, strict=True)     # the answer under it must not be pushed into the footer
     if not reveal:
         return
     if steps:
         if not fig:
-            D.steps(steps, **_steps_size(steps))
+            D.steps(steps, **_steps_size(steps), **_al(yt))
         _room_for_answer(D, yt)
         if yt.get("answer_latex"):
             D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.15, 4.9))
@@ -926,6 +936,11 @@ def _yt_body(D, yt, yt_ask, reveal, top, surf):
         D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.2, 4.9))
     else:
         D.answer_line(yt["answer"], y=max(D.cursor + 0.2, 5.0))
+
+
+def _al(item):
+    """The keyword that lines an item's steps up on their signs — none at all when the lesson does not ask."""
+    return {"align": True} if item.get("_align") else {}
 
 
 def _answer_h(D, q):
@@ -965,6 +980,7 @@ def _trial(draw, scratch=None):
     scratch = _SCRATCH if scratch is None else scratch
     if not scratch:
         scratch.append(Deck(C.COURSE, 0, "trial", "trial", "trial"))
+        scratch[0].trial = True             # it says nothing on the console (an aligned run that falls back is said once, by the deck)
     S = scratch[0]
     S.section("trial", "", 0, "", "content")
     try:
@@ -1089,7 +1105,7 @@ def _wb_body(D, q, reveal, surface="slidebig"):
             pass
         elif reveal and q.get("steps"):      # the answer slide: the picture, and its working beside it
             D.figure_steps(dict(fig, reserve=max(fig.get("reserve", 0.7), below), reserve_was=max(fig.get("reserve", 0.7), 0.85)),
-                           shown_steps(q["steps"]))
+                           shown_steps(q["steps"]), **_al(q))
         else:
             D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)), strict=True)    # the ask, options or answer under it stay put
     if kind == "mc" and not (reveal and q.get("steps")) and not beside:
@@ -1104,7 +1120,7 @@ def _wb_body(D, q, reveal, surface="slidebig"):
         D.ask("Write your answer in sentences." if kind == "written" else "Answer it.")
     else:
         if q.get("steps") and not fig:     # the working, then the answer under it (beside the figure when there is one)
-            D.steps(shown_steps(q["steps"]), **_steps_size(shown_steps(q["steps"])))
+            D.steps(shown_steps(q["steps"]), **_steps_size(shown_steps(q["steps"])), **_al(q))
         if q.get("steps"):
             _room_for_answer(D, q)
         y = max(D.cursor + 0.15, 5.1) if q.get("steps") else min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
@@ -1458,7 +1474,7 @@ MTR_TEXT = {
 # Every field a board may carry. A field no builder reads would ship as nothing — it is refused.
 WB_FIELDS = {"kind", "latex", "text", "hint", "gloss", "steps", "answer", "answer_latex", "te_answer", "fig", "fig_a",
              "note", "note_a", "check", "wrong", "choices", "correct", "errors", "qtext", "unneeded", "ack",
-             "form_only", "not_sci", "not_gap", "not_bound", "arrow_ok", "repeat_ok", "figwords_ok"}
+             "form_only", "not_sci", "not_gap", "not_bound", "arrow_ok", "repeat_ok", "figwords_ok", "align"}
 
 
 def differentiation_rows(L):
@@ -1584,6 +1600,7 @@ def rulingcheck_lesson(L):
     out += repeatcheck.check_lesson(L)      # ruling 43: a practice problem never repeats what the lesson already showed
     from . import figwords
     out += figwords.check(L, code)          # ruling 44: the words of a question and its picture agree
+    out += _align.bad_values(L)             # align="=" lines a lesson's equations up; a block may say align=False
     for i, q in enumerate(L.get("whiteboard", [])):
         for k in sorted(set(q) - WB_FIELDS):
             out.append(f"{code} whiteboard[{i}]: field '{k}' is not read by any builder — "
