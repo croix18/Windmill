@@ -3,6 +3,9 @@
    - the boxes: one input per box (#a<id>, #a<id>_1 …), each with its label shown and its own name for a screen reader ("Answer to
      question 12, x"), the group named; Tab goes box → box → Check → Hint;
    - the boxes on one line at 360, 390 and 1280 px (they fit there), nothing past the screen's edge;
+   - EVERY part with boxes in the unit (each boxed place of the test, from as many sets as it takes), at 360, 390 and 1280 px: each
+     box's label and unit on its box's row, the Check button on the screen, nothing past the screen's edge; boxes without a unit
+     ("x = ▢  y = ▢") on one line; on a phone (≤ 480 px) boxes with a unit ("after ▢ weeks") a row each (15 Nov 2026, evening);
    - a box left empty is not a try ("Not counted yet", "Fill in every box"); Enter in a box with the next one empty goes to it;
    - the key, one string per box: ✓ Correct on the first try and the point; the saved answer is one string per box, the boxes
      locked; after a reload every box holds its own string;
@@ -59,8 +62,9 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
     for (let k = 0; k < n + 1; k++) { await p.keyboard.press('Tab'); order.push(await p.evaluate(() => { const a = document.activeElement; return a ? (a.id || (a.dataset && (a.dataset.check ? 'check' : a.dataset.rung ? 'hint' : '')) || a.tagName) : ''; })); }
     const want = B.slice(1).map((x, k) => boxSel(id, k + 1).slice(1)).concat(['check', 'hint']);
     if (order.join(',') !== want.join(',')) F('Tab from the first box goes ' + order.join(' → ') + ', not ' + want.join(' → ')); }
-  /* one line where they fit, at three widths */
-  for (const w of [360, 390, 1280]) {
+  /* one line where they fit, at three widths (boxes with a unit take a row each on a phone: measured below, with every boxed part) */
+  const withUnit = B.some(x => x.unit);
+  for (const w of (withUnit ? [1280] : [360, 390, 1280])) {
     await p.setViewportSize({ width: w, height: 844 }); await p.waitForTimeout(60);
     const r = await p.evaluate(([id, n]) => { const tops = [], rights = []; for (let k = 0; k < n; k++) { const e = document.getElementById('a' + id + (k ? '_' + k : '')), b = e.getBoundingClientRect(); tops.push(Math.round(b.top)); rights.push(b.right); }
       return { tops, right: Math.max.apply(null, rights), vw: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, wd: Math.round(document.getElementById('a' + id).getBoundingClientRect().width) }; }, [id, n]);
@@ -69,6 +73,44 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
     if (r.wd < 44) F('at ' + w + ' px a box is ' + r.wd + ' px wide');
   }
   await p.setViewportSize({ width: 390, height: 844 });
+
+  /* every part with boxes, at three widths: the label and the unit on the box's row, Check on the screen, nothing past the edge;
+     no unit → one line; a unit, on a phone → a row each. Each boxed place of the test (section, item, part — and each way its boxes
+     are labeled, so a story in dollars and one in centimeters are both measured) is found from set 4821, then 1–300; a set is opened
+     once for all its places. */
+  { const places = {}, bySeed = {};
+    const scan = seed => { const g = U.generate(seed); let qn = 0;
+      g.sections.forEach((sec, si) => sec.items.forEach((it, ii) => { qn++;
+        const ps = it.type === 'parts' ? it.parts.map(q => ({ q, id: qn + q.label, pl: si + '.' + ii + '.' + q.label })) : it.type === 'solo' ? [{ q: it.part, id: String(qn), pl: si + '.' + ii }] : [];
+        ps.forEach(({ q, id, pl }) => { const bx = boxesOf(U, q); if (!bx) return; pl += '|' + bx.map(x => (x.pre || '') + '▢' + (x.unit || '')).join(' '); if (places[pl]) return; places[pl] = 1; (bySeed[seed] = bySeed[seed] || []).push({ id, n: bx.length, unit: bx.map(x => !!x.unit) }); }); })); };
+    scan(4821); for (let s = 1; s <= 300; s++) scan(s);
+    let nMeas = 0;
+    for (const seed of Object.keys(bySeed)) {
+      await fresh(p, +seed);
+      for (const w of [360, 390, 1280]) {
+        await p.setViewportSize({ width: w, height: 844 }); await p.waitForTimeout(60);
+        for (const P of bySeed[seed]) {
+          const r = await p.evaluate(([id, n]) => { const vw = document.documentElement.clientWidth, out = { vw, sw: document.documentElement.scrollWidth, boxes: [] };
+            const R = e => { if (!e) return null; const b = e.getBoundingClientRect(); return b.width || b.height ? { t: b.top, b: b.bottom, l: b.left, r: b.right, m: (b.top + b.bottom) / 2 } : null; };
+            for (let k = 0; k < n; k++) { const e = document.getElementById('a' + id + (k ? '_' + k : '')); if (!e) { out.boxes.push(null); continue; } const bx = e.closest('.bx');
+              out.boxes.push({ inp: R(e), pre: R(bx && bx.querySelector('.pre')), unit: R(bx && bx.querySelector('.unit')) }); }
+            out.chk = R(document.querySelector('[data-check="' + id + '"]')); return out; }, [P.id, P.n]);
+          const at = 'part ' + P.id + ' (set ' + seed + ') at ' + w + ' px: '; nMeas++;
+          if (r.boxes.some(x => !x || !x.inp)) { F(at + 'a box is not shown'); continue; }
+          r.boxes.forEach((x, k) => { const row = y => y.m >= x.inp.t - 2 && y.m <= x.inp.b + 2;
+            if (x.pre && !row(x.pre)) F(at + 'box ' + (k + 1) + '\'s label is not on its box\'s row (label ' + Math.round(x.pre.m) + ', box ' + Math.round(x.inp.t) + '–' + Math.round(x.inp.b) + ')');
+            if (x.unit && !row(x.unit)) F(at + 'box ' + (k + 1) + '\'s unit is not on its box\'s row (unit ' + Math.round(x.unit.m) + ', box ' + Math.round(x.inp.t) + '–' + Math.round(x.inp.b) + ')');
+            [x.inp, x.pre, x.unit].forEach(y => { if (y && (y.r > r.vw + 0.5 || y.l < -0.5)) F(at + 'box ' + (k + 1) + ' goes past the screen\'s edge (' + Math.round(y.r) + ' of ' + r.vw + ')'); }); });
+          if (!r.chk || r.chk.r > r.vw + 0.5 || r.chk.l < -0.5) F(at + 'the Check button is off the screen');
+          if (r.sw > r.vw + 1) F(at + 'the page scrolls sideways (' + r.sw + ' of ' + r.vw + ')');
+          const tops = r.boxes.map(x => Math.round(x.inp.t)), units = P.unit.some(Boolean);
+          if (!units && Math.max.apply(null, tops) - Math.min.apply(null, tops) > 3) F(at + 'boxes without a unit are not on one line (tops ' + tops.join(', ') + ')');
+          if (units && w <= 480) for (let k = 1; k < tops.length; k++) if (r.boxes[k].inp.t < r.boxes[k - 1].inp.b - 2) F(at + 'boxes with a unit share a row on a phone (tops ' + tops.join(', ') + ')');
+        }
+      }
+    }
+    await p.setViewportSize({ width: 390, height: 844 }); await fresh(p, T.seed);
+    T.every = Object.keys(places).length + ' boxed places, ' + nMeas + ' measured'; }
 
   /* a box left empty is not a try; Enter goes on to the empty box */
   await fillBoxes(p, id, [key[0]].concat(Array(n - 1).fill(''))); await check(p, id); await p.waitForTimeout(60);
@@ -149,5 +191,5 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
     await pc.close(); }
   if (errs.length) F('page errors: ' + errs.slice(0, 3).join(' | '));
   await ctx.close();
-  console.log('T. several boxes: ' + (teacher ? 'teacher copy, ' : '') + 'U' + (T.qn) + ' (set ' + T.seed + ', ' + n + ' boxes: ' + B.map(x => x.say || '').join(', ') + ') — names, Tab order, one line at 360/390/1280, a box left empty, Enter, a wrong pair, the ladder, a similar one, the key, saved and restored, print, Like the real test, the keypad, the pager');
+  console.log('T. several boxes: ' + (teacher ? 'teacher copy, ' : '') + 'U' + (T.qn) + ' (set ' + T.seed + ', ' + n + ' boxes: ' + B.map(x => x.say || '').join(', ') + ') — names, Tab order, one line at 360/390/1280, every boxed part at 360/390/1280 (' + T.every + '), a box left empty, Enter, a wrong pair, the ladder, a similar one, the key, saved and restored, print, Like the real test, the keypad, the pager');
 };

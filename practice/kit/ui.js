@@ -165,7 +165,7 @@ function boxSay(bx, k){ var s = bx.say || plainText(bx.pre || '').replace(/\s*=\
 function boxesHtml(p, id, lab, B){
   var fl = formOf(p).label, last = B.length - 1;
   var row = B.map(function(bx, k){ var pre = bx.pre || '', unit = bx.unit || '';
-    return '<span class="bx">' + (pre ? '<span class="pre" id="bp' + id + '_' + k + '" aria-hidden="true">' + pre + '</span>' : '') +
+    return '<span class="bx' + (unit ? ' bxu' : '') + '">' + (pre ? '<span class="pre" id="bp' + id + '_' + k + '" aria-hidden="true">' + pre + '</span>' : '') +
       '<input type="text" id="' + boxId(id, k) + '" data-part="' + esc(id) + '" data-box="' + k + '" data-kind="' + esc(bx.kind || p.kind) + '" aria-label="Answer to question ' + esc(lab) + ', ' + esc(boxSay(bx, k)) + '" aria-describedby="ln' + id + (fl ? ' fl' + id : '') + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="' + (k < last ? 'next' : 'done') + '"' + (bx.imode || p.imode ? ' inputmode="' + esc(bx.imode || p.imode) + '"' : '') + (bx.placeholder ? ' placeholder="' + esc(bx.placeholder) + '"' : '') + '>' +
       (unit ? '<span class="unit" aria-hidden="true">' + unit + '</span>' : '') + '<span class="pv" aria-hidden="true"></span></span>'; }).join('');
   return flabHtml(p, id) + '<div class="ans boxes" role="group" aria-label="Answer to question ' + esc(lab) + ', ' + B.length + ' boxes"><span class="bxs">' + row + '</span>' +

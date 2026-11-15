@@ -42,6 +42,13 @@ to push. Once it gets all of its updates push it."*
   here** — that session rebases onto it.
 - **M7 Unit 7** (`m7/build/u7`, its package, `m7/practice/u7`) is being changed by that session through tonight (M7
   `NOTES.md`, first section): the kits session is asked to leave Unit 7 alone and do everything else as it planned.
+- **`practice/kit` changed on main after `342a2e5` — once, by the kits session (15 Nov, 4:50 pm; rebase onto it):** the
+  several-boxes part only — `ui.js` `boxesHtml` (a box with a unit gets the class `bxu`), `kit.css` (the `.ans.boxes`
+  block: a box's label, box and unit never wrap apart; on a phone a box with a unit takes its own row, and `x =` / `y =`
+  share one line at 360 px in a lettered part too), `check/boxes_page.js` (page.js part T now measures EVERY part with
+  boxes at 360, 390 and 1280 px, not the first), `README.md` (that section), `KIT.sha256`. Found on A7 Unit 11's page
+  ("after ▢ weeks" wrapped under its box at 390 px). Nothing else in `practice/kit` is touched; **M7's vendored copy stays
+  at `095d912`** (no M7 page has boxes) until that session vendors again with `cgraph`.
 
 ## Where things stand (15 Nov 2026: the kit limits fixed — figures wherever a question is, a key's own figure, declared step lines, several answer boxes; matplotlib named once; the Drive script 3.1)
 
@@ -78,7 +85,7 @@ the fixed copy."* Everything below is in `kit/README.md` and `practice/kit/READM
   box; keys, `choices` and the all-multiple-choice paper stay whole answers) — page.js part T; a **walkthrough's options are
   shuffled** by a hash of the question (`check/walk.js`, part U); the kit writes **a dot, never ×** — except in the eight
   units whose own checks hold their hints to the old words (`LEGACY_TIMES` in `core.js`: A7 3–6, M7 4, 8, 9, 10), which keep
-  × until each is rebuilt; and the hints no longer throw on a negative number (a question's Step by step had silently gone).
+  × until each is rebuilt; and the hints no longer throw on a negative number (a question's Step by step had silently gone). The boxes' phone layout was put right the same evening (above: a box with a unit, `bxu`).
 - **The Drive script is version 3.1** (`drive/WindyHill.gs`; **Croix pastes it over version 3**): with the Mirror tab lost and
   the record rebuilt over more than one run, version 3 stopped after the first run (the commit was already marked done) and
   left the rest off the record and the Drive tab until the next commit. Found because `drive/test_windyhill.js` crashed on a

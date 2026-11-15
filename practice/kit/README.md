@@ -869,14 +869,20 @@ whose paper says "Give its x and its y"). Now a unit may give a part labeled box
   prints a blank per box with its label, My results each box; the printed test keeps its work space (house rule 2).
   **Keyboard and screen reader:** box 1, box 2 … then Check and Hint in Tab order; Enter in a box whose next box is empty goes to it
   (`enterkeyhint="next"`), else checks; each box is named "Answer to question 12, x", the row is a group ("… 2 boxes"), the labels
-  shown and hidden from the reader. **On a phone** (≤ 480 px) the boxes share one line while they fit (each at least 8rem, the input
-  at least 4.5rem), Check and Hint on the row under them; wider, one row with Check beside it. Box k's input is `#a<id>` for the
+  shown and hidden from the reader. **On a phone** (≤ 480 px) the boxes share one line while they fit (the input
+  at least 4.5rem), Check and Hint on the row under them; wider, one row with Check beside it. A box's label, box and unit never wrap
+  apart ("after ▢ weeks" is one piece), at any width; on a phone a box with a unit after it (`unit`; ui.js gives its `.bx` the class
+  `bxu`) takes a row of its own — "after ▢ weeks" over "$ ▢ each" — while boxes without one ("x = ▢  y = ▢") still share a line (15 Nov
+  2026, evening: A7 Unit 11's 14(a) at 390 px put "weeks" under its box, and its lettered parts' x and y boxes took two lines at
+  360 px; the old "at least 8rem a box" is gone, as a phone's input is 4.5rem wide before it grows). Box k's input is `#a<id>` for the
   first and `#a<id>_<k>` after, with `data-part` and `data-box`.
 - **A unit that gives no boxes is exactly as before**: the same HTML, the same answers, the same locks (A7 Units 6 and 11, M7 Units
   10 and 13, student pages and teacher copies, every check passing on this kit untouched). The boxes are a view of the part, so
   giving a part boxes does not change a set's questions or its lock.
 - **Checked:** `check/page.js` part T (`check/boxes_page.js`, a unit with a part that has boxes): the names, the group, the Tab order;
-  one line at 360, 390 and 1280 px, nothing past the edge; one box filled is not a try; Enter; a wrong pair (the key reversed), its
+  one line at 360, 390 and 1280 px, nothing past the edge; and every part with boxes in the unit (each boxed place, and each way its
+  boxes are labeled, from set 4821 then 1–300) at 360, 390 and 1280 px: each box's label and unit on its box's row, the Check button
+  on the screen, no sideways scroll, boxes without a unit on one line, boxes with a unit a row each on a phone; one box filled is not a try; Enter; a wrong pair (the key reversed), its
   coach's words, one try, saved as one string per box; the ladder; a similar one with its own boxes, ✓; the key ✓ on the first try
   with the point, the boxes locked, every box back after a reload; the worksheet's blanks and labels, the key's row, My results;
   *Like the real test* both ways; the keypad in the box being typed in; the pager's map. Every other page check types into a part's
