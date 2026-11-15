@@ -350,7 +350,7 @@ class HtmlDeck:
         while i < len(rows):
             if i in plan:
                 b, k, _ = plan[i]
-                self._add(self._grid([_align.latex_of(r, "worked") for r in rows[i:b]], "slidemid", k, "worked", slots))
+                self._add(self._grid([_align.latex_of(r, "worked") for r in rows[i:b]], "slidemid", k, "from", slots))
                 i = b
             else:
                 row = rows[i]; i += 1
@@ -543,7 +543,7 @@ sup{font-size:.62em;vertical-align:.45em;line-height:0}
 # Notes slide, from the worked rows' left edge on a worked slide, at the steps' shared left edge on an answer slide.
 EQS_CSS = r"""
 .eqs{display:grid;grid-template-columns:repeat(3,max-content);align-items:baseline;row-gap:14px;line-height:1.3;margin:0}
-.eqs.center{justify-content:center}.eqs.left,.eqs.worked{justify-content:start}.eqs.worked{padding-left:115px}
+.eqs.center{justify-content:center}.eqs.left,.eqs.from{justify-content:start}.eqs.from{padding-left:115px}
 .eqs .k.eq{font-size:1em}.eqs .eqL{text-align:right}.eqs .eqS{text-align:center}.eqs .eqR{text-align:left}
 .steps .eqs{row-gap:7px;margin:7px 0}
 """
