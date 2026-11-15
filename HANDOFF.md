@@ -4,6 +4,31 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out
+
+Croix, to the site session, after circling notes on the site page by page for three days: *"Can you see the pattern in the
+text I am asking you to remove. They are what I consider ai mannerisms that make a project feel like ai. The over
+explaining, the odd phrasing, etc."* It applies to every page a student, a parent or he reads, whichever repository
+writes it. What he has circled, so nobody writes it again:
+
+- **How to use the screen:** "Tap a question to see your answer, the correct one and how to solve it."
+- **How it was made or where it came from:** "Practice questions written by Mr. Shaffer's question generator, Cadence…",
+  "A new set of numbers every time", "built like the real one".
+- **Disclaimers and hedges:** "They are not the state's questions", "this report counts right answers", "If the class
+  needs another day, the dates after it move".
+- **Rules and legends for what the page already does:** the list of the real test's rules over a test that enforces them.
+- **Numbers and settings nobody asked for:** "average question level 4.0 of 5", the mode said back after it is chosen.
+- **Stiff wording:** "the correct one", "Every question", two clauses on a semicolon, "X: what X is".
+
+A row is its name and a button is its verb. If a thing needs a sentence to be understood, fix its label or its layout.
+What stays: a message someone needs in order to go on, dates and rules people act on, a credit a source is owed. The
+long form, with the checks that hold the removed lines out, is in the site's README (`mrshaffer-site`, "Words on a page").
+
+**Not done yet: the unit practice pages** (this kit's `ui.js`, `pager.js`, `explain.js`, `lang/`). The site session went
+through the site's own pages on 15 Nov and left the kit alone because `cgraph` is being built in it today. When that
+lands, the kit's start sheet, bar, end panel and messages want the same pass ("18 parts to answer", "Whole practice
+test"), in English and pt-BR together. Nothing in `practice/kit` was changed by this note.
+
 ## Two sessions at once (15 Nov 2026, 3:55 pm): the practice kit is getting `cgraph`; M7 Unit 7 belongs to the M7 build session
 
 Croix, 3:11 pm, to the M7 build session (session_01W9n2X1WF6KyTFhvQQj7VNo), of M7 Unit 7's open items (no
