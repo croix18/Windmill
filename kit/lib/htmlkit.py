@@ -15,6 +15,7 @@ import os, re, json, html, base64
 from . import figkit    # geometry figures, drawn from the numbers, embedded as data URIs
 from . import mathimg   # the slide face's rules (ruling 40) are written once, there
 from . import slotmark
+from . import align as _align
 from .profile import C
 
 AUTO_SLOTS = C.SLOTS == "exponent"   # base blue / exponent orange, painted by the page off KaTeX's structure
@@ -120,6 +121,7 @@ class HtmlDeck:
         self.cursor = 0.0
         self._n = 0
         self.s = None
+        self.aligned = False      # a run of rows set on its signs (lib/align.py): the page then carries their stylesheet
 
     # ---------- primitives (flow) ----------
     def _add(self, h):
@@ -275,21 +277,87 @@ class HtmlDeck:
         self._add(f'<div class="figchoices"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{w * 100:.0f}px" alt=""></div>{"".join(out)}</div>')
         return True
 
-    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None):
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None, align=False):
         """An answer slide with a picture and working: the figure on the left, the steps beside it."""
         from .deckkit import step_sizes
         size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
         b, w, h = self._img(spec)
-        lines = "".join(f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
+        if align:
+            lines = self._rows_html(rows, surface, size)
+        else:
+            lines = "".join(f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
         self._add(f'<div class="figsteps"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{min(w, 5.2) * 100:.0f}px" alt=""></div>'
                   f'<div class="steps"><div>{lines}</div></div></div>')
 
-    def steps(self, rows, gap=0.1, size=None, surface=None):
+    def steps(self, rows, gap=0.1, size=None, surface=None, align=False):
         """The working on an answer slide: one step to a line, left edges shared, the block centred."""
         from .deckkit import step_sizes
         size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
+        if align:
+            self._add('<div class="steps"><div>' + self._rows_html(rows, surface, size) + "</div></div>")
+            return
         self._add('<div class="steps"><div>' + "".join(
             f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows) + "</div></div>")
+
+    # ---------- rows lined up on their relation signs (lib/align.py, 15 Nov 2026) ----------
+    # The same plan the PowerPoint draws (align.plan, from the same measurements and the same room), set as a
+    # three-column grid: the left sides right-aligned, the sign in a column of its own, the right sides
+    # left-aligned — so every row's sign stands in one column whatever the browser's fonts do.
+    @staticmethod
+    def _room(kind):
+        from .deckkit import LM, CW
+        return {"notes": CW, "worked": LM + CW - 2.0, "steps": CW - 0.1}[kind]
+
+    def _grid(self, tex, surface, k, cls, slots=True):
+        self.aligned = True
+        cells = []
+        for t in tex:
+            left, sign, right = _align.split(t)
+            cells.append(f'<span class="k eq eqL" data-tex="{esc(_tex(left, slots))}"></span>'
+                         f'<span class="k eq eqS" data-tex="{esc("{}" + sign + "{}")}"></span>'
+                         f'<span class="k eq eqR" data-tex="{esc(_tex(right, slots))}"></span>')
+        pt = round(mathimg.SIZES[surface] * k, 2)
+        return (f'<div class="eqs {cls} s-{surface}{" slots" if slots and AUTO_SLOTS else ""}" style="font-size:{pt:g}pt">'
+                + "".join(cells) + "</div>")
+
+    def _rows_html(self, rows, surface, size):
+        plan = _align.plan(rows, "row", surface, self._room("steps"))
+        out, i = [], 0
+        while i < len(rows):
+            if i in plan:
+                b, k, _ = plan[i]
+                out.append(self._grid([_align.latex_of(r, "row") for r in rows[i:b]], surface, k, "left"))
+                i = b
+            else:
+                out.append(f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(rows[i], slots=True)}</p>')
+                i += 1
+        return "".join(out)
+
+    def math_rows(self, rows, surface="slidemid", gap=0.35, slots=False, align=False):
+        plan = _align.plan(rows, "row", surface, self._room("notes")) if align else {}
+        i = 0
+        while i < len(rows):
+            if i in plan:
+                b, k, _ = plan[i]
+                self._add(self._grid([_align.latex_of(r, "row") for r in rows[i:b]], surface, k, "center", slots))
+                i = b
+            else:
+                self.math_row(rows[i], surface=surface, gap=gap, slots=slots); i += 1
+
+    def worked_rows(self, rows, slots=False, align=False):
+        plan = _align.plan(rows, "worked", "slidemid", self._room("worked")) if align else {}
+        i = 0
+        while i < len(rows):
+            if i in plan:
+                b, k, _ = plan[i]
+                self._add(self._grid([_align.latex_of(r, "worked") for r in rows[i:b]], "slidemid", k, "from", slots))
+                i = b
+            else:
+                row = rows[i]; i += 1
+                if isinstance(row, tuple):
+                    self.worked_row(row[0], row[1], slots=slots)
+                else:
+                    self.text(row, 23, slots=slots)
 
     def ask(self, text, y=None):
         self._add(f'<div class="ask bottom"><p>{esc(text)}</p></div>')
@@ -470,6 +538,16 @@ sup{font-size:.62em;vertical-align:.45em;line-height:0}
 @page{size:13.333in 7.5in;margin:0}
 """
 
+# Rows lined up on their signs (lib/align.py): three columns — the left sides right-aligned, the sign, the right
+# sides left-aligned — on their common baseline. The grid stands where the rows it replaces stood: centered on a
+# Notes slide, from the worked rows' left edge on a worked slide, at the steps' shared left edge on an answer slide.
+EQS_CSS = r"""
+.eqs{display:grid;grid-template-columns:repeat(3,max-content);align-items:baseline;row-gap:14px;line-height:1.3;margin:0}
+.eqs.center{justify-content:center}.eqs.left,.eqs.from{justify-content:start}.eqs.from{padding-left:115px}
+.eqs .k.eq{font-size:1em}.eqs .eqL{text-align:right}.eqs .eqS{text-align:center}.eqs .eqR{text-align:left}
+.steps .eqs{row-gap:7px;margin:7px 0}
+"""
+
 JS = r"""
 (function(){
   const W=WPX,H=HPX, stage=document.getElementById('stage');
@@ -613,6 +691,8 @@ def render_page(D):
     js = JS.replace("WPX", f"{W:.2f}").replace("HPX", f"{H:.0f}")
     fonts = _font_face("pi", 400) + _font_face("regular", 400) + _font_face("bold", 700) + _font_face("fallback", 400)
     css = css.replace("MATHFACE", MATHFACE if mathimg.SLIDE_FACE else "")
+    if getattr(D, "aligned", False):         # only a page with rows lined up on their signs carries their rules
+        css += EQS_CSS
     if mathimg.SLIDE_FACE:
         js = js.replace("/*KMACROS*/{}", json.dumps(KMACROS))
     out = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',

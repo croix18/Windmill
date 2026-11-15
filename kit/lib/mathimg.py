@@ -455,6 +455,54 @@ def m(latex, surface="doc", color="1A1A1A", slots=False):
 
 DEPTH = {}      # rendered path -> how far (inches) its ink hangs below the baseline, for inline rows
 
+# ---- where an expression's relation sign stands in its picture (15 Nov 2026) ----------------------
+# The rows of an equation being solved are lined up on their equals signs (lib/align.py). A row's picture
+# is cropped to its ink, so the sign's place in it is read off mathtext's own layout: each glyph's box
+# position and its ink box from the font, at the resolution the picture is drawn at — measured, never
+# guessed from the LaTeX. A colored slot moves no glyph (slotgeometry holds that), so the expression is
+# measured with its marks stripped.
+RELATION_GLYPHS = "=<>≤≥≈≠"
+_SIGN_CACHE = {}
+
+
+def _slide_latex(latex, surface):
+    """(latex, pt, face) exactly as m() sets this expression on `surface`, its slot marks stripped."""
+    pt = SIZES[surface]
+    face = None
+    if surface.startswith("slide"):
+        latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
+    latex = re.sub(r",(\s*)-(?=\s*[\d.\\a-zA-Z({])", r",\1{-}", latex)
+    latex = slotmark.strip(latex)
+    if surface.startswith("slide") or surface.startswith("lex"):
+        latex, pt, face = slide_form(latex, pt)
+    return latex, pt, face
+
+
+def sign_offset(latex, surface):
+    """How far (inches) the center of the expression's one relation sign on its main line stands from the left
+    edge of its ink — that is, from the left edge of its picture as m() draws it — at the picture's natural size.
+    None when the main line carries no relation sign, or more than one."""
+    key = (latex, surface)
+    if key in _SIGN_CACHE:
+        return _SIGN_CACHE[key]
+    from matplotlib.ft2font import LoadFlags
+    tex, pt, face = _slide_latex(latex, surface)
+    r = parse(f"${tex}$", dpi=DPI, prop=_prop(pt, face))
+    tol = 0.12 * pt * DPI / 72
+    left, signs = None, []
+    for font, size, num, ox, oy in r.glyphs:
+        font.set_size(size, DPI)
+        g = font.load_char(num, flags=LoadFlags.NO_HINTING)
+        x0, _, x1, _ = (v / 64 for v in g.bbox)
+        left = ox + x0 if left is None else min(left, ox + x0)
+        if chr(num) in RELATION_GLYPHS and abs(oy) < tol and size >= pt * 0.95:
+            signs.append(ox + (x0 + x1) / 2)
+    for rx, ry, rw, rh in r.rects:
+        left = rx if left is None else min(left, rx)
+    out = (signs[0] - left) / DPI if len(signs) == 1 and left is not None else None
+    _SIGN_CACHE[key] = out
+    return out
+
 
 def _depth(latex, pt, face):
     """How far the expression hangs below its baseline, in inches — mathtext's own box depth (a

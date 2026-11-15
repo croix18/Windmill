@@ -15,7 +15,8 @@ finding and exits 0 is worse than no check.
   markup     no slide or page shows markup a renderer failed to consume (**, $, LaTeX, a slot mark)
   footer     nothing but the footer itself renders below a slide's footer rule
   plancheck  every deck side-car totals the period with a whiteboard remainder inside its range
-  slidefit   no text box or picture in a deck crosses the footer rule or the slide edge
+  slidefit   no text box or picture in a deck crosses the footer rule or the slide edge; the rows a deck
+             lined up on their signs (align="=") stand on one column, measured again from the deck
   overlap    on a rendered slide, no two lines of text collide and no figure sits on any words
   imagedrift every image embedded in a .docx or .pptx is a file in the figure library, byte for byte
   slotgeometry  colour moves no ink: every coloured expression, rendered black and in colour, agrees
@@ -496,7 +497,7 @@ def check_footer(files):
 
 
 def check_slidefit(files):
-    findings = []; n = 0
+    findings = []; n = 0; aligned = set()
     EMU = 914400
     for f in files:
         if not f.endswith(".pptx"):
@@ -513,8 +514,50 @@ def check_slidefit(files):
                 x0, y0, cx, cy = (int(v) / EMU for v in sm.groups())
                 if x0 < -0.01 or x0 + cx > 13.34 or y0 < -0.01 or y0 + cy > 7.51:
                     findings.append(f"slidefit: shape off the slide ({x0:.2f},{y0:.2f},{cx:.2f},{cy:.2f}) — {base} slide {m.group(1)}")
-    print(f"slidefit: {n} shapes, {len(findings)} findings")
+            if 'descr="align ' in x:
+                aligned.add(f)
+    nruns = 0; worst = 0.0
+    for f in sorted(aligned):
+        for (sn, run), xs in _aligned_runs(f).items():
+            nruns += 1
+            if None in xs:
+                findings.append(f"slidefit: a row of an aligned run has no one relation sign to stand on — {os.path.basename(f)} slide {sn}")
+                continue
+            spread = max(xs) - min(xs); worst = max(worst, spread)
+            if spread > ALIGN_TOL:
+                findings.append(f"slidefit: an aligned run's signs are {spread:.3f} in apart, not one column "
+                                f"(signs at {', '.join(f'{v:.3f}' for v in xs)} in) — {os.path.basename(f)} slide {sn}")
+    print(f"slidefit: {n} shapes, {len(findings)} findings" + (f" ({nruns} runs of rows lined up on their signs, the widest spread {worst:.3f} in; "
+                                                                f"held to {ALIGN_TOL} in)" if nruns else ""))
     return findings
+
+
+ALIGN_TOL = 0.02     # two pixels of the slide as the HTML deck draws it (100 px to the inch)
+
+
+def _aligned_runs(path):
+    """{(slide, run): [x of each row's sign, inches]} — every run of rows a deck lined up on their signs (lib/align.py),
+    each sign found again from what was built: the picture's place and width on the slide, and where the sign stands in
+    the picture — mathtext's layout of the expression the picture says it is (mathimg.sign_offset), scaled from the
+    picture's own pixels to its width on the slide. A row that was moved, or drawn from another expression, shows."""
+    import io
+    from pptx import Presentation
+    from PIL import Image
+    from lib import mathimg
+    EMU = 914400
+    out = collections.OrderedDict()
+    for sn, slide in enumerate(Presentation(path).slides, 1):
+        for sh in slide.shapes:
+            if sh.shape_type != 13:
+                continue
+            d = sh._element.nvPicPr.cNvPr.get("descr") or ""
+            if not d.startswith("align "):
+                continue
+            info = json.loads(d[len("align "):])
+            natural = Image.open(io.BytesIO(sh.image.blob)).size[0] / mathimg.DPI
+            so = mathimg.sign_offset(info["tex"], info["surface"])
+            out.setdefault((sn, info["run"]), []).append(None if so is None else sh.left / EMU + so * (sh.width / EMU) / natural)
+    return out
 
 
 def check_overlap(files):
@@ -726,7 +769,15 @@ async () => {
       if (r.right > st.right - 60 + 1) wide = Math.max(wide, r.right - (st.right - 60));
       if (r.left < st.left + 60 - 1 && r.width > 0) wide = Math.max(wide, (st.left + 60) - r.left);
     });
-    out.slides.push({n: i + 1, over: Math.round(over), wide: Math.round(wide), fit: parseFloat(sl.dataset.fit || '1')});
+    // rows lined up on their signs (lib/align.py): the centre of each row's sign, which must stand in one column
+    const eqs = [];
+    sl.querySelectorAll('.eqs').forEach(g => {
+      const xs = [];
+      g.querySelectorAll(':scope > .eqS').forEach(c => { const m = c.querySelector('.katex-html .mrel');
+        if (m) { const r = m.getBoundingClientRect(); xs.push((r.left + r.right) / 2); } else xs.push(null); });
+      eqs.push(xs);
+    });
+    out.slides.push({n: i + 1, over: Math.round(over), wide: Math.round(wide), fit: parseFloat(sl.dataset.fit || '1'), eqs});
   }
   out.errors = document.querySelectorAll('.katex-error').length;
   const B = 'rgb(30, 90, 168)', E = 'rgb(192, 90, 0)';
@@ -863,7 +914,7 @@ def check_html(files):
     nothing on any slide reaches below the footer rule or past the side margins; and the colour
     code the page applies to KaTeX's structure reads every expression exactly as mathimg reads
     the mathtext layout for the pptx — [base]^{exponent}, compared string for string."""
-    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0; ntouch = 0; nfit = 0; minfit = 1.0
+    findings = []; n = 0; nex = 0; ncon = 0; nnamed = 0; nplaced = 0; ntouch = 0; nfit = 0; minfit = 1.0; neqs = 0
     decks = [f for f in files if f.endswith(".html")]
     if not C.HTML:
         # ruling 41: a deck is its Slides file. The check that used to open every HTML deck now
@@ -937,6 +988,12 @@ def check_html(files):
                         findings.append(f"htmlcheck: the slide had to be set at {sl['fit']:.0%} of its size to clear the footer (under {FIT_FLOOR:.0%}: fewer or shorter steps) — {base} slide {sl['n']}")
                 if sl["wide"] > 2:
                     findings.append(f"htmlcheck: content runs {sl['wide']} px past the side margin — {base} slide {sl['n']}")
+                for xs in sl.get("eqs") or []:
+                    neqs += 1
+                    if None in xs or len(xs) < 2:
+                        findings.append(f"htmlcheck: an aligned run has a row with no relation sign to stand on — {base} slide {sl['n']}")
+                    elif max(xs) - min(xs) > 2:
+                        findings.append(f"htmlcheck: an aligned run's signs are {max(xs) - min(xs):.1f} px apart, not one column — {base} slide {sl['n']}")
             seen = set()
             for e in r["exprs"]:
                 nex += 1
@@ -969,7 +1026,8 @@ def check_html(files):
         b.close()
     if ncon == 0:
         findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
-    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} colored expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {nfit} slides set smaller to clear the footer (smallest {minfit:.0%}; floor {FIT_FLOOR:.0%}), {len(findings)} findings")
+    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} colored expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {nfit} slides set smaller to clear the footer (smallest {minfit:.0%}; floor {FIT_FLOOR:.0%}), "
+          + (f"{neqs} runs of rows on their signs measured, " if neqs else "") + f"{len(findings)} findings")
     return findings
 
 

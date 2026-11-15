@@ -17,6 +17,7 @@ merge. It is published from here and copied into each course repository; neither
 | `lib/lessonbuild.py` | The gates (mathcheck, distractorcheck, capcheck, rulingcheck, balancecheck — each refuses the build) and the builders: the lesson's slides (`_fill_deck`, one function for the pptx and the HTML deck), the whole-unit deck, both teacher's-edition styles, the bank file. |
 | `lib/deckkit.py` · `lib/htmlkit.py` · `lib/consolekit.py` | The pptx deck, the HTML deck (KaTeX, one self-contained file) and the console wrapped around the unit deck (Today, the rail, pacing, the whiteboard round, the room). Same interface, so one builder drives all three. |
 | `lib/mathimg.py` · `lib/figkit.py` | Expression images (mathtext, one size per surface) and geometry figures drawn from their numbers. A height that ends outside its figure is refused. |
+| `lib/align.py` | Which rows of an equation being solved are lined up on their signs, and at what size (`align="="`, 15 Nov 2026). Both decks draw its plan. |
 | `lib/names.py` | **Every file name the build writes**, in one place: `<COURSE> <unit>.<lesson> <Lesson Title> - <What it is>[ - Key].<ext>` and `<COURSE> Unit <N> <Unit Title> - <What it is>…`; and the readers (`is_key`, `is_lesson_deck`, …) the checks and the installer use, which read what a file IS from the part after the first ` - `, never from the title. Croix's ruling 34, 4 October 2026. |
 | `lib/flow.py`, `lib/flow.js` | **The plan's engine** (Croix, 4 October 2026: "I need the plan to be fluid and adjust on the fly"; his rule: push everything back). `lay` puts a course's sequence — lessons, reviews, tests, in order — on the school days left after the as-run log has taken out the days that went to something else: a test's first day is a Monday or a Thursday and its second the next day, a spiral day fills what has to pass, a flex day is dropped when the class is behind, a unit does not start right before a break. The Python is what each course's calendar tool runs (`apply_log`, `baseline`, `changes`); the JavaScript is the same `lay` for the console, plus `where`: what a period did last, what is next, how far it is from the year's plan, when the unit's test now falls. Windmill's `plan/test_flow.py` holds the two engines to each other. |
 | `lib/packkit.py` | **One package layout for both courses**, by lesson: `All Slides/`, `Lessons/<N.NN>/` with its `Keys/` (the lesson's number only — a path that carries the title three times does not unzip on Windows; the install refuses one that would not), `Review Day/` or `Review/`, `Assessment/` (by form), `Handouts/`, `Reference/`; each file placed by its name and compared byte for byte with the build; the zips (the whole folder also in parts when it is over the upload limit); the dates and timing a START HERE derives. Each course's `install_unit.py` calls it and writes its own START HERE. |
@@ -215,3 +216,46 @@ board and Your Turn starts where it did; only where no top fitted then (a layout
 from the top, of those that fit now, where its figure stands tallest. Surveyed over every board and Your Turn with a
 figure in both courses (87 in M7, 41 in A7), before the trim, after it, and now: board 8 is back at 1.8 in with its figure
 2.17 in, nothing else moved, and nothing is smaller than before the trim. Tests: "board top: …" (three lines).
+
+## 15 November 2026 — worked equations lined up on their equals signs (`lib/align.py`)
+
+The Unit 11 review's Barton audit: *"Worked equations are not laid out to be followed. In every deck the equals signs are
+not aligned."* A Notes slide centered each row on its own and a worked slide began each row at one left edge, so in
+3(2x − 5) + 4 = 25 / 6x − 15 + 4 = 25 / … / x = 6 each "=" stood somewhere else. A lesson that says **`align="="`** at its
+top level now sets every run of rows that are each one relation (Notes rows, a worked example's rows, an answer slide's
+`steps`) with their signs in one column; a block says `align=False` to keep its rows as they were. **Off by default:
+without the field every deck builds byte for byte as before** — proved on A7 5.06, M7 5.01 and A7 11.01 (each lesson's
+slide XML and HTML deck, this kit against 342a2e5), and in the tests. The rules — which rows, where the block stands,
+when it falls back — are in `SPEC SCHEMA.md`, "Rows lined up on their signs".
+
+- **Measured, not guessed.** `mathimg.sign_offset(latex, surface)` reads the sign's place from mathtext's own layout —
+  each glyph's position and its ink box from the font, at the 300 to the inch the picture is drawn at — as the distance
+  from the picture's left edge (its ink) to the sign's center. Against the sign's own pixels (painted alone, cropped as
+  the picture is) it is within 1.5 pixels (of 300 to the inch) for every row tried. Slot marks are stripped first; a colored slot
+  moves no glyph.
+- **PowerPoint** (`Deck.math_rows`, `worked_rows`, and `steps`/`figure_steps` with `align=True`): each row is still one
+  picture of the whole row, placed so its sign's x is the run's; vertically each row sits exactly where it did. Each
+  picture of a run carries `descr="align {run, tex, surface}"`.
+- **HTML deck** (`HtmlDeck` the same methods): the same plan (`align.plan`, from the same measurements and the same room)
+  set as a three-column grid — left sides right-aligned, the sign in its own column, right sides left-aligned — so the
+  signs stand in one column whatever the browser's fonts do. Its stylesheet (`EQS_CSS`) is on a page only when the page
+  lines something up. The whole-unit deck and the console are built by the same `_fill_deck`, so they follow.
+- **It still fits.** The capacity and overlap checks see the lined-up width: the steps' one-line guard and the figure
+  column of `figure_steps` measure it, and the layout trials (`_yt_fit`, `_wb_fit`) lay it out. A run too wide for its
+  room is set at 92%, then 85%; a run that still does not fit, or that lining up would make more than 1.25 times as wide
+  as its widest row, is set as before with a line on the console (a scratch deck says nothing).
+- **Checked in the built deck.** `checks.py slidefit` finds each lined-up run and measures every row's sign again from what
+  was built (the picture's place and width, and `sign_offset` of the expression it names), and refuses a run whose signs
+  are more than 0.02 in apart; `htmlcheck` measures each grid's signs in the browser and refuses a spread over 2 px. No
+  new check name, so neither course's suite table moves.
+- **Out of scope:** the Teacher Edition and the papers (they set no worked rows this way), and labeled steps. A step
+  that says what it does — `"Add 9:  $3x = 24$"`, the way both courses write nearly every answer slide — has words beside
+  its mathematics and is not lined up, so in A7 Unit 11 the answer slides are unchanged and only the Notes and worked
+  slides move. Lining labeled steps up (a label column, then the two sides) would be its own change.
+- **A7 Unit 11.** With the field in 11.01–11.04, the four decks rebuild at `checks: 0 findings`; 19 runs line up (the three
+  Notes slides of 11.01, 11.02 and 11.04, Notes III of 11.03, and every worked slide), each to 0.000 in; nothing falls back;
+  the slides that moved are exactly those 19 runs' slides. The HTML decks of the four (built for the check; A7 builds none)
+  measure 19 runs in one column and need less shrinking to clear the footer than before (2 slides at 98% against 4 at 95%).
+
+Tests: "align: …" (twenty-five lines) and two "planted:" lines — a picture 0.03 in out of its column (slidefit) and a sign
+pushed 30 px in the browser (htmlcheck).

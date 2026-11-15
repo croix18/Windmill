@@ -17,6 +17,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from . import mathimg
 from . import figkit
 from . import slotmark
+from . import align as _align
 from .profile import C
 
 INK, VOCAB, RED, GRAY, LT, FILL = "1A1A1A", "0B5394", "9E1B32", "6B6B6B", "D9D9D9", "F2F2F0"
@@ -157,6 +158,8 @@ class Deck:
         self.s = None
         self.cursor = 0.0
         self.pre_trim = False     # a trial deck (lessonbuild._fit_first): a figure takes the room it took before 15 Nov 2026 (its frame)
+        self.trial = False        # a scratch deck (lessonbuild._trial): it says nothing on the console
+        self._runs = 0            # aligned runs drawn (lib/align.py), each one's pictures marked with its number
         self._n = 0
 
     # ---------- primitives ----------
@@ -582,12 +585,16 @@ class Deck:
     def steps_height(self, rows, gap=0.1):
         return sum(self._row_h(r) for r in rows) + gap * (len(rows) - 1)
 
-    def steps(self, rows, gap=0.1, size=None, surface=None):
+    def steps(self, rows, gap=0.1, size=None, surface=None, align=False):
         """The working on an answer slide: one step to a line, in the slide's own black type, the
         lines sharing a left edge and the block centred — the way it would be written on the board.
         (Croix, 4 October: "the answers should always show easy to follow steps". This is the
-        mathematics, not a remark about it: the grey line that used to sit here is gone, ruling 37.)"""
+        mathematics, not a remark about it: the grey line that used to sit here is gone, ruling 37.)
+        With `align` (lib/align.py) a run of rows that are each one relation stands on one column of signs,
+        its leftmost ink at the block's left edge."""
         size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
+        if align:
+            return self._steps_aligned(rows, gap, size, surface)
         wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
         if wmax > CW - 0.1:
             raise RuntimeError(f"a step is one line; this one is {wmax:.2f} in of {CW - 0.1:.1f}: {max(rows, key=len)}")
@@ -598,6 +605,133 @@ class Deck:
             _, hh = self._mixed(r, x + (0.06 if r.lstrip().startswith("$") else 0.0), y, surface, size, INK, slots=True)
             y += hh + gap
         self.cursor = y - gap
+
+    # ---------- rows lined up on their relation signs (lib/align.py, 15 Nov 2026) ----------
+    def _plan(self, rows, kind, surface, room):
+        return _align.plan(rows, kind, surface, room, quiet=self.trial, where=f" (slide {self._n})")
+
+    def _run_pics(self, tex, surface, k, slots=True):
+        """[(path, w, h, sign offset)] of a run's rows at scale k: the pictures the slide places, each sign measured."""
+        out = []
+        for t in tex:
+            path, w, h = mathimg.m(t, surface, INK, slots)
+            out.append((path, w * k, h * k, mathimg.sign_offset(t, surface) * k))
+        return out
+
+    def _mark(self, pic, run, tex, surface):
+        """The picture says which run it stands in and what it is, so checks.py (slidefit) can measure its sign
+        again from the built deck and hold the run's signs to one column."""
+        pic._element.nvPicPr.cNvPr.set("descr", "align " + json.dumps({"run": run, "tex": tex, "surface": surface}))
+
+    def _pic_row(self, path, w, h, x, y, size, k=1.0):
+        """One row that is a picture and nothing else, placed as _mixed places it (its baseline where a line
+        of type would have it), at x. Returns (picture, row height)."""
+        maxh = max(0.45, h)
+        baseline = y + maxh / 2 + 0.375 * size / 72
+        d = mathimg.DEPTH.get(path, 0.0) * k
+        top = min(max(baseline - (h - d), y), y + maxh - h)
+        return self.s.shapes.add_picture(path, Inches(x), Inches(top), Inches(w), Inches(h)), maxh
+
+    def _rows_width(self, rows, kind, surface, size, plan):
+        """The block's width with its runs lined up: each other row as measured, each run its two sides."""
+        wid, i = [], 0
+        while i < len(rows):
+            if i in plan:
+                b, k, geo = plan[i]
+                L, R = _align.extent(geo, k)
+                wid.append(L + R); i = b
+            else:
+                r = rows[i]
+                wid.append(self.measure(slotmark.strip(r), surface, size) if kind == "row" else 0.0); i += 1
+        return max(wid)
+
+    def _draw_rows(self, rows, plan, x, y, surface, size, gap, inset=True):
+        """Rows from x (the block's shared left edge), the runs of `plan` on their signs. Returns the y under the last."""
+        i = 0
+        while i < len(rows):
+            if i in plan:
+                b, k, geo = plan[i]
+                tex = [_align.latex_of(r, "row") for r in rows[i:b]]
+                L, _ = _align.extent(geo, k)
+                self._runs += 1; run = f"{self._n}.{self._runs}"
+                sx = x + (0.06 if inset else 0.0) + L           # a row that opens with mathematics is a picture: no inset
+                for t, (path, w, h, so) in zip(tex, self._run_pics(tex, surface, k)):
+                    pic, hh = self._pic_row(path, w, h, sx - so, y, size, k)
+                    self._mark(pic, run, t, surface)
+                    y += hh + gap
+                i = b
+            else:
+                r = rows[i]
+                _, hh = self._mixed(r, x + (0.06 if r.lstrip().startswith("$") else 0.0), y, surface, size, INK, slots=True)
+                y += hh + gap; i += 1
+        return y
+
+    def _steps_aligned(self, rows, gap, size, surface):
+        plan = self._plan(rows, "row", surface, CW - 0.1)
+        wmax = self._rows_width(rows, "row", surface, size, plan)
+        if wmax > CW - 0.1:
+            raise RuntimeError(f"a step is one line; this one is {wmax:.2f} in of {CW - 0.1:.1f}: {max(rows, key=len)}")
+        x = LM + (CW - wmax) / 2
+        y = self._draw_rows(rows, plan, x, self.cursor + 0.08, surface, size, gap)
+        self.cursor = y - gap
+
+    def _rows_h(self, rows, surface, plan):
+        """The height steps() gives these rows, the runs at their scale (without the gaps)."""
+        h, i = 0.0, 0
+        while i < len(rows):
+            if i in plan:
+                b, k, geo = plan[i]
+                for t in rows[i:b]:
+                    h += max(0.45, mathimg.m(_align.latex_of(t, "row"), surface, INK, True)[2] * k)
+                i = b
+            else:
+                h += self._row_h(rows[i], surface); i += 1
+        return h
+
+    def math_rows(self, rows, surface="slidemid", gap=0.35, slots=False, align=False):
+        """A Notes slide's rows of mathematics, each centered — or, with `align`, each run of relations as one
+        block centered on the slide, its signs in one column (lib/align.py)."""
+        plan = self._plan(rows, "row", surface, CW) if align else {}
+        i = 0
+        while i < len(rows):
+            if i not in plan:
+                self.math_row(rows[i], surface=surface, gap=gap, slots=slots); i += 1
+                continue
+            b, k, geo = plan[i]
+            tex = [_align.latex_of(r, "row") for r in rows[i:b]]
+            L, R = _align.extent(geo, k)
+            sx = LM + (CW - (L + R)) / 2 + L
+            self._runs += 1; run = f"{self._n}.{self._runs}"
+            for t, (path, w, h, so) in zip(tex, self._run_pics(tex, surface, k, slots)):
+                pic, hh = self._pic_row(path, w, h, sx - so, self.cursor, 26, k)
+                self._mark(pic, run, t, surface)
+                self.cursor += hh + gap
+            i = b
+
+    def worked_rows(self, rows, slots=False, align=False):
+        """A worked slide's rows: each (latex, gloss) an expression from x = 2.0 in, each plain string a line of words —
+        or, with `align`, each run of relations on one column of signs, its leftmost ink at 2.0 in (lib/align.py)."""
+        plan = self._plan(rows, "worked", "slidemid", LM + CW - 2.0) if align else {}
+        i = 0
+        while i < len(rows):
+            if i not in plan:
+                row = rows[i]; i += 1
+                if isinstance(row, tuple):
+                    self.worked_row(row[0], row[1], slots=slots)
+                else:
+                    self.text(row, 23, slots=slots)
+                continue
+            b, k, geo = plan[i]
+            tex = [_align.latex_of(r, "worked") for r in rows[i:b]]
+            L, _ = _align.extent(geo, k)
+            self._runs += 1; run = f"{self._n}.{self._runs}"
+            for t, (path, w, h, so) in zip(tex, self._run_pics(tex, "slidemid", k, slots)):
+                if self.cursor + h > FOOT_Y:
+                    raise RuntimeError(f"figure runs into the footer: {t[:40]}")
+                pic = self.s.shapes.add_picture(path, Inches(2.0 + L - so), Inches(self.cursor), Inches(w), Inches(h))
+                self._mark(pic, run, t, "slidemid")
+                self.cursor += h + 0.3
+            i = b
 
     def ask(self, text, y=None):
         """The board's standing instruction, low on the slide. No hint under it (ruling 37)."""
@@ -711,19 +845,33 @@ class Deck:
                                   Inches(w), Inches(h))
         self.cursor += h + gap
 
-    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None):
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None, align=False):
         """An answer slide that has a picture AND working: the figure on the left, the steps beside
         it on the right, the two centred on each other — so neither is made small to stack them.
         If the steps are too wide to leave the figure a column, they go under it instead. (A worked
-        slide with a figure passes its rows here too, at the worked rows' own surface.)"""
+        slide with a figure passes its rows here too, at the worked rows' own surface.) With `align`
+        the steps' runs of relations stand on their signs, and the column is as wide as the lined-up rows."""
         size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
-        wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
+        plan = self._plan(rows, "row", surface, CW - 0.1) if align else {}
+        if plan:
+            wmax = self._rows_width(rows, "row", surface, size, plan)
+        else:
+            wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
         colw = CW - wmax - 0.8
         if colw < 2.6:
             self.figure(dict(spec, reserve=spec.get("reserve", 0.7) + self.steps_height(rows, rgap) + 0.3), gap)
-            self.steps(rows, rgap, size, surface)
+            self.steps(rows, rgap, size, surface, **({"align": True} if align else {}))
             return
         top = self.cursor
+        if plan:
+            hs = self._rows_h(rows, surface, plan) + rgap * (len(rows) - 1)
+            path, w, h = self._fit_figure(spec, min(colw, 5.2), FOOT_Y - top - spec.get("reserve", 0.7), strict=True)
+            block = max(h, hs)
+            left = LM + max(0.0, (CW - (w + 0.8 + wmax)) / 2)
+            self.s.shapes.add_picture(path, Inches(left), Inches(top + (block - h) / 2), Inches(w), Inches(h))
+            self._draw_rows(rows, plan, left + w + 0.8, top + (block - hs) / 2, surface, size, rgap)
+            self.cursor = top + block + gap
+            return
         hs = sum(self._row_h(r, surface) for r in rows) + rgap * (len(rows) - 1)
         path, w, h = self._fit_figure(spec, min(colw, 5.2), FOOT_Y - top - spec.get("reserve", 0.7), strict=True)
         block = max(h, hs)

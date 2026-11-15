@@ -21,6 +21,13 @@ the fixed copy."* Everything below is in `kit/README.md` and `practice/kit/READM
   rewrites a select-all's answer line (what it cannot rewrite is listed TO FIX BY HAND; the gate refuses a stale one);
   everything the kit prints is **American English** ("neighbor"); **`lib/unitload.py`** loads each unit's own `figs.py`
   (several units gated in one process no longer hand one unit another's — A7's `figs11` may go back to `figs`).
+- **Worked equations line up on their equals signs — opt-in** (`align="="` at a lesson's top level; a block may say
+  `align=False`; `kit/lib/align.py`): on Notes and worked slides, consecutive rows that are each one relation are set with
+  their signs in one column (PowerPoint: each row's picture moved by the sign's measured place; HTML deck: a three-column
+  grid), a row with words breaks the run, and a run that would grow past 1.25 times its widest row keeps today's layout.
+  `slidefit` and `htmlcheck` re-measure every aligned run in the built deck. Off by default: a lesson without the field
+  builds byte for byte as before. **Not done:** an answer slide's labelled steps ("Add 9: 3x = 24") are not aligned — that
+  needs a label column and is its own change. A7 Unit 11's four equation lessons use it.
 - **matplotlib.** The glyph fix is `mathimg.parse` / `norm_glyphs` (one normalizer, every reader through it), tested on both
   tuple shapes. **3.11 is still not a matplotlib the courses can build on**: it draws stacked fractions about a quarter
   taller, and on 3.11.2 five M7 decks (8.01, 8.03, 8.05, 9.02, 9.03) no longer fit their slides and A7 11.07 puts a label on a
