@@ -21,8 +21,10 @@ X.gloss = o => { Object.assign(GL, o); return GL; };
 X.has = id => Object.prototype.hasOwnProperty.call(GL, id);
 const g = id => GL[id] || { word: id, def: '' };
 X.def = (id, shown) => '<b class="xterm xfirst">' + (shown || g(id).word) + '</b><span class="xdefn"> (' + g(id).def + ')</span>';
-X.term = (id, shown) => '<button type="button" class="xterm" data-xterm="' + esc(id) + '" aria-expanded="false" title="' + esc(g(id).def) + '">' + (shown || g(id).word) +
-  '</button><span class="xdef" role="note" hidden> (' + g(id).def + ')</span>';
+/* a term is inline text (role button), not a <button>: a <button> is an inline block, so a line could break between it and the
+   period after it ("Equality\n."), 15 Nov 2026 */
+X.term = (id, shown) => '<span role="button" tabindex="0" class="xterm" data-xterm="' + esc(id) + '" aria-expanded="false" title="' + esc(g(id).def) + '">' + (shown || g(id).word) +
+  '</span><span class="xdef" role="note" hidden> (' + g(id).def + ')</span>';
 /* [[id]] or [[id|shown words]] in a help string: 'def' and 'tap' make every term tappable (named, bold, its definition shown
    inline only on a tap — Croix, 14 Nov 2026: "Don't spell it out first"); 'plain' (inside an option button, which can't hold a button) leaves the word, bold. seen carries the ids already
    spelled out across the strings of one rung. */
@@ -129,11 +131,21 @@ X.simPair = ({ A, B, col, turn, label }) => {
 };
 
 /* the inline definition of a tapped term (delegated, so it survives every repaint of a card) */
-if (typeof document !== 'undefined') document.addEventListener('click', e => {
-  const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null; if (!b) return;
-  const d = b.nextElementSibling; if (!d || !d.classList.contains('xdef')) return;
-  const open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false');
-});
+const toggle = b => { const d = b.nextElementSibling; if (!d || !d.classList.contains('xdef')) return;
+  const open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', e => { const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null; if (b) toggle(b); });
+  document.addEventListener('keydown', e => { const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null;
+    if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(b); } });
+}
+/* a Why: that only names a property or theorem gets what it lets you do, so it is a sentence (15 Nov 2026) */
+const DOES = { addProp: 'lets you add the same number to both sides and keep them equal', subProp: 'lets you subtract the same number from both sides and keep them equal',
+  mulProp: 'lets you multiply both sides by the same number and keep them equal', divProp: 'lets you divide both sides by the same number and keep them equal',
+  addPropI: 'lets you add the same number to both sides and keep the inequality true', subPropI: 'lets you subtract the same number from both sides and keep the inequality true',
+  mulPropI: 'lets you multiply both sides by the same number, but a negative number reverses the symbol', distProp: 'says the number outside multiplies every term inside the parentheses',
+  pyth: 'says a² + b² = c² in every right triangle, where c is the hypotenuse' };
+X.whyOf = w => String(w || '').replace(/^the \[\[(\w+)\]\](?:\.|:)?\s*(.*)$/, (m0, id, rest) => { if (!DOES[id]) return m0; if (/^(keeps|undoes|lets|says)\b/.test(rest) || /^[a-c]²/.test(rest)) rest = '';   /* a rest that only restates the property */
+  return 'the [[' + id + ']] ' + DOES[id] + '.' + (rest ? ' ' + rest.charAt(0).toUpperCase() + rest.slice(1) : ''); });
 root.Kit = root.Kit || {}; root.Kit.X = X;
 if (typeof module !== 'undefined' && module.exports) module.exports = X;
 })(typeof window !== 'undefined' ? window : this);

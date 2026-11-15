@@ -6,6 +6,8 @@
    B. every move that is a property or theorem step (Undo, Distribute, Divide/Multiply both sides, Add/Subtract … both sides,
       reverse) carries its Why:, and Hint 3 has at least one Why:;
    C. every family the unit marks as needing a picture has one in Hints 1–3, with a caption and an aria-label;
+   E. what a student reads is whole sentences: no space before a period or comma, no empty parentheses, no doubled space, no
+      Why: sentence under five words;
    D. Hint 1 is short: at most 3 sentences, none over 25 words, outside the math and the definitions behind a tap.
    It prints each failure once per family and exits 1 on any. */
 const path = require('path');
@@ -25,8 +27,15 @@ for (let seed = 1; seed <= N; seed++) {
       const x = p, R = U.rungs(x, type, {}) || {}, sol = U.solution(x, type) || [], walk = U.walk(x, type) || [];
       const texts = [R.notice, R.first && R.first.say].concat(sol.map(l => l.say), walk.map(s => s.ask), [].concat(...walk.map(s => (s.opts || []).map(o => o.label + ' ' + o.why))), walk.map(s => s.hint));
       if (!R.notice) { fail(fam, 'no Hint 1'); return; }
+      /* E. what a student reads is whole sentences: no space before . or ,, no (), no doubled space, no Why: under five words */
+      const shown = t => String(t || '').replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<span class="xdef"[\s\S]*?<\/span>/g, '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&[a-z]+;/g, 'x');
+      texts.concat((C.help.coach ? [] : [])).forEach(t => { const r = shown(t);
+        if (/\s[.,](?!\d)/.test(r)) fail(fam, 'a space before a period or comma: "' + r.slice(Math.max(0, r.search(/\s[.,](?!\d)/) - 30), r.search(/\s[.,](?!\d)/) + 5) + '"');
+        if (/\(\s*\)/.test(r)) fail(fam, 'empty parentheses');
+        if (/\S  +\S/.test(r)) fail(fam, 'a doubled space: "' + r.slice(Math.max(0, r.search(/\S  +\S/) - 25), r.search(/\S  +\S/) + 10) + '"');
+        (r.match(/Why:\s*[^.]*\./g) || []).forEach(w => { if (w.replace(/^Why:\s*/, '').split(/\s+/).filter(Boolean).length < 5) fail(fam, 'a Why: under five words: "' + w + '"'); }); });
       if (texts.some(t => /\[\[/.test(String(t || '')))) fail(fam, 'a [[term]] token is left in the help');
-      terms.forEach(id => { const m = new RegExp('data-xterm="' + id + '"[^>]*>[^<]+</button><span class="xdef" role="note" hidden> \\(([^)]{3,})').exec(R.notice); if (!m) fail(fam, 'Hint 1 does not name the term "' + id + '" as a tappable term with its definition'); });
+      terms.forEach(id => { const m = new RegExp('data-xterm="' + id + '"[^>]*>[^<]+</span><span class="xdef" role="note" hidden> \\(([^)]{3,})').exec(R.notice); if (!m) fail(fam, 'Hint 1 does not name the term "' + id + '" as a tappable term with its definition'); });
       if (/xdefn|xfirst/.test(texts.join(' '))) fail(fam, 'a definition is spelled out inline (it shows only on a tap)');
       if (type !== 'nline') {
         sol.forEach(l => { const t = strip(l.say).trim(); if (MOVE.test(t) && !/Why:/.test(t) && !/Start from/.test(t)) fail(fam, 'a move without its Why: "' + t.slice(0, 60) + '"'); });
