@@ -4,6 +4,20 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Two sessions at once (15 Nov 2026, 3:55 pm): the practice kit is getting `cgraph`; M7 Unit 7 belongs to the M7 build session
+
+Croix, 3:11 pm, to the M7 build session (session_01W9n2X1WF6KyTFhvQQj7VNo), of M7 Unit 7's open items (no
+construct-a-circle-graph item on its test, among others): *"Can you take care of all of that for me. Make sure unit 7 is ready
+to push. Once it gets all of its updates push it."*
+- **The practice kit is gaining one part kind, `cgraph` — a circle graph the student builds** on a circle marked every 10°, on
+  the model of `nline` on every surface (the widget, judging, the ladder, the printed blank circle, the key's finished graph,
+  the all-multiple-choice paper's four graphs, a `check/page.js` part, the manifest, the README). It is being built on the
+  branch `cgraph` (a worktree of this repository in that session, base `342a2e5`) and comes to main when it passes; a unit
+  with no `cgraph` part changes only by one more inlined script. **If you change `practice/kit` on main meanwhile, say so
+  here** — that session rebases onto it.
+- **M7 Unit 7** (`m7/build/u7`, its package, `m7/practice/u7`) is being changed by that session through tonight (M7
+  `NOTES.md`, first section): the kits session is asked to leave Unit 7 alone and do everything else as it planned.
+
 ## Where things stand (15 Nov 2026: the kit limits fixed — figures wherever a question is, a key's own figure, declared step lines, several answer boxes; matplotlib named once; the Drive script 3.1)
 
 Croix, 15 Nov, 8:40 am, told what the kits could not do for A7 Unit 11 and M7 Unit 13: *"Fix windmill. Fix the other kits. Fix
