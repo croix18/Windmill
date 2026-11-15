@@ -91,7 +91,11 @@ the fixed copy."* Everything below is in `kit/README.md` and `practice/kit/READM
   left the rest off the record and the Drive tab until the next commit. Found because `drive/test_windyhill.js` crashed on a
   machine with the two courses checked out beside Windmill (it read what they really publish, and neither publishes a console
   since ruling 41); the test now carries the kept list's consoles in every mode and rebuilds the record on a slow day.
-- **Vendored:** see each course's `NOTES.md` (top) for what was rebuilt on these kits and what waits for its next rebuild.
+- **Vendored (15 Nov, evening):** A7 — build kit `095d912`, practice kit `bf7af44`; Unit 11 uses the new pieces and its
+  page the several boxes; Units 3–6 rebuilt and their pages run again (A7 `27ff84b`). M7 — build kit `095d912`,
+  practice kit `095d912`; Unit 13 draws the displays it had in words; Units 4, 5, 8, 9, 10 and 13 rebuilt and every page
+  but Unit 7's run again, no set lock moved (M7 `ebb4d1d`; Unit 7 is its own session's). Each course's `NOTES.md` (top)
+  has the detail and what is open for Croix. Nothing rebuilt today is on the website: publishing is his word.
 
 ## Where things stand (14 Nov 2026, afternoon: M7 Unit 13 built; the test's directions in Croix's words; no follow-through line on paper)
 
