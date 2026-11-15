@@ -51,6 +51,13 @@ once in the console. A tool served with such a policy should allow it. On a pad,
 (the pad is waiting for the pen to rest, reading, or was put off by a touch), and a read that a touch put off — two
 fingers moving the board, a tap — now starts again by itself. The file is about 1.4 MB.
 
+Two faults (1.7.1): ink that is moved is read where it is — one stroke of a symbol dragged away from the other (the
+bar of a plus off its stem), put back by Undo, or moved by the tool itself (`syncStrokes`, or the same stroke arrays
+handed to `Nib.recognize` again after moving their points) was still read as what it had been, because a stroke that
+is moved in place kept its place in the recognizer's memory; ink moved as a whole was never affected and is still
+not read again. And a board (`separate`) joins every pair of pieces that belongs together across a gap, not the
+first eight on a page. Nothing else reads differently from 1.7.0.
+
 ## What it stores in the browser (per origin; Chrome's file:// pages share one)
 
 | key | written by | read by |
