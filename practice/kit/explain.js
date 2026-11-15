@@ -23,13 +23,13 @@ const g = id => GL[id] || { word: id, def: '' };
 X.def = (id, shown) => '<b class="xterm xfirst">' + (shown || g(id).word) + '</b><span class="xdefn"> (' + g(id).def + ')</span>';
 X.term = (id, shown) => '<button type="button" class="xterm" data-xterm="' + esc(id) + '" aria-expanded="false" title="' + esc(g(id).def) + '">' + (shown || g(id).word) +
   '</button><span class="xdef" role="note" hidden> (' + g(id).def + ')</span>';
-/* [[id]] or [[id|shown words]] in a help string: mode 'def' spells out the definition at each term's first appearance (Croix,
-   14 Nov 2026: "Spell it out first time then Show on tap after") and makes later ones tappable; 'tap' makes every one
-   tappable; 'plain' (inside an option button, which can't hold a button) leaves the word, bold. seen carries the ids already
+/* [[id]] or [[id|shown words]] in a help string: 'def' and 'tap' make every term tappable (named, bold, its definition shown
+   inline only on a tap — Croix, 14 Nov 2026: "Don't spell it out first"); 'plain' (inside an option button, which can't hold a button) leaves the word, bold. seen carries the ids already
    spelled out across the strings of one rung. */
 X.teach = (html, mode, seen) => String(html == null ? '' : html).replace(/\[\[([A-Za-z0-9]+)(?:\|([^\]]+))?\]\]/g, (m0, id, shown) => {
   if (mode === 'plain') return '<b>' + (shown || g(id).word) + '</b>';
-  if (mode === 'def' && seen && !seen[id]) { seen[id] = 1; return X.def(id, shown); }
+  /* 'def' once spelled the definition out at a term's first appearance; Croix, 14 Nov 2026 (after seeing it live): "Don't spell
+     it out first." Every appearance is now tappable, the definition shown only on a tap. */
   return X.term(id, shown); });
 X.ids = html => { const out = []; String(html || '').replace(/\[\[([A-Za-z0-9]+)/g, (m0, id) => { if (out.indexOf(id) < 0) out.push(id); }); return out; };
 /* a unit's own figure, drawn at the help panel's width: its fixed max-width goes, so the labels grow with the drawing */

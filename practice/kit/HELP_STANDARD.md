@@ -26,7 +26,7 @@ Every hint, worked solution, walkthrough step and coach line on a practice page 
 
   A line that is only arithmetic ("Simplify the right side.") may skip the Why.
 - **No line does two moves.** Divide and check are two lines.
-- **Hint 1 · What to notice** names the *kind* of problem and the *one* idea that unlocks it, in the lesson's words. It has at most 3 sentences plus a picture, and it never gives away the first move's result.
+- **Hint 1 · What to notice** names the *kind* of problem and the *one* idea that unlocks it, in the lesson's words. It has two or three sentences plus a picture, and it never gives away the first move's result.
 - **Hint 2 · The first step** gives the first move and its Why, and shows the picture of that move when one exists.
 - **Hint 3** ends with a **check or a sense-check** line: substitution for an equation, a test point on each side of the boundary for an inequality, or "a leg is shorter than the hypotenuse" for geometry. Then comes the answer.
 - **Use the lesson's method.** If the deck teaches two methods, the help teaches one, and two methods never appear inside one solution. **Parentheses: distribute first** **(Croix)**: "they are terrible at distributing. So let's do distribute."
@@ -35,7 +35,7 @@ Every hint, worked solution, walkthrough step and coach line on a practice page 
 - **Every unit has a glossary** (`Kit.X.gloss`), built from its decks.
   - The terms below are required: where the idea appears, the term appears.
   - Each term gets a plain definition of 15 words or fewer.
-- **The first time a term appears in a question's help** (Hint 1, where every ladder starts) it is bold with its plain definition right after it, in parentheses, in the sentence; **every later appearance** is tappable: bold with a dotted underline, the definition shown inline on a tap, hidden on a second tap (`Kit.X.teach`, `[[id]]` in a unit's text). **(Croix)** "Spell it out first time then Show on tap after." The coach's card uses the tappable form.
+- **Every appearance of a term** is named and highlighted: bold, with a dotted underline, its plain definition shown inline only on a tap and hidden on a second tap (`Kit.X.teach`, `[[id]]` in a unit's text). **(Croix)** First "Spell it out first time then Show on tap after"; then, after seeing it live, "Don't spell it out first." Definitions are never written out in the sentence.
 - **After that,** the term is used plainly. It never falls back to a substitute word ("the letter", "the number with k").
 - **Terms never go inside an option button.** A button can't hold a button. Options use color signaling instead (§4).
 - **Required terms.**
@@ -113,7 +113,7 @@ A picture is optional for pure arithmetic.
 **Vocabulary**
 
 4. Every required term for the family appears where its idea appears.
-5. Each term's first use is tappable with a definition of 15 words or fewer; no substitute words afterwards.
+5. Each term is tappable, with a definition of 15 words or fewer behind the tap (never spelled out inline); no substitute words.
 
 **Steps**
 

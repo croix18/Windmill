@@ -1,11 +1,12 @@
 /* Practice kit: the help standard, checked (HELP_STANDARD.md; 14 Nov 2026).   node <kit>/check/help.js <unit folder> [sets]
    For a unit whose coach carries help.js (Coach.help = {terms, pics}), over its sets, every question part of every family:
-   A. Hint 1 spells out every required term the first time (a bold term with its definition beside it), and no [[token]] is left
+   A. Hint 1 names every required term as a tappable term with its definition behind the tap (never spelled out inline: Croix,
+      14 Nov 2026, "Don't spell it out first"), and no [[token]] is left
       anywhere a student reads (Hints 1–3, the walkthrough's questions, options and reasons, the coach's lines);
    B. every move that is a property or theorem step (Undo, Distribute, Divide/Multiply both sides, Add/Subtract … both sides,
       reverse) carries its Why:, and Hint 3 has at least one Why:;
    C. every family the unit marks as needing a picture has one in Hints 1–3, with a caption and an aria-label;
-   D. Hint 1 is short: at most 4 sentences, none over 25 words, outside the math and the spelled-out definitions.
+   D. Hint 1 is short: at most 3 sentences, none over 25 words, outside the math and the definitions behind a tap.
    It prints each failure once per family and exits 1 on any. */
 const path = require('path');
 const dir = path.resolve(process.argv[2] || '.'), N = +(process.argv[3] || 200);
@@ -25,7 +26,8 @@ for (let seed = 1; seed <= N; seed++) {
       const texts = [R.notice, R.first && R.first.say].concat(sol.map(l => l.say), walk.map(s => s.ask), [].concat(...walk.map(s => (s.opts || []).map(o => o.label + ' ' + o.why))), walk.map(s => s.hint));
       if (!R.notice) { fail(fam, 'no Hint 1'); return; }
       if (texts.some(t => /\[\[/.test(String(t || '')))) fail(fam, 'a [[term]] token is left in the help');
-      terms.forEach(id => { const re = new RegExp('<b class="xterm xfirst">[^<]*</b><span class="xdefn">'); if (!/xfirst/.test(R.notice) || R.notice.split('xfirst').length - 1 < terms.length) fail(fam, 'Hint 1 does not spell out every required term (' + terms.join(', ') + ')'); });
+      terms.forEach(id => { const m = new RegExp('data-xterm="' + id + '"[^>]*>[^<]+</button><span class="xdef" role="note" hidden> \\(([^)]{3,})').exec(R.notice); if (!m) fail(fam, 'Hint 1 does not name the term "' + id + '" as a tappable term with its definition'); });
+      if (/xdefn|xfirst/.test(texts.join(' '))) fail(fam, 'a definition is spelled out inline (it shows only on a tap)');
       if (type !== 'nline') {
         sol.forEach(l => { const t = strip(l.say).trim(); if (MOVE.test(t) && !/Why:/.test(t) && !/Start from/.test(t)) fail(fam, 'a move without its Why: "' + t.slice(0, 60) + '"'); });
         if (!sol.some(l => /xwhy/.test(l.say)) && !(R.first && /xwhy/.test(R.first.say))) fail(fam, 'Hint 3 has no Why:');
@@ -33,9 +35,9 @@ for (let seed = 1; seed <= N; seed++) {
       if (C.help.pics.indexOf(fam) >= 0) { const all = [R.notice, R.first && R.first.say].concat(sol.map(l => l.say), walk.map(s => s.ask)).join(' ');
         if (!/<svg/.test(all)) fail(fam, 'no picture in Hints 1–3'); else if (!/aria-label="[^"]{12,}"/.test(all)) fail(fam, 'a picture without a sentence for a screen reader');
         if (/<svg/.test(all) && !/<figcaption>/.test(all) && !/vcap/.test(all)) fail(fam, 'a picture without a caption'); }
-      const h1 = strip(String(R.notice).replace(/<figure[\s\S]*?<\/figure>/g, '').replace(/<span class="xdefn">[\s\S]*?<\/span>/g, ''));
+      const h1 = strip(String(R.notice).replace(/<figure[\s\S]*?<\/figure>/g, '').replace(/<span class="xdef"[\s\S]*?<\/span>/g, ''));
       const sents = h1.split(/(?<=[.!?])\s+/).filter(s => s.trim());
-      if (sents.length > 4) fail(fam, 'Hint 1 has ' + sents.length + ' sentences');
+      if (sents.length > 3) fail(fam, 'Hint 1 has ' + sents.length + ' sentences');
       sents.forEach(s => { const w = s.trim().split(/\s+/).length; if (w > 25) fail(fam, 'a Hint 1 sentence of ' + w + ' words: "' + s.trim().slice(0, 50) + '…"'); });
     }); }));
 }

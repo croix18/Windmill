@@ -626,16 +626,16 @@ question are all math spans or none; a sentence may carry math inside it. The ca
 Croix, 14 Nov: "I want this helper to be absolutely phenomenal." The standard every hint, worked line, walkthrough step and coach
 line meets is **`HELP_STANDARD.md`**. The kit carries what it needs as a module of its own, so `ui.js` and `kit.css` are untouched:
 - **`explain.js`** (`Kit.X`, loaded after `bilingual.js`, before the unit's scripts; pure, so Node checks use it): a unit's glossary
-  (`gloss`), `[[id]]` terms in a help string (`teach`: spelled out in the sentence the first time, tappable after — Croix: "Spell it
-  out first time then Show on tap after"), three signal colors with their own line styles (`c`), and the pictures — a balance
+  (`gloss`), `[[id]]` terms in a help string (`teach`: every one tappable, its definition shown only on a tap — Croix, 14 Nov 2026, after seeing it
+  live: "Don't spell it out first"), three signal colors with their own line styles (`c`), and the pictures — a balance
   (`balance`, chips two to a row), a tape diagram (`tape`), opposites on a number line (`mirror`), a right triangle (`rightTri`), two
   similar triangles with corresponding sides matched (`simPair`), and `big` for a unit's own figure. Each is drawn on a 280-unit
   canvas at the full width of its line, so a label reads at 13 px or more on a 390 px phone (the 14 Nov review: "the pictures are
   too small").
 - **`explain.css`**: the terms, the colors (light and dark), the figures, and the units' own pictures inside the help at full width.
 - A unit opts in with **`help.js`** (before `coach.js`); `run.py` then runs **`check/help.js`** (300 sets: every required term
-  spelled out in Hint 1, no `[[token]]` left, every property or theorem move with its Why:, every picture family with a picture,
-  caption and screen-reader sentence, Hint 1 at most four sentences of at most 25 words) and, after `page.js`,
+  named in Hint 1 as a tappable term with its definition, no `[[token]]` left, every property or theorem move with its Why:, every picture family with a picture,
+  caption and screen-reader sentence, Hint 1 at most three sentences of at most 25 words) and, after `page.js`,
   **`check/help_page.js`** (390 px, light and dark: every help picture at least 85% of its line's width, every label at least
   12.5 px, contrast at least 4.5:1).
 - First met by M7 Unit 10 and A7 Unit 6. Other units are unchanged until they write a `help.js`; vendoring this kit into them is
