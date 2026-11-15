@@ -58,6 +58,17 @@ is moved in place kept its place in the recognizer's memory; ink moved as a whol
 not read again. And a board (`separate`) joins every pair of pieces that belongs together across a gap, not the
 first eight on a page. Nothing else reads differently from 1.7.0.
 
+The worker pool (1.8.0): a big read — a pad that comes back with a page of writing on it, a large paste — hands most
+of its classifying to worker threads, on every core but one (at most four), and goes on while the writer writes; what
+is read is exactly what the page's thread alone reads, and ordinary writing never starts a worker. The workers are
+started from `nib.js`'s own text through a Blob URL: nothing is fetched, so a file opened from Drive on the Chromebox
+runs them. `Nib.workers` says how many are running now. Two things for a tool that carries the engine: it must keep
+the engine's wrapper as it is (`(function NibEngine(global) {…})`: the engine reads its own source by that name — a
+copy without it reads on the page's thread, as 1.7 did); and a tool served with a Content-Security-Policy must let
+workers start from `blob:` (`worker-src blob:`, or `blob:` in `script-src` or `default-src` where there is no
+`worker-src`) as well as `'wasm-unsafe-eval'`. Where workers cannot start, Nib says so once in the console
+(`Nib: reading on the page's own thread only (…)`) and reads as before.
+
 ## What it stores in the browser (per origin; Chrome's file:// pages share one)
 
 | key | written by | read by |
