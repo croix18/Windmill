@@ -622,6 +622,25 @@ markup (a variable, a fraction, a power, a root) is one math span, which tex.js 
 question are all math spans or none; a sentence may carry math inside it. The cause was the unit's content (M7 Unit 10
 `unit.js` `view.opt`, family mcFrac); `check/mctype.js` (page.js part S) holds every unit to it over sets 1–300.
 
+## 14 Nov 2026 — the help standard (`explain.js`, `explain.css`, `HELP_STANDARD.md`, `check/help.js`, `check/help_page.js`)
+Croix, 14 Nov: "I want this helper to be absolutely phenomenal." The standard every hint, worked line, walkthrough step and coach
+line meets is **`HELP_STANDARD.md`**. The kit carries what it needs as a module of its own, so `ui.js` and `kit.css` are untouched:
+- **`explain.js`** (`Kit.X`, loaded after `bilingual.js`, before the unit's scripts; pure, so Node checks use it): a unit's glossary
+  (`gloss`), `[[id]]` terms in a help string (`teach`: spelled out in the sentence the first time, tappable after — Croix: "Spell it
+  out first time then Show on tap after"), three signal colors with their own line styles (`c`), and the pictures — a balance
+  (`balance`, chips two to a row), a tape diagram (`tape`), opposites on a number line (`mirror`), a right triangle (`rightTri`), two
+  similar triangles with corresponding sides matched (`simPair`), and `big` for a unit's own figure. Each is drawn on a 280-unit
+  canvas at the full width of its line, so a label reads at 13 px or more on a 390 px phone (the 14 Nov review: "the pictures are
+  too small").
+- **`explain.css`**: the terms, the colors (light and dark), the figures, and the units' own pictures inside the help at full width.
+- A unit opts in with **`help.js`** (before `coach.js`); `run.py` then runs **`check/help.js`** (300 sets: every required term
+  spelled out in Hint 1, no `[[token]]` left, every property or theorem move with its Why:, every picture family with a picture,
+  caption and screen-reader sentence, Hint 1 at most four sentences of at most 25 words) and, after `page.js`,
+  **`check/help_page.js`** (390 px, light and dark: every help picture at least 85% of its line's width, every label at least
+  12.5 px, contrast at least 4.5:1).
+- First met by M7 Unit 10 and A7 Unit 6. Other units are unchanged until they write a `help.js`; vendoring this kit into them is
+  harmless (the module loads, nothing calls it).
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -643,6 +662,8 @@ question are all math spans or none; a sentence may carry math inside it. The ca
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
 | `check/set_page.js` | page.js part Q (set numbers valid and accurate, 14 Nov 2026, above), on every page |
 | `check/mc_page.js` | page.js part P (an all-multiple-choice test, 14 Nov 2026, above), on a teacher copy of a unit with `Unit.choices` |
+| `explain.js`, `explain.css`, `HELP_STANDARD.md` | the help's terms and pictures, and the standard the help meets (14 Nov 2026, above) |
+| `check/help.js`, `check/help_page.js` | the help standard, in Node over 300 sets and in a browser at 390 px, light and dark (a unit with `help.js`) |
 | `pager.js`, `pager.css` | one question at a time, as on the FAST: the number, Flag for review, Back and Next, the map, the summary after Finish (14 Nov 2026, above) |
 | `check/pager_page.js` | page.js part R (one question at a time, 14 Nov 2026, above), on every page, without the checks' switch that parts A–Q use |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
