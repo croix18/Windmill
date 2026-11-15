@@ -187,7 +187,7 @@ worksheet, the keys, the test forms and the real paper.
   kind, and beside a fraction bar the **fraction template**, which writes `()/()` with the caret in the top (the page reads
   `(3)/(4)` as `3/4` before the coach sees it, and `(4)/(7)^8` as `(4/7)^8`). Keys are 44 px, insert at the caret, are not
   tab stops, and sit above the box in the page's flow, so they never cover it or its Check row. A unit with no `keypad` at
-  all gets the kit's: − / a/b ^ ( ) π ×.
+  all gets the kit's: − / a/b ^ ( ) π · (the times key shows a dot since 15 Nov 2026; it still types *).
 - **Larger text** in the ⋯ menu: two sizes (the sheet and the end panel at 116%), remembered on the device for every unit
   (`practice.textsize`, every read and write in try/catch: with storage refused it lasts the visit).
 - `check/page.js` part H, in a touch context and a mouse one: the keypad's presence, its key sizes, insertion at the caret,
@@ -352,7 +352,7 @@ applied by the kit when a page is drawn; the course repositories stay the source
   exactly as students see it (nothing is saved under the teacher's own practice state: storage prefix `<unit>.kedit.`).
 - **Checked**: `check/edits.js` (run by `run.py`): the round trip, the survey and its not-editable list, a template applied and a
   wrong one refused, the markup (no HTML from the teacher's words), hidden-family and points totals, custom questions of every
-  type; `check/page.js` part L (`check/edits_page.js`), with a mocked `/api/items` (page.route): an edited stem on the screen,
+  type; `check/page.js` part L (then `check/edits_page.js`, now `check/approve_page.js`), with a mocked `/api/items` (page.route): an edited stem on the screen,
   on the worksheet and its key; a hidden family absent from a new set and its points gone from the total; a custom question in
   its section, ✓ with its key and ✗ otherwise; "More questions"; a set saved before the edits keeping its composition; the
   address failing → the plain page; on a teacher copy the printed test and key with the edit, "Edited" and "Added".
@@ -669,6 +669,8 @@ line meets is **`HELP_STANDARD.md`**. The kit carries what it needs as a module 
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
+| `check/walk.js`, `check/times.js` | a walkthrough's options shuffled by the question; no × for multiplication, the kit's words and the unit's (15 Nov 2026, below). `run.py` runs both on every student page |
+| `check/boxes.js`, `check/boxes_page.js`, `check/order_page.js` | typing into a part's boxes for every page check; page.js part T (several boxes in one part) and part U (a walkthrough's order in the browser, no × on the sheet or any paper), 15 Nov 2026 |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
@@ -691,8 +693,11 @@ generate(seed) → {sections: [{title, items}]}
    part: {label, kind ('mc' for a lettered multiple choice), fam, prm, …}
 key(partOrItem) → string                      // what makes two questions the same
 view: {stem(item), figure(item), line(part), pre(part), unit(part), placeholder(part), opt(x, k), why?(x, k), key(part), form?(part),
-       start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
+       boxes?(part), start(x, type), ex(x, ast, type), got(step), picture(x, type), pretty(text, kind)}
+   boxes?(part) → [{pre, unit, say, placeholder, imode, kind, form}]   // two or more: several boxes in one part (15 Nov 2026);
+                                                                       // fewer (or none): the one box, exactly as before
 judge: {text(part, typed, ctx), mc(item, k), multi(item, ks, tries)} → {v: right|form|wrong|unread|blank, what: [html], rule, step}
+   typed: a string — or, for a part with boxes, one string per box, in order (never all blank, never one blank: the kit says so)
    ctx = {prev: the student's part (a) answer, prevPart, prevOk (is part (a) right yet), extra (a fresh "Try another", with no
           part (a) of its own), aShown, mode}
    part.imode: an inputmode for the phone's keyboard ('decimal' for a box that never needs a space, a slash or a minus)
@@ -704,7 +709,7 @@ solution(x, type, ctx) → [{say, ex}]          // every ex equals the answer (c
                                                 // number out of its lines until part (a) is right
 walk(x, type, ctx) → steps: {type: 'choice', ask, opts: [{label, ok, why}], then?, pic} | {type: 'num', ask, ans, hint, then?}
 readNum(text) → rational | null, numOk(step, value) → bool
-keyText(part) → what a student would type (for the checks)
+keyText(part) → what a student would type (for the checks); a part with boxes: one string per box
 ```
 
 ## Making the next unit (the skill "practice-test-from-unit-test" walks through it)
@@ -842,3 +847,76 @@ line, no line printed twice, a point label per part, section points and the head
 tracker's total equal to the parts; on the make-ups (the same builder) every key row is recomputed from its form's set.
 The same commit fixed `page.js` reading "&lt;" in a choice as four characters (its text is now decoded the way a browser
 shows it).
+
+## 15 Nov 2026 — several boxes in a part, shuffled walkthroughs, no × (`ui.js`, `kit.css`, `core.js`, `bank.js`)
+Croix, 15 Nov, 8:40 am: *"Fix windmill. Fix the other kits. Fix everything."* Three limits the units had hit, each now the kit's, each
+with a check; and what was found on the way.
+
+**1. Several boxes in one part.** A part had one box, so "x = ▢ and y = ▢" was typed as one ordered pair (A7 Unit 11's question 12,
+whose paper says "Give its x and its y"). Now a unit may give a part labeled boxes:
+- **The interface:** `view.boxes(part) → [{pre, unit, say, placeholder, imode, kind, form}]`, two or more (`x =`, `y =`; or `after ▢
+  weeks`, `$▢ each`): `pre` and `unit` are the words before and after the box (HTML), `say` its name for a screen reader ("x"),
+  `kind` its keypad's kind, `form` its form as `view.form` gives one. The part is still **one point**: its answer is one string per
+  box, in order (`S.ans[id]` an array), and the unit's `judge.text(part, [typed…], ctx)` judges them together, each box read by the
+  unit's own reader, so a named mistake may depend on every box ("swapped the coordinates"). `Unit.keyText(part)` gives one string
+  per box. `view.key(part)` stays the whole key ("(4, −2)"), and `Unit.choices(part)` whole answers in its shape (pairs), so the
+  all-multiple-choice paper, the keys and the teacher copy print as before.
+- **The kit around it:** every box blank is blank; some blank is *Not counted yet. Fill in every box: y is still empty.*, never a
+  try (in *Like the real test*, a miss at Finish that says so); the equivalent-forms rule box by box (each box's own `pre`, so
+  `x = 4` in the `x =` box is 4); Hint 1's rule probed with every box; first-try scoring, the streaks, the run, Try a similar one
+  (its own boxes), the ladder and Show me how unchanged; the pager's map counts the question answered only when every box is
+  filled; saved and restored box by box (a string saved before a part had boxes is dropped, never put in a box); the worksheet
+  prints a blank per box with its label, My results each box; the printed test keeps its work space (house rule 2).
+  **Keyboard and screen reader:** box 1, box 2 … then Check and Hint in Tab order; Enter in a box whose next box is empty goes to it
+  (`enterkeyhint="next"`), else checks; each box is named "Answer to question 12, x", the row is a group ("… 2 boxes"), the labels
+  shown and hidden from the reader. **On a phone** (≤ 480 px) the boxes share one line while they fit (each at least 8rem, the input
+  at least 4.5rem), Check and Hint on the row under them; wider, one row with Check beside it. Box k's input is `#a<id>` for the
+  first and `#a<id>_<k>` after, with `data-part` and `data-box`.
+- **A unit that gives no boxes is exactly as before**: the same HTML, the same answers, the same locks (A7 Units 6 and 11, M7 Units
+  10 and 13, student pages and teacher copies, every check passing on this kit untouched). The boxes are a view of the part, so
+  giving a part boxes does not change a set's questions or its lock.
+- **Checked:** `check/page.js` part T (`check/boxes_page.js`, a unit with a part that has boxes): the names, the group, the Tab order;
+  one line at 360, 390 and 1280 px, nothing past the edge; one box filled is not a try; Enter; a wrong pair (the key reversed), its
+  coach's words, one try, saved as one string per box; the ladder; a similar one with its own boxes, ✓; the key ✓ on the first try
+  with the point, the boxes locked, every box back after a reload; the worksheet's blanks and labels, the key's row, My results;
+  *Like the real test* both ways; the keypad in the box being typed in; the pager's map. Every other page check types into a part's
+  boxes through `check/boxes.js` (page.fill on `#a<id>` fills every box: an array, a string per box; one string, the same in each).
+  First used by A7 Unit 11's question 12 (`x =`, `y =`).
+- **For a unit author:** give `view.boxes(part)` for the parts that need it; make `judge.text` read an array for them (each box with
+  your reader; a box may hold its own letter, "x = 4"); give `keyText` one string per box; keep `view.key` and `choices` whole; let
+  your own checks type arrays. Nothing else.
+
+**2. A walkthrough's options are shuffled.** The kit showed a choice step's options in the order the unit wrote them, so the right
+one sat in the same place every time (first, in most units; HELP_STANDARD §5.2 says it must vary). `ui.js` `walkOrder` shows them in
+`Kit.order(n, key | step | ask)` (`core.js`): a hash of the question (`Unit.key`), the step's place and its words. It is the same order
+every time the question is opened, on any device, as the all-multiple-choice paper's right choice is; another question, another
+order. Each button keeps its own option's index (`data-wopt`), so a pick, a saved wrong pick and every check read the unit's order
+as before. **Checked:** `check/walk.js` (run.py, 300 sets): every choice step has a right option; the right one's place over the
+unit near even (no place under 20% for two or three options), and no step of a family in one place more than 80% of the time;
+page.js part U: set 4821's walkthroughs in that order on the page, the same after a reload.
+
+**3. No × for multiplication.** Croix's classroom rule: x is always a variable, so multiplication is a dot or parentheses. The kit
+wrote ×: its arithmetic hints ("Think: 3 × ? = 12", "26 × 1.4 = 26 × 1 + 26 × 0.4"), the keypad's times key, and a lesson item's
+"like 3.2 × 10^5". Now the hints write a dot ("Think: 3 · ? = 12", the wording A7 Unit 11 and M7 Units 5 and 13 already gave them in
+their own coaches), the times key shows · (it is still named × and types *), and the lesson message says "3.2 · 10^5".
+- **A unit built before the rule**, one whose own words use × (A7 Units 3, 4, 5, 6; M7 Units 4, 8, 9, 10: `core.js` `LEGACY_TIMES`,
+  counted by `check/times.js`), keeps the × in its hints word for word. Their sentence readers read × (A7 Unit 6's and Unit 3's
+  read "6 · 6 = 6 · 5 + 6" as the false "6 = 30 + 6"), and their Portuguese tables hold those sentences (M7 Unit 4's `bi_check`
+  fails on any new wording). The kit knows the unit by the id it draws its questions with (`slot`, `draw`). When such a unit is
+  rebuilt without ×, take it off the list.
+- **Checked:** `check/hints.js`: every kind of hint, over 296,000 cases with negatives, writes no × for a unit not on the list, and
+  the list's units get the old words exactly. `check/times.js` (run.py, every student page): the kit's own scripts hold no × except
+  where they read one (a reader's character class, the TeX map, the keypad's key names), and over 300 sets no string a student reads
+  from the unit has one (stems, lines, choices, named distractors, keys, worked lines, the three rungs, walkthrough steps, the
+  coach's words, the paper's choices); a unit on the list is reported with its count, not failed. page.js part U: with every worked
+  solution open, the sheet, the worksheet and key, My results, and on a teacher copy a make-up and the all-multiple-choice paper
+  print no × (the list's units are reported). Cadence's own lesson items keep Cadence's words; they are the bank's, not the kit's.
+
+**4. Found on the way, and fixed.**
+- **A hint for a negative number threw.** `hint.mul(−3, 4)` built `Array(−3)`, and `hint.add`, `hint.sub` and `hint.mul` read a
+  negative integer's minus sign as a digit (`BigInt('-')`), so a unit's walkthrough that asked for one lost its Hint without a word
+  (ui.js catches the error and shows none). Now: "First the size: 3 · 4 = 4 + 4 + 4. Then the sign: one number is negative, so the
+  product is negative." (the quotient alike), and "Adding −23 is taking away 23. …" / "Taking away −23 is adding 23. …". Only inputs
+  that threw before get new words. `check/hints.js` reads them all.
+- **A copy of uncommitted changes did not say so.** `tools/practice_kit.py --vendor` wrote "Windmill practice/kit at <commit>" even
+  when the kit had changes not yet committed; it now adds "+ uncommitted kit changes", as `vendor_into.py` does for the build kit.

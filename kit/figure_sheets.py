@@ -63,14 +63,24 @@ def main(argv):
 
     rows = []
 
+    FIGS = ("fig", "fig_a", "fig_key")     # the question's, the answer slide's, the key's (15 Nov 2026)
+
     def walk(o, path, raw):
         if isinstance(o, dict):
-            for k in ("fig", "fig_a"):
+            for k in FIGS:
                 if isinstance(o.get(k), dict):
                     rows.append((path, k, o, raw))
             for kk, v in o.items():
-                if kk not in ("fig", "fig_a"):
-                    walk(v, f"{path}.{kk}" if path else kk, raw[kk] if isinstance(raw, dict) else raw)
+                if kk in FIGS:
+                    continue
+                if kk == "worked" and isinstance(v, list):
+                    # a worked slide's figure is shown with its Example's problem and its own working
+                    for i, w in enumerate(v):
+                        if isinstance(w, dict) and isinstance(w.get("fig"), dict):
+                            rows.append((f"{path}.worked[{i + 1}]", "worked", dict(o, worked=[w], fig=w["fig"]), dict(raw["worked"][i], worked=raw["worked"][i]["fig"])))
+                        walk({a: b for a, b in w.items() if a != "fig"} if isinstance(w, dict) else w, f"{path}.worked[{i + 1}]", raw["worked"][i])
+                    continue
+                walk(v, f"{path}.{kk}" if path else kk, raw[kk] if isinstance(raw, dict) else raw)
         elif isinstance(o, (list, tuple)):
             for i, v in enumerate(o):
                 walk(v, f"{path}[{i + 1}]", raw[i])
@@ -80,10 +90,8 @@ def main(argv):
         files = sorted(glob.glob(os.path.join(build, u, "l[0-9]*.py")))
         files += [p for p in (os.path.join(build, u, "review.py"), os.path.join(build, u, "unit.py")) if os.path.exists(p)]
         for f in files:
-            sys.path.insert(0, os.path.dirname(f))
-            sp = importlib.util.spec_from_file_location("s", f)
-            m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
-            sys.path.pop(0)
+            from lib import unitload    # each unit's own figs.py, never one cached from the unit before (lib/unitload.py)
+            m = unitload.load(f, "s")
             top_raw = getattr(m, "L", None) or getattr(m, "U", None)
             if top_raw is None:
                 continue
@@ -114,8 +122,9 @@ def main(argv):
                 ans = o.get("answer") or o.get("answer_latex")
                 lines.append(
                     f"### ITEM {n:03d} — {u}/{os.path.basename(f)} — {code} — {path}"
-                    + (" (the figure shown WITH THE ANSWER)" if k == "fig_a" else "")
-                    + f"\nPICTURE: {png}\nLABELS ON THE PICTURE (as typed): {rc.figtext(o[k])}\nWORDS THE STUDENT READS:\n"
+                    + (" (the figure shown WITH THE ANSWER)" if k == "fig_a" else " (the figure THE KEY PRINTS in place of the page's)" if k == "fig_key"
+                       else " (the worked slide's figure, shown WITH THE WORKING)" if k == "worked" else "")
+                    + f"\nPICTURE: {png}\nLABELS ON THE PICTURE (as typed): {rc.figtext(o['fig'] if k == 'worked' else o[k])}\nWORDS THE STUDENT READS:\n"
                     + "\n".join("   " + w for w in words)
                     + ("\nSTEPS SHOWN WITH THE ANSWER:\n" + "\n".join("   " + s for s in steps) if steps else "")
                     + (f"\nANSWER: {ans}" if ans else "")

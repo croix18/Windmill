@@ -1,5 +1,5 @@
 /**
- * Windy Hill — the Drive side (version 3, 4 October 2026)
+ * Windy Hill — the Drive side (version 3.1, 15 November 2026)
  *
  * WHAT IT DOES, every hour, in this Google account
  * 1. Copies everything Claude has published for A7 and M7 — the unit folders with their slides,
@@ -56,7 +56,7 @@
  * has already copied is recognised, not copied again.
  */
 
-var VERSION = 3;                         // of this script
+var VERSION = '3.1';                     // of this script (3.1, 15 Nov 2026: a record rebuilt over several runs is finished)
 var FORMAT = 'v2';                       // of the Drive tab the master sheets read
 var OWNER = 'croix18';
 var REPOS = [
@@ -603,7 +603,11 @@ function pull_(jobs, state, cx) {
   }
   jobs.forEach(function (j) {
     cx.note.todo += j.todo.length - j.i;
+    // 'head:' says this commit is wholly in Drive and on record, so the next run need not look again. A job left
+    // unfinished takes it away: else, with the record lost and rebuilt over more than one run, the commit already
+    // marked done was never looked at again and the files past the first run stayed off the record (and the Drive tab)
     if (j.i >= j.todo.length && !j.failed && !cx.note.paused) cx.props.setProperty('head:' + j.R.repo, j.head);
+    else cx.props.deleteProperty('head:' + j.R.repo);
   });
 }
 

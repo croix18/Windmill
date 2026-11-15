@@ -24,6 +24,43 @@ from PIL import Image
 from . import slotmark
 from .profile import C
 
+# ---- the one matplotlib the kit draws with (15 Nov 2026) ----------------------------------------
+# Every picture — an expression here, a figure in figkit — is matplotlib's drawing, and the courses' checked-in PDFs
+# are what this series draws. 3.11 sets a slide's stacked fraction about a quarter taller (3/4 + 5/8: 0.59 -> 0.73 in),
+# so Your Turn answer slides in M7 Units 8 and 9 no longer hold their steps, and it moves a label of A7 11.07's
+# graph onto a line; LEXEND_SCALE is measured against this series. The build drivers refuse another
+# (require_matplotlib); Windmill's GitHub check installs this series for the kit's tests (it reads this line) and
+# runs kit/tests/test_matplotlib.py on the newest matplotlib as well, so a change in what matplotlib hands back is
+# seen the day it ships. Moving to a newer series is its own pass: rebuild both courses on it and change this line.
+MATPLOTLIB = "3.10"
+
+
+def matplotlib_ok():
+    return matplotlib.__version__.split(".")[:2] == MATPLOTLIB.split(".")
+
+
+def matplotlib_note():
+    """None on the supported series; otherwise what the builder is told."""
+    if matplotlib_ok():
+        return None
+    return (f"matplotlib {matplotlib.__version__} is installed; the build kit draws with matplotlib {MATPLOTLIB} "
+            f"(kit/lib/mathimg.py MATPLOTLIB) — install it: pip install \"matplotlib=={MATPLOTLIB}.*\". "
+            f"Another series draws every picture differently (fractions taller), so the checked-in PDFs stop matching "
+            f"and some slides no longer fit.")
+
+
+def require_matplotlib():
+    """A build driver's first step: stop on another matplotlib, saying what to install (KIT_ANY_MATPLOTLIB=1 builds
+    anyway, with a warning — for the pass that moves the courses to a newer series)."""
+    note = matplotlib_note()
+    if note is None:
+        return
+    if os.environ.get("KIT_ANY_MATPLOTLIB"):
+        print("warning: " + note)
+        return
+    raise SystemExit(note)
+
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIGS = os.path.normpath(os.path.join(HERE, "..", "figs"))
 INDEX = os.path.join(FIGS, "index.json")
@@ -144,6 +181,19 @@ def _prop(pt, face):
 
 SLOTS_VERSION = "slots-v2"
 _PARSER = MathTextParser("path")
+
+
+def norm_glyphs(glyphs):
+    """Every glyph as (font, size, char, ox, oy), whichever shape matplotlib gives it. Up to 3.10 a parse's glyph
+    was (font, size, char, ox, oy); 3.11 put the glyph index before the offsets — (font, size, char, index, ox, oy) —
+    so a reader of [3] and [4] got the index and ox, quietly (15 Nov 2026). The offsets are always the last two."""
+    return [(g[0], g[1], g[2], g[-2], g[-1]) for g in glyphs]
+
+
+def parse(latex, dpi, prop):
+    """mathtext's layout of `latex` ($…$ included), its glyphs in the one shape every reader here expects."""
+    r = _PARSER.parse(latex, dpi=dpi, prop=prop)
+    return r._replace(glyphs=norm_glyphs(r.glyphs))
 _OPEN, _CLOSE = "([{", ")]}"
 
 
@@ -156,7 +206,7 @@ def _slot_colors(glyphs, pt, scale=1.0):
     small = [g[1] < pt * 0.95 and not g[0].family_name.startswith("STIXSize") for g in glyphs]
     for g, sm in zip(glyphs, small):
         if sm and chr(g[2]) in "√∛∜":
-            raise RuntimeError("slot colour: a radical set small — a root index is not an exponent; render this one black")
+            raise RuntimeError("slot color: a radical set small — a root index is not an exponent; render this one black")
     i = 0
     while i < n:
         if not small[i]:
@@ -200,9 +250,9 @@ def _slot_colors(glyphs, pt, scale=1.0):
                 for u in range(t, k + 1):
                     col[u] = CB1
             else:
-                raise RuntimeError(f"slot colour: an exponent sits on '{ch}', which is not a base")
+                raise RuntimeError(f"slot color: an exponent sits on '{ch}', which is not a base")
         else:
-            raise RuntimeError("slot colour: an exponent with nothing to its left to be its base")
+            raise RuntimeError("slot color: an exponent with nothing to its left to be its base")
         i = j + 1
     return col
 
@@ -211,7 +261,7 @@ def _render_slots(latex, pt, path, face=None):
     """Draw the expression glyph by glyph so each slot carries its own colour. The layout is
     mathtext's own, computed at the SAME resolution _render rasterises at (DPI), so every glyph
     and bar lands where the black render puts it — slotaudit.py --geometry compares the two."""
-    r = _PARSER.parse(f"${latex}$", dpi=DPI, prop=_prop(pt, face))
+    r = parse(f"${latex}$", dpi=DPI, prop=_prop(pt, face))
     col = _slot_colors(r.glyphs, pt, scale=DPI / 72)
     return _paint(r, col, [SLOT_INK] * len(r.rects), latex, path)
 
@@ -227,19 +277,19 @@ def named_colors(latex, pt, dpi=DPI, face=None):
     A mark that moves no glyph — or a parse that changes the glyph count — is refused."""
     plain = slotmark.strip(latex)
     prop = _prop(pt, face)
-    r = _PARSER.parse(f"${plain}$", dpi=dpi, prop=prop)
+    r = parse(f"${plain}$", dpi=dpi, prop=prop)
     col = [SLOT_INK] * len(r.glyphs)
     rcol = [SLOT_INK] * len(r.rects)
     for key in sorted({k for _, _, k, _ in slotmark.spans(latex)}):
-        q = _PARSER.parse(f"${slotmark.isolate(latex, key)}$", dpi=dpi, prop=prop)
+        q = parse(f"${slotmark.isolate(latex, key)}$", dpi=dpi, prop=prop)
         if len(q.glyphs) != len(r.glyphs):
-            raise RuntimeError(f"slot colour: marking slot {key} changed the glyph count — render this one black: {latex}")
+            raise RuntimeError(f"slot color: marking slot {key} changed the glyph count — render this one black: {latex}")
         hit = [i for i, (a, b) in enumerate(zip(r.glyphs, q.glyphs)) if b[1] < a[1] * 0.95]
         if not hit:
-            raise RuntimeError(f"slot colour: the \\s{key} mark coloured nothing (too deep in a superscript?): {latex}")
+            raise RuntimeError(f"slot color: the \\s{key} mark colored nothing (too deep in a superscript?): {latex}")
         for i in hit:
             if col[i] != SLOT_INK:
-                raise RuntimeError(f"slot colour: one glyph in two slots: {latex}")
+                raise RuntimeError(f"slot color: one glyph in two slots: {latex}")
             col[i] = slotmark.SLOT[key]
         # a fraction bar or radical rule lying inside a run of this slot's glyphs takes its colour
         # (a blue 7½ has a blue bar); a rule that reaches past them is structure and stays ink
@@ -412,7 +462,7 @@ def _depth(latex, pt, face):
     baseline with it, instead of centring the picture on the line (18 Oct: "1 lb = 0.454 kg" sat
     a quarter-line above the sentence it was part of)."""
     try:
-        r = _PARSER.parse(f"${slotmark.strip(latex)}$", dpi=DPI, prop=_prop(pt, face))
+        r = parse(f"${slotmark.strip(latex)}$", dpi=DPI, prop=_prop(pt, face))
         return max(0.0, float(r.depth) / DPI)
     except Exception:
         return 0.0

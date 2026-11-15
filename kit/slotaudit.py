@@ -42,10 +42,8 @@ def collect(unit):
     the same surfaces lessonbuild._fill_deck marks slots=True."""
     rows = []
     for f in _specs(unit):
-        sys.path.insert(0, os.path.dirname(f))
-        sp = importlib.util.spec_from_file_location("l", f)
-        m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
-        sys.path.pop(0)
+        from lib import unitload        # the spec's own unit's modules, never another unit's
+        m = unitload.load(f, "l")
         L = m.L; code = L["code"]
         for n in L["notes"]:
             for r in n.get("math", []):
@@ -96,7 +94,7 @@ def show(latex, pt):
         return show_named(latex, pt)
     latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
     latex, pt, face = mathimg.slide_form(latex, pt)        # as the slide sets it (ruling 40)
-    r = mathimg._PARSER.parse(f"${latex}$", dpi=72, prop=mathimg._prop(pt, face))
+    r = mathimg.parse(f"${latex}$", dpi=72, prop=mathimg._prop(pt, face))
     col = mathimg._slot_colors(r.glyphs, pt)
     out, prev = [], None
     for g, c in zip(r.glyphs, col):
@@ -121,7 +119,7 @@ def geometry_differs(latex, pt, render_colour=None):
     from PIL import Image
     latex = re.sub(r"\\frac(?![A-Za-z])", r"\\dfrac", latex)
     d = tempfile.mkdtemp()
-    a, b = os.path.join(d, "black.png"), os.path.join(d, "colour.png")
+    a, b = os.path.join(d, "black.png"), os.path.join(d, "color.png")
     latex, pt, face = mathimg.slide_form(latex, pt)        # both renders in the slide's own face
     mathimg._render(slotmark.strip(latex), pt, a, "#1A1A1A", face)
     if render_colour:
@@ -170,7 +168,7 @@ if __name__ == "__main__":
         flagged, worst, n = geometry(unit)
         for f, code, where, latex in flagged:
             print(f"GEOMETRY {f:6.1%}  {code:5} {where:9} {latex}")
-        print(f"geometry: {n} expressions rendered black and in colour; worst ink disagreement {worst:.2%}; {len(flagged)} over 0.5%")
+        print(f"geometry: {n} expressions rendered black and in color; worst ink disagreement {worst:.2%}; {len(flagged)} over 0.5%")
         sys.exit(1 if flagged else 0)
     bad = 0
     rows = collect(unit)

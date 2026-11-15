@@ -21,13 +21,8 @@ from lib import lessonbuild as lb
 
 
 def load(path, name):
-    sys.path.insert(0, os.path.dirname(path))
-    try:
-        sp = importlib.util.spec_from_file_location(name, path)
-        m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
-    finally:
-        sys.path.pop(0)
-    return m
+    from lib import unitload            # the spec's own unit's modules, never another unit's (lib/unitload.py)
+    return unitload.load(path, name)
 
 
 def plan_days():

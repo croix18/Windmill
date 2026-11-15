@@ -4,7 +4,8 @@ looked at) and its findings; any finding fails the run (exit 1). §13c: a check 
 finding and exits 0 is worse than no check.
 
   docscan    student surfaces carry no benchmark code, calculator line, 'homework', partner work
-  keycheck   student papers carry no ANSWER KEY mark and no red (answer-colour) run
+  keycheck   student papers carry no ANSWER KEY mark and no red (answer-colour) run; a key prints
+             its page's figures, but where the spec gives a fig_key
   gdoccheck  Docs-native fonts only, no nested tables, every table pinned, no touching tables
   glyph      every non-ASCII character in a run has a glyph in the font that will draw it
   pagecheck  no shipped PDF page is blank
@@ -131,13 +132,69 @@ def check_keycheck(files):
         if "ANSWER KEY" in x:
             findings.append(f"keycheck: ANSWER KEY mark on student paper — {base}")
         if not answered and re.search(r'w:color w:val="9E1B32"', x):
-            findings.append(f"keycheck: answer-colour run on student paper — {base}")
+            findings.append(f"keycheck: answer-color run on student paper — {base}")
         if answered and not re.search(r'w:color w:val="9E1B32"', x):
             findings.append(f"keycheck: WORKED ANSWERS copy has no answers on it — {base}")
         if answered and ("TRANSFER" in x or "BONUS" in x):
             findings.append(f"keycheck: ruling 32 — TRANSFER/BONUS printed on a student copy — {base}")
-    print(f"keycheck: {n} student papers, {len(findings)} findings")
+    # a key prints its page's figures, position for position — except a key's own figure (`fig_key`, 15 Nov 2026: the key
+    # of "graph both lines on this grid" shows the lines), which the build marks; any other difference is a key built from
+    # something other than its page
+    npairs = 0
+    lib = _figure_library()
+    for f in files:
+        base = os.path.basename(f)
+        if not f.endswith(".docx") or not is_student(base) or names.is_worked(base):
+            continue
+        stem = f[:-5]
+        for twin in (stem + " - " + names.KEY + ".docx", stem + " - " + names.WORKED + ".docx"):
+            if twin not in files and not os.path.exists(twin):
+                continue
+            npairs += 1
+            page, key = _doc_figures(f, lib), _doc_figures(twin, lib)
+            tb = os.path.basename(twin)
+            if any(d == KEY_FIGURE for _, d in page):
+                findings.append(f"keycheck: a key's own figure is printed on the student page — {base}")
+            if len(page) != len(key):
+                findings.append(f"keycheck: {tb} prints {len(key)} figures and its page {len(page)} — a key prints its page's figures")
+                continue
+            for i, ((a, _), (b, d)) in enumerate(zip(page, key)):
+                if a != b and d != KEY_FIGURE:
+                    findings.append(f"keycheck: figure {i + 1} of {tb} is not its page's (and is not a fig_key the spec gave)")
+    print(f"keycheck: {n} student papers, {npairs} page-and-key pairs' figures compared, {len(findings)} findings")
     return findings
+
+
+KEY_FIGURE = "fig_key"      # lib/dockit.KEY_FIGURE
+
+
+def _figure_library():
+    """{sha256: file name} of every picture in figs/ (the figures are g….png; the rest are expressions)."""
+    out = {}
+    for p in glob.glob(os.path.join(HERE, "figs", "*.png")):
+        with open(p, "rb") as fh:
+            out[hashlib.sha256(fh.read()).hexdigest()] = os.path.basename(p)
+    return out
+
+
+def _doc_figures(path, lib):
+    """[(sha256, descr)] of the FIGURES a .docx embeds, in document order (expressions are left out)."""
+    z = zipfile.ZipFile(path)
+    rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
+    target = dict(re.findall(r'Id="([^"]+)"[^>]*Target="([^"]+)"', rels))
+    target.update({a: b for b, a in re.findall(r'Target="([^"]+)"[^>]*Id="([^"]+)"', rels)})
+    x = z.read("word/document.xml").decode("utf-8")
+    out = []
+    for m in re.finditer(r"<wp:inline\b.*?</wp:inline>|<wp:anchor\b.*?</wp:anchor>", x, re.S):
+        e = re.search(r'r:embed="([^"]+)"', m.group(0))
+        if not e or e.group(1) not in target:
+            continue
+        h = hashlib.sha256(z.read("word/" + target[e.group(1)])).hexdigest()
+        if not lib.get(h, "").startswith("g"):
+            continue
+        d = re.search(r'<wp:docPr\b[^>]*\bdescr="([^"]*)"', m.group(0))
+        out.append((h, d.group(1) if d else ""))
+    return out
 
 
 def check_gdoc(files):
@@ -640,10 +697,10 @@ def check_slotgeometry(files):
         n += k
         marks += slotaudit.marks_in_specs(u)
         for frac, code, where, latex in flagged:
-            findings.append(f"slotgeometry: {frac:.1%} of the ink moved when coloured — {code} {where}: {latex[:60]}")
+            findings.append(f"slotgeometry: {frac:.1%} of the ink moved when colored — {code} {where}: {latex[:60]}")
     if n == 0 and (C.SLOTS == "exponent" or marks):
-        findings.append("slotgeometry: examined no coloured expressions — a check that examined nothing cannot be clean")
-    print(f"slotgeometry: {n} coloured expressions rendered twice and compared"
+        findings.append("slotgeometry: examined no colored expressions — a check that examined nothing cannot be clean")
+    print(f"slotgeometry: {n} colored expressions rendered twice and compared"
           + ("" if n or C.SLOTS == "exponent" or marks else " (no spec in this unit marks a slot)") + f", {len(findings)} findings")
     return findings
 
@@ -778,7 +835,7 @@ def _placed(g):
     if not (g["l"] >= g["left"] - 1 and g["t"] >= g["top"] - 1 and g["r"] <= g["iw"] + 1 and g["b"] <= g["ih"] + 1):
         return f"the slide runs outside its space ({g['l']:.0f}–{g['r']:.0f} across, {g['t']:.0f}–{g['b']:.0f} down, in a {g['iw']}×{g['ih']} window)"
     if abs((g["l"] - g["left"]) - (g["iw"] - g["r"])) > 2 or abs((g["t"] - g["top"]) - (g["ih"] - g["b"])) > 2:
-        return f"the slide is not centred in its space ({g['l']:.0f}–{g['r']:.0f} across, {g['t']:.0f}–{g['b']:.0f} down, in a {g['iw']}×{g['ih']} window)"
+        return f"the slide is not centered in its space ({g['l']:.0f}–{g['r']:.0f} across, {g['t']:.0f}–{g['b']:.0f} down, in a {g['iw']}×{g['ih']} window)"
     if abs((g["r"] - g["l"]) - (g["iw"] - g["left"])) > 2 and abs((g["b"] - g["t"]) - (g["ih"] - g["top"])) > 2:
         return f"the slide does not fill its space either way ({g['r'] - g['l']:.0f}×{g['b'] - g['t']:.0f} in a {g['iw']}×{g['ih']} window)"
     return None
@@ -889,10 +946,10 @@ def check_html(files):
                 try:
                     want = slotaudit.show(e["tex"], 32)
                 except Exception as ex:
-                    findings.append(f"htmlcheck: mathtext refuses an expression the page coloured: {e['tex'][:50]} — {base}")
+                    findings.append(f"htmlcheck: mathtext refuses an expression the page colored: {e['tex'][:50]} — {base}")
                     continue
                 if _norm(want) != _norm(e["read"]):
-                    findings.append(f"htmlcheck: colour reading differs — page {_norm(e['read'])!r} vs mathtext {_norm(want)!r} — {base}")
+                    findings.append(f"htmlcheck: color reading differs — page {_norm(e['read'])!r} vs mathtext {_norm(want)!r} — {base}")
             for e in r.get("named", []):
                 nnamed += 1
                 if e["tex"] in seen:
@@ -908,11 +965,11 @@ def check_html(files):
                     g = "".join(sorted(re.sub(r"[\s\u200b\ue000-\uf8ff,]", "", e["got"][key]).replace("\u2212", "-")))
                     w = "".join(sorted(want[key].replace("\u2212", "-")))
                     if g != w:
-                        findings.append(f"htmlcheck: slot {key} — the page coloured {g!r}, the spec marked {w!r}: {e['tex'][:60]} — {base}")
+                        findings.append(f"htmlcheck: slot {key} — the page colored {g!r}, the spec marked {w!r}: {e['tex'][:60]} — {base}")
         b.close()
     if ncon == 0:
         findings.append(f"htmlcheck: no unit console found — the All Slides .html should carry window.UNIT")
-    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} coloured expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {nfit} slides set smaller to clear the footer (smallest {minfit:.0%}; floor {FIT_FLOOR:.0%}), {len(findings)} findings")
+    print(f"htmlcheck: {n} HTML decks opened ({ncon} console), {nex + nnamed} colored expressions compared, the slide's place measured {nplaced} times at {len(SCREENS)} screen sizes and {ntouch} times on {len(TOUCH)} touch screens, {nfit} slides set smaller to clear the footer (smallest {minfit:.0%}; floor {FIT_FLOOR:.0%}), {len(findings)} findings")
     return findings
 
 

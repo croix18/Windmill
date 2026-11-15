@@ -9,7 +9,20 @@ jobs:
         with: { node-version: 20 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install jsonschema sympy python-docx python-pptx matplotlib Pillow
+      # the kit draws with ONE matplotlib series, named once in kit/lib/mathimg.py (MATPLOTLIB): its tests run on that
+      - name: install (matplotlib as the kit states it)
+        run: |
+          MPL=$(sed -n 's/^MATPLOTLIB = "\([0-9.]*\)".*/\1/p' kit/lib/mathimg.py)
+          test -n "$MPL" || { echo "kit/lib/mathimg.py names no MATPLOTLIB"; exit 1; }
+          pip install jsonschema sympy python-docx python-pptx "matplotlib==$MPL.*" Pillow
       # the source repositories are private to Croix; CI validates the committed spine and runs the
       # room conformance test. Regeneration happens in a session with the three checkouts beside this one.
       - run: bash tools/check.sh
+      # … and what matplotlib hands back is held on the newest matplotlib too, so a change in its return shapes is
+      # seen the day it ships (kit/tests/test_matplotlib.py: the glyph tests, on any version)
+      - name: the kit's matplotlib tests on the newest matplotlib
+        if: success() || failure()
+        run: |
+          pip install --upgrade matplotlib
+          python3 -c "import matplotlib; print('matplotlib', matplotlib.__version__)"
+          KIT_COURSE=kit/tests/course_on.py python3 kit/tests/test_matplotlib.py

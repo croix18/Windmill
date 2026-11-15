@@ -146,12 +146,8 @@ def deck_ixl(path):
     """{(name, code)} a spec's IXL slide names, the spec run the way gates.py runs it."""
     if path not in _deck_ixl:
         from . import slotmark
-        sys.path.insert(0, os.path.dirname(path))          # a spec may import its unit's figs.py
-        try:
-            sp = importlib.util.spec_from_file_location("ixlplan_deck", path)
-            m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
-        finally:
-            sys.path.pop(0)
+        from . import unitload             # a spec may import its unit's figs.py — its own, never another unit's
+        m = unitload.load(path, "ixlplan_deck")
         _deck_ixl[path] = {p for p in (parse(slotmark.strip(e)) for e in m.L.get("ixl", [])) if p}
     return _deck_ixl[path]
 

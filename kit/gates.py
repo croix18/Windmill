@@ -38,20 +38,17 @@ def kit_findings():
 
 
 def load(path, name):
-    sys.path.insert(0, os.path.dirname(path))          # a spec may import its unit's figs.py
-    try:
-        sp = importlib.util.spec_from_file_location(name, path)
-        m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
-    finally:
-        sys.path.pop(0)
-    return m
+    """A spec, with its own unit's figs.py (or any module beside it) — never one cached from another
+    unit gated earlier in this process (lib/unitload.py)."""
+    from lib import unitload
+    return unitload.load(path, name)
 
 
-def unit_findings(unit):
+def unit_findings(unit, root=HERE):
     from lib import lessonbuild as lb, slotmark, unitbuild
     from lib.profile import C
-    specs = sorted(glob.glob(os.path.join(HERE, unit, "l[0-9][0-9].py")))
-    review = os.path.join(HERE, unit, "review.py")
+    specs = sorted(glob.glob(os.path.join(root, unit, "l[0-9][0-9].py")))
+    review = os.path.join(root, unit, "review.py")
     if C.REVIEW_IN_DECK and os.path.exists(review):
         specs.append(review)
     if not specs:
@@ -63,7 +60,7 @@ def unit_findings(unit):
         out += (fnd + lb.distractorcheck_lesson(P) + lb.capcheck_lesson(P)
                 + lb.rulingcheck_lesson(P) + lb.balancecheck_lesson(P))
     out += lb.balancecheck_unit(lessons)
-    uf = os.path.join(HERE, unit, "unit.py")
+    uf = os.path.join(root, unit, "unit.py")
     if os.path.exists(uf):
         U = slotmark.strip_deep(load(uf, "u").U)
         fnd, n = unitbuild.check_unit(U); items += n; out += fnd

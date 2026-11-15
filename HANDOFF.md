@@ -4,6 +4,42 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## Where things stand (15 Nov 2026: the kit limits fixed — figures wherever a question is, a key's own figure, declared step lines, several answer boxes; matplotlib named once; the Drive script 3.1)
+
+Croix, 15 Nov, 8:40 am, told what the kits could not do for A7 Unit 11 and M7 Unit 13: *"Fix windmill. Fix the other kits. Fix
+everything."* — and at 10:16 am, of the red GitHub check: matplotlib 3.11 hands back a glyph as (font, size, char, glyph index,
+ox, oy), not (font, size, char, ox, oy); *"Pinning matplotlib<3.11 … would only hide it. The courses that vendor the kit need
+the fixed copy."* Everything below is in `kit/README.md` and `practice/kit/README.md` (their 15 Nov sections), each with tests.
+- **Build kit — what a builder can now write** (`kit/SPEC SCHEMA.md`): `fig` on a Your Turn (and `fig_a` for its answer), on a
+  worked slide, on a warm-up question and on a set question under every profile; **`fig_key`** on any paper question (the key
+  prints it in place of `fig` — a key can show the finished graph); a step that opens **`[equation]`** (checked to have the
+  solution set of the equation before it) or **`[false]`** (checked false, after an equation with no solution), so an
+  equations unit prints "8 = 5" on an answer slide instead of saying it in words. Nothing to write for the rest: a choice
+  board's options stand **beside** its figure when that makes the figure taller; every saved figure is **trimmed to its ink**
+  (`in` is read as before, so a figure's ink is the size it was; slides' room-limited figures come out larger, papers lose
+  the white margin, no page is added); two **labels on each other** are refused; `shuffle_choices.py` takes a path and
+  rewrites a select-all's answer line (what it cannot rewrite is listed TO FIX BY HAND; the gate refuses a stale one);
+  everything the kit prints is **American English** ("neighbor"); **`lib/unitload.py`** loads each unit's own `figs.py`
+  (several units gated in one process no longer hand one unit another's — A7's `figs11` may go back to `figs`).
+- **matplotlib.** The glyph fix is `mathimg.parse` / `norm_glyphs` (one normalizer, every reader through it), tested on both
+  tuple shapes. **3.11 is still not a matplotlib the courses can build on**: it draws stacked fractions about a quarter
+  taller, and on 3.11.2 five M7 decks (8.01, 8.03, 8.05, 9.02, 9.03) no longer fit their slides and A7 11.07 puts a label on a
+  line. So the kit names its series once — `MATPLOTLIB = "3.10"` in `kit/lib/mathimg.py` — `build_lesson.py` and
+  `build_unit.py` stop on any other with the pip line to run, the workflow installs that series for `tools/check.sh` and then
+  runs `kit/tests/test_matplotlib.py` on the newest matplotlib, so a change in what matplotlib hands back shows the day it
+  ships. Moving the courses to 3.11 is its own job: every deck and paper re-laid and looked at.
+- **Practice kit:** a part may have **several labelled boxes** (`view.boxes(part)`; one point; `judge.text` gets one string a
+  box; keys, `choices` and the all-multiple-choice paper stay whole answers) — page.js part T; a **walkthrough's options are
+  shuffled** by a hash of the question (`check/walk.js`, part U); the kit writes **a dot, never ×** — except in the eight
+  units whose own checks hold their hints to the old words (`LEGACY_TIMES` in `core.js`: A7 3–6, M7 4, 8, 9, 10), which keep
+  × until each is rebuilt; and the hints no longer throw on a negative number (a question's Step by step had silently gone).
+- **The Drive script is version 3.1** (`drive/WindyHill.gs`; **Croix pastes it over version 3**): with the Mirror tab lost and
+  the record rebuilt over more than one run, version 3 stopped after the first run (the commit was already marked done) and
+  left the rest off the record and the Drive tab until the next commit. Found because `drive/test_windyhill.js` crashed on a
+  machine with the two courses checked out beside Windmill (it read what they really publish, and neither publishes a console
+  since ruling 41); the test now carries the kept list's consoles in every mode and rebuilds the record on a slow day.
+- **Vendored:** see each course's `NOTES.md` (top) for what was rebuilt on these kits and what waits for its next rebuild.
+
 ## Where things stand (14 Nov 2026, afternoon: M7 Unit 13 built; the test's directions in Croix's words; no follow-through line on paper)
 
 Croix, 14 Nov, 11:35 am: *"Look at the order of the content on the website calendar. That should be your build order."* For

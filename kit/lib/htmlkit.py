@@ -251,13 +251,35 @@ class HtmlDeck:
     def steps_height(self, rows, gap=0.1):
         return 0.0
 
-    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1):
-        """An answer slide with a picture and working: the figure on the left, the steps beside it."""
-        from .deckkit import step_sizes
-        size = size or step_sizes()["size"]; surface = step_sizes()["surface"]
+    def _img(self, spec):
+        spec = {k: v for k, v in spec.items() if k != "reserve_was"}      # a layout hint of the PowerPoint's (deckkit._fit_figure)
         path, w, h = figkit.draw(figkit.slide(spec), spec.get("in", 4.2))
         with open(path, "rb") as f:
-            b = base64.b64encode(f.read()).decode("ascii")
+            return base64.b64encode(f.read()).decode("ascii"), w, h
+
+    def figure_row(self, items, reserve=0.25, gap=0.16):
+        """Figures in a row under the questions, each under its question's number (a warm-up's figures)."""
+        cells = []
+        for label, spec in items:
+            b, w, h = self._img(spec)
+            cells.append(f'<div class="fig"><span class="fl">{esc(str(label))}.</span><img src="data:image/png;base64,{b}" style="max-width:{w * 100:.0f}px" alt=""></div>')
+        self._add('<div class="figrow">' + "".join(cells) + "</div>")
+
+    def choices_beside(self, spec, opts, correct=None, reserve=0.75, size=24):
+        """A question with a figure and four options: the figure left, the options in a column on its right."""
+        b, w, h = self._img(spec)
+        out = [f'<ol class="choices col" style="font-size:{size}pt">']
+        for i, o in enumerate(opts):
+            out.append(f'<li class="{"correct" if correct == i else ""}"><span class="L">{chr(65 + i)}.</span> {rich(o)}</li>')
+        out.append("</ol>")
+        self._add(f'<div class="figchoices"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{w * 100:.0f}px" alt=""></div>{"".join(out)}</div>')
+        return True
+
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None):
+        """An answer slide with a picture and working: the figure on the left, the steps beside it."""
+        from .deckkit import step_sizes
+        size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
+        b, w, h = self._img(spec)
         lines = "".join(f'<p class="t left s-{surface}{" slots" if AUTO_SLOTS else ""}" style="font-size:{size}pt">{rich(r, slots=True)}</p>' for r in rows)
         self._add(f'<div class="figsteps"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{min(w, 5.2) * 100:.0f}px" alt=""></div>'
                   f'<div class="steps"><div>{lines}</div></div></div>')
@@ -280,10 +302,16 @@ class HtmlDeck:
                        "Show the step that does the work, not just the answer.",
                        "Silence until the six minutes are up."])
 
-    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set"):
+    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set", figs=None):
         """Ruling 21 with the six questions on the slide (in the handout course too: the same six
-        are the printed page)."""
+        are the printed page). `figs` — [(question number, figure)] — in a column on the right."""
         self.section(title, "Six questions. On your own, in writing.", minutes, note, kind)
+        if figs:
+            size = 19 if sum(len(q) for q in questions) < 400 else 17
+            ol = f'<ol class="numbered" style="font-size:{size}pt">' + "".join(f"<li>{rich(r)}</li>" for r in questions) + "</ol>"
+            col = "".join(f'<div class="fig"><span class="fl">{n}.</span><img src="data:image/png;base64,{self._img(f)[0]}" alt=""></div>' for n, f in figs)
+            self._add(f'<div class="setfig">{ol}<div class="figcol">{col}</div></div>')
+            return True
         if any("$" in q.replace("\\$", "") for q in questions):
             # the largest type at which the six end above the footer: a line of plain words is 1.35 em
             # tall, a line with a stacked fraction about twice that (KaTeX, display style), and the
@@ -312,12 +340,10 @@ class HtmlDeck:
         self._add('<p class="t left" style="font-size:21pt;font-weight:700;margin-top:18px">Today\'s skills — all required</p>')
         self._add('<ul class="skills">' + "".join(f"<li>{esc(s)}</li>" for s in skills) + "</ul>")
 
-    def figure(self, spec, gap=0.16):
+    def figure(self, spec, gap=0.16, strict=False):
         """A geometry figure drawn from its numbers (figkit), the same PNG the PowerPoint carries,
         embedded as a data URI at its natural size (100 px per inch of the 13.33-inch stage)."""
-        path, w, h = figkit.draw(figkit.slide(spec), spec.get("in", 4.2))
-        with open(path, "rb") as f:
-            b = base64.b64encode(f.read()).decode("ascii")
+        b, w, h = self._img(spec)
         # natural size at most; the figure is the slide's one flexible block, so when the text
         # around it needs the room the picture shrinks (the pptx does the same through `avail`)
         self._add(f'<div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{w * 100:.0f}px" alt=""></div>')
@@ -435,6 +461,9 @@ ol.choices.mathy{row-gap:14px}ol.choices.mathy li{display:flex;align-items:cente
 .contents{padding:0 40px}.contents a{display:flex;justify-content:space-between;text-decoration:none;color:#INK;font-size:22pt;padding:6px 0;border-bottom:1px solid #LT}
 .contents.tight a{font-size:19pt;padding:2px 0;line-height:1.3}.contents a b{display:inline-block;width:150px}.contents a span.n{font-size:17pt;color:#GRAY}
 .fig{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;margin:4px 0}.fig img{max-width:100%;max-height:100%;width:auto;height:auto}
+.figrow{flex:1 1 0;min-height:0;display:flex;gap:40px;justify-content:center}.figrow .fig{align-items:flex-start}.fl{font-size:22pt;font-weight:700;color:#VOCAB;margin-right:10px}
+.figchoices{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;gap:70px}.figchoices .fig{margin:0;height:100%}.figchoices ol.choices.col{flex:0 0 auto;padding:0}.figchoices ol.choices.col li{margin:12px 0}
+.setfig{flex:1 1 0;min-height:0;display:flex;gap:30px}.setfig ol.numbered{flex:1 1 auto}.setfig .figcol{flex:0 0 38%;display:flex;flex-direction:column;gap:14px;min-height:0}.setfig .figcol .fig{align-items:flex-start}
 sup{font-size:.62em;vertical-align:.45em;line-height:0}
 #hud{position:fixed;right:14px;bottom:10px;color:#bbb;font:13px/1.2 system-ui,sans-serif;opacity:.7}
 @media print{html,body{background:#fff}#stage{position:static;transform:none!important;box-shadow:none;width:WPXpx;height:HPXpx}.slide{display:flex!important;position:relative;page-break-after:always;height:HPXpx}#hud{display:none}}

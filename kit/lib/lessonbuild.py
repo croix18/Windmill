@@ -234,6 +234,9 @@ def _samevalue(code, grp, i, it, corr):
     return out
 
 
+SELECT_ALL_LETTERS = re.compile(r"^\s*([A-F](?:\s*(?:,\s*and|,|and|&)\s*[A-F])*)\s*(?=$|[—–:(.;]|-\s)")   # shuffle_choices.LETTER_LIST
+
+
 def distractorcheck_lesson(L):
     out = []
     for grp in ("whiteboard", "bank", "additional", "independent", "warmup"):
@@ -269,6 +272,13 @@ def distractorcheck_lesson(L):
                 am = re.match(r"^([A-F])(?: —|$)", str(it.get("answer") or ""))
                 if am and len(corr) == 1 and am.group(1) != keyed:
                     out.append(f"{L['code']} {grp}[{i}]: the answer line says {am.group(1)} and the key is {keyed}")
+                # a select-all's answer line lists its letters ("A, C and D — …"): they must be exactly the keyed ones
+                # (15 Nov 2026 — shuffle_choices.py used to leave such a line stale)
+                lm = SELECT_ALL_LETTERS.match(str(it.get("answer") or ""))
+                if lm and isinstance(it.get("correct"), (list, tuple, set)):
+                    said = "".join(sorted(set(re.findall(r"[A-F]", lm.group(1)))))
+                    if said != keyed:
+                        out.append(f"{L['code']} {grp}[{i}]: the select-all's answer line says {', '.join(said)} and the key is {', '.join(keyed)}")
                 rm = re.search(r"\bReveal ([A-F])\b", str(it.get("note_a") or ""))
                 if rm and len(corr) == 1 and rm.group(1) != keyed:
                     out.append(f"{L['code']} {grp}[{i}]: the reveal note says {rm.group(1)} and the key is {keyed}")
@@ -450,9 +460,12 @@ def _fmt_q(doc, it, number=None, key=False, points=None):
     parts = None
     if it.get("parts"):
         parts = [(p["label"], p["stem"], p.get("answer"), p.get("why"), p.get("space"), p.get("choices"), p.get("correct")) for p in it["parts"]]
+    # a key prints the item's own figure — or `fig_key` where the item gives one (15 Nov 2026: the key of "graph both
+    # lines on this grid" printed the empty grid); the student page always prints `fig`
+    by_key = bool(key and it.get("fig_key"))
     doc.question(it["stem"], answer=it.get("answer"), reasoning=it.get("why"), space=it.get("space", 1.0),
                  parts=parts, choices=it.get("choices"), choice_answer=it.get("correct"), number=number,
-                 lines=it.get("lines"), points=points, fig=it.get("fig"))
+                 lines=it.get("lines"), points=points, fig=it["fig_key"] if by_key else it.get("fig"), fig_is_key=by_key)
 
 
 def _label(L):
@@ -669,11 +682,18 @@ def _fill_deck(D, L):
     # beside a plan's "(5)" told a teacher three things (A7 Unit 6's second review, 25 Oct 2026)
     D.section("Warm-Up", "On your own. No notes.", 4, L.get("warmup_note", "Spaced retrieval. Silent, then reveal. One sentence of reteach per question at most."), "warmup")
     D.no_band(); D.cursor = TOP
+    # a warm-up question may carry a figure (15 Nov 2026): the figures sit in a row under the four
+    # questions, each under its question's number, on the question slide and the answer slide alike
+    wfigs = [(i + 1, q["fig"]) for i, q in enumerate(wu) if q.get("fig")]
     for i, q in enumerate(wu):
         D.math_row(f"{i + 1}.   " + q["stem"], surface="slide", gap=0.22, size=23, align="left", x=LM + 1.2)
+    if wfigs:
+        D.figure_row(wfigs)
     D.section("Warm-Up", "Answers.", 1, "Reveal. Ask for the band each question came from only if time allows.", "warmup")
     D.no_band(); D.cursor = TOP
     D.warmup_answers([(f"{i + 1}.   " + q["stem"], q["answer"]) for i, q in enumerate(wu)])
+    if wfigs:
+        D.figure_row(wfigs)
     # ---- vocabulary: one slide of the lesson's new terms, after the warm-up and before the notes
     # (Croix, 17 October 2026: "the notes use words like coefficient and constant but don't ever
     # define them. Can I get one vocabulary slide at the beginning of each lesson where the lesson
@@ -724,6 +744,17 @@ def _fill_deck(D, L):
     for ni, note in enumerate(L["notes"]):
         D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
         D.no_band(); D.cursor = TOP - 0.08
+        if note.get("fig") and isinstance(D, Deck):
+            # the figure is the flexible block: a picture trimmed to its ink (15 Nov 2026) fills the room its
+            # `reserve` leaves, so when the rows under it need more than the spec reserved, it gives the room up
+            for extra in [0.0] + [0.1 * k for k in range(1, 21)]:
+                cand = dict(note, fig=dict(note["fig"], reserve=note["fig"].get("reserve", 0.7) + extra))
+                def _fits(S, cand=cand):
+                    S.cursor = TOP - 0.08
+                    _notes_body(S, cand, False)
+                if _trial(_fits):
+                    note = cand
+                    break
         def _airy(S):
             S.cursor = TOP - 0.08
             _notes_body(S, note, True)
@@ -747,7 +778,7 @@ def _fill_deck(D, L):
         for row in ex["prompt"]:
             _prompt_row(D, row, "slidemid")
         if fig:
-            D.figure(fig)
+            D.figure(fig, strict=bool(ex.get("ask")))     # the ask under it must not be pushed into the footer
         if ex.get("ask"):
             D.cursor += 0.2
             D.text(ex["ask"], 24, bold=True, align="center")
@@ -756,12 +787,21 @@ def _fill_deck(D, L):
             if w.get("lead"):               # a question this worked slide puts to the room: main text, one bold line
                 D.lead(w["lead"])
             D.cursor = 2.1
-            for row in w["rows"]:
-                if isinstance(row, tuple):
-                    latex, gloss = row
-                    D.worked_row(latex, gloss, slots=True)
-                else:
-                    D.text(row, 23, slots=True)
+            if w.get("fig"):
+                # the solved figure WITH the working (15 Nov 2026: a graph-day Example drew its solved
+                # graph on the question slide or nowhere): the figure on the left, the rows beside it on
+                # the right — or under it when they are too wide to leave it a column
+                rows = [f"${r[0]}$" if isinstance(r, tuple) else r for r in w["rows"]]
+                reserve = (0.2 + 0.62 if w.get("answer") else 0.2) + (0.5 * len(w.get("items") or []))
+                D.figure_steps(dict(w["fig"], reserve=max(w["fig"].get("reserve", 0.7), reserve)), rows,
+                               size=23, rgap=0.3, surface="slidemid")
+            else:
+                for row in w["rows"]:
+                    if isinstance(row, tuple):
+                        latex, gloss = row
+                        D.worked_row(latex, gloss, slots=True)
+                    else:
+                        D.text(row, 23, slots=True)
             if w.get("answer"):
                 D.answer_line(w["answer"], y=max(D.cursor + 0.2, 5.0))
             if w.get("items"):
@@ -802,15 +842,25 @@ def _fill_deck(D, L):
         # review portion of the slides needs to put the problems on the board"). Where the course
         # also prints them (SET == "handout") the slide keeps the handout's name and its block in
         # the plan; the page and its key are still built.
-        qs = [slotmark.strip(q["stem"]) for q in L["independent"] if not q.get("heading")]
+        six = [q for q in L["independent"] if not q.get("heading")]
+        qs = [slotmark.strip(q["stem"]) for q in six]
         assert len(qs) == 6, f"{L['code']}: the independent set is six questions, got {len(qs)}"
+        sfigs = [(k + 1, q["fig"]) for k, q in enumerate(six) if q.get("fig")] or None    # 15 Nov 2026: on the slide, under every profile
         if C.SET == "handout":
-            D.independent_set(INDEP_MIN, T.get("set_note", "Hand out the Independent Set; the same six questions are on the board. "
-                                               "Silent work. Circulate and mark what you see; do not teach. "
-                                               "Whatever is not finished goes home."), qs, title="Independent Set", kind="independent")
+            placed = D.independent_set(INDEP_MIN, T.get("set_note", "Hand out the Independent Set; the same six questions are on the board. "
+                                                        "Silent work. Circulate and mark what you see; do not teach. "
+                                                        "Whatever is not finished goes home."), qs, title="Independent Set", kind="independent", figs=sfigs)
         else:
-            D.independent_set(INDEP_MIN, T.get("set_note", "Silent, on paper, at their own pace. Circulate and "
-                                               "mark the first two only; what is not finished goes home."), qs)
+            placed = D.independent_set(INDEP_MIN, T.get("set_note", "Silent, on paper, at their own pace. Circulate and "
+                                                        "mark the first two only; what is not finished goes home."), qs, figs=sfigs)
+        if sfigs and placed is False:
+            # the six and their figures do not fit one slide: where the set is printed the figures are on the page,
+            # and the slide carries the six as it did before; where the slide IS the set, that is refused
+            if C.SET != "handout":
+                raise RuntimeError(f"{L['code']}: the six questions and their {len(sfigs)} figures do not fit one slide — "
+                                   f"shorter questions, fewer figures, or figures lettered for a slide (pt 11.5 or more)")
+            if isinstance(D, Deck):
+                print(f"   {L['code']}: the set's {len(sfigs)} figures are on the printed set only — the slide cannot hold them beside the six, or they are lettered for the page")
     if C.CLOSE:
         D.close(T["close"], 1, T.get("close_note", "Say it, then have the room say it back." +
                                      ("" if (L.get("no_set") or C.SET == "handout") else " Collect the set on the way out.")))
@@ -847,19 +897,49 @@ def _yt_body(D, yt, yt_ask, reveal, top, surf):
     if yt_ask:
         D.cursor += 0.2
         D.text(yt_ask, 24, bold=True, align="center")
+    # a Your Turn may carry a figure, and `fig_a` for its answer slide (15 Nov 2026), as a board does:
+    # the figure takes the room the words leave; on the answer slide the working sits beside it
+    fig = yt.get("fig_a") if (reveal and yt.get("fig_a")) else yt.get("fig")
+    steps = shown_steps(yt.get("steps"))
+    if fig:
+        fig = dict(fig, reserve=max(fig.get("reserve", 0.7), _answer_room(D, yt)))
+        if reveal and steps:
+            D.figure_steps(fig, steps)
+        else:
+            D.figure(fig, strict=True)     # the answer under it must not be pushed into the footer
     if not reveal:
         return
-    if yt.get("steps"):
-        D.steps(yt["steps"], **_steps_size(yt["steps"]))
+    if steps:
+        if not fig:
+            D.steps(steps, **_steps_size(steps))
         _room_for_answer(D, yt)
         if yt.get("answer_latex"):
             D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.15, 4.9))
         else:
             D.answer_line(yt["answer"], y=max(D.cursor + 0.15, 5.0))
+    elif fig:
+        if yt.get("answer_latex"):
+            D.answer_math(yt["answer_latex"], y=min(max(D.cursor + 0.15, 4.9), FOOT_Y - 0.75))
+        else:
+            D.answer_line(yt["answer"], y=min(max(D.cursor + 0.15, 5.0), FOOT_Y - 0.62))
     elif yt.get("answer_latex"):
         D.answer_math(yt["answer_latex"], y=max(D.cursor + 0.2, 4.9))
     else:
         D.answer_line(yt["answer"], y=max(D.cursor + 0.2, 5.0))
+
+
+def _answer_h(D, q):
+    """The height of an item's red answer on its slide: the expression's picture, or the line's rows of 32-pt type."""
+    if q.get("answer_latex"):
+        return mathimg.m(slotmark.strip(q["answer_latex"]), "slidebig", RED)[2]
+    if not isinstance(D, Deck):
+        return 0.6
+    return max(0.6, 0.59 * max(1, -(-int(D.measure("Answer:   " + q.get("answer", ""), "slide", 32, bold=True) * 100) // int((CW - 0.4) * 100))))
+
+
+def _answer_room(D, q):
+    """What a figure must leave under it for the answer: the gap after the figure, the gap before the answer, the answer."""
+    return 0.16 + 0.15 + _answer_h(D, q) + 0.04
 
 
 def _room_for_answer(D, q):
@@ -894,15 +974,43 @@ def _trial(draw, scratch=None):
         return False
 
 
+def _fit_first(cands, draw):
+    """The (top, surface) of `cands` a slide pair is laid out from. First, the first whose answer slide fits with its
+    figure taking the room it took before the trim (Deck.pre_trim: the frame, fitted to the room it had then) — the
+    choice the kit made before 15 Nov 2026. Where none does (a layout the kit refused then), of those that fit as the
+    slide is drawn now, the one whose figure stands tallest (the first of equals). With every picture its ink and a
+    figure held to its room, every top fitted, and the first was taken: M7 13.08 board 8 stayed at the usual top,
+    0.25 in lower than before, and its histogram came out 2.17 -> 2.03 in."""
+    best = None
+    for then in (True, False):
+        for top, surf in cands:
+            tall = []
+            def go(S, top=top, surf=surf):
+                S.pre_trim = then
+                try:
+                    draw(S, top, surf)
+                finally:
+                    S.pre_trim = False
+                pics = [sh for sh in S.s.shapes if sh.shape_type == 13]
+                tall.append(max(pics, key=lambda sh: sh.width * sh.height).height / 914400 if pics else 0.0)
+            if _trial(go):
+                if then:
+                    return top, surf
+                if best is None or tall[0] > best[0] + 0.02:
+                    best = (tall[0], (top, surf))
+    return best and best[1]
+
+
 def _yt_fit(yt, yt_ask):
     """(top, surface) for a Your Turn's two slides: the usual place and size when the answer slide
     — problem, instruction, steps, answer — fits from there, and otherwise higher, then with the
     problem's mathematics one size smaller. The first that fits; the build refuses if none does."""
-    if not yt.get("steps"):
+    if not yt.get("steps") and not yt.get("fig"):
         return 2.4, "slidebig"
-    for top, surf in ((1.75, "slidebig"), (1.62, "slidebig"), (1.62, "slidemid")):
-        if _trial(lambda S: _yt_body(S, yt, yt_ask, True, top, surf)):
-            return top, surf
+    got = _fit_first(((1.75, "slidebig"), (1.62, "slidebig"), (1.62, "slidemid")),
+                     lambda S, top, surf: _yt_body(S, yt, yt_ask, True, top, surf))
+    if got:
+        return got
     raise RuntimeError(f"a Your Turn's answer slide cannot hold its steps \u2014 fewer or shorter steps: {yt['prompt'][0][:60]}")
 
 
@@ -910,14 +1018,12 @@ def _wb_fit(q):
     """(top, surface) for a board's two slides, by the same trial. top None = the usual places."""
     if not q.get("steps") or q.get("fig"):
         return None, "slidebig"
-    def draw(top, surf):
-        def go(S):
-            S.cursor = top
-            _wb_body(S, q, True, surf)
-        return go
-    for top, surf in ((2.3, "slidebig"), (1.8, "slidebig"), (1.8, "slidemid"), (1.62, "slidemid")):
-        if _trial(draw(top, surf)):
-            return (None if top == 2.3 else top), surf
+    def draw(S, top, surf):
+        S.cursor = top
+        _wb_body(S, q, True, surf)
+    got = _fit_first(((2.3, "slidebig"), (1.8, "slidebig"), (1.8, "slidemid"), (1.62, "slidemid")), draw)
+    if got:
+        return (None if got[0] == 2.3 else got[0]), got[1]
     raise RuntimeError(f"a board's answer slide cannot hold its steps \u2014 fewer or shorter steps: {board_text(q)[:70]}")
 
 
@@ -953,17 +1059,40 @@ def _wb_body(D, q, reveal, surface="slidebig"):
     # fig_a: the reveal may show a different picture — M7 4.10 colours the rim for a circumference
     # and the face for an area, so the answer slide says what was measured before the number
     fig = q.get("fig_a") if (reveal and q.get("fig_a")) else q.get("fig")
+    beside = False
     if fig:
         # the figure is the flexible block: it keeps the room what follows it needs — the answer
         # on a reveal, the ask on the question, the options on either
         # — and is drawn smaller rather than pushing them into each other (4.06 boards 1–3)
-        below = 0.85 if reveal else 0.75
-        below += 1.75 if kind == "mc" and not (reveal and q.get("steps")) else 0.0
-        if reveal and q.get("steps"):      # the answer slide: the picture, and its working beside it
-            D.figure_steps(dict(fig, reserve=max(fig.get("reserve", 0.7), below)), q["steps"])
+        # on the reveal the figure leaves the answer its real height (with the picture trimmed to its ink, 15 Nov
+        # 2026, a figure fills the room it is given, and 0.85 in was a hair short of the gap and a line of answer)
+        # what the figure must leave under it, honestly: "Answer it." is set no lower than 0.56 in above the footer
+        # rule, and an answer line under a figure no lower than 0.62 in; an answer under steps follows them
+        if not reveal:
+            below = 0.62
+        elif q.get("steps"):
+            below = max(0.85, _answer_room(D, q))
         else:
-            D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)))
-    if kind == "mc" and not (reveal and q.get("steps")):
+            below = 0.03 + max(0.62, _answer_h(D, q))
+        options = kind == "mc" and not (reveal and q.get("steps"))
+        if options:
+            # a figure and four options: the options in a column BESIDE the figure whenever that makes the figure
+            # taller than stacking them under it (15 Nov 2026 — stacked, the options took 1.75 in and left a graph
+            # 1 to 1.6 in tall). Both slides decide alike: the options are measured bold, at the answer slide's reserve.
+            if isinstance(D, Deck) or _pptx_beside(q, surface):     # the HTML deck follows the PowerPoint's measured choice
+                beside = D.choices_beside(dict(fig, reserve=max(fig.get("reserve", 0.7), 0.85)), q["choices"],
+                                          correct=(q["correct"] if reveal else None), reserve=0.85)
+            if isinstance(D, Deck):
+                D.last_beside = beside
+        below += 1.75 if options else 0.0
+        if beside:
+            pass
+        elif reveal and q.get("steps"):      # the answer slide: the picture, and its working beside it
+            D.figure_steps(dict(fig, reserve=max(fig.get("reserve", 0.7), below), reserve_was=max(fig.get("reserve", 0.7), 0.85)),
+                           shown_steps(q["steps"]))
+        else:
+            D.figure(dict(fig, reserve=max(fig.get("reserve", 0.7), below)), strict=True)    # the ask, options or answer under it stay put
+    if kind == "mc" and not (reveal and q.get("steps")) and not beside:
         # the four options are on the question slide; an answer slide that shows its working shows
         # the working in their place, and its answer line names the letter and the value
         D.cursor += 0.1
@@ -975,7 +1104,7 @@ def _wb_body(D, q, reveal, surface="slidebig"):
         D.ask("Write your answer in sentences." if kind == "written" else "Answer it.")
     else:
         if q.get("steps") and not fig:     # the working, then the answer under it (beside the figure when there is one)
-            D.steps(q["steps"], **_steps_size(q["steps"]))
+            D.steps(shown_steps(q["steps"]), **_steps_size(shown_steps(q["steps"])))
         if q.get("steps"):
             _room_for_answer(D, q)
         y = max(D.cursor + 0.15, 5.1) if q.get("steps") else min(max(D.cursor + 0.15, 5.1), FOOT_Y - 0.62)
@@ -983,6 +1112,18 @@ def _wb_body(D, q, reveal, surface="slidebig"):
             D.answer_math(q["answer_latex"], y=y)
         else:
             D.answer_line(q["answer"], y=y)
+
+
+def _pptx_beside(q, surface):
+    """Whether the PowerPoint sets this board's options beside its figure (measured on a scratch deck)."""
+    seen = []
+    def go(S):
+        S.cursor = 2.4
+        S.last_beside = False
+        _wb_body(S, q, False, surface)
+        seen.append(S.last_beside)
+    _trial(go)
+    return bool(seen and seen[0])
 
 
 def board_text(q, sep="  "):
@@ -1014,7 +1155,7 @@ def _slide_line(s):
     return _first_sentence(note)
 
 
-SPLIT_MOVE = ("Split (no option near two-thirds)? Sixty seconds, convince your neighbour, "
+SPLIT_MOVE = ("Split (no option near two-thirds)? Sixty seconds, convince your neighbor, "
               "re-vote, then reveal.")
 # ruling 20 — the one peer move, as the table-style edition and the labels-style plan print it
 REVOTE = getattr(C, "REVOTE", "Split — no option near two-thirds? Sixty seconds, convince the person next to you, "
@@ -1509,14 +1650,83 @@ def _stepval(side):
         return None
 
 
-def stepcheck_rows(rows, where, final=None):
+# ---- what a line of working says it is (15 Nov 2026: an equations unit needs lines the plain check refuses)
+# A step may open with a declaration, which is stripped before the line is set on a slide:
+#   "[false] $8 = 5$, never true"            a false numerical ending — checked to be FALSE (refused if true),
+#                                            and the equation before it to have no solution
+#   "[equation] $6x + 8 = 6x + 5$"           an equation in the letter, which need not be an identity — checked
+#                                            to have the same solution set as the equation step before it
+# An undeclared line is checked exactly as before: a false "8 = 5", or a letter on both sides that is not an
+# identity, still refuses the build.
+STEP_KIND = re.compile(r"^\s*\[(false|equation)\]\s*")
+
+
+def step_kind(row):
+    """'false', 'equation' or None — what a line of working declares itself to be."""
+    m = STEP_KIND.match(row) if isinstance(row, str) else None
+    return m.group(1) if m else None
+
+
+def step_text(row):
+    """The line as a slide sets it: without its declaration."""
+    return STEP_KIND.sub("", row, count=1) if isinstance(row, str) else row
+
+
+def shown_steps(rows):
+    return [step_text(r) for r in (rows or [])]
+
+
+_NO_SOL = re.compile(r"\bno solutions?\b|\bnone\b|\bnever true\b|\bno (?:value|number)\b", re.I)
+_ALL_SOL = re.compile(r"\binfinitely many\b|\bevery (?:value|number|real)\b|\ball (?:values|numbers|real)\b|\balways true\b", re.I)
+
+
+def _real(e):
+    """The same expression in real letters (the check's letters are positive; an equation's solution may be negative)."""
+    return e.subs({s: sp.Symbol(s.name, real=True) for s in e.free_symbols})
+
+
+def _solution_set(a, b):
+    """(letter, solution set over the reals) of the equation a = b in one letter, or None."""
+    a, b = _real(a), _real(b)
+    syms = (a.free_symbols | b.free_symbols)
+    if len(syms) != 1:
+        return None
+    x = next(iter(syms))
+    try:
+        return x, sp.solveset(sp.Eq(a, b), x, domain=sp.S.Reals)
+    except Exception:
+        return None
+
+
+def _say_set(x, S):
+    if S == sp.S.EmptySet:
+        return "no solution"
+    if S == sp.S.Reals:
+        return "every number (infinitely many)"
+    return f"{x} in {S}"
+
+
+def stepcheck_rows(rows, where, final=None, answer=None):
     """Every equation in an answer slide's steps, worked: each '=' between two sides that can be
     computed must be true (exactly; '≈' to the places the right side shows), each '=' between two
     expressions in the same letters must be an identity, and the last number the steps arrive at
-    must be the item's checked value. Returns (findings, how many equalities were verified)."""
+    must be the item's checked value. Returns (findings, how many equalities were verified).
+
+    A line that declares itself (`[false]`, `[equation]`, above) is held to what it declares instead:
+    a false ending must be false and follow an equation with no solution; a declared equation must
+    have the solution set of the equation step before it. Where any line declares itself, the last
+    equation of the working must agree with the keyed answer — a value of the letter, "no solution"
+    or "infinitely many solutions"."""
     out = []; n = 0; last = None; reached = []
+    prev_eq = None              # (letter, solution set, the line) — the last equation in one letter the working wrote
+    ending = None               # what the working ends on: ("set", x, S) or ("false",)
+    declared = False
     for row in rows:
-        for span in re.findall(r"\$([^$]+)\$", slotmark.strip(row).replace("\\$", "")):
+        kind = step_kind(row)
+        declared = declared or bool(kind)
+        spans = re.findall(r"\$([^$]+)\$", slotmark.strip(step_text(row)).replace("\\$", ""))
+        false_seen = 0
+        for span in spans:
             parts = re.split(r"(=|\\approx)", span)
             sides = parts[0::2]; ops = parts[1::2]
             vals = [_stepval(x) for x in sides]
@@ -1532,23 +1742,80 @@ def stepcheck_rows(rows, where, final=None):
                         m = re.fullmatch(r"\s*-?[\d,]*\.?(\d*)\s*", sb)
                         tol = sp.Rational(1, 2) * sp.Rational(1, 10) ** len(m.group(1)) if m else abs(b) / 200
                         good = abs(sp.N(a - b)) <= sp.N(tol) + 1e-12
+                    if kind == "false" and op == "=":
+                        false_seen += 1
+                        if good:
+                            out.append(f"{where}: a line declared a false ending is true — {sa.strip()} = {sb.strip()}; "
+                                       f"take off its [false], or write the ending the equation reaches")
+                        elif prev_eq and prev_eq[1] != sp.S.EmptySet:
+                            out.append(f"{where}: a false ending ({sa.strip()} = {sb.strip()}) cannot follow “{prev_eq[2]}”, "
+                                       f"which has {_say_set(prev_eq[0], prev_eq[1])}")
+                        else:
+                            ending = ("false",)
+                        continue
                     if not good:
-                        sign = "=" if op == "=" else "\u2248"
-                        out.append(f"{where}: a step is not true \u2014 {sa.strip()} {sign} {sb.strip()}  ({sp.nsimplify(a)} against {sp.nsimplify(b)})")
-                elif fa and fb and fa == fb and len(sides[0].strip()) > 1:
+                        sign = "=" if op == "=" else "≈"
+                        out.append(f"{where}: a step is not true — {sa.strip()} {sign} {sb.strip()}  ({sp.nsimplify(a)} against {sp.nsimplify(b)})")
+                    continue
+                if op != "=":
+                    continue
+                ss = _solution_set(a, b)
+                if kind == "equation":
+                    n += 1
+                    if ss is None:
+                        out.append(f"{where}: a line declared an equation is not an equation in one letter — {sa.strip()} = {sb.strip()}")
+                        continue
+                    if prev_eq and prev_eq[0] == ss[0] and prev_eq[1] != ss[1]:
+                        out.append(f"{where}: an equation step changes the solutions — “{prev_eq[2]}” has "
+                                   f"{_say_set(prev_eq[0], prev_eq[1])}, and {sa.strip()} = {sb.strip()} has {_say_set(ss[0], ss[1])}")
+                    prev_eq = (ss[0], ss[1], f"{sa.strip()} = {sb.strip()}"); ending = ("set", ss[0], ss[1])
+                    continue
+                if fa and fb and fa == fb and len(sides[0].strip()) > 1:
                     n += 1
                     if sp.simplify(a - b) != 0:
-                        out.append(f"{where}: a step is not an identity \u2014 {sa.strip()} = {sb.strip()}")
+                        out.append(f"{where}: a step is not an identity — {sa.strip()} = {sb.strip()}"
+                                   + (" (an equation that is not an identity is declared: \"[equation] $…$\")" if len(fa) == 1 else ""))
+                    elif ss is not None:
+                        prev_eq = (ss[0], ss[1], f"{sa.strip()} = {sb.strip()}"); ending = ("set", ss[0], ss[1])
+                    continue
+                if ss is not None and (not fa or not fb):
+                    # an equation to be solved, as the working has always written them (3 + n = 11, n = 8): it is
+                    # not checked here (it never was), but a declared line after it is held to it
+                    prev_eq = (ss[0], ss[1], f"{sa.strip()} = {sb.strip()}"); ending = ("set", ss[0], ss[1])
             nums = [v for v in vals if v is not None and not v.free_symbols]
             reached += nums
             if nums:
                 last = nums[-1]
+        if kind == "false" and not false_seen:
+            out.append(f"{where}: a line declared a false ending has no equation in numbers in it: {step_text(row)[:60]}")
     # the checked value is somewhere the steps arrive — usually their last number, but a check
     # may hold the 25 of an answer written 25π, or the 4 of "four times board 1"
-    if final is not None and last is not None and not final.free_symbols:
+    if final is not None and last is not None and not final.free_symbols and not (declared and ending and ending[0] == "false"):
         n += 1
         if not any(abs(sp.N(v - final)) <= 1e-9 for v in reached):
             out.append(f"{where}: the steps end at {sp.nsimplify(last)} and never reach the checked answer, {sp.nsimplify(final)}")
+    if declared:
+        n += 1
+        ans = slotmark.strip(str(answer or ""))
+        says = "none" if _NO_SOL.search(ans) else "all" if _ALL_SOL.search(ans) else None
+        if ending is None:
+            out.append(f"{where}: the working declares its lines but ends on no equation to hold the answer to")
+        elif ending[0] == "false":
+            if says != "none":
+                out.append(f"{where}: the working ends false (no solution) and the answer does not say no solution: {ans[:60]!r}")
+        else:
+            x, S = ending[1], ending[2]
+            if says == "none" and S != sp.S.EmptySet:
+                out.append(f"{where}: the answer says no solution and the last equation has {_say_set(x, S)}")
+            elif says == "all" and S != sp.S.Reals:
+                out.append(f"{where}: the answer says infinitely many solutions and the last equation has {_say_set(x, S)}")
+            elif says is None:
+                m = re.search(r"(?<![A-Za-z])" + re.escape(x.name) + r"\s*=\s*\$?\s*([-−]?[\d.,/]+)", ans.replace("$", " "))
+                want = _stepval(m.group(1).replace("−", "-")) if m else (final if final is not None and not final.free_symbols else None)
+                if want is None:
+                    out.append(f"{where}: the working declares its lines and the answer names no value of {x} to hold the last equation to: {ans[:60]!r}")
+                elif S != sp.FiniteSet(want):
+                    out.append(f"{where}: the last equation has {_say_set(x, S)} and the answer is {x} = {sp.nsimplify(want)}")
     return out, n
 
 
@@ -1574,7 +1841,7 @@ def stepcheck_lesson(L):
         have += 1
         if not (1 <= len(rows) <= 5):
             out.append(f"{where}: {len(rows)} steps \u2014 an answer slide carries one to five lines of working")
-        f, k = stepcheck_rows(rows, where, final_of(chk))
+        f, k = stepcheck_rows(rows, where, final_of(chk), q.get("answer") or q.get("answer_latex"))
         out += f; eqs += k
     return out, have, total, eqs
 

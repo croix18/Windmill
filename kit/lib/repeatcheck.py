@@ -183,7 +183,7 @@ def shown(L):
     """[(where, expressions, canonical expressions, numbers, lines)] — the warm-up, the notes, the examples."""
     blocks = []
     for i, w in enumerate(L.get("warmup") or []):
-        blocks.append((f"warm-up question {i + 1}", list(_strs(w.get("stem"))) + list(_strs(w.get("answer"))), []))
+        blocks.append((f"warm-up question {i + 1}", list(_strs(w.get("stem"))) + list(_strs(w.get("answer"))) + figtext(w.get("fig")), []))
     for i, n in enumerate(L.get("notes") or []):
         ss = list(_strs(n, SHOWN_NOTES)) + figtext(n.get("fig"))
         blocks.append((f"Notes {n['numeral']}" if n.get("numeral") else f"the notes slide “{n.get('head', i + 1)}”", ss, []))
@@ -197,7 +197,7 @@ def shown(L):
                     ss += [x for x in r[1:] if isinstance(x, str)]
                 else:
                     ss.append(r)
-            ss += list(_strs(w.get("answer"))) + list(_strs(w.get("lead")))
+            ss += list(_strs(w.get("answer"))) + list(_strs(w.get("lead"))) + figtext(w.get("fig"))    # a worked slide's solved figure was shown too
         blocks.append((e.get("title") or f"Example {i + 1}", ss, bare))
     out = []
     for where, ss, bare in blocks:
@@ -233,7 +233,7 @@ def practice(L):
         if q.get("heading"):
             continue
         n += 1
-        add(f"independent question {n}", q, list(_strs(q.get("stem"))), [], list(_strs(q.get("steps"))), list(_strs(q.get("answer"))))
+        add(f"independent question {n}", q, list(_strs(q.get("stem"))) + figtext(q.get("fig")), [], list(_strs(q.get("steps"))), list(_strs(q.get("answer"))))
     return out
 
 

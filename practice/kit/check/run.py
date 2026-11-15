@@ -4,7 +4,8 @@
 1. the unit's own checks (unit.json "checks": exact answers, keys typed back, mistake models, the clean rule, solution and
    walkthrough chains, claims in sentences, pictures and figures, test-form avoidance, planted errors, the sympy oracle);
 2. the stability lock (check/lock.js): set numbers keep their questions unless contentVersion is bumped; and the variety
-   floor (check/variety.js, ruling 49): every question part comes in enough versions for a random set to be a test;
+   floor (check/variety.js, ruling 49): every question part comes in enough versions for a random set to be a test; a
+   walkthrough's options shuffled by the question (check/walk.js) and no × for multiplication (check/times.js), 15 Nov 2026;
 3. a look-only build, then the page in a real browser (check/page.js; a unit with help.js: check/help.js and check/help_page.js, the help standard), and a unit's lesson bank from Cadence (check/bank.js);
 4. CHECKED is written with the hash of the sources, and the real build runs (build.py refuses without it)."""
 import json, os, subprocess, sys
@@ -26,6 +27,9 @@ if os.path.exists(os.path.join(UD, "help.js")) and not any(x.endswith("teacher.j
     run("node " + os.path.join(KIT, "check", "help.js") + " . 300", UD)
 if not any(x.endswith("teacher.js") for x in cfg["scripts"]):    # a teacher copy is its unit's questions: counted there
     run("node " + os.path.join(KIT, "check", "variety.js") + " .", UD)
+if not any(x.endswith("teacher.js") for x in cfg["scripts"]):    # 15 Nov 2026: a walkthrough's options shuffled; no × for multiplication
+    run("node " + os.path.join(KIT, "check", "walk.js") + " . 300", UD)
+    run("node " + os.path.join(KIT, "check", "times.js") + " . 300", UD)
 run("python3 " + os.path.join(KIT, "build.py") + " . --force", UD)
 run("node " + os.path.join(KIT, "check", "page.js") + " .", UD)
 if os.path.exists(os.path.join(UD, "help.js")) and not any(x.endswith("teacher.js") for x in cfg["scripts"]):   # the help's pictures, readable at 390 px, light and dark

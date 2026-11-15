@@ -63,6 +63,7 @@ M = [
  ("no pause on GitHub's allowance", "if (GH_.left !== null && GH_.left < 30) { note.paused = 'GitHub\\'s hourly allowance of requests is used up'; return false; }", ""),
  ("Google's allowance is a PROBLEM", "if (quota_(e)) {", "if (false) {"),
  ("a pause still chains", "var goOn = (note.todo > 0 || note.again) && !note.paused && !!token;", "var goOn = (note.todo > 0 || note.again) && !!token;"),
+ ("an unfinished commit stays marked done (a record rebuilt over several runs is left half done)", "    else cx.props.deleteProperty('head:' + j.R.repo);\n", ""),
  ("running flag never cleared", "try { props.deleteProperty('running'); } catch (e4)", "try { } catch (e4)"),
  ("record never written mid-copy", "if (cx.unsaved >= SAVE_EVERY) cx.save();", ""),
  ("headers read case-sensitively", "low[k.toLowerCase()] = h[k];", "low[k] = h[k];"),

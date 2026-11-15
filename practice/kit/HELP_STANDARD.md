@@ -91,7 +91,7 @@ A picture is optional for pure arithmetic.
 
 ## 5. How a walkthrough step is laid out
 1. **The ask** is one question, at most 20 words. It names the term in play and, when a picture applies, includes it. Use "The coefficient −3 multiplies k. How do you undo it?", not "Then?".
-2. **Options:** 2–3 for a choice step. Each wrong option is a real misconception. Its reason (at most 2 sentences) says what that choice would *mean* and gives the correct idea. The right option's position varies with the question; it is never always first.
+2. **Options:** 2–3 for a choice step. Each wrong option is a real misconception. Its reason (at most 2 sentences) says what that choice would *mean* and gives the correct idea. The right option's position varies with the question; it is never always first. The kit shows a step's options in an order hashed from the question (15 Nov 2026, `ui.js` `walkOrder`, `check/walk.js`), so a unit writes them in any order.
 3. **A number step** gives one smaller arithmetic step after a miss, never the answer, and offers **Show this step** after two misses (the kit's existing rule).
 4. **A "why" question only on the unit's key idea** **(Croix)**, placed right after the move it explains (M7 Unit 10: multiplying or dividing by a negative reverses the symbol; A7 Unit 6: the hypotenuse is the longest side, so a leg comes from subtracting).
 5. **A sense-check step** comes last when the answer can be judged ("Is k more than 1 or less than 1, and why?" or "Does your answer make sense?").

@@ -141,7 +141,38 @@ function build(){
 /* ------------------------------------------------ drawing the sheet */
 function fig(it){ try { return V.figure(it) || ''; } catch(e){ return ''; } }
 function flabHtml(p, id){ var fm = formOf(p); return fm.label ? '<div class="flab" id="fl' + id + '">' + esc(fm.label.charAt(0).toUpperCase() + fm.label.slice(1)) + '</div>' : ''; }
+/* ---- several boxes in one part (15 Nov 2026; Croix: "Fix everything" — A7 Unit 11's question 12 asks "Give its x and its y" and
+   the kit allowed one box a part). A unit gives a part its boxes with view.boxes(part) → [{pre, unit, say, placeholder, imode,
+   kind, form}] (two or more; fewer is the one box of before, exactly). The part is still ONE point: its answer is the boxes'
+   strings in order (S.ans[id] an array), judged together by the unit's judge.text(part, [typed…], ctx) — each box read by the
+   unit's own reader — and Unit.keyText(part) gives one string per box. Box k's input is #a<id> for the first, #a<id>_<k> after;
+   each has the part's data-part and its own data-box. A blank box is not a try: "Fill in every box" (Not counted yet). */
+var BOXES = typeof WeakMap === 'function' ? new WeakMap() : null;
+function boxesOf(p){
+  if (!p || p.kind === 'mc' || p.kind === 'nline') return null;
+  if (BOXES && BOXES.has(p)) return BOXES.get(p);
+  var b = null; try { b = V.boxes ? V.boxes(p) : null; } catch(e){ b = null; }
+  if (!b && Array.isArray(p.boxes)) b = p.boxes;
+  b = Array.isArray(b) && b.length >= 2 ? b.map(function(x){ return x || {}; }) : null;
+  if (BOXES) BOXES.set(p, b); return b;
+}
+function boxId(id, k){ return 'a' + id + (k ? '_' + k : ''); }
+function boxAns(p, a){                                     /* a part's answer as one string per box (a string saved before is dropped) */
+  var B = boxesOf(p); if (!B) return a;
+  return B.map(function(x, k){ return Array.isArray(a) && a[k] != null ? String(a[k]) : ''; });
+}
+function boxSay(bx, k){ var s = bx.say || plainText(bx.pre || '').replace(/\s*=\s*$/, '').trim() || plainText(bx.unit || '').trim(); return s || 'box ' + (k + 1); }
+function boxesHtml(p, id, lab, B){
+  var fl = formOf(p).label, last = B.length - 1;
+  var row = B.map(function(bx, k){ var pre = bx.pre || '', unit = bx.unit || '';
+    return '<span class="bx">' + (pre ? '<span class="pre" id="bp' + id + '_' + k + '" aria-hidden="true">' + pre + '</span>' : '') +
+      '<input type="text" id="' + boxId(id, k) + '" data-part="' + esc(id) + '" data-box="' + k + '" data-kind="' + esc(bx.kind || p.kind) + '" aria-label="Answer to question ' + esc(lab) + ', ' + esc(boxSay(bx, k)) + '" aria-describedby="ln' + id + (fl ? ' fl' + id : '') + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="' + (k < last ? 'next' : 'done') + '"' + (bx.imode || p.imode ? ' inputmode="' + esc(bx.imode || p.imode) + '"' : '') + (bx.placeholder ? ' placeholder="' + esc(bx.placeholder) + '"' : '') + '>' +
+      (unit ? '<span class="unit" aria-hidden="true">' + unit + '</span>' : '') + '<span class="pv" aria-hidden="true"></span></span>'; }).join('');
+  return flabHtml(p, id) + '<div class="ans boxes" role="group" aria-label="Answer to question ' + esc(lab) + ', ' + B.length + ' boxes"><span class="bxs">' + row + '</span>' +
+    '<span class="acts"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></span><span class="rd" id="rd' + id + '" aria-live="polite"></span></div>';
+}
 function inputHtml(p, id, lab){
+  var B = boxesOf(p); if (B) return boxesHtml(p, id, lab, B);
   var pre = V.pre(p), unit = V.unit(p), ph = V.placeholder(p), fl = formOf(p).label;
   return flabHtml(p, id) + '<div class="ans">' + (pre ? '<span class="pre">' + pre + '</span>' : '') +
     '<input type="text" id="a' + id + '" data-kind="' + esc(p.kind) + '" aria-label="Answer to question ' + lab + '" aria-describedby="ln' + id + (fl ? ' fl' + id : '') + '" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done"' + (p.imode ? ' inputmode="' + esc(p.imode) + '"' : '') + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '>' +
@@ -375,7 +406,8 @@ function another(baseId){
 /* ------------------------------------------------ marking and coaching */
 function byIdBase(id){ for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
 function byId(id){ return byIdBase(id) || EX[id] || null; }
-function answered(it){ var a = S.ans[it.id]; return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : a != null && String(a).trim() !== ''; }
+function answered(it){ var a = S.ans[it.id]; if (it.type === 'text' && boxesOf(it.x)) return boxAns(it.x, a).every(function(v){ return v.trim() !== ''; });   /* several boxes: every one filled */
+  return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : a != null && String(a).trim() !== ''; }
 /* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
    printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
 /* what the coach may know about a part: the student's part (a) and whether it is right yet, whether this is a fresh one
@@ -387,6 +419,14 @@ function ctxOf(it){
 }
 function judgeAns(it, a, tries){
   if (it.type === 'nline'){ try { return NL.judge(it.x, a, ctxOf(it), U.judge.nline); } catch(e){ return {v: 'unread', what: ['Place the point, then choose a dot and an arrow.']}; } }
+  var B = it.type === 'text' ? boxesOf(it.x) : null;
+  if (B){                                                   /* several boxes: all blank is blank; some blank is not a try yet */
+    var bs = boxAns(it.x, a), empty = bs.map(function(v){ return v.trim() === ''; });
+    if (empty.every(Boolean)) return {v: 'blank', what: []};
+    if (empty.some(Boolean)) return {v: 'unread', partial: true, what: ['Fill in every box: ' + B.map(function(x, k){ return empty[k] ? '<b>' + esc(boxSay(x, k)) + '</b>' : ''; }).filter(Boolean).join(' and ') + (empty.filter(Boolean).length === 1 ? ' is' : ' are') + ' still empty.']};
+    try { bs = bs.map(tidy); return equivUp(it, bs, U.judge.text(it.x, bs, ctxOf(it))); }
+    catch(e){ return {v: 'unread', what: ['I can’t read that yet. Type just your answer in each box.']}; }
+  }
   if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
   try {
     if (it.type === 'text'){ a = tidy(a); return equivUp(it, a, U.judge.text(it.x, a, ctxOf(it))); }
@@ -418,11 +458,26 @@ function tidy(a){
 }
 function equivUp(it, a, f){
   if (!f || f.v === 'right' || f.v === 'blank' || !K.Ans) return f;
+  if (Array.isArray(a)) return equivBoxes(it, a, f);
   var fm = formOf(it.x), r; if (!fm.key) return f;
   try { r = K.Ans.equiv(a, fm.key, fm); } catch(e){ return f; }
   if (!r || !r.ok) return f;
   var nudge = r.nudge ? esc(r.nudge) : f.v === 'form' && f.what && f.what[0] ? f.what[0] : '';   /* a unit's own "almost" words become the nudge */
   return {v: 'right', what: nudge ? [nudge] : [], equiv: true};
+}
+/* several boxes: right when every box is its key written another way (each box's own form: its pre "x =", its unit, its form) */
+function boxForm(p, k){
+  var B = boxesOf(p), bx = B[k] || {}, keys = boxKeys(p), f;
+  try { f = K.Ans.form(keys[k] || '', {declared: Object.assign({}, bx.form || {}), placeholder: bx.placeholder || '', pre: bx.pre || '', unit: bx.unit || ''}); } catch(e){ f = {equiv: false}; }
+  f.key = keys[k] || ''; return f;
+}
+function boxKeys(p){ var t = null; try { t = U.keyText ? U.keyText(p) : null; } catch(e){} return Array.isArray(t) ? t.map(String) : []; }
+function equivBoxes(it, a, f){
+  var B = boxesOf(it.x), d = formOf(it.x); if (!B || d.equiv === false || boxKeys(it.x).length !== B.length) return f;
+  var nudges = [];
+  for (var k = 0; k < B.length; k++){ var fk = boxForm(it.x, k), r; if (!fk.key) return f; try { r = K.Ans.equiv(a[k], fk.key, fk); } catch(e){ return f; } if (!r || !r.ok) return f; if (r.nudge) nudges.push(esc(r.nudge)); }
+  if (!nudges.length && f.v === 'form' && f.what && f.what[0]) nudges.push(f.what[0]);
+  return {v: 'right', what: nudges, equiv: true};
 }
 function res(it){ return S.res[it.id] || (S.res[it.id] = {tries: 0, first: null, v: null, shown: false, hinted: false, steps: 0}); }
 function plainText(h){ var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
@@ -532,7 +587,7 @@ function ruleOf(it){                                       /* the coach's rule f
   var r = '';
   try {
     var probe = function(a){ var f = U.judge.text(it.x, a, ctxOf(it)); return f && f.rule || ''; };
-    if (it.type === 'text') r = probe('987654') || probe('-987654') || probe('0');
+    if (it.type === 'text'){ var nb = boxesOf(it.x), pr = function(v){ return nb ? nb.map(function(){ return v; }) : v; }; r = probe(pr('987654')) || probe(pr('-987654')) || probe(pr('0')); }
     else if (it.type === 'nline') r = '';
     else if (it.type === 'mc'){ for (var k = 0; k < it.x.opts.length && !r; k++) if (k !== it.x.correct){ var f = U.judge.mc(it.x, k); r = f && f.rule || ''; } }
     else { var g = U.judge.multi(it.x, [], 1); r = g && g.rule || ''; }
@@ -614,7 +669,7 @@ function paintItem(it){
   st.hidden = !rung; if (rung) st.innerHTML = ladderHtml(it, R);
   wl.hidden = !walkOn; if (walkOn) wl.innerHTML = walkHtml(it);
   paintChoices(it, R.v ? R : null);
-  var input = $('a' + it.id); if (input){ input.readOnly = R.v === 'right'; if (R.v === 'right' && keys.target === input) hideKeys(); }
+  Array.prototype.forEach.call(host.querySelectorAll('input[type=text]'), function(input){ if (input.id !== 'a' + it.id && input.getAttribute('data-part') !== it.id) return; input.readOnly = R.v === 'right'; if (R.v === 'right' && keys.target === input) hideKeys(); });   /* every box of the part */
   var btn = host.querySelector('[data-check="' + it.id + '"]'); if (btn){ btn.disabled = R.v === 'right';
     /* Check is the primary (navy, as button.go) — it was the greyest thing on the page — but one primary at a time: when
        "Try another like this" or "Next ↓" is the primary under this part, Check steps back (7 Nov 2026, the site review) */
@@ -665,7 +720,7 @@ function walkHtml(it){
       h += '<div class="wgot"><span class="wok">✓</span> ' + got + (W.gave[k] ? ' <span class="wgave">(shown)</span>' : '') + '</div>';
       if (s.then) h += '<div class="ex">' + V.ex(it.x, s.then, it.type) + '</div>';
     } else if (s.type === 'choice'){
-      h += '<div class="wopts">' + s.opts.map(function(o, j){ var bad = W.wrong[k + '.' + j];
+      h += '<div class="wopts">' + walkOrder(it, k, s).map(function(j){ var o = s.opts[j], bad = W.wrong[k + '.' + j];
         return '<button type="button" class="wopt' + (bad ? ' bad' : '') + '" data-wopt="' + it.id + '|' + k + '|' + j + '"' + (bad ? ' disabled' : '') + '>' + o.label + '</button>'; }).join('') + '</div>';
       if (W.bad[k] != null) h += '<div class="wwhy"><span class="wno">✗</span> ' + s.opts[W.bad[k]].why + '</div>' + (s.pic ? walkPic(it, 'Here is a picture of why:') : '');
     } else {
@@ -681,6 +736,11 @@ function walkHtml(it){
   if (W.i >= st.length) h += '<p class="wfin done">' + keyHtml(it) + '</p>';
   return h;
 }
+/* a step's options in an order fixed by the question (15 Nov 2026; HELP_STANDARD §5.2 — the right one was always where the unit
+   wrote it, first in most units): Kit.order over the question's key, the step's place and its ask, so the same question shows
+   the same order every time it is opened, and the right option's place changes from question to question. data-wopt keeps
+   each option's own index, so a pick, a saved wrong pick and the checks are the unit's order as before. */
+function walkOrder(it, k, s){ var n = s.opts.length, key = ''; try { key = String(U.key(it.x)); } catch(e){} return K.order ? K.order(n, key + '|' + k + '|' + String(s.ask || '')) : s.opts.map(function(o, j){ return j; }); }
 function walkFocus(it){
   var wl = $('wl' + it.id); if (!wl) return;
   var t = wl.querySelector('li.cur .wopt:not([disabled])') || wl.querySelector('#wn' + it.id) || wl.querySelector('.wclose');
@@ -750,7 +810,9 @@ function krank(k){ var i = KORDER.indexOf(k.label); return i < 0 ? KREL - 0.5 : 
 KEYPAD = KEYPAD.map(function(k, i){ return [k, i]; }).sort(function(a, b){ return krank(a[0]) - krank(b[0]) || a[1] - b[1]; }).map(function(x){ return x[0]; });
 function coarse(){ try { return !!(window.matchMedia && matchMedia('(pointer: coarse)').matches); } catch(e){ return false; } }
 var keys = document.createElement('div'); keys.className = 'keys'; keys.hidden = true;
-var KEYBTNS = KEYPAD.map(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else { b.textContent = k.label; if (k.label.length > 2) b.className = 'kwide'; } if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; b.dataset.g = krank(k) < KREL ? 'op' : 'rel'; keys.appendChild(b); return b; });   /* [R1-9] not a tab stop */
+/* times is a dot (15 Nov 2026; Croix: x is always a variable): the key named × (it types *) shows ·, its name kept for the unit's keys */
+var KSHOW = {'×': '·'};
+var KEYBTNS = KEYPAD.map(function(k){ var b = document.createElement('button'); b.type = 'button'; if (k.tpl) { b.className = 'ktpl'; b.innerHTML = '<span class="kfr" aria-hidden="true"><i></i><i></i></span>'; } else { b.textContent = KSHOW[k.label] || k.label; if (k.label.length > 2) b.className = 'kwide'; } if (k.kinds) b.dataset.kinds = k.kinds.join(' '); b.tabIndex = -1; b.setAttribute('aria-label', 'Insert ' + (k.say || k.label)); b.dataset.k = k.label; b.dataset.g = krank(k) < KREL ? 'op' : 'rel'; keys.appendChild(b); return b; });   /* [R1-9] not a tab stop */
 /* the rows: the keys this box shows, in as few rows as fit between the box's left edge and the row's right edge, split evenly */
 var KGAP = 6, KGROUP = 14;
 function px(v){ return parseFloat(v) || 0; }
@@ -810,9 +872,10 @@ function hideKeys(){ if (keys.hidden) return; var a = document.activeElement, y0
 document.addEventListener('input', function(e){
   var t = e.target;
   if (!t.id || t.id.charAt(0) !== 'a' || !t.closest('#paper')) return;
-  var it = byId(t.id.slice(1)); if (!it) return;
+  var bp = t.getAttribute('data-part'), it = byId(bp != null ? bp : t.id.slice(1)); if (!it) return;
   if (!S.running && !S.done && !it.extra) start();
-  S.ans[it.id] = t.value; setPreview(t);
+  if (bp != null){ var bv = boxAns(it.x, S.ans[it.id]); bv[+t.getAttribute('data-box') || 0] = t.value; S.ans[it.id] = bv; } else S.ans[it.id] = t.value;   /* several boxes: this box's string in its place */
+  setPreview(t);
   if (FLASH[it.id]){ delete FLASH[it.id]; paintItem(it); }                                /* [R1-1] the old note goes when they type */
   var rd = $('rd' + it.id); if (rd) rd.textContent = '';
   save(); paintProgress(); paintScore(true);
@@ -820,7 +883,7 @@ document.addEventListener('input', function(e){
 document.addEventListener('change', function(e){
   var t = e.target;
   if (t.id && t.id.charAt(0) === 'a' && t.closest('#paper') && S.mode === 'test' && !S.done){       /* [W-7] test mode: say only "can't read this yet", nothing about right or wrong */
-    var it0 = byId(t.id.slice(1)); if (it0 && !it0.extra){ var f0 = judge(it0, 0), rd = $('rd' + it0.id); if (rd) rd.innerHTML = f0.v === 'unread' ? '<span class="kl">Can’t read this yet:</span> ' + esc(plainText(f0.what[0] || '')) : ''; }
+    var it0 = byId(t.getAttribute('data-part') != null ? t.getAttribute('data-part') : t.id.slice(1)); if (it0 && !it0.extra){ var f0 = judge(it0, 0), rd = $('rd' + it0.id); if (rd) rd.innerHTML = f0.v === 'unread' && !f0.partial ? '<span class="kl">Can’t read this yet:</span> ' + esc(plainText(f0.what[0] || '')) : ''; }
   }
   if (!t.name || t.name.charAt(0) !== 'q' || !t.closest('#paper')) return;
   var id = t.name.slice(1), it = byId(id); if (!it) return;
@@ -833,7 +896,10 @@ document.addEventListener('change', function(e){
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape' && !$('confirm').hidden){ closeAsk(); var bf = $('bFinish'); if (bf) bf.focus(); return; }
   if (e.key === 'Enter' && e.target.id && e.target.id.indexOf('wn') === 0){ e.preventDefault(); walkNum(e.target.id.slice(2)); return; }
-  if (e.key === 'Enter' && e.target.matches && e.target.matches('#paper input[type=text]')){ e.preventDefault(); var it = byId(e.target.id.slice(1)); if (it && (S.mode === 'practice' || S.done || it.extra)) check(it.id); }
+  if (e.key === 'Enter' && e.target.matches && e.target.matches('#paper input[type=text]')){ e.preventDefault();
+    var bp = e.target.getAttribute('data-part'), it = byId(bp != null ? bp : e.target.id.slice(1));
+    if (bp != null && it){ var nb = $(boxId(it.id, (+e.target.getAttribute('data-box') || 0) + 1)); if (nb && nb.value.trim() === ''){ nb.focus(); return; } }   /* several boxes: Enter goes on to an empty next box, then checks */
+    if (it && (S.mode === 'practice' || S.done || it.extra)) check(it.id); }
 });
 
 /* ------------------------------------------------ the clock and the score */
@@ -999,7 +1065,8 @@ function earnedOf(rec){                                   /* a set saved before 
 }
 function restoreOne(it){
   var a = S.ans[it.id]; if (a == null) return;
-  if (it.type === 'text'){ var el = $('a' + it.id); if (el){ el.value = a; setPreview(el); } }
+  if (it.type === 'text' && boxesOf(it.x)){ boxAns(it.x, a).forEach(function(v, k){ var el = $(boxId(it.id, k)); if (el){ el.value = v; setPreview(el); } }); }
+  else if (it.type === 'text'){ var el = $('a' + it.id); if (el){ el.value = a; setPreview(el); } }
   else if (it.type === 'nline') nlPaint(it);
   else (it.type === 'mc' ? [a] : a).forEach(function(v){ var x = document.querySelector('input[name="q' + it.id + '"][value="' + v + '"]'); if (x) x.checked = true; });
 }
@@ -1060,7 +1127,9 @@ document.addEventListener('visibilitychange', function(){ if (document.hidden &&
 function pq(d, qn){
   var it = d.it, h = '<div class="pq"><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + V.stem(it) + '</span></div>' + fig(it) + '</div>';   /* the stem and its figure stay together; parts may go to the next page */
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
-  var blank = function(p){ var u = V.unit(p), pre = V.pre(p); return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
+  var blank = function(p){ var u = V.unit(p), pre = V.pre(p), B = boxesOf(p);
+    if (B) return '<div class="pans pboxes"><span class="pal bt">Answer:</span> ' + B.map(function(x){ return '<span class="pbx">' + (x.pre ? '<span class="pre">' + x.pre + '</span>' : '') + '<span class="pblank"></span>' + (x.unit ? ' <span class="unit">' + x.unit + '</span>' : '') + '</span>'; }).join(' ') + '</div><div class="pwork"></div>';   /* a blank per box, each with its label */
+    return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
   if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : blank(p)) + '</div>'; });
   else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? line(it.part, '') + NL.blankHtml(it.part) : blank(it.part)) + '</div>';
@@ -1086,6 +1155,7 @@ function keyListHtml(){
 }
 function yourAnswer(it){
   var a = S.ans[it.id];
+  if (it.type === 'text' && boxesOf(it.x)){ var B = boxesOf(it.x), bs = boxAns(it.x, a); return bs.every(function(v){ return v.trim() === ''; }) ? '' : B.map(function(x, k){ return (x.pre ? x.pre + ' ' : '') + (bs[k].trim() ? esc(bs[k]) : '—') + (x.unit ? ' ' + x.unit : ''); }).join('; '); }
   if (it.type === 'text') return a == null || String(a).trim() === '' ? '' : esc(a);
   if (it.type === 'nline') return NL.empty(a) ? '' : NL.svg(it.x, a, {mode: 'key', cls: 'nl-small'}) + '<span class="nlkw">' + esc(NL.say(it.x, a)) + '</span>';
   if (it.type === 'mc') return a == null ? '' : '<b>' + LET[+a] + '.</b> ' + V.opt(it.x, +a);

@@ -20,6 +20,10 @@ Markup that works in every string rendered on paper (`dockit.rich`): `$latex$` b
 row makes the row a "mixed" row (text + images) that is laid out on one line and **must fit the
 slide width** — the build raises "line runs off the slide" if it does not; split the row.
 
+**The kit draws with ONE matplotlib series** — `MATPLOTLIB` in `lib/mathimg.py` (3.10, 15 Nov 2026). `build_lesson.py`
+and `build_unit.py` stop on another and say what to install (`pip install "matplotlib==3.10.*"`): a newer one sets a
+slide's stacked fractions about a quarter taller, so slides stop fitting and the checked-in PDFs stop matching.
+
 LaTeX goes through matplotlib mathtext for the pptx and the documents, and through KaTeX for the `.html` decks — the same string must satisfy both, so stay inside the intersection: `\frac`, `\cdot`, `\times`, `\left(`, `\right)`,
 `\sqrt`, `\sqrt[3]`, `\leq`, `\neq`, `\div`, `\pm`, `\infty`, `\approx` work; `\le`, `\text{}`, `\hbox` do **not**. Write `\frac`, never `\dfrac`: on the slide surfaces the renderer sets every fraction at display size itself (27 Sep 2026), and on the document surfaces text-size fractions are right. Thousands
 separators inside math are `1{,}000`. Unicode superscripts (`⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ᵐⁿ`) may be used in plain
@@ -92,7 +96,7 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 | `te` | dict | Teacher Edition prose, see below |
 
 ### warm-up question
-`dict(stem, answer, band, source, check)` — `stem` may hold `$…$` and must fit one slide line at
+`dict(stem, answer, band, source, check, fig)` — `stem` may hold `$…$` and must fit one slide line at
 23 pt beside its number (≈ 70 characters of text, less with images); `answer` is printed red
 beside the stem and wraps to a second line if too wide; `band` is the retrieval band; `source`
 names the lesson/unit it retrieves ("3.02 — quotient of powers"); `check` as for items.
@@ -138,11 +142,29 @@ is not on the slide. A `not_sci=True` key on a notes dict exempts it from the co
 `dict(title, sub, min_q, note_q, prompt=[rows], ask, worked=[…], check, your_turn={…}, yt_check)`.
 `prompt` rows: a `$…$` row is centered math; a plain row is centered text (wraps). **The prompt is
 the whole problem** — what the thing is and what is to be found, with nothing that leans on another slide ("the fountain", "he"); `sub` is not on the slide. A `your_turn` states its own question in its `prompt`; one whose prompt is a bare expression is given this Example's `ask` on its slides (or its own `ask`).
-`ask` is the bold instruction line ("" to omit). Each `worked` entry: `dict(sub, lead, min, note, rows, answer)` where
+`ask` is the bold instruction line ("" to omit). Each `worked` entry: `dict(sub, lead, min, note, rows, answer, fig)` where
 `lead` (optional) is a question to the room, set bold above the rows, and
 `rows` are `(latex, gloss)` tuples — the latex is set at the left, the gray gloss beside it (keep
 the gloss ≤ ~45 characters) — or plain strings. `your_turn`: `dict(min, note, prompt=[rows],
-gloss, answer | answer_latex)`. `check` and `yt_check` are re-derived by sympy like any item.
+gloss, answer | answer_latex, steps, fig, fig_a)`. `check` and `yt_check` are re-derived by sympy like any item.
+
+**A figure wherever a question is (15 November 2026).** A worked entry's `fig` is drawn on THAT worked slide, the
+figure on the left and its rows beside it on the right (under it when the rows are too wide to leave it a column) — put
+the solved graph here, with the working, not on the question slide. A Your Turn's `fig` is under its problem (and its
+instruction) on both of its slides, and `fig_a` replaces it on the answer slide, as on a board; on the answer slide the
+steps sit beside it. A warm-up question's `fig` is drawn in a row under the four questions, under the question's number,
+on the question slide and the answer slide alike (say "the rectangle in picture 1" in the stem). An independent-set
+question's `fig` is on the set's slide under every profile — the six in a column on the left at the largest type that
+fits (23 to 16 pt), each figure under its question's number in a column on the right (two columns of figures for three
+or more), drawn to fill its cell — and on the printed set where the course prints one. A set figure lettered for the
+page (`pt` under 11.5, as A7 11.05–11.08's grids are) or one the slide cannot hold beside the six is left off the
+slide: where the set is printed the build says so and the figures are on the page; where the slide IS the set
+(`SET = "slide"`) the build is refused. The figure is the
+flexible block on each of these slides: it takes the room the words leave. (On a Notes slide too: where the rows under a
+figure need more than its `reserve`, the figure gives up the room, a tenth of an inch at a time.) Ruling 44 (`figwords`, a worked slide's figure
+read against its Example's problem and its own rows), ruling 43 (a worked figure's and a warm-up figure's labels are
+what the class was shown; a set question's are what it gives), ruling 38's struck-label check, `units_agree`, the overlap
+check and `figure_sheets.py` read every one of them.
 
 ### whiteboard question
 `dict(kind="free"|"mc"|"written", latex | text=[rows], hint, gloss, answer | answer_latex, note,
@@ -151,11 +173,16 @@ is a mixed row and must fit one line). `hint` prints small and grey under the qu
 A `text` row beginning `**` is the ASK and is set bold; a board with any such row (or with `unneeded`) is laid out as a left-aligned 24 pt block — story in roman, ask in bold — not centred lines; keep each row under about 60 characters plus its math. `fig` (a figure from the unit's `figs.py`) and `fig_a` (the figure the reveal shows instead) sit under the text; `te_answer` is the answer as the teacher's edition prints it when the slide's `answer` is too terse. **The ask names a thing in the story and the answer is that thing** ("What fraction of the sheet is the top layer?", "Which drive holds more?"); an ask that begins "Write", "Rewrite" or "What is the value of" on a board with a story is a computation in costume — write that board bare (HOUSE STYLE, ruling 22 in practice). `gloss` is the working in a phrase and `hint` the scaffold: both are kept in the spec and **neither is on a slide** (ruling 37). `note` is the TE note; `note_a` optionally the reveal's.
 `repeat_ok=True` (with a comment) marks a board that repeats something on purpose — see ruling 43 below.
 `figwords_ok=True` (with a comment) marks a board whose picture differs from its words on purpose — see ruling 44 below.
+**A choice board with a figure (15 November 2026)** sets its four options in a column BESIDE the figure — figure left,
+options right, the pair centred — whenever that makes the figure taller than stacking the options under it does (it
+then reaches about 3 in on a board with two lines of words); a wide, short figure stays stacked. Both slides lay out
+alike (the options are measured as the answer slide sets the keyed one, bold). Nothing in the spec changes; the HTML
+deck makes the PowerPoint's choice.
 `wrong` is the TE's named-wrong-answers line for free/written questions: `"value — error name
 [benchmark cite]; …"`. **`kind="mc"`** adds `choices` (4 strings, unicode superscripts allowed),
 `correct` (index), `answer` ("A — 25m⁶") and **`errors`** — a dict from every wrong letter to
 `"what the student did [benchmark or B1G-M cite]"`; the build refuses an mc item with a wrong
-option that has no cited error. **The keyed letter must vary** — across a lesson's items, and across a unit's whiteboard rounds every letter is keyed at least once and none more than 40% of the time (gate `balancecheck`; M7's Units 4 and 5 first shipped with no board ever keyed D): write a new item answer-first if that is easier, then run `shuffle_choices.py <unit>` once before the first build (`--seed=N` for another spread; it rewrites `answer`, "Reveal X" and the error keys with the options, and lists every other letter it saw so a variable named A or C is never renamed), and after that write each item's options in their final order. **The letters an item's own words name must be its key**: `distractorcheck` refuses an `answer` line or a "Reveal C." note whose letter is not `correct`, and an `errors` entry on the keyed letter. **`kind="written"`** adds `qtext` (the plain-text question for
+option that has no cited error. **The keyed letter must vary** — across a lesson's items, and across a unit's whiteboard rounds every letter is keyed at least once and none more than 40% of the time (gate `balancecheck`; M7's Units 4 and 5 first shipped with no board ever keyed D): write a new item answer-first if that is easier, then run `shuffle_choices.py <unit>` once before the first build (`shuffle_choices.py u4 l06.py` or `shuffle_choices.py u4/l06.py` — a path, relative or absolute, works too — for one file; `--seed=N` for another spread; it rewrites `answer` — a select-all's answer line too, in whatever form it lists its letters: "A, C and D — …" — "Reveal X" and the error keys with the options, and lists every other letter it saw so a variable named A or C is never renamed; whatever it could not rewrite is printed again at the end under TO FIX BY HAND, item and line, so nothing goes stale silently), and after that write each item's options in their final order. **The letters an item's own words name must be its key**: `distractorcheck` refuses an `answer` line or a "Reveal C." note whose letter is not `correct`, a select-all whose answer line lists letters other than exactly its keyed ones (15 Nov 2026), and an `errors` entry on the keyed letter. **`kind="written"`** adds `qtext` (the plain-text question for
 the TE) and the answer states the full-credit sentence.
 
 ### bank / additional item
@@ -305,6 +332,12 @@ forms. `reference` and `review` are optional (M7 builds its review day as a less
   and refuses any question that shares an answer with the same question on another form.
 - An item may carry `fig` (a figure from the unit's `figs.py`, drawn from its numbers — a height
   that ends outside its figure is refused) and `table`.
+- **`fig_key` (15 November 2026)** — on any paper question (the independent set, the question bank and the additional
+  bank, the review, the test, a form, the practice test): the figure the KEY prints in place of `fig` — the grid with
+  both lines drawn and the crossing marked, for "graph both lines on this grid". The student page always prints `fig`;
+  the key and the Worked Answers copy print `fig_key` where it is given. `checks.py keycheck` holds each key's figures to
+  its page's, position for position, and allows exactly this difference: a key figure the build marked as `fig_key`.
+  Ruling 44, `units_agree` and `figure_sheets.py` read it as they read `fig`.
 
 ## Answer slides show their steps (ruling 39, 4 October 2026)
 
@@ -324,6 +357,16 @@ It is the mathematics, not a remark about it (the grey `gloss` and `hint` stay o
   `3.14 \\times 14 = 43.96`, not `\\pi`); an `=` between expressions in the same letters must be an
   identity; and the last number the steps reach must be the item's `check` value. A false step
   refuses the build. Keep units outside the `$…$`.
+- **A line may say what it is (15 November 2026).** An equations unit writes lines the check above refuses: a
+  no-solution equation ENDS false (`8 = 5`), and a line of working may have the letter on both sides without being an
+  identity (`6x + 8 = 6x + 5`, `30 + 5v = 8v`). Such a line opens with its declaration, which never reaches a slide:
+  `"[equation] $30 + 5v = 8v$"` — an equation in one letter, held (sympy, over the reals, all-reals and the empty set
+  included) to the same solution set as the equation step before it (a declared one, or one the working wrote with the
+  letter on one side, `5x = 20`); `"[false] $8 = 5$, never true"` — a false ending, held to be false (refused if it is
+  true) and to follow an equation with no solution. Where any line declares itself, the last equation of the working
+  must agree with the keyed answer: the answer's value of the letter (`v = 10`, else the item's checked value), "no
+  solution", or "infinitely many solutions". An undeclared false line is refused exactly as before. Write the words a
+  student reads after the mathematics, on the same line: `"[false] $8 = 5$, never true: no solution"`.
 - **The slide fits itself.** A board's or a Your Turn's question slide and answer slide start at
   the same place and set the problem at the same size, chosen by laying the answer slide out on a
   scratch deck: the usual place if everything fits, then higher, then the problem's mathematics
@@ -332,6 +375,14 @@ It is the mathematics, not a remark about it (the grey `gloss` and `hint` stay o
   and one chained line of mathematics is shorter than two lines of mathematics).
 - A slide without steps is a finding where the course profile says `STEPS = "required"`; until a
   unit's steps are all written it is only counted ("N of M answer slides show their steps").
+
+## American English (15 November 2026)
+
+Croix: *"Make sure you are using American english."* Everything the kit prints — a slide, a paper, the Teacher Edition,
+the lesson plan, START HERE, the console and the build's own messages — is in American spelling (neighbor, color,
+center, meter, practice as the verb, labeled, -ize). The kit's tests read every string the kit can print and refuse a
+British spelling. A spec is the author's: write it in American English too (the kit cannot read a spec's prose for
+spelling), and `figwords` still understands "metres" in one.
 
 ## The slide font is Lexend (ruling 40, 4 October 2026)
 
@@ -577,9 +628,35 @@ picture itself, every time it draws one (lesson figures and unit-paper figures a
   refuses a slanted side that disagrees with its figure (`figs.trapezoid`, `figs.trapezoid_h` in
   M7 Unit 4): the number that is "not needed" is still a length of that figure.
 
+- **A label on a label (15 November 2026).** The struck-label check also compares every two labels: two that share
+  ink (one grown by a pixel, six pixels or more) stop the build ("two labels of this figure are printed on each
+  other"). A label is something read — it has a letter or a digit; two marks (the ×s a line plot stacks) may touch,
+  a mark on a number may not. A figure shrunk to fit a slide is drawn again smaller with its labels at full size, as
+  before; where that would put a line or another label on a label, the checked picture is made smaller whole, labels
+  and all, as long as they stay 11.5 pt or more — otherwise the slide is refused ("give it room").
+- **Every saved figure is trimmed to its ink (15 November 2026).** A figure used to keep the transparent margin its
+  axes were given — about 16% of the drawing a side — so a display spanned at most about 76% of the width a slide gave
+  it, and the margin took the room of the words round it. The saved picture is now its ink and a fixed pad of
+  0.04 in (`figkit.PAD`, at the figure's natural size). **`in` still names the width of the frame**: a figure is
+  drawn exactly as large as it was. What changed is what a layout holds: a slide's room (`CW`, the space above the
+  footer, the column beside the steps or the options) now holds the ink, so a figure that was made small to fit is
+  larger, a figure asked for wider than the slide (`"in": 16`) spans the whole width, and the words under a figure
+  sit closer to it on slides and papers by the margin it no longer carries. A board's or a Your Turn's two slides
+  start where they started before the trim (`lessonbuild._fit_first` tries the answer slide with the figure taking the
+  room it took then), so no figure on an answer slide is smaller than it was.
+
 An Example's question slide starts a little under the rules; when its lines and its figure do not
 both fit from there it starts as much higher as it needs (`lessonbuild._example_top`), so the
 figure is not the thing made small.
+
+## A unit's own modules (15 November 2026)
+
+A unit folder may carry modules beside its specs — `figs.py`, `data.py`, anything a spec imports from its own
+folder — and they may share names across units: every unit may have a `figs.py`. The kit loads each spec with
+`lib/unitload.py`, which gives it its own unit's modules even when the same process has already loaded another
+unit's (`gates.py` over every unit, `figure_sheets.py u6 u11`, a course's master sheet). A course tool that
+loads specs itself uses `from lib.unitload import load; L = load(path).L`. (A7 named Unit 11's module `figs11`
+to get round the old loader; it need not.)
 
 ## `M` — the manifest (`manifest.py`)
 

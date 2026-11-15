@@ -4,7 +4,7 @@
       Show me how, Try another, a right answer (Next) and Close; Show this step after two misses; Finish marks typed but
       unchecked answers; results buttons practise in "Check as I go"; test mode says only "can't read this yet";
       tap targets; the keypad is not a tab stop; a bad link does not open another set; no page errors.
-   C–Q: see each part below. A–Q see every question on one screen (the checks' switch, window.KIT_PAGER_OFF); R checks the
+   C–U: see each part below (T, several boxes in one part; U, a walkthrough's order and no × — 15 Nov 2026). A–Q see every question on one screen (the checks' switch, window.KIT_PAGER_OFF); R checks the
    pager — one question at a time, as on the FAST (pager.js, 14 Nov 2026) — as students have it (check/pager_page.js). */
 const path = require('path');
 const { chromium } = require('playwright');
@@ -59,6 +59,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
 (async () => {
   await new Promise(res => server.listen(0, '127.0.0.1', res)); url = 'http://127.0.0.1:' + server.address().port + '/preview.html';
   const b = await chromium.launch();
+  /* several boxes in one part (15 Nov 2026): page.fill('#a<id>', …) fills every box of such a part (check/boxes.js) */
+  require('./boxes.js').wireBrowser(b);
   /* one question at a time (pager.js, 14 Nov 2026): parts A–Q check what they always have, with every question on one screen —
      the checks' switch, window.KIT_PAGER_OFF, in every context before a page loads (nothing on a page sets it) — and part R
      (pager_page.js) checks the pager itself, as students have it, in contexts without the switch */
@@ -1002,6 +1004,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./pager_page.js')(rawContext, url, U, dir, fail);
   /* S. every choice of a question in one type (14 Nov 2026): a choice that is only math is one math span, alike in a question */
   require('./mctype.js')(U, fail);
+  /* T. several boxes in one part (15 Nov 2026): a unit that gives a part its boxes (view.boxes) — typed, judged, saved, printed */
+  await require('./boxes_page.js')(b, rawContext, url, U, dir, fail);
+  /* U. a walkthrough's options in the question's order, and no × printed for multiplication (15 Nov 2026) */
+  await require('./order_page.js')(b, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

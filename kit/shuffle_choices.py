@@ -3,6 +3,8 @@
 
     python3 shuffle_choices.py u3            → rewrites u3/l*.py, review.py and unit.py in place, prints every change
     python3 shuffle_choices.py u4 l06.py     → only the named files
+    python3 shuffle_choices.py u4/l06.py     → the same, by path (relative to here or to where you stand, or absolute;
+                                               several paths may follow; a folder means the whole unit)
     python3 shuffle_choices.py u4 l09.py --seed=2   → another spread for that file (when the unit gate
                                                still finds one letter carrying too many boards)
     python3 shuffle_choices.py u5 --loose    → also remap a capital standing alone ("B is the trap…");
@@ -15,7 +17,10 @@ item's options ONCE, in the source, so the spec stays the single readable truth 
 references in the teacher prose stay literal:
 
   - `choices` are reordered; `correct` follows; `errors` is re-keyed; `form_only` is re-lettered;
-    an `answer` that names the letter ("A", "A — 4⁵", "A, B, C and D") is regenerated.
+    an `answer` that names the letter ("A", "A — 4⁵") is regenerated, and so is a select-all's answer line
+    in whatever form it lists its letters ("A, C and D", "A and C — both …", "B, D", "A, C, and E").
+    A select-all whose answer line does not list exactly its keyed letters is reported, not rewritten
+    (and the gate, distractorcheck, refuses it).
   - Letters inside the item's OWN teacher prose (note, note_a, why, wrong, the error texts) are
     remapped only where they name an option in so many words — "Reveal C", "option B", "(D)",
     "C: …" — never a capital standing alone, which in a geometry unit is a variable (C = πd).
@@ -24,13 +29,40 @@ references in the teacher prose stay literal:
     takes more than its share; select-alls take a seeded permutation of all positions.
   - Letter references OUTSIDE the item (a Teacher Edition line saying "a board full of B on Q5")
     are listed at the end for the author to fix by hand — they are not touched.
+  - Everything the script could not safely rewrite — a standalone capital in an item's prose (its
+    why, note, steps …), a letter outside the items — is printed again at the very end under
+    TO FIX BY HAND, each with the item it belongs to and the line, so nothing is left silently stale.
 
 The gate `balancecheck` (lessonbuild / unitbuild) refuses a build whose keyed letters cluster.
 """
 import ast, sys, os, re, random, glob
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PROSE = ("note", "note_a", "why", "wrong", "hint", "gloss")
+PROSE = ("note", "note_a", "why", "wrong", "hint", "gloss", "te_answer", "steps", "qtext")
+# a select-all's answer line: its letters first, in any of the ways a spec lists them, then nothing or a
+# dash, a colon, a bracket or a full stop ("A, C and D", "A and C — both are 3/4", "B, D.")
+LETTER_LIST = re.compile(r"^\s*([A-F](?:\s*(?:,\s*and|,|and|&)\s*[A-F])*)\s*(?=$|[—–:(.;]|-\s)")
+
+
+def answer_letters(answer):
+    """(the letters an answer line lists first, the span they take) or (None, None)."""
+    m = LETTER_LIST.match(str(answer or ""))
+    if not m:
+        return None, None
+    return re.findall(r"[A-F]", m.group(1)), m.span(1)
+
+
+def letters_like(letters, written):
+    """The letters, listed the way `written` lists its own: "A, C and D" / "A, C, and D" / "A, C, D" / "A & C"."""
+    if len(letters) == 1:
+        return letters[0]
+    if ", and" in written:
+        return ", ".join(letters[:-1]) + ", and " + letters[-1]
+    if " and " in written:
+        return ", ".join(letters[:-1]) + " and " + letters[-1]
+    if "&" in written:
+        return " & ".join(letters)
+    return ", ".join(letters)
 # An option is named in prose in a handful of fixed ways, and only those are remapped:
 #     "Reveal C."   "option B"   "options A and C"   "(D)"   "C: half the perimeter…"   "B — the …"
 # A capital standing alone is NOT assumed to be an option. In a geometry unit C is the
@@ -97,7 +129,17 @@ def plan_letters(n_items, n_choices_list, rng):
     return out
 
 
-def process(path, rng, report, loose=False):
+def item_name(src, kws):
+    """The item's first words, to find it by: its stem, its text or its question."""
+    for k in ("stem", "text", "qtext", "latex"):
+        if k in kws:
+            t = seg(src, kws[k].value) or ""
+            return re.sub(r"\s+", " ", t)[:60]
+    return "(an item)"
+
+
+def process(path, rng, report, loose=False, hand=None):
+    hand = [] if hand is None else hand
     src = open(path, encoding="utf-8").read()
     tree = ast.parse(src)
     items = []
@@ -173,11 +215,14 @@ def process(path, rng, report, loose=False):
             a = kws["answer"].value.value
             letters = [chr(65 + i) for i in new_correct]
             if multi:
-                m = re.fullmatch(r"([A-F](?:, [A-F])*) and ([A-F])", a)
-                if m:
-                    new_a = ", ".join(letters[:-1]) + " and " + letters[-1] if len(letters) > 1 else letters[0]
+                have, sp_ = answer_letters(a)
+                if have is not None and sorted(have) == sorted(chr(65 + c) for c in old_correct):
+                    new_a = a[:sp_[0]] + letters_like(letters, a[sp_[0]:sp_[1]]) + a[sp_[1]:]
                 else:
                     new_a = remap_text(a, perm_letter)
+                    hand.append(f"{os.path.basename(path)}:{node.lineno}  {item_name(src, kws)}  answer: {a!r} — "
+                                + ("its letters are not the keyed ones" if have is not None else "it lists no letters to rewrite")
+                                + f" (keyed now {', '.join(letters)})")
             else:
                 m = re.fullmatch(r"([A-F])( — .*)?", a, re.S)
                 if m:
@@ -188,13 +233,19 @@ def process(path, rng, report, loose=False):
                 s, e = span(kws["answer"].value)
                 q = seg(src, kws["answer"].value)[0]
                 edits.append((s, e, q + new_a.replace("\\", "\\\\") + q if "\\" in new_a else q + new_a + q))
-        # 6. prose
+        # 6. prose (a string, or a list of strings: a board's steps)
         for fld in PROSE:
-            if fld in kws and isinstance(kws[fld].value, ast.Constant) and isinstance(kws[fld].value.value, str):
-                txt = seg(src, kws[fld].value)
+            if fld not in kws:
+                continue
+            v = kws[fld].value
+            strs = [v] if isinstance(v, ast.Constant) else list(v.elts) if isinstance(v, (ast.List, ast.Tuple)) else []
+            for sn in strs:
+                if not (isinstance(sn, ast.Constant) and isinstance(sn.value, str)):
+                    continue
+                txt = seg(src, sn)
                 new = (remap_loose if loose else remap_text)(txt, perm_letter)
                 if new != txt:
-                    s, e = span(kws[fld].value)
+                    s, e = span(sn)
                     edits.append((s, e, new))
                     for m in LETTER.finditer(txt):
                         L0 = next(g for g in m.groups() if g)
@@ -202,6 +253,10 @@ def process(path, rng, report, loose=False):
                 for m in loose_letters(txt):
                     what = f"→ {perm_letter.get(m.group(1))}" if loose else "was left alone"
                     report.append(f"{'LOOSE' if loose else 'READ'} {os.path.basename(path)}:{node.lineno} {fld}: a standalone {m.group(1)} {what} — …{txt[max(0,m.start()-40):m.end()+40]}…")
+                    if not loose:
+                        hand.append(f"{os.path.basename(path)}:{node.lineno}  {item_name(src, kws)}  {fld}: a standalone {m.group(1)} "
+                                    f"(the options moved: {', '.join(f'{a}→{b}' for a, b in sorted(perm_letter.items()) if a != b) or 'none'}) — "
+                                    f"…{txt[max(0, m.start() - 50):m.end() + 50]}…")
         report.append(f"{os.path.basename(path)}:{node.lineno}  keyed {','.join(chr(65+c) for c in old_correct)} → {','.join(chr(65+c) for c in new_correct)}   order {order}")
     # apply edits from the end, on the byte string the offsets were measured on
     b = src.encode("utf-8")
@@ -211,24 +266,55 @@ def process(path, rng, report, loose=False):
     return len(items)
 
 
+def unit_files(unit_dir):
+    return sorted(glob.glob(os.path.join(unit_dir, "l[0-9]*.py"))) + \
+        [f for f in (os.path.join(unit_dir, "review.py"), os.path.join(unit_dir, "unit.py")) if os.path.exists(f)]
+
+
+def targets(args):
+    """[(unit name, file)] from `uN [lNN.py …]` or from paths (files or unit folders), relative or absolute."""
+    def find(a):
+        for p in (a, os.path.join(HERE, a)):
+            if os.path.exists(p):
+                return os.path.abspath(p)
+        return None
+    pos = [a for a in args if not a.startswith("--")]
+    if not pos:
+        raise SystemExit("usage: shuffle_choices.py uN [lNN.py …] | path/to/uN/lNN.py … | path/to/uN  [--seed=N] [--loose]")
+    first = find(pos[0])
+    if first and os.path.isdir(first) and all(not find(a) and a.endswith(".py") and "/" not in a for a in pos[1:]) and pos[1:]:
+        return [(os.path.basename(first), f) for f in unit_files(first) if os.path.basename(f) in pos[1:]]      # uN lNN.py …
+    out = []
+    for a in pos:
+        p = find(a)
+        if p is None:
+            raise SystemExit(f"shuffle_choices.py: no such unit or file: {a}")
+        if os.path.isdir(p):
+            out += [(os.path.basename(p), f) for f in unit_files(p)]
+        else:
+            out.append((os.path.basename(os.path.dirname(p)), p))
+    return out
+
+
 if __name__ == "__main__":
-    unit = sys.argv[1]
-    files = sorted(glob.glob(os.path.join(HERE, unit, "l[0-9]*.py"))) + \
-        [f for f in (os.path.join(HERE, unit, "review.py"), os.path.join(HERE, unit, "unit.py")) if os.path.exists(f)]
     loose = "--loose" in sys.argv
     seed = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--seed=")), "")   # a second spread for a file
-    only = [a for a in sys.argv[2:] if not a.startswith("--")]
-    if only:                                   # shuffle_choices.py u4 l06.py l07.py — just these files
-        files = [f for f in files if os.path.basename(f) in only]
-    report, total = [], 0
-    for f in files:
-        rng = random.Random(f"{unit}/{os.path.basename(f)}/2026-10-03" + seed)
-        total += process(f, rng, report, loose)
+    todo = targets(sys.argv[1:])
+    report, hand, total = [], [], 0
+    for unit, f in todo:
+        rng = random.Random(f"{unit}/{os.path.basename(f)}/2026-10-03" + seed)   # the same spread by name or by path
+        total += process(f, rng, report, loose, hand)
     print("\n".join(report))
-    print(f"\n{total} multiple-choice items permuted in {len(files)} files")
+    print(f"\n{total} multiple-choice items permuted in {len(todo)} files")
     # letter references outside the items, for the author
     OUT = re.compile(r"\b(?:option|options|full of|shows|picks|chose)\s+([A-F])\b|\b([A-F]) on (?:Q|question|whiteboard|board)")
-    for f in files:
+    for _, f in todo:
         for i, ln in enumerate(open(f, encoding="utf-8"), 1):
             if OUT.search(ln) and "choices=" not in ln and "errors=" not in ln:
                 print(f"HAND-CHECK {os.path.basename(f)}:{i}: {ln.strip()[:140]}")
+                hand.append(f"{os.path.basename(f)}:{i}  outside the items: {ln.strip()[:140]}")
+    if hand:
+        print(f"\nTO FIX BY HAND — {len(hand)} place(s) name a letter this script could not safely rewrite; read each against "
+              f"the item's new order (its answer line and errors are already right):")
+        for h in hand:
+            print("  " + h)

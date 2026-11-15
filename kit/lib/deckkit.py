@@ -156,6 +156,7 @@ class Deck:
         self.side = []   # side-car records
         self.s = None
         self.cursor = 0.0
+        self.pre_trim = False     # a trial deck (lessonbuild._fit_first): a figure takes the room it took before 15 Nov 2026 (its frame)
         self._n = 0
 
     # ---------- primitives ----------
@@ -624,49 +625,107 @@ class Deck:
         self._text(x, y + (h - 0.6) / 2, lw, 0.6, "Answer:", 32, bold=True, color=RED, anchor="middle")
         self.s.shapes.add_picture(path, Inches(x + lw), Inches(y), Inches(w), Inches(h))
 
-    def _fit_figure(self, spec, maxw, maxh):
-        """The figure's picture and the size to place it at, inside maxw by maxh inches."""
-        path, w, h = figkit.draw(figkit.slide(spec), min(spec.get("in", 4.2), maxw))
-        if h > maxh and maxh > 0.4:
+    def _fit_figure(self, spec, maxw, maxh, strict=False):
+        """The figure's picture and the size to place it at, inside maxw by maxh inches. `in` is the width of the
+        figure's frame; the picture is its ink (figkit._trim, 15 Nov 2026), and maxw and maxh hold the INK — so a
+        figure is no longer made small to fit a transparent margin it does not show.
+
+        A figure drawn smaller keeps its labels at their size, so its ink does not shrink in proportion. The width
+        is held exactly (a figure beside steps or options must not push them off the slide). The height is held
+        as it always was — one drawing at the size the room asks for, which may stand a little taller than the
+        room — unless `strict` (a figure with something beside or under it that must not move: steps, options, a
+        cell of the set), when it is drawn again until it fits and, at the last, made smaller whole."""
+        floor_h = maxh
+        if "reserve_was" in spec:           # the room the figure had before 15 Nov 2026 (where the kit now leaves more under it)
+            floor_h = maxh + spec.get("reserve", 0.7) - spec["reserve_was"]
+            spec = {k: v for k, v in spec.items() if k != "reserve_was"}
+        if self.pre_trim:
+            # a trial of where a slide starts: the figure takes the room the kit gave it before the trim (its frame,
+            # fitted to the room it had then), so a layout is chosen as it was then and no figure is laid out from a
+            # top that leaves it less room than it had
+            o = self._frame_fit(spec, maxw, floor_h)
+            n = figkit.natural(figkit.slide(spec))
+            if o and n:
+                return o[0], o[1] * n[0] / n[2], o[2] * n[1] / n[3]
+        tw = spec.get("in", 4.2)
+        path, w, h = figkit.draw(figkit.slide(spec), tw)
+        for _ in range(4):
+            if w <= maxw + 0.005:
+                break
+            tw *= maxw / w
+            path, w, h = figkit.draw(figkit.slide(spec), tw)
+        if w > maxw + 0.005:
+            w, h = maxw, h * maxw / w
+        tries = 4 if strict else 1
+        while tries and h > maxh + 0.005 and maxh > 0.4:
+            tries -= 1
             k = maxh / h
             try:
                 # drawn again smaller with its labels at their full size, where they still fit …
-                path, w, h = figkit.draw(figkit.slide(spec), w * k)
+                path, w, h = figkit.draw(figkit.slide(spec), tw * k)
+                tw *= k
             except ValueError as e:
-                # … and where they do not (a side would run through a label), the checked picture
-                # is made smaller whole, labels and all — as long as they stay readable
-                if "runs through its label" not in str(e):
+                # … and where they do not (a side, or another label, would run through a label), the checked
+                # picture is made smaller whole, labels and all — as long as they stay readable
+                if "runs through its label" not in str(e):         # a line on a label, or a label on a label (figkit.STRUCK_LABELS)
                     raise
                 if spec.get("pt", 18) * k < 11.5:
                     raise RuntimeError(f"a figure has {maxh:.2f} in of a slide and its labels would be {spec.get('pt', 18) * k:.0f} pt there: "
-                                       f"give it room (fewer lines of text or steps on this slide) — {str(spec)[:120]}")
+                                       f"give it room (fewer lines of text or steps on this slide) \u2014 {str(spec)[:120]}")
                 w, h = w * k, h * k
+                break
+        if strict and h > maxh + 0.005 and maxh > 0.4:
+            w, h = w * maxh / h, maxh
+        if strict:
+            # never smaller than the kit drew it before the trim: the old fit sized the FRAME to the room (and its one
+            # redrawing often stood taller than the room); its ink, placed from the top of the frame, ended no lower
+            # than the old ink did, which every slide's checks passed
+            o = self._frame_fit(spec, maxw, floor_h)
+            if o and o[2] > h + 0.005 and o[1] <= maxw + 0.005:
+                return o
         return path, w, h
 
-    def figure(self, spec, gap=0.16):
+    def _frame_fit(self, spec, maxw, maxh):
+        """What the fit made of a figure before 15 Nov 2026 (the frame held to the room, one redrawing), as its ink."""
+        tw = min(spec.get("in", 4.2), maxw)
+        path, w, h = figkit.draw(figkit.slide(spec), tw)
+        n = figkit.natural(figkit.slide(spec))
+        if not n:
+            return None
+        fh = h * n[1] / n[3]                  # the frame's height at this width
+        if fh > maxh and maxh > 0.4:
+            k = maxh / fh
+            try:
+                path, w, h = figkit.draw(figkit.slide(spec), tw * k)
+            except ValueError:
+                w, h = w * k, h * k             # as it did then: the checked picture, smaller whole
+        return path, w, h
+
+    def figure(self, spec, gap=0.16, strict=False):
         """Place a geometry figure, centred, at the cursor. The figure is drawn from the numbers
         (lib/figkit), so a drawing that disagrees with its own labels cannot happen."""
-        path, w, h = self._fit_figure(spec, CW, FOOT_Y - self.cursor - spec.get("reserve", 0.7))
+        path, w, h = self._fit_figure(spec, CW, FOOT_Y - self.cursor - spec.get("reserve", 0.7), strict)
         if self.cursor + h > FOOT_Y:
             raise RuntimeError(f"figure does not fit the slide ({h:.2f} in tall): {spec}")
         self.s.shapes.add_picture(path, Inches(LM + (CW - w) / 2), Inches(self.cursor),
                                   Inches(w), Inches(h))
         self.cursor += h + gap
 
-    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1):
+    def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None):
         """An answer slide that has a picture AND working: the figure on the left, the steps beside
         it on the right, the two centred on each other — so neither is made small to stack them.
-        If the steps are too wide to leave the figure a column, they go under it instead."""
-        size = size or step_sizes()["size"]; surface = step_sizes()["surface"]
+        If the steps are too wide to leave the figure a column, they go under it instead. (A worked
+        slide with a figure passes its rows here too, at the worked rows' own surface.)"""
+        size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
         wmax = max(self.measure(slotmark.strip(r), surface, size) for r in rows)
         colw = CW - wmax - 0.8
         if colw < 2.6:
             self.figure(dict(spec, reserve=spec.get("reserve", 0.7) + self.steps_height(rows, rgap) + 0.3), gap)
-            self.steps(rows, rgap, size)
+            self.steps(rows, rgap, size, surface)
             return
         top = self.cursor
-        hs = self.steps_height(rows, rgap)
-        path, w, h = self._fit_figure(spec, min(colw, 5.2), FOOT_Y - top - spec.get("reserve", 0.7))
+        hs = sum(self._row_h(r, surface) for r in rows) + rgap * (len(rows) - 1)
+        path, w, h = self._fit_figure(spec, min(colw, 5.2), FOOT_Y - top - spec.get("reserve", 0.7), strict=True)
         block = max(h, hs)
         left = LM + max(0.0, (CW - (w + 0.8 + wmax)) / 2)            # the pair centred on the slide
         self.s.shapes.add_picture(path, Inches(left), Inches(top + (block - h) / 2), Inches(w), Inches(h))
@@ -675,6 +734,74 @@ class Deck:
             _, hh = self._mixed(r, left + w + 0.8 + (0.06 if r.lstrip().startswith("$") else 0.0), y, surface, size, INK, slots=True)
             y += hh + rgap
         self.cursor = top + block + gap
+
+    def figure_row(self, items, reserve=0.25, gap=0.16):
+        """Figures in a row across the slide at the cursor, each under the number of the question it
+        belongs to (a warm-up question's figure, 15 Nov 2026): the room under the questions is shared
+        out, and each figure is the flexible block in its own column."""
+        k = len(items)
+        colw = (CW - 0.4 * (k - 1)) / k
+        maxh = FOOT_Y - self.cursor - reserve
+        if maxh < 0.9:
+            raise RuntimeError(f"no room for a question's figure under the questions ({maxh:.2f} in) — shorter questions, or one figure fewer")
+        placed = [self._fit_figure(spec, max(1.0, colw - 0.55), maxh, strict=True) for _, spec in items]
+        top = self.cursor
+        for i, ((label, _), (path, w, h)) in enumerate(zip(items, placed)):
+            x0 = LM + i * (colw + 0.4)
+            x = x0 + 0.5 + max(0.0, (colw - 0.5 - w) / 2)
+            self._text(x - 0.55, top, 0.55, 0.45, f"{label}.", 22, bold=True, color=VOCAB)
+            self.s.shapes.add_picture(path, Inches(x), Inches(top), Inches(w), Inches(h))
+        self.cursor = top + max(h for _, _, h in placed) + gap
+
+    def choices_beside(self, spec, opts, correct=None, reserve=0.75, size=24):
+        """A question that has a figure AND four options: the figure on the left, the options in a
+        column on its right, the two centred on each other (15 Nov 2026 — stacked, the options took
+        1.75 in and left a graph 1 to 1.6 in tall). Returns False, drawing nothing, when stacking
+        gives the figure more height than the column does (a wide, short figure), so the caller
+        stacks as before."""
+        top = self.cursor
+        avail = FOOT_Y - top - reserve
+        if avail < 1.0:
+            return False
+        def opt_w(i, o, sz):            # measured bold, as the keyed option is set on the answer slide: both slides lay out alike
+            if "$" in o.replace("\\$", ""):
+                return 0.62 + self.measure(o, "slidemid", sz, bold=True)
+            return _textw(f"{chr(65 + i)}.   " + o.replace("\\$", "$"), sz, bold=True)
+        def opt_h(o, sz):
+            if "$" in o.replace("\\$", ""):
+                return max(0.5, self._row_h(o, "slidemid") * sz / 24)
+            return sz * 1.25 / 72 + 0.12
+        for sz in (size, 22, 20):
+            ow = max(opt_w(i, o, sz) for i, o in enumerate(opts))
+            oh = sum(opt_h(o, sz) for o in opts) + 0.22 * (len(opts) - 1)
+            if oh <= avail:
+                break
+        else:
+            return False
+        colw = CW - ow - 0.7
+        if colw < 2.4:
+            return False
+        # what stacking would give the figure: the options' rows under it (the 1.75 in the stacked board reserves)
+        _, _, h_stack = self._fit_figure(spec, CW, FOOT_Y - top - max(spec.get("reserve", 0.7), reserve + 1.75))
+        path, w, h = self._fit_figure(spec, colw, avail, strict=True)
+        if h <= h_stack + 0.05:
+            return False
+        block = max(h, oh)
+        left = LM + max(0.0, (CW - (w + 0.7 + ow)) / 2)
+        self.s.shapes.add_picture(path, Inches(left), Inches(top + (block - h) / 2), Inches(w), Inches(h))
+        y = top + (block - oh) / 2
+        x = left + w + 0.7
+        for i, o in enumerate(opts):
+            col = RED if correct == i else INK
+            hh = opt_h(o, sz)
+            if "$" in o.replace("\\$", ""):
+                self._text(x, y + (hh - 0.5) / 2, 0.65, 0.5, f"{chr(65 + i)}.", sz, bold=True, color=col, anchor="middle")
+                self._mixed(o, x + 0.62, y, "slidemid", sz, col, correct == i)
+            else:
+                self._text(x, y, ow + 0.3, hh, "", sz, runs=[(f"{chr(65 + i)}.   ", sz, True, False, col), (o, sz, correct == i, False, col)], wrap=False)
+            y += hh + 0.22
+        self.cursor = top + block + 0.16
+        return True
 
     def choices(self, opts, size=24, correct=None, two_col=True):
         """A–D options. On an answer slide pass correct=index to colour it red.
@@ -822,12 +949,20 @@ class Deck:
                 used += tw
         return hmax
 
-    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set"):
+    def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set", figs=None):
         """Ruling 21, the set on the slide: the six questions themselves (Croix, 20 September, for
         the course with no handout; 4 October for the other — "the individual review portion of
         the slides needs to put the problems on the board"; there the same six are also the
-        printed page)."""
+        printed page). `figs` — [(question number, figure)] — puts each question's figure in a
+        column on the right, under its number, and the six in the column the figures leave."""
         self.section(title, "Six questions. On your own, in writing.", minutes, note, kind)
+        if figs and self._set_with_figures(questions, figs):
+            return True
+        self._set_plain(questions)
+        return not figs
+
+    def _set_plain(self, questions):
+        """The six alone, the type stepping down until they fit."""
         if any("$" in q.replace("\\$", "") for q in questions):
             # questions with mathematics in them: wrapped lines of words and typeset math, the type
             # stepping down until the six end above the footer — never split across two slides,
@@ -860,6 +995,62 @@ class Deck:
                     tree.remove(sp)
         else:
             raise RuntimeError("the six questions do not fit one slide even at 16 pt \u2014 shorten them")
+
+    def _set_with_figures(self, questions, figs):
+        """The six on the left and the questions' figures on the right, each under its question's number: one
+        column of figures for one or two, two columns for more. The six are set at the largest type (23 to 16 pt)
+        that fits beside a figure column of 4.6, 3.6 or 2.8 in, the widest that fits at that type; every figure
+        must have at least 0.85 in of height. Returns False, drawing
+        nothing, when no width works — the caller then sets the six without their figures (a course that prints
+        the set has them on the page; lessonbuild refuses that for a course that does not). A figure's `in` is
+        the printed page's, so on the slide each one is drawn to fill its cell; a figure lettered for the page
+        (`pt` under 11.5) is not put on a slide."""
+        if any(f.get("pt", 18) < 11.5 for _, f in figs):
+            return False                    # lettered for the page (A7 11.07's grids at 9.5 pt): too small to read on a slide
+        top = 1.66
+        x = 1.05
+        room = FOOT_Y - 0.14 - top
+        k = len(figs)
+        cols = 1 if k <= 2 else 2
+        rows = -(-k // cols)
+        each_h = (room - 0.2 * (rows - 1)) / rows
+        if each_h < 0.85:
+            return False
+        # the six at the largest type that fits beside a column of figures, then the widest column at that type
+        for size, gap in ((23, 0.2), (21, 0.17), (19, 0.14), (18, 0.11), (17, 0.09), (16, 0.07)):
+            for colw in (4.6, 3.6, 2.8):
+                w = 11.4 - colw - 0.35
+                hs = [self._flow(q, x + 0.65, 0, w - 0.65, size, draw=False) for q in questions]
+                if sum(hs) + gap * (len(hs) - 1) <= room:
+                    break
+            else:
+                continue
+            cw = (colw - 0.2 * (cols - 1)) / cols
+            # a set question's `in` is the printed page's; on the slide each figure fills its cell
+            def fill(spec):
+                try:
+                    return self._fit_figure(dict(spec, **{"in": (cw - 0.45) / 0.8}), cw - 0.45, each_h, strict=True)
+                except ValueError:          # drawn larger, a line would cross a label: the page's own size, then
+                    return self._fit_figure(spec, cw - 0.45, each_h, strict=True)
+            try:
+                placed = [fill(spec) for _, spec in figs]
+            except (ValueError, RuntimeError):
+                return False                # a figure that cannot be drawn readably in its cell: the six alone
+            if any(fh > each_h + 0.02 for _, _, fh in placed):
+                return False
+            y = top
+            for i, (q, h) in enumerate(zip(questions, hs)):
+                self._text(x, y + (min(h, self._flow_first(q, w - 0.65, size)) - 0.5 * size / 23.0) / 2, 0.6, 0.5 * size / 23.0, f"{i + 1}.", size, bold=True, color=VOCAB, anchor="middle")
+                self._flow(q, x + 0.65, y, w - 0.65, size)
+                y += h + gap
+            x0 = LM + CW - colw
+            for j, ((n, _), (path, fw, fh)) in enumerate(zip(figs, placed)):
+                cx, cy = x0 + (j % cols) * (cw + 0.2), top + (j // cols) * (each_h + 0.2)
+                self._text(cx - 0.1, cy, 0.55, 0.42, f"{n}.", 20, bold=True, color=VOCAB)
+                self.s.shapes.add_picture(path, Inches(cx + 0.45 + (cw - 0.45 - fw) / 2), Inches(cy), Inches(fw), Inches(fh))
+            self.cursor = max(y, top + rows * (each_h + 0.2) - 0.2)
+            return True
+        return False
 
     def close(self, lines, minutes=1, note=""):
         """Before You Go — the one thing today lives on, said back to the room."""

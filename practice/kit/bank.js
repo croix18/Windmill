@@ -261,7 +261,7 @@ function judgePart(p, typed){
     if (isFinite(a) && isFinite(b) && Math.abs(a - b) <= Math.max(0.005 * Math.abs(b), 1e-9)){
       var hasPi = /π/.test(String(bp.key));
       if (hasPi) return {v: 'form', what: ['That is its value. The question asks for it in terms of π: keep π in the answer.']};
-      if (shape === 'sci') return {v: 'form', what: ['That is its value. Write it in scientific notation, like 3.2 × 10^5.']};
+      if (shape === 'sci') return {v: 'form', what: ['That is its value. Write it in scientific notation, like 3.2 · 10^5.']};
       if (shape === 'power') return {v: 'form', what: ['That is its value. The question asks for it as a power.']};
       if (bp.precision && !close(a, b)) return {v: 'wrong', what: []};
       if (shape === 'fraction' || shape === 'mixed') return {v: 'form', what: ['That is close, but not exact. Give the exact value as a fraction.']};

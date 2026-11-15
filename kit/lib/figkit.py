@@ -17,7 +17,7 @@ Two faces, as in mathimg: a figure on a printed page is lettered in STIX; the sa
 slide is lettered in Lexend (ruling 40). A caller asks for the slide's by passing slide(spec);
 the face is part of the spec, so it is part of the fingerprint and the two never share a file.
 """
-import os, json, hashlib
+import os, re, json, hashlib
 import matplotlib
 matplotlib.use("Agg")
 matplotlib.rcParams["font.family"] = "STIXGeneral"
@@ -35,6 +35,8 @@ FILL = "#EDEDEA"
 GRID = "#C8C8C8"
 RED = "#9E1B32"
 STRUCK = []         # with FIG_REPORT set: (labels, spec) for each figure with a struck label, instead of refusing
+LABEL_ON_LABEL = "” over “"     # how a struck pair of labels is named: "6 m” over “8 m"
+STRUCK_LABELS = "a label runs through its label"   # the words deckkit reads to fall back to shrinking a figure whole
 
 
 
@@ -76,7 +78,35 @@ def _in_poly(pt, poly, eps=1e-6):
     return c
 
 
-CHECKED = "label-clear-1"       # part of every fingerprint: change it and every figure is redrawn and re-checked
+CHECKED = "label-clear-2/ink-1"   # part of every fingerprint: change it and every figure is redrawn and re-checked
+                                  # (15 Nov 2026: "label-clear-2", a label on a label is struck too; "/ink-1", every
+                                  # saved figure is trimmed to its ink — _trim)
+PAD = 0.04          # inches of clear space kept round a figure's ink when it is trimmed (at its natural size)
+
+
+def _trim(path):
+    """Cut a saved figure down to its ink and a small fixed pad (15 Nov 2026). Every figure used to carry the
+    transparent margin its axes were given (16% of the drawing a side, and more under a title), so a display
+    could span at most about 76% of the width a slide gave it, and the margin took the room of the words round
+    it. Returns (frame width, frame height, ink width, ink height) in inches at the natural size: `in` still
+    names the width of the FRAME — the ink is drawn exactly as large as before — and the picture placed is
+    the ink, so the room a layout gives a figure is spent on ink."""
+    im = Image.open(path)
+    fw, fh = im.width / DPI, im.height / DPI
+    box = im.convert("RGBA").getchannel("A").getbbox()
+    if box:
+        pad = int(round(PAD * DPI))
+        box = (max(0, box[0] - pad), max(0, box[1] - pad), min(im.width, box[2] + pad), min(im.height, box[3] + pad))
+        if box != (0, 0, im.width, im.height):
+            im.crop(box).save(path)
+            return fw, fh, (box[2] - box[0]) / DPI, (box[3] - box[1]) / DPI
+    return fw, fh, fw, fh
+
+
+def natural(spec):
+    """(frame width, frame height, ink width, ink height) of a figure already drawn, at its natural size."""
+    e = _load().get(_key(spec))
+    return tuple(e) if e and len(e) == 4 else None
 
 
 def _seg_dist(p, a, b):
@@ -164,10 +194,11 @@ def units_disagree(spec):
     bad = []
     def visit(o, where):
         if isinstance(o, dict):
-            if isinstance(o.get("fig"), dict) and not o.get("units_ok"):
-                f, w = on_figure(o["fig"]), in_words(o)
-                if f and w and not w <= f:
-                    bad.append((where, sorted(f), sorted(w)))
+            for fk in ("fig", "fig_key"):          # a key's own figure is held to the item's words too (15 Nov 2026)
+                if isinstance(o.get(fk), dict) and not o.get("units_ok"):
+                    f, w = on_figure(o[fk]), in_words(o)
+                    if f and w and not w <= f:
+                        bad.append((where + ("" if fk == "fig" else ".fig_key"), sorted(f), sorted(w)))
             for k, v in o.items():
                 visit(v, f"{where}.{k}")
         elif isinstance(o, (list, tuple)):
@@ -225,6 +256,7 @@ def _struck(fig, ax):
         for a in others:
             a.set_visible(False)
         hit = []
+        masks = []
         for t in texts:
             t.set_visible(True)
             m = _ink(fig)
@@ -234,6 +266,24 @@ def _struck(fig, ax):
                 near |= np.roll(m, (dy, dx), axis=(0, 1))
             if int((near & lines).sum()) >= 6:
                 hit.append(t.get_text())
+            ys, xs = np.nonzero(m)
+            masks.append((t, m, (ys.min(), ys.max(), xs.min(), xs.max()) if len(xs) else None))
+        # a label printed over another label (15 Nov 2026): the check saw a label on a LINE and not two labels on
+        # each other. Two labels collide when their own ink, one grown by a pixel, shares six pixels or more with the
+        # other's. A label is read — it has a letter or a digit; two marks (the ×s a line plot stacks, M7 Unit 13) may
+        # touch, but a mark on a number may not.
+        for i in range(len(masks)):
+            for j in range(i + 1, len(masks)):
+                (ti, mi, bi), (tj, mj, bj) = masks[i], masks[j]
+                if not (re.search(r"[A-Za-z0-9]", ti.get_text()) or re.search(r"[A-Za-z0-9]", tj.get_text())):
+                    continue
+                if not bi or not bj or bi[0] > bj[1] + 2 or bj[0] > bi[1] + 2 or bi[2] > bj[3] + 2 or bj[2] > bi[3] + 2:
+                    continue
+                gi = mi.copy()
+                for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    gi |= np.roll(mi, (dy, dx), axis=(0, 1))
+                if int((gi & mj).sum()) >= 6:
+                    hit.append(f"{ti.get_text()}{LABEL_ON_LABEL}{tj.get_text()}")
         for a in others:
             a.set_visible(True)
     finally:
@@ -299,10 +349,10 @@ def _draw(spec, target_in=None):
     path = os.path.join(FIGS, f"g{k}.png")
     kind = spec["kind"]
     tw = target_in or spec.get("in", 3.6)
-    if os.path.exists(path) and k in idx:
-        w, h = idx[k]
-        scale = tw / w
-        return path, tw, h * scale
+    if os.path.exists(path) and k in idx and idx[k] and len(idx[k]) == 4:
+        fw, fh, iw, ih = idx[k]
+        scale = tw / fw
+        return path, iw * scale, ih * scale
 
     fs = spec.get("fs", 13)
     if spec.get("face") == "slide" and not spec.get("_pass2"):
@@ -361,7 +411,7 @@ def _draw(spec, target_in=None):
         # figure in the corpus carries labels of one size whatever its shape.
         probe = dict(spec); probe["_pass2"] = True; probe["_probe"] = True; probe["fs"] = 20
         ppath, pw, ph = draw(probe, 20.0 / 20.0 * 6.0)      # draw at a nominal width
-        im = Image.open(ppath); w0 = im.width / DPI          # natural width at fs 20
+        w0 = natural(probe)[0]                               # natural FRAME width at fs 20 (the saved picture is trimmed)
         factor = tw / w0
         pt = spec["pt"] * (SLIDE_SCALE if spec.get("face") == "slide" else 1.0)
         final = dict(spec); final["_pass2"] = True; final["fs"] = round(pt / factor, 2)
@@ -452,13 +502,16 @@ def _draw(spec, target_in=None):
                     f.write(json.dumps({"labels": hit, "png": path, "spec": spec}) + "\n")
             else:
                 plt.close(fig)
-                raise ValueError("a line of this figure runs through its label "
-                                 + ", ".join(f"\u201c{h}\u201d" for h in hit)
+                on_line = [h for h in hit if LABEL_ON_LABEL not in h]
+                on_label = [h for h in hit if LABEL_ON_LABEL in h]
+                raise ValueError("; ".join(
+                    ([("a line of this figure runs through its label " + ", ".join(f"\u201c{h}\u201d" for h in on_line))] if on_line else [])
+                    + ([("two labels of this figure are printed on each other (" + STRUCK_LABELS + "): "
+                         + ", ".join(f"\u201c{h}\u201d" for h in on_label))] if on_label else []))
                                  + f" \u2014 move the label or the line: {str(spec)[:300]}")
     fig.savefig(path, dpi=DPI, bbox_inches="tight", pad_inches=0.05, transparent=True)
     plt.close(fig)
-    im = Image.open(path)
-    w0, h0 = im.width / DPI, im.height / DPI
-    idx[k] = [w0, h0]; _save(idx)
+    w0, h0, iw, ih = _trim(path)
+    idx = _load(); idx[k] = [w0, h0, iw, ih]; _save(idx)
     scale = tw / w0
-    return path, tw, h0 * scale
+    return path, iw * scale, ih * scale

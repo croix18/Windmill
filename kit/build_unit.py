@@ -9,18 +9,18 @@ import sys, os, glob, importlib.util, subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from lib import unitbuild, lessonbuild
+from lib import mathimg
+mathimg.require_matplotlib()                        # the one matplotlib the kit draws with (lib/mathimg.py MATPLOTLIB)
 from lib.profile import C
 
 
 def load(path, name):
-    spec = importlib.util.spec_from_file_location(name, path)
-    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-    return m
+    from lib import unitload            # a unit's own figs.py sits beside its specs (lib/unitload.py)
+    return unitload.load(path, name)
 
 
 src = os.path.abspath(sys.argv[1])
 here = os.path.dirname(src)
-sys.path.insert(0, here)                            # a unit's own figs.py sits beside its specs
 m = load(src, "unit")
 unit = os.path.basename(here)
 outdir = os.path.join(HERE, "out", unit)

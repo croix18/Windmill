@@ -694,3 +694,22 @@ body.printing>.kcalc,body.tview>.kcalc{display:none!important}
 .keys button{flex:0 0 auto;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;display:inline-grid;place-items:center}
 .keys button.kwide{width:auto;padding:0 10px}
 .keys .krow>.kgap{margin-left:8px}
+
+/* ==== several boxes in one part (15 Nov 2026): "x = ▢  y = ▢" — the boxes in a row, each with its label, then Check and Hint;
+   on a phone the boxes share one line while they fit (they wrap, never squeeze under 4.5rem), Check and Hint the row under them.
+   A one-box part never carries .boxes, so nothing here touches it. */
+.ans.boxes .bxs{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px 16px;flex:0 1 auto;min-width:0}
+.ans.boxes .bx{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.ans.boxes .bx input[type=text]{flex:0 1 7.5rem;width:7.5rem;min-width:4.5rem;max-width:9rem}
+.ans.boxes .bx .pre{white-space:nowrap}
+.ans.boxes .bx{position:relative}
+.ans.boxes .bx .pv{position:absolute;right:0;top:100%;margin-top:2px;font-size:.9em;line-height:1.2;white-space:nowrap} .ans.boxes .bx .pv:empty{display:none}   /* the typed answer's preview under its box, never moving the row */
+.ans.boxes:has(.pv:not(:empty)){padding-bottom:1.4em}
+.ans.boxes .bx .unit{min-width:0}
+@media (max-width:480px){
+  .ans.boxes .bxs{flex:1 1 100%}
+  .ans.boxes .bx{flex:1 1 0;min-width:8rem}
+  .ans.boxes .bx input[type=text]{flex:1 1 0;width:auto;min-width:4.5rem;max-width:none}
+}
+.pans.pboxes .pbx{display:inline-flex;align-items:baseline;gap:6px;margin-right:18px}
+.pans.pboxes .pblank{min-width:6em}

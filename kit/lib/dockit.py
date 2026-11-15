@@ -135,6 +135,9 @@ def linear_text(latex):
     return re.sub(r"\s+", " ", t).strip()
 
 
+KEY_FIGURE = "fig_key"     # the mark on a key's own figure (docPr descr), read by checks.py keytwin
+
+
 class Doc:
     def __init__(self, eyebrow, title, sub, key=False, name_block=True, margins=1440,
                  banner="ANSWER KEY", font=None):
@@ -378,7 +381,7 @@ class Doc:
 
     # ---------- questions ----------
     def question(self, stem, answer=None, reasoning=None, space=1.0, parts=None, points=None,
-                 choices=None, choice_answer=None, table=None, number=None, lines=None, fig=None):
+                 choices=None, choice_answer=None, table=None, number=None, lines=None, fig=None, fig_is_key=False):
         """One question in one unsplittable block.
         stem: rich text. answer/reasoning: key only. space: inches of work room (student only).
         parts: list of (label, text, answer, reasoning, space). choices: list of rich strings
@@ -408,7 +411,9 @@ class Doc:
             path, w, h = figkit.draw(figkit.slide(fig) if self.font == "Lexend" else fig, fig.get("in", 2.4))
             fp = c.add_paragraph(); fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
             fp.paragraph_format.space_before = Pt(2); fp.paragraph_format.space_after = Pt(4)
-            fp.add_run().add_picture(path, width=Inches(w), height=Inches(h))
+            pic = fp.add_run().add_picture(path, width=Inches(w), height=Inches(h))
+            if fig_is_key:                    # the key's own figure (`fig_key`): checks.py keytwin lets it differ from the page's
+                pic._inline.docPr.set("descr", KEY_FIGURE)
         if table:
             widths, rows, hdr = table
             self._inner_table(c, widths, rows, hdr)

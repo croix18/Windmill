@@ -266,10 +266,37 @@ ok("steps: an identity in the same letters is worked, and a false one caught",
    _st(["$x^{5} \\cdot x^{8} = x^{5+8} = x^{13}$"]) == ([], 2) and len(_st(["$x^{5} \\cdot x^{8} = x^{40}$"])[0]) == 1)
 ok("steps: an equation to be solved is not mistaken for an identity", _st(["$3 + n = 11$", "$n = 11 - 3 = 8$"], 8)[0] == [])
 ok("steps: a rounded line is held to the places it shows", _st(["$71.6 \\div 3.14 \\approx 22.8$"])[0] == [] and len(_st(["$71.6 \\div 3.14 \\approx 22.9$"])[0]) == 1)
+# ---- the lines an equations unit needs (15 Nov 2026): a false ending, and an equation with the letter on both sides
+def _st5(rows, final=None, answer=None):
+    return lb.stepcheck_rows(rows, "t", _sp.sympify(final) if final is not None else None, answer)[0]
+_none5 = ["[equation] $6x + 8 = 6x + 5$", "Take $6x$ from both sides:", "[false] $8 = 5$, never true"]
+ok("steps: undeclared, a false ending and a letter on both sides that is not an identity are refused exactly as before",
+   len(_st5(["$6x + 8 = 6x + 5$"])) == 1 and len(_st5(["$8 = 5$"])) == 1 and len(_st5(["$30 + 5v = 8v$"])) == 1)
+ok("steps: a declared equation and a declared false ending pass where the answer is no solution, and the declaration is not on the slide",
+   _st5(_none5, answer="No solution") == [] and lb.shown_steps(_none5) == ["$6x + 8 = 6x + 5$", "Take $6x$ from both sides:", "$8 = 5$, never true"])
+ok("steps: a declared equation is solved and held to the equation before it, to the answer's value",
+   _st5(["[equation] $30 + 5v = 8v$", "$30 = 3v$", "$v = 10$"], 10, "v = 10") == []
+   and _st5(["[equation] $2(x + 3) = 2x + 6$", "$6 = 6$, always true"], answer="Infinitely many solutions") == [])
+ok("planted: a declared false ending that is true", any("is true" in x for x in _st5(["[equation] $6x + 8 = 6x + 8$", "[false] $8 = 8$"], answer="No solution")))
+ok("planted: a false ending after an equation that has a solution", any("cannot follow" in x for x in _st5(["[equation] $6x + 8 = 5x + 5$", "[false] $8 = 5$"], answer="No solution")))
+ok("planted: a declared equation that changes the solutions", any("changes the solutions" in x for x in _st5(["[equation] $30 + 5v = 8v$", "[equation] $30 = 2v$"], 10, "v = 10")))
+ok("planted: a declared equation whose solution is not the keyed value", any("the answer is v = 12" in x for x in _st5(["[equation] $30 + 5v = 8v$", "$v = 10$"], answer="v = 12")))
+ok("planted: a working that ends with no solution under an answer that gives one", any("does not say no solution" in x for x in _st5(_none5, answer="x = 3")))
+ok("planted: infinitely many keyed over an equation with one solution", any("infinitely many" in x for x in _st5(["[equation] $2(x + 3) = 2x + 3x$"], answer="Infinitely many solutions")))
+ok("planted: no solution keyed over an equation with every number for a solution", any("says no solution" in x for x in _st5(["[equation] $2(x + 3) = 2x + 6$"], answer="No solution")))
+ok("planted: a negative solution is a solution (the check's letters are positive; an equation's are not)",
+   _st5(["[equation] $3x + 4 = x - 2$", "$x = -3$"], answer="x = −3") == [] and len(_st5(["[equation] $3x + 4 = x - 2$"], answer="no solution")) == 1)
+_wb5 = copy.deepcopy(L); _wb5["whiteboard"] = copy.deepcopy(_wb5["whiteboard"])
+_wb5["whiteboard"][0].update(text=["How many solutions does $4x + 9 = 4x + 2$ have?"], answer="No solution", check=("true", "True"),
+                             steps=["[equation] $4x + 9 = 4x + 2$", "[false] $9 = 2$, never true"])
+ok("steps: the lesson gate reads a board's declared lines (and its answer)", lb.stepcheck_lesson(slotmark.strip_deep(_wb5))[0] == [], str(lb.stepcheck_lesson(slotmark.strip_deep(_wb5))[0]))
+_wb5["whiteboard"][0]["answer"] = "x = 0"
+ok("planted: the lesson gate refuses that board keyed with a value", any("does not say no solution" in x for x in lb.stepcheck_lesson(slotmark.strip_deep(_wb5))[0]))
 T_ = copy.deepcopy(L)
 T_.update(yesterday="y", today="t", no_set=True); T_.pop("independent")
 T_["whiteboard"] = copy.deepcopy(T_["whiteboard"])
 T_["whiteboard"][0]["steps"] = ["First line of working:  $1 + 1 = 2$"]
+T_["whiteboard"][1].update(steps=["[equation] $2x + 2 = x + 4$", "$x = 2$"], answer="x = 2")
 _mcs = [i for i, q in enumerate(T_["whiteboard"]) if q.get("kind") == "mc"]
 if _mcs:
     T_["whiteboard"][_mcs[0]]["steps"] = ["Working shown on a choice board."]
@@ -281,6 +308,7 @@ with tempfile.TemporaryDirectory() as tmp:
     H3 = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(H3, T_)
     h3 = render_page(H3)
 stext = " ".join(" ".join(re.findall(r"<a:t>([^<]*)</a:t>", x)) for x in sx)
+ok("steps: a line's declaration ([equation], [false]) is never on a slide", "[equation]" not in stext and "[equation]" not in h3 and "2x + 2" not in stext)
 ok("steps: a board's working is on its answer slide and nowhere else (PowerPoint and HTML)",
    stext.count("First line of working:") == 1 and h3.count("First line of working:") == 1)
 if _mcs:
@@ -836,6 +864,371 @@ finally:
     _fk46.draw = _draw46
 ok("ruling 46: a figure on a Lexend paper is drawn in the slide's Lexend face; on a page in the body face, in STIX",
    _first46 == ["slide", None], str(_first46))
+
+# ---- a figure wherever a question is (15 Nov 2026): a Your Turn (fig, and fig_a for its answer slide), a worked slide, a
+# warm-up question and the six-question set carry one, in the PowerPoint and the HTML deck, and every check that reads a
+# board's figure reads these too
+import hashlib as _hl
+def _box(label, w=10, h=6, **kw):
+    return dict(kind="shapes", fs=22, pt=18, **{"in": kw.pop("inches", 3.2)}, shapes=[dict(t="poly", pts=[(0, 0), (w, 0), (w, h), (0, h)]),
+                dict(t="text", xy=(w / 2, 0), s=label, va="top", off=(0, -0.3))], **kw)
+F_ = copy.deepcopy(S_)
+F_["warmup"] = [dict(F_["warmup"][0], stem="Find the area of the rectangle in picture 1.", answer="60 m²", fig=_box("10 m")),
+                dict(stem="7 + 8", answer="15", check=("eq", "7+8", "15"))]
+F_["examples"] = copy.deepcopy(F_["examples"])
+F_["examples"][0]["worked"][0]["fig"] = _box("3 m", 9, 3)
+F_["examples"][0]["your_turn"].update(prompt=["A rope 8 m long is cut in half.", "How long is each piece?"], fig=_box("8 m", 8, 2),
+                                      fig_a=_box("8 m", 8, 2.5), steps=["$8 \\div 2 = 4$"])
+F_.pop("no_set", None)
+F_["independent"] = [dict(stem=f"{k} + 30", answer=str(k + 30), check=("eq", f"{k}+30", str(k + 30))) for k in range(6)]
+F_["independent"][1].update(stem="Find the perimeter of the rectangle beside question 2.", answer="40 cm", fig=_box("12 cm", 12, 8))
+def _shapes_of(pptx):
+    from pptx import Presentation
+    figs = {_hl.sha1(open(p, "rb").read()).hexdigest() for p in glob.glob(os.path.join(figkit.FIGS, "*.png"))}
+    out = []
+    for sl in Presentation(pptx).slides:
+        pics, others = [], []
+        for sh in sl.shapes:
+            r = (sh.left / 914400, sh.top / 914400, (sh.left + sh.width) / 914400, (sh.top + sh.height) / 914400)
+            if sh.shape_type == 13 and _hl.sha1(sh.image.blob).hexdigest() in figs:
+                pics.append((r, _hl.sha1(sh.image.blob).hexdigest()))
+            elif sh.has_text_frame and sh.text_frame.text.strip() or sh.shape_type == 13:
+                if r[1] < 6.7:                     # the footer's words sit under the rule
+                    others.append((r, sh.text_frame.text if sh.has_text_frame else "math"))
+        out.append((pics, others, " ".join(sh.text_frame.text for sh in sl.shapes if sh.has_text_frame)))
+    return out
+def _hits(pics, others):
+    return [(t, r) for (p, _) in pics for (r, t) in others
+            if min(p[2], r[2]) - max(p[0], r[0]) > 0.02 and min(p[3], r[3]) - max(p[1], r[1]) > 0.02]
+import glob
+with tempfile.TemporaryDirectory() as tmp:
+    PF = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(PF, F_)
+    pf = os.path.join(tmp, "f.pptx"); PF.save(pf, sidecar=False)
+    _sl = _shapes_of(pf)
+    HF = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(HF, F_)
+    hf = render_page(HF)
+_kinds = [x["kind"] + ":" + (x["sub"] or "") for x in PF.side]
+def _at(pred):
+    return [i for i, x in enumerate(PF.side) if pred(x)]
+_wu = _at(lambda x: x["kind"] == "warmup"); _wk = _at(lambda x: x["sub"] == "A worked label.")
+_yt = _at(lambda x: x["kind"] == "yourturn")[:2]; _set = _at(lambda x: x["kind"] in ("set", "independent"))
+ok("figures: a warm-up question's figure is on the question slide and the answer slide, under the questions",
+   all(len(_sl[i][0]) == 1 for i in _wu) and all("1." in _sl[i][2] for i in _wu), str([len(_sl[i][0]) for i in _wu]))
+ok("figures: a worked slide carries its own figure, with its working beside it", len(_wk) == 1 and len(_sl[_wk[0]][0]) == 1
+   and _sl[_wk[0]][0][0][0][2] <= min(r[0] for r, t in _sl[_wk[0]][1] if t == "math" and r[1] > 1.9) + 0.02, str(_sl[_wk[0]][:2]))
+ok("figures: a Your Turn shows its figure on the question slide and fig_a on its answer slide",
+   len(_sl[_yt[0]][0]) == 1 and len(_sl[_yt[1]][0]) == 1 and _sl[_yt[0]][0][0][1] != _sl[_yt[1]][0][0][1])
+ok("figures: the six-question set carries a question's figure beside the six, under its number",
+   len(_set) == 1 and len(_sl[_set[0]][0]) == 1 and _sl[_set[0]][0][0][0][0] > 7.0 and "2." in _sl[_set[0]][2])
+ok("figures: on none of those slides does a figure sit on the words", not [h for i in _wu + _wk + _yt + _set for h in _hits(*_sl[i][:2])],
+   str([h for i in _wu + _wk + _yt + _set for h in _hits(*_sl[i][:2])][:3]))
+ok("figures: the HTML deck carries them too (two warm-up, worked, two Your Turn, the set: seven pictures beyond the board-free deck's)",
+   hf.count('<div class="figrow">') == 2 and hf.count('<div class="setfig">') == 1 and hf.count("figsteps") >= 3, f"{hf.count('figrow')} {hf.count('setfig')} {hf.count('figsteps')}")
+# the set with a figure on every question (A7 11.07's six grids): two columns of figures; and six that cannot hold their
+# figures beside them are refused where the slide is the set, and set without them where the set is also printed
+_F6 = copy.deepcopy(F_)
+for _k, _q in enumerate(_F6["independent"]):
+    _q["fig"] = _box(f"{_k + 4} cm", _k + 4, 3)
+with tempfile.TemporaryDirectory() as tmp:
+    _D6 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_D6, _F6)
+    _p6 = os.path.join(tmp, "s.pptx"); _D6.save(_p6, sidecar=False)
+    _s6 = _shapes_of(_p6)[[i for i, x in enumerate(_D6.side) if x["kind"] in ("set", "independent")][0]]
+ok("figures: six questions with six figures — the figures in two columns beside the six, nothing on the words",
+   len(_s6[0]) == 6 and _hits(*_s6[:2]) == [] and len({round(r[0], 1) for (r, _) in _s6[0]}) == 2, str([r for r, _ in _s6[0]]))
+_F7 = copy.deepcopy(_F6)
+for _q in _F7["independent"]:
+    _q["stem"] = "Find $x$: " + "a question with a great many words in it, " * 3 + "and one more."
+def _set7():
+    try:
+        _D7 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_D7, _F7)
+        _i = [i for i, x in enumerate(_D7.side) if x["kind"] in ("set", "independent")][0]
+        return "built"
+    except RuntimeError as e:
+        return str(e)
+_r7 = _set7()
+ok("figures: six that cannot hold their figures are set without them where the set is printed, and refused where the slide is the set",
+   (_r7 == "built") if C.SET == "handout" else ("do not fit one slide" in _r7), _r7[:120])
+_F8 = copy.deepcopy(F_)
+_F8["independent"][1]["fig"] = dict(_F8["independent"][1]["fig"], pt=9.5)
+def _set8():
+    try:
+        _D8 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_D8, _F8); return "built"
+    except RuntimeError as e:
+        return str(e)
+_r8 = _set8()
+ok("figures: a set figure lettered for the page (under 11.5 pt) is not put on the slide — kept to the printed set, or refused where the slide is the set",
+   (_r8 == "built") if C.SET == "handout" else ("do not fit one slide" in _r8), _r8[:120])
+# the checks that read a board's figure read these too
+def _f44(**kw):
+    M = copy.deepcopy(F_); M.update(kw); return [x for x in gates(slotmark.strip_deep(M)) if "ruling 44" in x]
+ok("figures: ruling 44 passes the lesson with figures in all four new places", _f44() == [], str(_f44()[:2]))
+planted("a Your Turn whose words give a length its picture does not show (ruling 44)",
+        lambda M: M.update(examples=[dict(F_["examples"][0], your_turn=dict(F_["examples"][0]["your_turn"], prompt=["A rope sits on a mat 30 m wide.", "How long is each piece?"])), F_["examples"][1]],
+                           warmup=F_["warmup"], independent=F_["independent"]), "ruling 44")
+_F2 = copy.deepcopy(F_); _F2["independent"][1]["stem"] = "A card 30 cm wide holds the rectangle. Find its perimeter."
+ok("planted: a set question whose words give a length its picture does not show (ruling 44)", any("independent[2]" in x for x in [y for y in gates(slotmark.strip_deep(_F2)) if "ruling 44" in y]))
+_F3 = copy.deepcopy(F_); _F3["warmup"][0]["stem"] = "A mat 40 m wide holds the rectangle in picture 1."
+ok("planted: a warm-up question whose words give a length its picture does not show (ruling 44)", any("warmup[1]" in x for x in [y for y in gates(slotmark.strip_deep(_F3)) if "ruling 44" in y]))
+_F4 = copy.deepcopy(F_); _F4["examples"][0]["prompt"] = ["A rope sits on a mat 50 m wide.", "How long is each piece?"]; _F4["examples"][0].pop("fig", None); _F4["examples"][0]["worked"][0]["fig"] = _box("7 m", 7, 3)
+ok("planted: a worked slide's figure against its Example's words (ruling 44)", any("worked[1]" in x for x in [y for y in gates(slotmark.strip_deep(_F4)) if "ruling 44" in y]))
+_sh = {w for w, *_ in rc.shown(F_)}
+ok("figures: ruling 43 counts a worked slide's figure and a warm-up figure as shown, and a set question's figure as what it gives",
+   any("3 m" in " ".join(lines) for _, _, _, _, lines in rc.shown(F_)) and any("10 m" in " ".join(lines) for _, _, _, _, lines in rc.shown(F_))
+   and "12" in [p for p in rc.practice(F_) if p["label"] == "independent question 2"][0]["given"])
+
+# ---- a multiple-choice board with a figure (15 Nov 2026): stacked, the four options took 1.75 in and left the figure 1 to 1.6 in
+# tall; beside the figure, the options in a column, whenever that makes the figure taller
+_tall3 = dict(kind="shapes", fs=22, pt=18, **{"in": 4.2}, shapes=[dict(t="poly", pts=[(0, 0), (8, 0), (8, 8), (0, 8)]),
+              dict(t="text", xy=(4, 0), s="8 cm", va="top", off=(0, -0.3))])
+_wide3 = dict(kind="shapes", fs=22, pt=18, **{"in": 4.2}, shapes=[dict(t="poly", pts=[(0, 0), (40, 0), (40, 3), (0, 3)]),
+              dict(t="text", xy=(20, 0), s="40 cm", va="top", off=(0, -0.3))])
+def _mc3(fig):
+    M = copy.deepcopy(S_); M["whiteboard"] = copy.deepcopy(M["whiteboard"])
+    M["whiteboard"][6] = mc(7, 2, text=["The square is cut from a card.", "**What is its perimeter?"], fig=fig)
+    return M
+def _mc3_slides(M):
+    with tempfile.TemporaryDirectory() as tmp:
+        D3 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(D3, M)
+        p3 = os.path.join(tmp, "m.pptx"); D3.save(p3, sidecar=False)
+        sl = _shapes_of(p3)
+    i = [k for k, x in enumerate(D3.side) if x["title"].endswith("Question 7 of 9")]
+    return [sl[k] for k in i]
+_q3, _a3 = _mc3_slides(_mc3(_tall3))
+_figh = lambda sl: sl[0][0][0][3] - sl[0][0][0][1]
+_optx = lambda sl: [r[0] for r, t in sl[1] if re.match(r"^[A-D]\.", t.strip())]
+ok("choices beside: a tall figure on a choice board is set beside its options, and is taller than stacking leaves it (about 3 in)",
+   _figh(_q3) >= 2.6 and _optx(_q3) and min(_optx(_q3)) > _q3[0][0][0][2], f"{_figh(_q3):.2f} in; options at {_optx(_q3)}")
+ok("choices beside: the question slide and the answer slide lay the figure out alike, the options too",
+   _q3[0][0][0] == _a3[0][0][0] and sorted(_optx(_q3)) == sorted(_optx(_a3)))
+ok("choices beside: nothing sits on the figure, on either slide", _hits(*_q3[:2]) == [] and _hits(*_a3[:2]) == [], str(_hits(*_q3[:2])[:2]))
+_q3w, _ = _mc3_slides(_mc3(_wide3))
+ok("choices beside: a wide, short figure, which stacking serves better, stays stacked over its options",
+   _optx(_q3w) and min(_optx(_q3w)) < _q3w[0][0][0][2] and min(r[1] for r, t in _q3w[1] if re.match(r"^[A-D]\.", t.strip())) > _q3w[0][0][0][3] - 0.02)
+with tempfile.TemporaryDirectory() as tmp:
+    _H3 = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_H3, _mc3(_tall3)); _h3 = render_page(_H3)
+    _H3w = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_H3w, _mc3(_wide3)); _h3w = render_page(_H3w)
+ok("choices beside: the HTML deck makes the PowerPoint's choice", _h3.count('<div class="figchoices">') == 2 and _h3w.count('<div class="figchoices">') == 0)
+
+# ---- a key's own figure (15 Nov 2026): the key of "graph both lines on this grid" printed the empty grid. `fig_key` on a paper
+# question is what the key prints; the page prints `fig`; keycheck lets a key's figures differ from its page's there and only there
+import checks as _ck
+_ck._figure_library = lambda: {_hl.sha256(open(p, "rb").read()).hexdigest(): os.path.basename(p) for p in glob.glob(os.path.join(figkit.FIGS, "*.png"))}
+_K2 = copy.deepcopy(L)
+_K2["bank"] = [dict(stem="Draw the rectangle 12 cm long on the grid.", answer="see the key", check=("eq", "1", "1"), fig=_box("12 cm", 12, 8),
+                    fig_key=_box("12 cm", 12, 5)),
+               dict(stem="Find its perimeter.", answer="40 cm", check=("eq", "2*12+2*8", "40"), fig=_box("12 cm", 12, 8))]
+with tempfile.TemporaryDirectory() as tmp:
+    _pg = lb.build_bank(_K2, _K2["bank"], "Question Bank", False, tmp)
+    _ky = lb.build_bank(_K2, _K2["bank"], "Question Bank", True, tmp)
+    _lib2 = _ck._figure_library()
+    _fp, _fk = _ck._doc_figures(_pg, _lib2), _ck._doc_figures(_ky, _lib2)
+    _clean2 = [x for x in _ck.check_keycheck([_pg, _ky]) if "figure" in x]
+    _K3 = copy.deepcopy(_K2); _K3["bank"][1]["fig"] = _box("13 cm", 13, 8)        # a key built from a different figure, unmarked
+    _ky3 = lb.build_bank(_K3, _K3["bank"], "Question Bank", True, tmp)
+    _bad2 = [x for x in _ck.check_keycheck([_pg, _ky3]) if "figure" in x]
+ok("fig_key: the page prints the figure, the key prints the key's own figure, marked, and the other figure as the page does",
+   len(_fp) == 2 and len(_fk) == 2 and _fp[0][0] != _fk[0][0] and _fk[0][1] == "fig_key" and _fp[1] == _fk[1] and _fp[0][1] == "", f"{_fp} {_fk}")
+ok("fig_key: keycheck lets a key's figure differ from its page's where the spec gave fig_key", _clean2 == [], str(_clean2))
+ok("planted: a key figure that differs from its page's with no fig_key is caught", any("figure 2 of" in x for x in _bad2), str(_bad2))
+ok("fig_key: ruling 44 and units read a key's own figure too",
+   any("key figure" in x for x in fw.check(dict(bank=[dict(stem="A mat 30 cm wide.", fig=_box("30 cm"), fig_key=_box("9 cm"))]), "90.01"))
+   and figkit.units_disagree(dict(bank=[dict(stem="Draw it.", answer="12 in", fig=_box("12 in"), fig_key=_box("12 cm"))])) != [])
+
+# ---- shuffle_choices.py (15 Nov 2026): a path or `uN lNN.py`; a select-all's answer line rewritten with its options; a letter in
+# free prose it cannot rewrite printed for the author; and the gate refuses a select-all whose answer line is not its key
+import shuffle_choices as _sc, random as _rnd
+from lib import unitload as _ul
+_SA = ('L = dict(code="90.01", bank=[\n'
+       '    dict(stem="Which are equal to 3/4?", choices=["6/8", "9/12", "3/5", "0.75", "4/3"], correct=[0, 1, 3],\n'
+       '         answer="A, B and D — each is 3/4", why="A and B are fractions; E is upside down.", check=("eq", "1", "1"),\n'
+       '         errors={"C": "x [N]", "E": "y [N]"}),\n'
+       '    dict(stem="Pick one.", choices=["1", "2", "3", "4"], correct=0, answer="A — 1", note="Reveal A.", check=("eq", "1", "1"),\n'
+       '         errors={"B": "x [N]", "C": "x [N]", "D": "x [N]"})])\n')
+with tempfile.TemporaryDirectory() as tmp:
+    os.makedirs(os.path.join(tmp, "u90"))
+    _p7 = os.path.join(tmp, "u90", "l01.py")
+    outs = []
+    for how in ([_p7], [os.path.join(tmp, "u90"), "l01.py"]):
+        open(_p7, "w").write(_SA)
+        _todo = _sc.targets(how)
+        _rep, _hand = [], []
+        for _u, _f in _todo:
+            _sc.process(_f, _rnd.Random(f"{_u}/{os.path.basename(_f)}/2026-10-03"), _rep, False, _hand)
+        outs.append((open(_p7).read(), _todo, _hand))
+    _M7 = _ul.load(_p7).L
+_it7 = _M7["bank"][0]
+_keyed7 = [chr(65 + c) for c in sorted(_it7["correct"])]
+ok("shuffle: a path and `uN lNN.py` name the same file and give the same spread", outs[0][0] == outs[1][0] and outs[0][1][0][0] == outs[1][1][0][0] == "u90", str([o[1] for o in outs]))
+ok("shuffle: a select-all's answer line is rewritten to its new keyed letters, in its own form",
+   _sc.answer_letters(_it7["answer"])[0] == _keyed7 and " and " in _it7["answer"] and _it7["answer"].endswith("— each is 3/4")
+   and not [x for x in lb.distractorcheck_lesson(dict(code="90.01", bank=_M7["bank"])) if "answer line" in x], _it7["answer"])
+ok("shuffle: a letter in free prose it cannot rewrite is printed for the author, with its item and its line",
+   any("why: a standalone" in h and "Which are equal" in h for h in outs[0][2]), str(outs[0][2]))
+ok("shuffle: the letter lists a spec writes are all read", [_sc.answer_letters(a)[0] for a in ("A, C and D", "A, C, and D — x", "B, D", "A and E: y", "C.", "A rectangle")]
+   == [["A", "C", "D"], ["A", "C", "D"], ["B", "D"], ["A", "E"], ["C"], None])
+planted("a select-all whose answer line is not its key",
+        lambda M: M["bank"].append(dict(stem="Which are even?", choices=["2", "3", "4", "5"], correct=[0, 2], answer="A and D",
+                                        check=("many", ("true", "3 != 2"), ("true", "5 != 2")), errors={"B": "x [N]", "D": "y [N]"})), "select-all's answer line says A, D")
+
+# ---- American English in everything the kit prints (Croix: "Make sure you are using American english"; 15 Nov 2026: the
+# Teacher Edition printed "neighbour"). Every string literal in the kit that is not a docstring is read — a slide, a paper,
+# the TE, the lesson plan, START HERE, the console and every message the build prints are made of them. Comments, docstrings
+# and identifiers may stay British; the one exception below is a pattern that READS a spec's spelling.
+import ast as _ast, tokenize as _tok, io as _io8
+_BRIT = re.compile(r"(?i)\b(neighbour\w*|colou\w+|favour\w*|behaviour\w*|honour\w*|labour\w*|centre\w*|centred|centring|\w*metre\w*|litre\w*|"
+                   r"practis\w*|labell\w*|modell\w*|travell\w*|cancell\w*|levell\w*|totall\w*|signall\w*|grey\w*|programme\w*|catalogue|whilst|amongst|"
+                   r"learnt|spelt|judgement|defence|licence|offence|ageing|aluminium|cheque|tyre|storey|artefact\w*|focuss\w*|"
+                   r"(?:organ|recogn|summar|real|emphas|minim|maxim|categor|apolog|normal|standard|special|util|final|priorit|visual|optim|"
+                   r"initial|author|custom|memor|critic|capital|character|general|synchron|penal|harmon|modern|stabil)is(?:e|es|ed|ing|ation)|analys(?:e|ed|es|ing))\b")
+_BRIT_OK = re.compile(r"(?i)neighbor\w*")
+_READS_SPECS = {("lib/figwords.py", "_UNIT")}      # a regex over a spec's words: it must read "metres" to catch it
+def _printed_strings(src):
+    tree = _ast.parse(src)
+    doc = {n.body[0].value.lineno for n in _ast.walk(tree) if isinstance(n, (_ast.Module, _ast.FunctionDef, _ast.AsyncFunctionDef, _ast.ClassDef))
+           and n.body and isinstance(n.body[0], _ast.Expr) and isinstance(n.body[0].value, _ast.Constant) and isinstance(n.body[0].value.value, str)}
+    reads = set()
+    for n in _ast.walk(tree):                     # the lines of an assignment named in _READS_SPECS
+        if isinstance(n, _ast.Assign) and any(getattr(t, "id", "") == "_UNIT" for t in n.targets):
+            reads |= set(range(n.lineno, n.end_lineno + 1))
+    for t in _tok.generate_tokens(_io8.StringIO(src).readline):
+        if t.type in (_tok.STRING, getattr(_tok, "FSTRING_MIDDLE", -1)) and t.start[0] not in doc and t.start[0] not in reads:
+            s = re.sub(r"//[^\n]*|/\*.*?\*/", "", t.string, flags=re.S) if "\n" in t.string else t.string   # a JS or CSS block's comments
+            yield t.start[0], s
+def _british(src):
+    return [(ln, m.group(0)) for ln, s in _printed_strings(src) for m in _BRIT.finditer(s) if not _BRIT_OK.fullmatch(m.group(0))]
+_kitdir = os.path.normpath(os.path.join(HERE, ".."))
+_found8 = []
+for _f in sorted(glob.glob(os.path.join(_kitdir, "**", "*.py"), recursive=True)):
+    _rel = os.path.relpath(_f, _kitdir).replace(os.sep, "/")
+    if _rel.startswith("tests/") or "/figs/" in _rel or _rel.startswith("figs/") or _rel.startswith("out/"):
+        continue
+    _found8 += [f"{_rel}:{ln} {w}" for ln, w in _british(open(_f, encoding="utf-8").read())]
+for _f in glob.glob(os.path.join(_kitdir, "lib", "*.js")):
+    _found8 += [f"{os.path.basename(_f)} {m.group(0)}" for m in _BRIT.finditer(re.sub(r"//[^\n]*|/\*.*?\*/", "", open(_f, encoding="utf-8").read(), flags=re.S))]
+ok("American English: no string the kit prints carries a British spelling (neighbour, colour, centre, metre, practise, labelled, -ise …)", _found8 == [], str(_found8[:8]))
+ok("planted: a British spelling in a printed string is caught, and not in a comment, a docstring or an identifier",
+   [w for _, w in _british('"""The colour code."""\ncolour = 1   # colour\nprint("convince your neighbour")\nx = f"slot {colour} colours"\n')] == ["neighbour", "colours"])
+from lib import plankit as _pk8
+ok("American English: the Teacher Edition's and the plan's line for a split board say neighbor or the person next to you (the TE printed neighbour)",
+   "neighbor" in lb.SPLIT_MOVE and not _BRIT.search(lb.SPLIT_MOVE + lb.REVOTE + _pk8.SPLIT_MOVE))
+
+# ---- every figure trimmed to its ink (15 Nov 2026): a saved figure carried its axes' transparent margin, about 16% a side, so a
+# display spanned at most ~76% of the width a slide gave it. `in` still names the frame (the ink is drawn exactly as large as
+# before); the picture placed is the ink and a small fixed pad, and a layout's room holds the ink.
+def _margins(path):
+    from PIL import Image
+    im = Image.open(path); b = im.getchannel("A").getbbox()
+    return [b[0], b[1], im.width - b[2], im.height - b[3]]
+_t4 = _box("12 m", 12, 8, inches=3.0)
+_p4, _w4, _h4 = figkit.draw(_t4, 3.0)
+_n4 = figkit.natural(_t4)
+_pad4 = int(round(figkit.PAD * figkit.DPI))
+ok("trim: a saved figure keeps only a small fixed pad round its ink", all(m <= _pad4 + 1 for m in _margins(_p4)), str(_margins(_p4)))
+ok("trim: `in` still names the frame — the ink is as large as it was — and the size returned is the ink's",
+   _n4 and abs(_w4 - 3.0 * _n4[2] / _n4[0]) < 1e-6 and abs(_h4 - 3.0 * _n4[3] / _n4[0]) < 1e-6 and _w4 < 3.0 and _n4[2] < _n4[0], f"{_w4} {_n4}")
+_band4 = dict(kind="shapes", fs=22, pt=18, **{"in": 16.0}, shapes=[dict(t="poly", pts=[(0, 0), (40, 0), (40, 2), (0, 2)]),
+              dict(t="text", xy=(20, 0), s="40 m", va="top", off=(0, -0.3))])
+_D4 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); _D4.section("x", "", 0, "", "content"); _D4.cursor = 2.0; _D4.figure(_band4)
+_pic4 = [sh for sh in _D4.s.shapes if sh.shape_type == 13][0]
+ok("trim: a display asked for wider than the slide spans the slide's whole width (it stopped at about 76%)",
+   abs(_pic4.width / 914400 - 11.6) < 0.02 and abs(_pic4.left / 914400 - 0.85) < 0.02, f"{_pic4.width / 914400:.2f} in at {_pic4.left / 914400:.2f}")
+_D4b = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); _D4b.section("x", "", 0, "", "content"); _D4b.cursor = 2.0; _D4b.figure(_t4)
+_pic4b = [sh for sh in _D4b.s.shapes if sh.shape_type == 13][0]
+ok("trim: a figure with room is placed with its ink exactly as large as before (its `in` times its ink's share of the frame)",
+   abs(_pic4b.width / 914400 - _w4) < 0.01)
+
+# ---- where a board's two slides start, after the trim (15 Nov 2026): with every picture its ink and a figure on an answer slide
+# held to its room, every top fitted and the first was taken — M7 13.08 board 8 stayed at the usual top, 0.25 in lower than before
+# the trim, and its histogram came out 2.17 -> 2.03 in. lessonbuild._fit_first decides as the kit did then (Deck.pre_trim).
+def _hist12(H, counts=(3, 5, 2)):
+    u, w = H / max(counts) * 0.9, 4.1
+    sh = [dict(t="seg", a=(0, 0), b=(w * len(counts) + 0.6, 0)), dict(t="seg", a=(0, 0), b=(0, H))]
+    for i, c in enumerate(counts):
+        sh += [dict(t="poly", pts=[(i * w, 0), ((i + 1) * w, 0), ((i + 1) * w, c * u), (i * w, c * u)], fill="#CFE0F5"),
+               dict(t="text", xy=((i + 0.5) * w, 0), s=f"{30 + 10 * i}–{39 + 10 * i}", va="top", off=(0, -0.5))]
+    sh += [dict(t="text", xy=(-0.3, max(counts) * u), s=str(max(counts)), ha="right", off=(-0.3, 0)),
+           dict(t="text", xy=(w * len(counts) / 2, 0), s="Loaves sold", va="top", off=(0, -1.85))]
+    return dict(kind="shapes", fs=20, pt=19.5, **{"in": 5.04}, shapes=sh)
+def _board12(H):
+    return dict(kind="free", text=["A bakery sold 41, 35, 52, 47, 38, 44, 56, 49, 40, 33 loaves on 10 days, at \\$4 a loaf.",
+                                   "**How many days go in the 40–49 bar of a histogram?"],
+                fig_a=_hist12(H), steps=["40–49:  40, 41, 44, 47, 49", "That is 5 days"], answer="5 days", note="n")
+def _ink12(q, top, surf="slidebig"):
+    """The answer slide's figure, laid out from `top`: its INK height (None if the slide does not fit from there)."""
+    from PIL import Image
+    D = Deck(C.COURSE, 90, "Lesson 1", "T", "foot"); D.section("x", "", 0, "", "wb"); D.cursor = 2.3 if top is None else top
+    try:
+        lb._wb_body(D, q, True, surf)
+    except RuntimeError:
+        return None
+    pic = max((sh for sh in D.s.shapes if sh.shape_type == 13), key=lambda sh: sh.width * sh.height)
+    im = Image.open(io.BytesIO(pic.image.blob)).convert("RGBA"); bb = im.getchannel("A").getbbox()
+    return pic.height / 914400 * (bb[3] - bb[1]) / im.height
+import io
+_q12 = _board12(5.2); _t12 = lb._wb_fit(_q12)
+_a12, _u12 = _ink12(_q12, *_t12), _ink12(_q12, None)
+ok("board top: a board whose answer slide did not fit from the usual top before the trim still starts higher, so its figure is not smaller",
+   _t12[0] is not None and _u12 is not None and _a12 > _u12 + 0.05, f"{_t12}: {_a12:.2f} in, from the usual top {_u12:.2f} in")
+_q12b = _board12(6.5); _t12b = lb._wb_fit(_q12b)
+_all12 = [x for x in (_ink12(_q12b, t, sf) for t, sf in ((None, "slidebig"), (1.8, "slidebig"), (1.8, "slidemid"), (1.62, "slidemid"))) if x]
+ok("board top: a board the kit refused before the trim starts where its figure stands tallest (not at the first top that fits by squeezing it)",
+   _ink12(_q12b, *_t12b) >= max(_all12) - 0.03, f"{_t12b}: {_ink12(_q12b, *_t12b):.2f} in of {[round(x, 2) for x in _all12]}")
+_q12c = dict(_board12(5.2), fig_a=_box("12 m", 10, 3, inches=3.0))
+ok("board top: a board whose figure has room at the usual top keeps it", lb._wb_fit(_q12c) == (None, "slidebig"), str(lb._wb_fit(_q12c)))
+
+# ---- a label on a label (15 Nov 2026): the struck-label check saw a label on a LINE and not two labels printed on each other
+def _two(gap, a="12 m", b="15 m", inches=3.0):
+    return dict(kind="shapes", fs=22, pt=18, **{"in": inches}, shapes=[dict(t="poly", pts=[(0, 0), (10, 0), (10, 6), (0, 6)]),
+                dict(t="text", xy=(3, 3), s=a), dict(t="text", xy=(3 + gap, 3), s=b)])
+def _draw_err(spec):
+    try:
+        figkit.draw(spec, spec["in"]); return ""
+    except ValueError as e:
+        return str(e)
+ok("struck labels: two labels printed on each other are refused, and named", "printed on each other" in _draw_err(_two(0.6)) and "12 m" in _draw_err(_two(0.6)))
+ok("struck labels: the same two labels apart are drawn", _draw_err(_two(5.0)) == "")
+ok("struck labels: two marks may touch (a line plot stacks its ×s); a mark on a number may not",
+   _draw_err(_two(0.15, "×", "×")) == "" and "printed on each other" in _draw_err(_two(0.3, "×", "4")))
+_D9 = Deck(C.COURSE, 90, "Lesson 1", "T", "foot")
+try:
+    _p9, _w9, _h9 = _D9._fit_figure(_two(2.2, inches=4.0), 11.6, 1.3); _e9 = ""
+except Exception as e:
+    _e9 = str(e)
+ok("struck labels: a figure that, shrunk to fit, would print its labels on each other is made smaller whole instead",
+   _e9 == "" and _h9 <= 1.3 + 0.02, _e9 or f"{_h9:.2f}")
+
+# ---- matplotlib: what a parse hands back, on any matplotlib (kit/tests/test_matplotlib.py — Windmill's GitHub check runs
+# that file alone on the newest matplotlib too), and the one series the kit draws with (mathimg.MATPLOTLIB)
+sys.path.insert(0, HERE)
+import test_matplotlib as _tm
+_tm.run(ok)
+ok(f"matplotlib: these tests run on the series the kit draws with ({_tm.mathimg.MATPLOTLIB})", _tm.mathimg.matplotlib_ok(),
+   _tm.mathimg.matplotlib_note() or "")
+
+# ---- every unit's own figs.py (15 Nov 2026): gates.py, figure_sheets.py and a course's master sheet load several units in one
+# process, and the second unit's `import figs` was handed the first unit's module (A7's gates crashed on figs.strips, so Unit 11's
+# had to be called figs11). lib/unitload.py loads a unit-local module fresh for each unit.
+import gates as _gates
+from lib import unitload as _ul
+with tempfile.TemporaryDirectory() as tmp:
+    _spec6 = repr(L)
+    for _u, _fn in (("u90", "strips"), ("u91", "bars")):
+        os.makedirs(os.path.join(tmp, _u))
+        open(os.path.join(tmp, _u, "figs.py"), "w").write(f"def {_fn}():\n    return 'drawn by {_u}'\n")
+        open(os.path.join(tmp, _u, "l01.py"), "w").write(f"import figs\nL = {_spec6}\nL['te']['materials'] = figs.{_fn}()\n")
+    _seen6 = []
+    try:
+        for _u in ("u90", "u91", "u90"):
+            _seen6.append(_ul.load(os.path.join(tmp, _u, "l01.py")).L["te"]["materials"])
+        _g6 = [_gates.unit_findings(_u, root=tmp)[0] for _u in ("u90", "u91")]
+    except Exception as _e6:
+        _g6 = [[f"crashed: {_e6!r}"]]
+    ok("unit modules: two units, each with its own figs.py, load and gate in one process, each with its own figs",
+       _seen6 == ["drawn by u90", "drawn by u91", "drawn by u90"] and _g6 == [[], []] and "figs" not in sys.modules, f"{_seen6} {_g6}")
+    sys.modules["figs"] = type(sys)("figs")             # a stale module of that name, cached by anyone
+    ok("unit modules: a module cached under a unit's file name from somewhere else is not the unit's",
+       _ul.load(os.path.join(tmp, "u91", "l01.py")).L["te"]["materials"] == "drawn by u91")
+    sys.modules.pop("figs", None)
 
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:

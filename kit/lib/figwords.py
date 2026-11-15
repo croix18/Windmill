@@ -82,14 +82,35 @@ def _words(o):
     return out
 
 
+FIGS = ("fig", "fig_a", "fig_key")      # the question's figure, the answer slide's, and the key's (15 Nov 2026)
+
+
+def _worked_words(w):
+    """A worked slide's own words: its lead, its rows and its answer (its figure is the solved figure)."""
+    out = list(rc._strs(w.get("lead"))) + list(rc._strs(w.get("answer")))
+    for r in w.get("rows") or []:
+        out += [r[0]] if isinstance(r, (tuple, list)) else [r]
+    return out
+
+
 def _walk(o, path, found):
     if isinstance(o, dict):
-        for k in ("fig", "fig_a"):
+        for k in FIGS:
             if isinstance(o.get(k), dict) and not o.get("figwords_ok"):
                 found.append((path, k, _words(o), rc.figtext(o[k])))
+        # a worked slide's figure (15 Nov 2026) is read against its Example's problem and its own working
+        for i, w in enumerate(o.get("worked") or [] if isinstance(o.get("worked"), list) else []):
+            if isinstance(w, dict) and isinstance(w.get("fig"), dict) and not (w.get("figwords_ok") or o.get("figwords_ok")):
+                found.append((f"{path}.worked[{i + 1}]", "fig", _words(o) + _worked_words(w), rc.figtext(w["fig"])))
         for k, v in o.items():
-            if k not in ("fig", "fig_a"):
-                _walk(v, f"{path}.{k}" if path else str(k), found)
+            if k in FIGS:
+                continue
+            if k == "worked" and isinstance(v, list):
+                for i, w in enumerate(v):          # its figure is read above; anything else in it as usual
+                    if isinstance(w, dict):
+                        _walk({kk: vv for kk, vv in w.items() if kk != "fig"}, f"{path}.worked[{i + 1}]", found)
+                continue
+            _walk(v, f"{path}.{k}" if path else str(k), found)
     elif isinstance(o, (list, tuple)):
         for i, v in enumerate(o):
             _walk(v, f"{path}[{i + 1}]", found)
@@ -113,7 +134,7 @@ def check(spec, code):
     out = []
     for path, k, only_words, only_fig in disagreements(spec):
         out.append(f"{code} {path}: ruling 44 — the words give {', '.join(only_words)}, which is not on the "
-                   f"{'answer figure' if k == 'fig_a' else 'figure'}, and the figure shows {', '.join(only_fig)}, which is not "
+                   f"{'answer figure' if k == 'fig_a' else 'key figure' if k == 'fig_key' else 'figure'}, and the figure shows {', '.join(only_fig)}, which is not "
                    f"in the words. A reader takes them for the same length. Say both in the words, each with the thing it "
                    f"measures, and draw both on the figure — or tag the item figwords_ok=True with a comment saying why "
                    f"the difference is the point.")

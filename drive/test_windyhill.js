@@ -70,6 +70,15 @@ for (const S of SPEC) {
   const blobs = {};
   if (live) for (const e of listed(S.dir, S.packages)) blobs[e.path] = mk(e.sha, e.size);          // the real paths and sizes
   else for (const p of kept[S.packages]) blobs[p.slice(S.packages.length + 1)] = mk('blob ' + p, 20000 + (p.length * 7919) % 900000);
+  // The consoles (… - All Slides.html). Since ruling 41 (5 Oct 2026, "stop building the html") neither course
+  // builds them, so the real lists have none; the script still serves them, for a course that sets HTML = True
+  // again, and what this test lives through with them (his own console in Apps, the published one taking its
+  // place, a console withdrawn) must not hang on what the courses happen to publish today. So every run is
+  // given the consoles the kept list names, beside the real paths: the same ones, live or not.
+  for (const p of JSON.parse(fs.readFileSync(FIXTURE, 'utf8'))[S.packages].filter(p => / - All Slides\.html$/.test(p))) {
+    const k = p.slice(S.packages.length + 1);
+    if (!blobs[k]) blobs[k] = mk('blob ' + p, 20000 + (p.length * 7919) % 900000);
+  }
   HUB[S.repo] = { head: sha1('head 1 ' + S.repo), blobs, sheet: mk('sheet 1 ' + S.repo, 180000), spec: S };
 }
 function publish(repo, change) { change(HUB[repo]); HUB[repo].head = sha1(HUB[repo].head + ' next'); }
@@ -85,7 +94,7 @@ class FakeDate extends Date { constructor(...a) { if (a.length) super(...a); els
 let nextId = 0;
 const newId = () => '1' + sha1('id' + (nextId++)).slice(0, 20) + (nextId % 7 === 0 ? '-_' : 'xy') + 'AbCdEfGhIj';
 const ALL = {};
-const DRIVE = { failCreate: null, blind: false, used: 2 * 2 ** 30, creates: 0 };
+const DRIVE = { failCreate: null, blind: false, used: 2 * 2 ** 30, creates: 0, lag: 0 };   // lag: ms more for each checksum asked of Drive (a slow day)
 let KILL = null;                                     // {after: n}: the run is "killed" just after its n-th file is created
 function mkFolder(name, parent, owner) { const d = { kind: 'folder', name, id: newId(), parent, trashed: false, updated: NOW, children: [], owner: owner || 'him' }; if (parent) parent.children.push(d); ALL[d.id] = d; return d; }
 function mkFile(name, parent, bytes, mime, owner) { const f = { kind: 'file', name, id: newId(), parent, trashed: false, updated: NOW, bytes: bytes || Buffer.alloc(0), mime: mime || 'application/octet-stream', description: '', owner: owner || 'him' }; parent.children.push(f); ALL[f.id] = f; return f; }
@@ -254,7 +263,7 @@ function updated(id, blob) {
   if (SVC.update === 'late') SVC.pending.push(swap); else if (SVC.update === 'ok') swap();
   return { id, mimeType: SHEETS };
 }
-function md5Of(id) { tick(100); const x = ALL[id]; if (!x || x.kind !== 'file' || gone(x)) throw new Error('File not found: ' + id); return x.mime.startsWith('application/vnd.google-apps') ? {} : { md5Checksum: crypto.createHash('md5').update(x.bytes).digest('hex') }; }
+function md5Of(id) { tick(100 + DRIVE.lag); const x = ALL[id]; if (!x || x.kind !== 'file' || gone(x)) throw new Error('File not found: ' + id); return x.mime.startsWith('application/vnd.google-apps') ? {} : { md5Checksum: crypto.createHash('md5').update(x.bytes).digest('hex') }; }
 const DriveV3 = { Files: {
   create: (res, blob) => { if (!res.name || !res.parents || res.mimeType !== SHEETS) throw new Error('bad request'); return converted(res.name, blob, res.parents[0]); },
   update: (res, id, blob, opt) => { if (!res || res.mimeType !== SHEETS || opt !== undefined) throw new Error('bad request'); return updated(id, blob); },
@@ -767,8 +776,11 @@ hour(); settle();
 ok(!line('PROBLEM').length && hic.every(p => M('M7/' + p).bytes.equals(BODY[m7.blobs[p].sha])) && !GH.flaky[m7.blobs[hic[0]].sha], 'a bad gateway for one file of a batch should be ridden out: ' + JSON.stringify(line('PROBLEM')));
 publish('windy-hill-m7', R => hic.forEach((p, n) => { R.blobs[p] = mk('hiccup, second ' + n, 60000); }));
 GH.throwAll = 1; GH.throwFetch = 1;                                            // the whole batch times out; and the line drops once
+const act0 = tab('Activity').length;
 hour(); settle();
+const actNew = tab('Activity').slice(1, 1 + tab('Activity').length - act0).map(r => r[1]);   // (newest first) what these runs logged
 ok(!line('PROBLEM').length && hic.every(p => M('M7/' + p).bytes.equals(BODY[m7.blobs[p].sha])) && !GH.throwAll && !GH.throwFetch, 'a passing fault at GitHub should be ridden out: ' + JSON.stringify(line('PROBLEM')));
+ok(!actNew.some(t => /^PROBLEM/.test(t)), 'a passing fault at GitHub should be ridden out in the run it happened in, not reported and cleared a run later: ' + JSON.stringify(actNew));
 // GitHub out of reach altogether: said once per course, not once per file, and the mirror is left as it is
 publish('windy-hill-m7', R => hic.forEach((p, n) => { R.blobs[p] = mk('hiccup again ' + n, 60000); }));
 GH.down = true; hour(); settle();
@@ -841,7 +853,10 @@ const idsBefore = Object.fromEntries(Object.entries(stateOf()).filter(([, x]) =>
 const livesBefore = [liveId('A7'), liveId('M7')];
 tracker(livesBefore[1])['5,8'] = '✓';
 HUBSHEET.getSheetByName('Mirror')._.cells = {};
-hour(); b0 = GH.blobCalls; made0 = DRIVE.creates; settle();
+// … on a slow day, so that taking every file on again needs several runs whatever the courses publish (the commit
+// was marked done before the record was lost: the runs after the first must still finish the job)
+DRIVE.lag = 1000; hour(); b0 = GH.blobCalls; made0 = DRIVE.creates; const rebuildRuns = settle(); DRIVE.lag = 0;
+ok(rebuildRuns >= 2, `the record was rebuilt in ${rebuildRuns} run: this part means to see a rebuild that takes several`);
 const idsAfter = Object.fromEntries(Object.entries(stateOf()).filter(([, x]) => x.kind === 'file').map(([p, x]) => [p, x.id]));
 ok(GH.blobCalls === b0 && DRIVE.creates === made0, `with the record lost, ${GH.blobCalls - b0} files were downloaded again and ${DRIVE.creates - made0} made (none should be: each file says what it is)`);
 ok(Object.keys(idsBefore).filter(p => idsAfter[p] !== idsBefore[p]).every(p => p === 'M7/' + wd) && Object.keys(idsAfter).length === Object.keys(idsBefore).length - 1, 'the rebuilt record should name the same files (but for the withdrawn one he edited): ' + Object.keys(idsBefore).filter(p => idsAfter[p] !== idsBefore[p]).slice(0, 3));

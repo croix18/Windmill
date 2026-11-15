@@ -17,7 +17,7 @@ function tools(r) {
   const until = (f, ok) => { for (let k = 0; k < 4000; k++) { const x = f(); if (ok(x)) return x; } throw new Error('generator could not find numbers'); };
   return { r, ri, pick, shuffle, until };
 }
-function slot(unitId, seed, slotName) { return tools(rng(fnv1a(unitId + '|' + seed + '|' + slotName))); }
+function slot(unitId, seed, slotName) { UNIT_SEEN = String(unitId); return tools(rng(fnv1a(unitId + '|' + seed + '|' + slotName))); }
 /* draw one slot's question: build until ok (test-form avoidance, the clean rule); the stream continues across retries,
    so the result depends only on (unit, seed, slot) and the code of this slot */
 function draw(unitId, seed, slotName, build, ok, tries) {
@@ -52,34 +52,51 @@ function split(q) {
   return rest.n === 0n ? [q] : [head, rest];
 }
 /* one smaller step for a × b: break one factor by place value, keeping the order the question used (never the final answer) */
+/* a negative factor (15 Nov 2026): the hints read the digits of a number, and a minus sign is not a digit — hint.mul(−3, 4) threw
+   (Array(−3)), so a unit's walk that asked for it lost its Hint. Now the size first, then the sign, said in words. */
+const neg = q => q.n < 0n;
+/* times (15 Nov 2026; Croix's classroom rule — x is always a variable, so multiplication is a dot or parentheses, never ×). The
+   hints wrote "Think: 3 × ? = 12" and "26 × 1.4 = 26 × 1 + …" into every unit; A7 Unit 11 and M7 Units 5 and 13 turned × into
+   · in their own coaches. Now the kit writes the dot. A unit built before the rule, whose own words use × (LEGACY_TIMES, counted
+   by check/times.js), keeps the × it was checked with — its sentence readers read × and its Portuguese tables hold those
+   sentences — until it is rebuilt and taken off the list. The kit knows the unit by the id it draws its questions with
+   (slot, draw: every unit draws before it asks for a hint). check/hints.js reads every kind of hint, both ways. */
+const LEGACY_TIMES = ['a7u3', 'a7u4', 'a7u5', 'a7u6', 'm7u4', 'm7u8', 'm7u9', 'm7u10'];
+let UNIT_SEEN = null;
+const XS = () => UNIT_SEEN && LEGACY_TIMES.indexOf(UNIT_SEEN) >= 0 ? ' × ' : ' · ';
+const TM = (a, b) => S(a) + XS() + S(b);
+const ASK = (b, a) => 'Think: ' + S(b) + XS() + '? = ' + S(a) + '.';
+const signSay = (a, b, what) => ' Then the sign: ' + (neg(a) && neg(b) ? 'both numbers are negative, so the ' + what + ' is positive.' : 'one number is negative, so the ' + what + ' is negative.');
 function hintMul(a, b) {
+  if (neg(a) || neg(b)) return 'First the size: ' + hintMul(big(a), big(b)) + signSay(a, b, 'product');
   const H = Q(1, 2);
   if (a.n * H.d === H.n * a.d) return 'Times 0.5 is the same as half. ' + hintDiv(b, Q(2));
   if (b.n * H.d === H.n * b.d) return 'Times 0.5 is the same as half. ' + hintDiv(a, Q(2));
   if (isInt(a) && isInt(b) && big(a).n <= 9n && big(b).n <= 9n) {
     const c = b.n <= a.n ? b : a, o = c === b ? a : b;
-    if (c.n <= 5n) return S(a) + ' × ' + S(b) + ' = ' + Array(Number(c.n)).fill(S(o)).join(' + ') + '.';
-    return S(a) + ' × ' + S(b) + ' = ' + S(o) + ' × ' + S(Q(c.n - 1n)) + ' + ' + S(o) + ' = ' + S(qmul(o, Q(c.n - 1n))) + ' + ' + S(o) + '.';
+    if (c.n <= 5n) return TM(a, b) + ' = ' + Array(Number(c.n)).fill(S(o)).join(' + ') + '.';
+    return TM(a, b) + ' = ' + TM(o, Q(c.n - 1n)) + ' + ' + S(o) + ' = ' + S(qmul(o, Q(c.n - 1n))) + ' + ' + S(o) + '.';
   }
   /* a round number: 20 × 6 → 2 × 6, then the zeros */
   for (const [r, o] of [[a, b], [b, a]]) {
     if (isInt(r) && isInt(o) && r.n >= 10n) { let k = r.n, z = 0; while (k % 10n === 0n) { k /= 10n; z++; }
-      if (z > 0 && k < 10n) return S(a) + ' × ' + S(b) + ': work out ' + S(Q(k)) + ' × ' + S(o) + ', then put ' + (z === 1 ? 'one 0' : z + ' zeros') + ' on the end.'; }
+      if (z > 0 && k < 10n) return TM(a, b) + ': work out ' + TM(Q(k), o) + ', then put ' + (z === 1 ? 'one 0' : z + ' zeros') + ' on the end.'; }
   }
   /* split the decimal factor if there is one, else the bigger one */
   let which = !isInt(a) && isInt(b) ? 0 : !isInt(b) && isInt(a) ? 1 : (big(a).n * big(b).d >= big(b).n * big(a).d ? 0 : 1);
   let parts = split(which === 0 ? a : b);
   if (parts.length < 2) { which = 1 - which; parts = split(which === 0 ? a : b); }
   if (parts.length < 2) return 'Multiply ' + S(a) + ' by ' + S(b) + ' one digit at a time, then place the decimal point.';
-  const other = which === 0 ? b : a, term = p => which === 0 ? S(p) + ' × ' + S(other) : S(other) + ' × ' + S(p);
-  return 'Break it up: ' + S(a) + ' × ' + S(b) + ' = ' + parts.map(term).join(' + ') + ' = ' + parts.map(p => S(qmul(p, other))).join(' + ') + '. Now add.';
+  const other = which === 0 ? b : a, term = p => which === 0 ? TM(p, other) : TM(other, p);
+  return 'Break it up: ' + TM(a, b) + ' = ' + parts.map(term).join(' + ') + ' = ' + parts.map(p => S(qmul(p, other))).join(' + ') + '. Now add.';
 }
 /* a ÷ b: a nearby multiple of b as a stepping stone — never one that states the quotient. 14.4 ÷ 1.2 began "Start with
    1.2 × 10 = 12", and 12 is the answer; when the hint would say "= <the answer>" it asks the plain question instead
    (A7 Unit 6 guarded this in its own coach; in the kit since 25 Oct 2026, check/hints.js) */
 function hintDiv(a, b) {
+  if ((neg(a) || neg(b)) && a.n !== 0n) return 'First the size: ' + hintDiv(big(a), big(b)) + signSay(a, b, 'quotient');
   const h = hintDivStep(a, b), q = S(qdiv(a, b)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('= ' + q + '(?![\\d.])').test(h) ? 'Think: ' + S(b) + ' × ? = ' + S(a) + '.' : h;
+  return new RegExp('= ' + q + '(?![\\d.])').test(h) ? ASK(b, a) : h;
 }
 function hintDivStep(a, b) {
   const qq = qdiv(a, b);
@@ -88,19 +105,21 @@ function hintDivStep(a, b) {
     if (parts.length < 2) { if (isInt(a) && a.n % 2n === 1n && a.n > 1n) parts = [Q(a.n - 1n), Q(1)]; else return 'Half of ' + S(a) + ': what number added to itself makes ' + S(a) + '?'; }
     return 'Half of ' + S(a) + ': ' + parts.map(p => 'half of ' + S(p) + ' is ' + S(qdiv(p, Q(2)))).join(', and ') + '. Now add.';
   }
-  if (isInt(qq) && qq.n >= 10n) { const ten = Q((qq.n / 10n) * 10n); if (ten.n !== qq.n) return 'Think: ' + S(b) + ' × ? = ' + S(a) + '. Start with ' + S(b) + ' × ' + S(ten) + ' = ' + S(qmul(b, ten)) + '; ' + S(a) + ' − ' + S(qmul(b, ten)) + ' = ' + S(qsub(a, qmul(b, ten))) + ' is left.'; }
+  if (isInt(qq) && qq.n >= 10n) { const ten = Q((qq.n / 10n) * 10n); if (ten.n !== qq.n) return ASK(b, a) + ' Start with ' + TM(b, ten) + ' = ' + S(qmul(b, ten)) + '; ' + S(a) + ' − ' + S(qmul(b, ten)) + ' = ' + S(qsub(a, qmul(b, ten))) + ' is left.'; }
   if (places(b) > 0) { const k = 10n ** BigInt(places(b)); return 'Move both decimal points ' + places(b) + ' place' + (k === 10n ? '' : 's') + ': ' + S(a) + ' ÷ ' + S(b) + ' is the same as ' + S(qmul(a, Q(k))) + ' ÷ ' + S(qmul(b, Q(k))) + '.'; }
-  return 'Think: ' + S(b) + ' × ? = ' + S(a) + '.';
+  return ASK(b, a);
 }
 function hintAdd(a, b) {
+  if (neg(b)) return 'Adding ' + S(b) + ' is taking away ' + S(big(b)) + '. ' + hintSub(a, big(b));   /* 15 Nov 2026: a negative to add threw */
   if (isInt(a) && isInt(b)) { const p = split(b); if (p.length < 2) return 'Count on from ' + S(a) + ' by ' + S(b) + '.'; return S(a) + ' + ' + S(b) + ' = ' + S(a) + ' + ' + p.map(S).join(' + ') + ' = ' + S(qadd(a, p[0])) + ' + ' + S(p[1]) + '.'; }
   return 'Line up the decimal points, then add.';
 }
 function hintSub(a, b) {
+  if (neg(b)) return 'Taking away ' + S(b) + ' is adding ' + S(big(b)) + '. ' + hintAdd(a, big(b));
   if (isInt(a) && isInt(b)) { const p = split(b); if (p.length < 2) return 'Count back from ' + S(a) + ' by ' + S(b) + '.'; return S(a) + ' − ' + S(b) + ' = ' + S(a) + ' − ' + p.map(S).join(' − ') + ' = ' + S(qsub(a, p[0])) + ' − ' + S(p[1]) + '.'; }
   return 'Line up the decimal points, then subtract.';
 }
-function hintSq(a) { const two = a.n === 2n * a.d; return S(a) + '² means ' + S(a) + ' × ' + S(a) + (two ? '' : ' (not ' + S(a) + ' × 2)') + '. ' + hintMul(a, a); }
+function hintSq(a) { const two = a.n === 2n * a.d; return S(a) + '² means ' + TM(a, a) + (two ? '' : ' (not ' + TM(a, Q(2)) + ')') + '. ' + hintMul(a, a); }
 
 /* ---- equivalent forms of an answer (7 Nov 2026, the practice-test deepening, item 3; the survey's "x=3 was not accepted unless
    written as 3=x"). A small safe parser — no eval — reads a typed answer and the unit's own key into one canonical form and
@@ -356,6 +375,15 @@ function ansEquiv(typed, key, form) {
 }
 const Ans = { prep: ansPrep, parse: ansParse, canon: (t, o) => { const x = typeof t === 'string' ? ansParse(t, o) : t; return x ? ansCanon(x).s : null; }, shape: ansShape, form: ansForm, equiv: ansEquiv };
 
-const api = { fnv1a, rng, tools, slot, draw, hint: { mul: hintMul, div: hintDiv, add: hintAdd, sub: hintSub, sq: hintSq }, Q, decStr, Ans };
+/* the order a walkthrough step shows its options in (15 Nov 2026; HELP_STANDARD §5.2: "The right option's position varies with the
+   question; it is never always first"): 0..n−1 shuffled by a hash of the question and the step, so it is the same every time the
+   same question is opened (on any device, in any set that has it) and differs from question to question. ui.js walkHtml. */
+function order(n, s) {
+  const a = []; let h = fnv1a(String(s)) >>> 0;
+  for (let i = 0; i < n; i++) a.push(i);
+  for (let i = n - 1; i > 0; i--) { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; const j = (h >>> 8) % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+const api = { fnv1a, rng, tools, slot, draw, order, LEGACY_TIMES, times: XS, hint: { mul: hintMul, div: hintDiv, add: hintAdd, sub: hintSub, sq: hintSq }, Q, decStr, Ans };
 if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Kit = api;
 })(this);
