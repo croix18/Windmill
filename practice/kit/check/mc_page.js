@@ -20,7 +20,7 @@ module.exports = async function partP(b, url, U, dir, fail) {
   const read = () => {
     const txt = e => e.textContent.replace(/\s+/g, '').replace(/−/g, '-');
     const plain = h => { const d = document.createElement('div'); d.innerHTML = h; return txt(d); };
-    const NL = window.Kit.NL, Un = window.Unit, LET = 'ABCDEFGH';
+    const NL = window.Kit.NL, CG = window.Kit.CG, Un = window.Unit, LET = 'ABCDEFGH';
     const forms = Array.from(document.querySelectorAll('#printview .pform:not(.pkeyform)')), keys = Array.from(document.querySelectorAll('#printview .pform.pkeyform'));
     return forms.map((f, k) => {
       const key = keys[k], meta = key.querySelector('.pmeta').textContent, seed = +(/Set (\d+)/.exec(meta) || [])[1];
@@ -33,10 +33,20 @@ module.exports = async function partP(b, url, U, dir, fail) {
         const el = parts[i], pt = w.pt, native = w.it.type === 'mc' || w.it.type === 'multi' || pt.kind === 'mc', chs = Array.from(el.querySelectorAll('.pchoices .pch'));
         if (!chs.length) { out.bad.push((i + 1) + ': not a choice'); return; }
         if (native) { if (el.querySelector('.pmc')) out.bad.push((i + 1) + ': a choice question was rebuilt'); return; }
-        if (el.querySelector('.pnl') || el.querySelector('.pwork:not(.pwmc)')) out.bad.push((i + 1) + ': the blank it had is still there');
+        if (el.querySelector('.pnl') || el.querySelector('.pcg') || el.querySelector('.pwork:not(.pwmc)')) out.bad.push((i + 1) + ': the blank it had is still there');
         const letter = (/^\s*([A-H])\./.exec(rows[i].textContent) || [])[1], at = LET.indexOf(letter);
         if (chs.length !== 4 || at < 0 || at > 3) { out.bad.push((i + 1) + ': ' + chs.length + ' choices, key letter "' + letter + '"'); return; }
-        if (pt.kind === 'nline') {
+        if (pt.kind === 'cgraph') {                         /* a circle graph to draw (15 Nov 2026): the key and three different wrong graphs, the unit's first */
+          out.graphs++; out.cgraphs = (out.cgraphs || 0) + 1;
+          const alt = g => 'Circle graph: ' + CG.listWords(g) + '.', four = CG.choices(pt, Un.choices(pt) || []), key = CG.graphOf(pt);
+          const got = chs.map(c => { const s = c.querySelector('svg.cgg'); return s ? s.getAttribute('aria-label') : ''; });
+          if (!four) { out.bad.push((i + 1) + ': the kit found no four graphs, yet the paper has choices'); return; }
+          if (got[at] !== alt(key)) out.bad.push((i + 1) + ': choice ' + letter + ' is "' + got[at] + '", the key graph is "' + alt(key) + '"');
+          if (JSON.stringify(got.filter((x, j) => j !== at).sort()) !== JSON.stringify(four.slice(1).map(alt).sort())) out.bad.push((i + 1) + ': the other graphs are ' + got.join(' | '));
+          if (new Set(four.map(CG.canon)).size !== 4) out.bad.push((i + 1) + ': two of the four graphs are the same graph');
+          const ks = rows[i].querySelector('svg.cgg'); if (!ks || ks.getAttribute('aria-label') !== alt(key)) out.bad.push((i + 1) + ': the key row does not draw the key graph');
+          const ln = (el.querySelector('.line .st') || {}).textContent || ''; if (!/^Which graph shows the data\?$/.test(ln.trim()) && !(Un.view.mcLine && ln.trim() === Un.view.mcLine(pt))) out.bad.push((i + 1) + ': the line is "' + ln.trim() + '"');
+        } else if (pt.kind === 'nline') {
           out.graphs++;
           const g = NL.graphOf(pt), turn = g.dir === 'left' ? 'right' : 'left', say = x => NL.say(pt, x);
           const got = chs.map(c => { const s = c.querySelector('svg.nlg'); return s ? s.getAttribute('aria-label') : ''; });
@@ -104,5 +114,5 @@ module.exports = async function partP(b, url, U, dir, fail) {
   }
   if (errs.length) fail('P: page errors: ' + errs.slice(0, 3).join(' | '));
   await ctx.close();
-  console.log('P. all multiple choice: 3 forms, ' + made + ' typed parts and ' + graphs + ' number lines made choices, each key letter the set\'s own answer; ' + bar);
+  console.log('P. all multiple choice: 3 forms, ' + made + ' typed parts and ' + graphs + ' graphs made choices, each key letter the set\'s own answer; ' + bar);
 };

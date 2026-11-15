@@ -382,7 +382,7 @@ K.Bank = {
   at: function(id, base){
     var b = BYID[id]; if (!b) return null;
     var it = kitItem(b);
-    var tt = function(pt){ return pt.kind === 'mc' ? 'mc' : pt.kind === 'nline' ? 'nline' : 'text'; };
+    var tt = function(pt){ return pt.kind === 'mc' ? 'mc' : pt.kind === 'nline' ? 'nline' : pt.kind === 'cgraph' ? 'cgraph' : 'text'; };
     if (it.type === 'parts'){ var pi = base.x && base.x.bpi != null ? base.x.bpi : 0, pt = it.parts[Math.min(pi, it.parts.length - 1)]; return {type: tt(pt), part: pt, x: pt, item: it}; }
     if (it.type === 'solo') return {type: tt(it.part), part: it.part, x: it.part, item: it};
     return {type: it.type === 'multi' ? 'multi' : 'mc', x: it, item: it};

@@ -30,7 +30,9 @@ function version(it, p) {
   const opts = Array.isArray(p.opts) ? p.opts.map((o, k) => bare(V.opt ? call(V.opt, p, k) : o)).sort().join(' ; ') : '';
   /* a graph the student builds (kind nline, 7 Nov 2026): its number line's numbers are what the student works on too */
   const line = p.kind === 'nline' && p.line ? ' | ' + [p.line.lo, p.line.st, p.line.n].join(' ') : '';
-  return head + line + ' || ' + opts;
+  /* a circle graph the student builds (kind cgraph, 15 Nov 2026): its data — the angles, in the table's order — are its numbers too */
+  const data = p.kind === 'cgraph' && Array.isArray(p.graph) ? ' | ' + p.graph.map(s => s.deg).join(' ') : '';
+  return head + line + data + ' || ' + opts;
 }
 const seen = new Map(), t0 = Date.now();
 for (let seed = 1; seed <= SEEDS; seed++) {

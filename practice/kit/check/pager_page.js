@@ -17,13 +17,13 @@
    Usage (from page.js): await require('./pager_page.js')(newContext, url, U, dir, fail) — newContext without the switch. */
 'use strict';
 const path = require('path');
-const NLK = require('../nline.js');
+const NLK = require('../nline.js'), CGF = require('./cgraph.js');
 module.exports = async function (newContext, url, U, dir, fail) {
   const teacher = /^teacher$/.test(path.basename(dir)), F = m => fail('R. pager: ' + m);
   const byQ = seed => { const g = U.generate(seed), out = {}; let qn = 0;
     g.sections.forEach(sec => sec.items.forEach(it => { qn++; const a = out[qn] = [];
-      if (it.type === 'parts') it.parts.forEach(p => a.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text', x: p }));
-      else if (it.type === 'solo') a.push({ id: String(qn), kind: it.part.kind === 'nline' ? 'nline' : 'text', x: it.part });
+      if (it.type === 'parts') it.parts.forEach(p => a.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text', x: p }));
+      else if (it.type === 'solo') a.push({ id: String(qn), kind: it.part.kind === 'nline' ? 'nline' : it.part.kind === 'cgraph' ? 'cgraph' : 'text', x: it.part });
       else a.push({ id: String(qn), kind: it.type === 'multi' ? 'multi' : 'mc', x: it }); }));
     return out; };
   async function answer(p, it) {
@@ -31,6 +31,7 @@ module.exports = async function (newContext, url, U, dir, fail) {
       await p.focus('#nlp' + it.id); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight');
       if (g.closed != null) await p.click('[data-nl="' + it.id + '"][data-nld="' + (g.closed ? 'closed' : 'open') + '"]');
       if (g.dir) await p.click('[data-nl="' + it.id + '"][data-nla="' + g.dir + '"]'); return; }
+    if (it.kind === 'cgraph') return CGF.fill(p, it.id, it.x);
     if (it.kind === 'text') return p.fill('#a' + it.id, U.keyText(it.x));
     for (const k of (it.kind === 'mc' ? [it.x.correct] : it.x.correct)) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [it.id, k]);
   }

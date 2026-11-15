@@ -4,7 +4,7 @@
       Show me how, Try another, a right answer (Next) and Close; Show this step after two misses; Finish marks typed but
       unchecked answers; results buttons practise in "Check as I go"; test mode says only "can't read this yet";
       tap targets; the keypad is not a tab stop; a bad link does not open another set; no page errors.
-   C–U: see each part below (T, several boxes in one part; U, a walkthrough's order and no × — 15 Nov 2026). A–Q see every question on one screen (the checks' switch, window.KIT_PAGER_OFF); R checks the
+   C–V: see each part below (T, several boxes in one part; U, a walkthrough's order and no × — 15 Nov 2026; V, a circle graph the student builds, check/cgraph_page.js). A–Q see every question on one screen (the checks' switch, window.KIT_PAGER_OFF); R checks the
    pager — one question at a time, as on the FAST (pager.js, 14 Nov 2026) — as students have it (check/pager_page.js). */
 const path = require('path');
 const { chromium } = require('playwright');
@@ -19,8 +19,8 @@ const fails = []; const fail = m => { fails.push(m); };
 function itemsOf(seed) {
   const g = U.generate(seed), out = []; let qn = 0;
   g.sections.forEach((sec, si) => sec.items.forEach((it, ii) => { qn++;
-    if (it.type === 'parts') it.parts.forEach((p, pi) => out.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text', x: p, pos: si + '.' + ii + '.' + pi }));
-    else if (it.type === 'solo') out.push({ id: String(qn), kind: it.part.kind === 'nline' ? 'nline' : 'text', x: it.part, pos: si + '.' + ii + '.-1' });
+    if (it.type === 'parts') it.parts.forEach((p, pi) => out.push({ id: qn + p.label, kind: p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text', x: p, pos: si + '.' + ii + '.' + pi }));
+    else if (it.type === 'solo') out.push({ id: String(qn), kind: it.part.kind === 'nline' ? 'nline' : it.part.kind === 'cgraph' ? 'cgraph' : 'text', x: it.part, pos: si + '.' + ii + '.-1' });
     else out.push({ id: String(qn), kind: it.type === 'multi' ? 'multi' : 'mc', x: it, pos: si + '.' + ii + '.-1' });
   }));
   return out;
@@ -34,15 +34,19 @@ async function nlFill(p, id, part, g) {
   if (g.closed != null) await p.click('[data-nl="' + id + '"][data-nld="' + (g.closed ? 'closed' : 'open') + '"]');
   if (g.dir) await p.click('[data-nl="' + id + '"][data-nla="' + g.dir + '"]');
 }
+/* a circle graph the student builds (kit kind cgraph, 15 Nov 2026): check/cgraph.js answers it by the keyboard */
+const CGF = require('./cgraph.js');
 const nlWrong = part => { const Sp = NLK.spec(part), g = NLK.graphOf(part), i = NLK.idx(Sp, g.c); return { c: NLK.kstr(NLK.val(Sp, i < Sp.n ? i + 1 : i - 1)), closed: g.closed, dir: g.dir }; };
 /* a wrong answer of any kind: 987654 typed, a graph one tick off, the first choice */
 async function wrongOf(p, it) {
   if (it.kind === 'text') await p.fill('#a' + it.id, '987654');
   else if (it.kind === 'nline') await nlFill(p, it.id, it.x, nlWrong(it.x));
+  else if (it.kind === 'cgraph') await CGF.fill(p, it.id, it.x, CGF.wrong(it.x));
   else await p.evaluate(id => { const x = document.querySelector('input[name="q' + id + '"]'); if (x) x.click(); }, it.id);
 }
 async function answer(p, it) {
   if (it.kind === 'nline') return nlFill(p, it.id, it.x, NLK.graphOf(it.x));
+  if (it.kind === 'cgraph') return CGF.fill(p, it.id, it.x);
   if (it.kind === 'text') await p.fill('#a' + it.id, U.keyText(it.x));
   else for (const k of (it.kind === 'mc' ? [it.x.correct] : it.x.correct)) await p.evaluate(([q, k]) => document.querySelector('input[name="q' + q + '"][value="' + k + '"]').click(), [it.id, k]);
 }
@@ -344,7 +348,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
       /* every flow with it on: wrong answers and their feedback, Hint (wrong choice, two wrong numbers, Show this step), Show me how,
          pictures, Try another, a right answer, Finish, the results, the confirm, test mode and its "can't read", the misses menu */
       const its = itemsOf(790), TT = its.filter(i => i.kind === 'text'), MM = its.filter(i => i.kind === 'mc');
-      for (const it of its) { if (it.kind === 'text' || it.kind === 'nline') await wrongOf(p, it); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
+      for (const it of its) { if (it.kind === 'text' || it.kind === 'nline' || it.kind === 'cgraph') await wrongOf(p, it); else await p.evaluate(([id, c]) => { const x = document.querySelector('input[name="q' + id + '"][value="' + ((c + 1) % 3) + '"]') || document.querySelector('input[name="q' + id + '"]'); x.click(); }, [it.id, it.x.correct]); await check(p, it.id); }
       for (const it of TT.slice(0, 6)) {
         const steps = U.walk(it.x, 'text') || []; if (!steps.length) continue;
         await rungTo(p, it.id, 2); await p.click('[data-walk="' + it.id + '"]');
@@ -403,7 +407,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
     const pr = await p.evaluate(() => ({ stems: Array.from(document.querySelectorAll('#printview .pq .stem .st')).map(e => e.textContent.replace(/\s+/g, ' ').trim()),
       ids: Array.from(document.querySelectorAll('#printview .pq .pqid .qn')).map(e => e.textContent), keyIds: Array.from(document.querySelectorAll('#printview .pkey tr td.pid')).map(e => e.textContent),
-      blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length, lines: document.querySelectorAll('#printview .pnl svg.nlg').length,
+      blanks: document.querySelectorAll('#printview .pans').length, groups: document.querySelectorAll('#printview .pchoices').length, lines: document.querySelectorAll('#printview .pnl svg.nlg').length, circles: document.querySelectorAll('#printview .pcg svg.cgg').length,
       keys: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }));
     if (JSON.stringify(pr.stems) !== JSON.stringify(screenStems)) fail('print: the worksheet questions are not the screen questions');
     if (JSON.stringify(pr.ids) !== JSON.stringify(screenIds)) fail('print: the worksheet IDs ' + pr.ids.slice(0, 4).join(' ') + '… are not the screen\'s');
@@ -417,10 +421,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
         return why.length ? (id.textContent.trim() + ': ' + why.join(', ')) : null; }).filter(Boolean));
       if (bad.length) fail('print: a question ID out of place: ' + bad.slice(0, 3).join(' | ')); }
     { const want = ip.map(it => 'U' + UN + '·' + (+it.id.replace(/\D+$/, '').replace(/\D.*$/, ''))); if (JSON.stringify(pr.keyIds) !== JSON.stringify(want)) fail('print: the key\'s IDs ' + pr.keyIds.slice(0, 4).join(' ') + '… are not its questions\' (' + want.slice(0, 4).join(' ') + '…)'); }
-    const nText = ip.filter(i => i.kind === 'text').length, nNl = ip.filter(i => i.kind === 'nline').length, nMc = ip.length - nText - nNl;
-    if (pr.blanks !== nText || pr.groups !== nMc || pr.lines !== nNl) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists / ' + pr.lines + ' number lines for ' + nText + ' / ' + nMc + ' / ' + nNl + ' parts');
+    const nText = ip.filter(i => i.kind === 'text').length, nNl = ip.filter(i => i.kind === 'nline').length, nCg = ip.filter(i => i.kind === 'cgraph').length, nMc = ip.length - nText - nNl - nCg;
+    if (pr.blanks !== nText || pr.groups !== nMc || pr.lines !== nNl || pr.circles !== nCg) fail('print: ' + pr.blanks + ' answer blanks / ' + pr.groups + ' choice lists / ' + pr.lines + ' number lines / ' + pr.circles + ' circles for ' + nText + ' / ' + nMc + ' / ' + nNl + ' / ' + nCg + ' parts');
     if (pr.keys.length !== ip.length) fail('print: the key has ' + pr.keys.length + ' rows for ' + ip.length + ' parts');
-    ip.forEach((it, k) => { const want = it.kind === 'text' || it.kind === 'nline' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
+    ip.forEach((it, k) => { const want = it.kind === 'text' || it.kind === 'nline' || it.kind === 'cgraph' ? txt(V.key(it.x)) : (it.kind === 'mc' ? [it.x.correct] : it.x.correct).map(c => 'ABCDEFGH'[c] + '. ' + txt(V.opt(it.x, c))).join(' ');
       const got = pr.keys[k] ? pr.keys[k][1] : ''; if (got.replace(/\s+/g, '') !== want.replace(/\s+/g, '')) fail('print: key ' + it.id + ' is "' + got + '", the page marks "' + want + '"'); });
     /* make-up tests: on a student page there are none (Croix, 21 Oct 2026: "I don't want the students to be able to print
        the make up tests") — not in the menu, and a forged request prints nothing; on the teacher copy, three forms, each a
@@ -1008,6 +1012,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./boxes_page.js')(b, rawContext, url, U, dir, fail);
   /* U. a walkthrough's options in the question's order, and no × printed for multiplication (15 Nov 2026) */
   await require('./order_page.js')(b, url, U, dir, fail);
+  /* V. a circle graph the student builds (kit kind cgraph, 15 Nov 2026): run when the unit has one */
+  await require('./cgraph_page.js')(b, rawContext, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

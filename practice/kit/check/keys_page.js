@@ -38,7 +38,7 @@ async function run(b, url, U, dir, fail) {
   /* the practice test's answers */
   const want = new Set();
   for (let s = 1; s <= 1500; s++) U.generate(s).sections.forEach(sec => sec.items.forEach(it => {
-    (it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : []).forEach(p => { if (!p || p.kind === 'mc' || p.kind === 'nline') return; let k; try { k = U.keyText(p); } catch (e) { return; } if (k != null) symbols(k).forEach(x => want.add(x)); }); }));
+    (it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : []).forEach(p => { if (!p || p.kind === 'mc' || p.kind === 'nline' || p.kind === 'cgraph') return; let k; try { k = U.keyText(p); } catch (e) { return; } if (k != null) symbols(k).forEach(x => want.add(x)); }); }));
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }), p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(url + '#set-1'); await p.waitForTimeout(200);

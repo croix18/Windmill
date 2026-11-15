@@ -11,7 +11,7 @@ const path = require('path');
 const K = require(path.join(__dirname, '..', 'core.js'));
 const dir = path.resolve(process.argv[2] || '.'), N = +(process.argv[3] || 300), U = require(path.join(dir, 'unit.js'));
 const partsOf = it => it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [];
-const tt = p => p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text';
+const tt = p => p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text';
 const fails = [], byStep = {}, byN = {};
 let steps = 0, walks = 0;
 const placeOf = (x, k, s) => { const ord = K.order(s.opts.length, String(U.key(x)) + '|' + k + '|' + String(s.ask || '')); return ord.findIndex(j => s.opts[j] && s.opts[j].ok); };

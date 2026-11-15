@@ -8,7 +8,7 @@ and writes, in the unit folder:
   <file>      the artifact body (the claude.ai publisher adds the document skeleton)
   preview.html and <download>   the same page as a complete document (doctype, lang, charset): for Google Sites,
               Netlify Drop, or opening locally.
-Order: kit/core.js, kit/bilingual.js, kit/explain.js (the help's terms and pictures, 14 Nov 2026), kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
+Order: kit/core.js, kit/nline.js and kit/cgraph.js (the graphs a student builds), kit/bilingual.js, kit/explain.js (the help's terms and pictures, 14 Nov 2026), kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
 end with test.js and kit/teacher.js), the lesson bank and kit/bank.js (if any), kit/approvals.js (the disapproved questions, from the
 site, 8 Nov 2026), kit/pager.js (one question at a time, 14 Nov 2026; with kit/pager.css after kit.css), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
@@ -21,7 +21,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "nline.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "cgraph.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 
@@ -147,6 +147,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 </main>
 <script>{rk('core.js')}</script>
 <script>{rk('nline.js')}</script>
+<script>{rk('cgraph.js')}</script>
 <script>{rk('bilingual.js')}</script>
 <script>{rk('explain.js')}</script>
 """ + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"

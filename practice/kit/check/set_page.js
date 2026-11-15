@@ -13,10 +13,10 @@
        the code is no longer the set's; a question drawn from another set is named with that set, and the code changes. */
 const path = require('path'), fs = require('fs');
 module.exports = async function partQ(b, url, U, dir, fail) {
-  const K = require('../core.js'), NLk = require('../nline.js'), teacher = /^teacher$/.test(path.basename(dir));
+  const K = require('../core.js'), NLk = require('../nline.js'), CGk = require('../cgraph.js'), teacher = /^teacher$/.test(path.basename(dir));
   const ABC = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   const code = s => { let n = K.fnv1a(s), o = ''; for (let i = 0; i < 5; i++) { o += ABC.charAt(n % 32); n = Math.floor(n / 32); } return o; };
-  const ansOf = (it, p) => p.kind === 'nline' ? NLk.keyText(NLk.graphOf(p)) : it.type === 'multi' ? 'm:' + it.correct.map(k => U.view.opt(it, k)).join('|')
+  const ansOf = (it, p) => p.kind === 'nline' ? NLk.keyText(NLk.graphOf(p)) : p.kind === 'cgraph' ? CGk.keyText(CGk.graphOf(p)) : it.type === 'multi' ? 'm:' + it.correct.map(k => U.view.opt(it, k)).join('|')
     : it.type === 'mc' || p.kind === 'mc' ? 'c:' + U.view.opt(p, p.correct) : U.view.key(p);
   const checkOf = seed => { const rows = []; U.generate(seed).sections.forEach(sec => sec.items.forEach(it => (it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [it]).forEach(p => rows.push(U.key(p) + '=' + ansOf(it, p)))));
     return code(U.id + '#' + U.contentVersion + '#' + rows.join(';')); };

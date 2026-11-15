@@ -14,8 +14,8 @@ module.exports = async function partU(b, url, U, dir, fail) {
   p.on('pageerror', e => errs.push(e.message));
   const seed = 4821, g = U.generate(seed), items = []; let qn = 0;
   g.sections.forEach(sec => sec.items.forEach(it => { qn++;
-    if (it.type === 'parts') it.parts.forEach(x => items.push({ id: qn + x.label, x, type: x.kind === 'mc' ? 'mc' : x.kind === 'nline' ? 'nline' : 'text' }));
-    else if (it.type === 'solo') items.push({ id: String(qn), x: it.part, type: it.part.kind === 'nline' ? 'nline' : 'text' });
+    if (it.type === 'parts') it.parts.forEach(x => items.push({ id: qn + x.label, x, type: x.kind === 'mc' ? 'mc' : x.kind === 'nline' ? 'nline' : x.kind === 'cgraph' ? 'cgraph' : 'text' }));
+    else if (it.type === 'solo') items.push({ id: String(qn), x: it.part, type: it.part.kind === 'nline' ? 'nline' : it.part.kind === 'cgraph' ? 'cgraph' : 'text' });
     else items.push({ id: String(qn), x: it, type: it.type === 'multi' ? 'multi' : 'mc' }); }));
   await p.goto(url + '#set-' + seed); await p.evaluate(() => { try { localStorage.clear(); } catch (e) {} }); await p.goto(url + '#set-' + seed); await p.reload(); await p.waitForSelector('#paper .q'); await p.waitForTimeout(150);
   if (teacher) await p.waitForFunction(() => window.TEACHER && window.TEACHER.ready && window.TEACHER.ready(), null, { timeout: 8000 }).catch(() => {});

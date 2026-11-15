@@ -2,7 +2,7 @@
    Croix's classroom rule: x is always a variable, so multiplication is written with a dot or parentheses, never ×. The kit's
    division hint wrote "Think: 3 × ? = 12" into every unit that used it (the A7 Unit 11 and M7 Unit 5 and 13 builders turned it
    into a dot in their own coaches). Now it is the kit's rule, checked here for everything a student reads:
-   1. THE KIT'S OWN WORDS: every string the kit's scripts can put on a page (ui.js, pager.js, teacher.js, bank.js, nline.js,
+   1. THE KIT'S OWN WORDS: every string the kit's scripts can put on a page (ui.js, pager.js, teacher.js, bank.js, nline.js, cgraph.js,
       explain.js, core.js, calc.js, approvals.js, bilingual.js, tex.js, keyset.js, the page build.py writes), comments left out,
       holds no × — except where the kit READS a student's × (a reader's character class, the TeX map, the keypad's vocabulary).
       check/hints.js reads the arithmetic hints themselves, over every kind and 296,000 cases.
@@ -30,7 +30,7 @@ const READS = [
   /label: '×'/g, /KSHOW = \{'×': '·'\}/g,                                            /* a key NAMED × (it types *), shown as · (ui.js KSHOW) */
   /\[\s*'−'\s*,\s*'×'\s*,/g, /\['×'\]/g, /label === '× 10\^'/g, /'× 10\^'/g, /'×'\s*,\s*'× 10\^'/g, /KORDER|KNOWN/g   /* the keypad's vocabulary: names of keys a unit may bring */
 ];
-const KITFILES = ['ui.js', 'pager.js', 'teacher.js', 'bank.js', 'nline.js', 'explain.js', 'core.js', 'calc.js', 'approvals.js', 'bilingual.js', 'tex.js', 'keyset.js', 'build.py', 'lang/pt-BR.js'];
+const KITFILES = ['ui.js', 'pager.js', 'teacher.js', 'bank.js', 'nline.js', 'cgraph.js', 'explain.js', 'core.js', 'calc.js', 'approvals.js', 'bilingual.js', 'tex.js', 'keyset.js', 'build.py', 'lang/pt-BR.js'];
 let kitN = 0;
 for (const f of KITFILES) {
   const fp = path.join(KIT, f); if (!fs.existsSync(fp)) continue;
@@ -46,8 +46,9 @@ for (const f of KITFILES) {
 /* 2. the unit's words */
 const U = require(path.join(dir, 'unit.js')), V = U.view || {};
 let NL = null; try { NL = require(path.join(KIT, 'nline.js')); } catch (e) {}
+let CG = null; try { CG = require(path.join(KIT, 'cgraph.js')); } catch (e) {}
 const partsOf = it => it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [];
-const tt = p => p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text';
+const tt = p => p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text';
 let seen = 0, hits = 0; const ex = [];
 const read = (where, h) => { if (h == null) return; if (typeof h === 'object') { try { h = JSON.stringify(h); } catch (e) { return; } } h = String(h); seen++;
   if (TIMES.test(h)) { hits++; if (ex.length < 6) ex.push(where + ': ' + h.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 150)); } };
@@ -66,6 +67,7 @@ for (let seed = 1; seed <= N; seed++) {
       if (type !== 'mc' && type !== 'multi' || x !== it) tryRead(W + ' line', () => V.line(x));
       if (x.opts) x.opts.forEach((o, k) => { tryRead(W + ' choice', () => V.opt(x, k)); tryRead(W + ' why', () => V.why ? V.why(x, k) : ''); });
       if (type === 'nline' && NL) { tryRead(W + ' key', () => NL.keyHtml(x)); tryRead(W + ' graph words', () => NL.say(x, NL.graphOf(x))); }
+      else if (type === 'cgraph' && CG) { tryRead(W + ' key', () => CG.keyHtml(x)); tryRead(W + ' graph words', () => CG.say(x, CG.graphOf(x))); tryRead(W + ' kit rungs', () => JSON.stringify(CG.rungs(x))); }
       else tryRead(W + ' key', () => V.key(x));
       tryRead(W + ' start', () => V.start ? V.start(x, type) : '');
       try { steps(W + ' worked line', (U.solution(x, type, ctx) || []).map(s => s && Object.assign({}, s, { ex: s.ex != null && V.ex ? V.ex(x, s.ex, type) : s.ex }))); } catch (e) {}

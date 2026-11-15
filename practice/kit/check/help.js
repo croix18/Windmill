@@ -23,7 +23,7 @@ for (let seed = 1; seed <= N; seed++) {
   U.generate(seed).sections.forEach(sec => sec.items.forEach(it => {
     const ps = it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [it];
     ps.forEach(p => { const fam = p.fam || it.fam, terms = C.help.terms[fam]; if (!terms) return; parts++; seen[fam] = 1;
-      const type = p.kind === 'nline' ? 'nline' : p.kind === 'mc' || it.type === 'mc' && p === it ? 'mc' : it.type === 'multi' ? 'multi' : 'text';
+      const type = p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : p.kind === 'mc' || it.type === 'mc' && p === it ? 'mc' : it.type === 'multi' ? 'multi' : 'text';
       const x = p, R = U.rungs(x, type, {}) || {}, sol = U.solution(x, type) || [], walk = U.walk(x, type) || [];
       const texts = [R.notice, R.first && R.first.say].concat(sol.map(l => l.say), walk.map(s => s.ask), [].concat(...walk.map(s => (s.opts || []).map(o => o.label + ' ' + o.why))), walk.map(s => s.hint));
       if (!R.notice) { fail(fam, 'no Hint 1'); return; }
@@ -37,7 +37,7 @@ for (let seed = 1; seed <= N; seed++) {
       if (texts.some(t => /\[\[/.test(String(t || '')))) fail(fam, 'a [[term]] token is left in the help');
       terms.forEach(id => { const m = new RegExp('data-xterm="' + id + '"[^>]*>[^<]+</span><span class="xdef" role="note" hidden> \\(([^)]{3,})').exec(R.notice); if (!m) fail(fam, 'Hint 1 does not name the term "' + id + '" as a tappable term with its definition'); });
       if (/xdefn|xfirst/.test(texts.join(' '))) fail(fam, 'a definition is spelled out inline (it shows only on a tap)');
-      if (type !== 'nline') {
+      if (type !== 'nline' && type !== 'cgraph') {
         sol.forEach(l => { const t = strip(l.say).trim(); if (MOVE.test(t) && !/Why:/.test(t) && !/Start from/.test(t)) fail(fam, 'a move without its Why: "' + t.slice(0, 60) + '"'); });
         if (!sol.some(l => /xwhy/.test(l.say)) && !(R.first && /xwhy/.test(R.first.say))) fail(fam, 'Hint 3 has no Why:');
       }

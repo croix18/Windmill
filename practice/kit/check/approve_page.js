@@ -63,9 +63,9 @@ module.exports = async function partL(b, url, U, dir, fail) {
   /* there, the disapproved question: no fresh one where every kind of its place is disapproved */
   const xid = await p.evaluate(qn => { const q = Array.from(document.querySelectorAll('#paper .q[data-q]:not(.xq)'))[qn]; const h = q && q.querySelector('[data-host]'); return h ? h.getAttribute('data-host') : null; }, all0.indexOf(X));
   if (xid && xs.length === 1) {
-    const kind = await p.evaluate(id => document.getElementById('a' + id) ? 'text' : document.querySelector('input[name="q' + id + '"]') ? 'choice' : 'nline', xid);
+    const kind = await p.evaluate(id => document.getElementById('a' + id) ? 'text' : document.querySelector('input[name="q' + id + '"]') ? 'choice' : 'graph', xid);   /* a graph to build (nline or cgraph): left unanswered here */
     if (kind === 'text') await p.fill('#a' + xid, '987654'); else if (kind === 'choice') await p.evaluate(id => document.querySelector('input[name="q' + id + '"]').click(), xid);
-    if (kind !== 'nline') { await p.evaluate(id => document.querySelector('[data-check="' + id + '"]').click(), xid); await p.waitForTimeout(150);
+    if (kind !== 'graph') { await p.evaluate(id => document.querySelector('[data-check="' + id + '"]').click(), xid); await p.waitForTimeout(150);
       const st = await p.evaluate(id => ({ sim: !!document.querySelector('[data-another="' + id + '"]'), right: document.querySelector('[data-host="' + id + '"]').classList.contains('is-right') }), xid);
       if (st.sim) fail('L: a question whose every kind is disapproved offers "Try a similar one" (' + X.fk + ')'); }
   }

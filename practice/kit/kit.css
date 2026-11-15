@@ -633,6 +633,58 @@ svg.nlg.nl-small{width:min(100%,14rem)}
 #printview svg.nlg{color:#000} #printview .nlkw{color:#333}
 .ptab .kv .nlkey{width:2.9in}
 @media print{ .nctl,.nltk,.nsay{display:none!important} svg.nlg{color:#000} .pnlband{height:10mm} .nlpt{outline:none!important} }
+/* ==== The circle graph a student builds (15 Nov 2026, cgraph.js; MA.7.DP.1.4's first verb is construct) ====
+   The circle is marked every 10° and numbered every 30° outside the rim, the line from the center to 0° already drawn, all in the
+   pen (currentColor). A tap on a mark draws a line, the same again erases it, a drag moves one; while the pointer is down a ghost
+   line follows to the nearest mark (turquoise with the ink's edge) and the readout says the mark. Under it: the sector to name
+   (‹ › and a second Tab stop), the names (a 44 px radiogroup, a word each), Start over. The sector selected is the one live thing:
+   the live tint with a turquoise edge. On paper: the circle alone, 60 mm across; the key draws the graph in ink. */
+.cgp .cgw,.cgp>.ckrow{margin-left:var(--i2)} .cgp.solo .cgw,.cgp.solo>.ckrow{margin-left:0} .xq .cgp .cgw,.xq .cgp>.ckrow{margin-left:0}
+.cgw{margin-top:8px;max-width:28rem;position:relative}
+.cgc{border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.cgc:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.cgw.locked .cgc{cursor:default}
+svg.cgg{display:block;width:100%;height:auto;overflow:visible;color:var(--pen)}
+svg.cgg .cgo{fill:none;stroke:currentColor;stroke-width:1.8}
+svg.cgg .cgk{stroke:currentColor;stroke-width:1.6} svg.cgg .cgk2{stroke:currentColor;stroke-width:1.1}
+svg.cgg .cgb{font:500 14.5px var(--ui);fill:currentColor;text-anchor:middle}
+svg.cgg .cgz{stroke:currentColor;stroke-width:2.2;stroke-linecap:round} svg.cgg .cgl{stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+svg.cgg .cgc0{fill:currentColor}
+svg.cgg .cgn{font:600 15px var(--ui);fill:currentColor} svg.cgg .cgd{font:500 13.5px var(--ui);fill:currentColor}
+svg.cgg .cgld{stroke:currentColor;stroke-width:1.2}
+svg.cgg .cgsel{fill:var(--live);stroke:var(--hot);stroke-width:2.5;stroke-linejoin:round}
+svg.cgg .cggh0{stroke:var(--ink);stroke-width:6;stroke-linecap:round} svg.cgg .cggh{stroke:var(--hot);stroke-width:3.4;stroke-linecap:round}
+svg.cgg .cgcur{display:none} svg.cgg .cgcur line{stroke:var(--focus);stroke-width:1.5;stroke-dasharray:4 3} svg.cgg .cgcur circle{fill:none;stroke:var(--focus);stroke-width:2}
+.cgc:focus-visible svg.cgg .cgcur{display:inline}
+svg.cgg .cgring,svg.cgg .cgm{fill:transparent;stroke:none;touch-action:none}
+@media (hover:hover){ .cgw:not(.locked) .cgc:hover svg.cgg .cgm:hover{fill:var(--field2)} }
+.cgrd{position:absolute;top:4px;left:4px;z-index:1;font:700 15px/1 var(--ui);color:var(--hotInk);background:var(--hot);box-shadow:inset 0 0 0 1.5px var(--ink);border-radius:999px;padding:6px 10px;visibility:hidden}
+.cgrd.on{visibility:visible}
+.cghow{margin:4px 0 0;font:13.5px/1.4 var(--ui);color:var(--mut)}
+.cgctl{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.cgrow{display:flex;align-items:center;gap:6px}
+.cgrow button{flex:none;width:44px;height:44px;border:0;border-radius:999px;background:var(--field);color:var(--ink);font:700 22px/1 var(--ui)}
+.cgrow button[disabled]{opacity:.4}
+.cgpk{flex:1 1 auto;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px 10px;border-radius:10px;background:var(--field);font:600 14.5px/1.25 var(--ui);color:var(--ink)}
+.cgpk:focus-visible{outline:2px solid var(--focus);outline-offset:2px} .cgpk[aria-disabled=true]{color:var(--mut);font-weight:500}
+.cgseg{flex-wrap:wrap;flex:none} .cgseg .nsl{flex:0 0 100%} .cgnb{flex-wrap:wrap;border-radius:22px} .cgnb button{flex:1 1 auto;min-width:4.5em}
+.cgnb button.used{color:var(--ink);text-decoration:underline dotted 1.5px;text-underline-offset:4px}
+.cgnb button[disabled]:not([aria-checked=true]){opacity:.45}
+.cgacts{display:flex} .cgclr{min-height:44px;border:1px solid var(--rule);border-radius:999px;background:transparent;color:var(--ink);font:600 14.5px/1 var(--ui);padding:8px 16px}
+.cgclr[disabled]{opacity:.45}
+.cgp>.ckrow{margin-top:10px}
+.cgtk{max-width:28rem}
+.cgkey{display:inline-block;width:min(100%,19rem);vertical-align:top} .cgkey svg.cgg{margin:2px 0} .cgkw{display:block;font:13px/1.3 var(--ui);color:var(--mut)}
+svg.cgg.cg-small{width:min(100%,14rem)}
+.key:has(.cgkey) .kv{flex:1 1 100%;min-width:0} .key .kv .cgkey,.wfin .cgkey{display:block;width:min(100%,22rem)}
+@media (max-width:480px){ .cgp .cgw,.cgp>.ckrow,.cgtk{margin-left:0} }
+.cgp.solo .nlsolo{margin-top:6px} .cgp.solo .nlsolo .st{font-weight:600}
+/* paper: the circle alone, 60 mm across (the drawing is 400 wide, the circle 208 of it); the key and the four graphs in ink */
+.pcg{margin:4px 0 8px var(--i2)} .pcg svg.cgg{width:115mm;max-width:100%;color:#000}
+.pcgc{display:block;max-width:2.9in} .pcgc svg.cgg{color:#000} .pchoices.pcg4 .pch{break-inside:avoid}
+#printview svg.cgg{color:#000} #printview .cgkw{color:#333}
+.ptab .kv .cgkey{width:2.9in}
+@media print{ .cgctl,.cgtk,.cgrd,.cghow,.cgw .nsay{display:none!important} svg.cgg{color:#000} .cgc{outline:none!important} }
 /* which practice this is (7 Nov 2026, Croix: "It was the switching mechanism that confused me"): a quiet chip under the title */
 .nlp.solo .nlsolo{margin-top:6px} .nlp.solo .nlsolo .st{font-weight:600}
 .scopechip{display:inline-flex;align-items:center;font:normal 600 12.5px/1.2 var(--ui);color:var(--ink);background:var(--field);border:1px solid var(--rule);border-radius:999px;padding:3px 10px;margin:4px 8px 2px 0;vertical-align:middle}

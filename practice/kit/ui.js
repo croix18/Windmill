@@ -149,7 +149,7 @@ function flabHtml(p, id){ var fm = formOf(p); return fm.label ? '<div class="fla
    each has the part's data-part and its own data-box. A blank box is not a try: "Fill in every box" (Not counted yet). */
 var BOXES = typeof WeakMap === 'function' ? new WeakMap() : null;
 function boxesOf(p){
-  if (!p || p.kind === 'mc' || p.kind === 'nline') return null;
+  if (!p || p.kind === 'mc' || p.kind === 'nline' || p.kind === 'cgraph') return null;
   if (BOXES && BOXES.has(p)) return BOXES.get(p);
   var b = null; try { b = V.boxes ? V.boxes(p) : null; } catch(e){ b = null; }
   if (!b && Array.isArray(p.boxes)) b = p.boxes;
@@ -193,12 +193,14 @@ function choicesHtml(x, id, lab, multi){
 function partHtml(p, id, solo, lab, lone){
   /* a lone graph to build (a Cadence item with one part) still says what to do: its line, without a second "1 pt" */
   if (solo && p.kind === 'nline') return '<div class="prt nlp solo" data-host="' + id + '"><div class="line nlsolo"><span class="st">' + V.line(p) + '</span></div>' + nlHtml(p, id, lab) + '</div>';
+  if (solo && p.kind === 'cgraph') return '<div class="prt cgp solo" data-host="' + id + '"><div class="line nlsolo"><span class="st">' + V.line(p) + '</span></div>' + cgHtml(p, id, lab) + '</div>';
   var line = solo ? '' : '<div class="line" id="ln' + id + '">' + (p.label && !lone ? '<b class="lab">' + p.label + '.</b>' : '<b class="lab" aria-hidden="true"></b>') + '<span class="st">' + V.line(p) + '</span>' + (p.label ? '<span class="pt">1 pt</span>' : '') + '</div>';
   if (p.kind === 'mc') return '<div class="prt mcp" data-host="' + id + '">' + line + choicesHtml(p, id, lab, false) + '</div>';
   if (p.kind === 'nline') return '<div class="prt nlp' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + nlHtml(p, id, lab) + '</div>';
+  if (p.kind === 'cgraph') return '<div class="prt cgp' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + cgHtml(p, id, lab) + '</div>';
   return '<div class="prt' + (solo ? ' solo' : '') + '" data-host="' + id + '">' + line + inputHtml(p, id, lab) + tailHtml(id) + '</div>';
 }
-function textType(p){ return p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : 'text'; }
+function textType(p){ return p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text'; }
 /* ---- a number-line graph the student builds (kind 'nline', kit/nline.js; 7 Nov 2026, Croix: "make them graph inequalities with
    an open or closed dot and an arrow instead of just describing them"): the line with a tap zone per tick (or drag, or ← → on
    the keyboard), then Dot · Open | Closed and Arrow · Left | Right; the ray draws as soon as a point and a direction exist. No
@@ -264,8 +266,106 @@ document.addEventListener('keydown', function(e){
   var to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (k + 1) % grp.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (k + grp.length - 1) % grp.length : e.key === 'Home' ? 0 : e.key === 'End' ? grp.length - 1 : -1;
   if (to < 0 || grp[to].disabled) return; e.preventDefault(); grp[to].click(); grp[to].focus();
 });
+/* ---- a circle graph the student builds (kind 'cgraph', kit/cgraph.js; 15 Nov 2026 — MA.7.DP.1.4's first verb is construct, and
+   in class students draw on a printed circle marked every 10° with the 0° line drawn). The circle is one Tab stop (a slider over
+   its marks: ← → ↑ ↓ 10° at a time, Home to 0°, Space or Enter draws or erases a line at the cursor); a tap or a click on a mark
+   draws a line from the center (the same again erases it; never the 0° line), a drag moves one, and while the pointer is down a
+   ghost line follows to the nearest mark with its readout. The sectors are a second Tab stop (‹ › on a touch screen, or a tap
+   inside one); the names are a radiogroup that names the sector selected (a name on another sector moves). Start over clears it.
+   No typing, so no keypad. The answer is the list of sectors clockwise from 0° ({name, deg}); Check and the ladder are the kit's. */
+var CG = K.CG, CGUI = {};
+function cgUi(id){ return CGUI[id] || (CGUI[id] = {cur: 0, sel: 0, ghost: null}); }
+function cgHtml(p, id, lab){
+  var tk = teacherPage() ? '<div class="nltk cgtk" translate="no"><span class="kl">Key</span>' + CG.keyHtml(p) + '</div>' : '', u = cgUi(id);
+  return CG.widget(id, p, S && S.ans[id], {label: 'Lines on the circle, question ' + lab, focus: u.cur, sel: u.sel}) + '<div class="ckrow"><button type="button" class="chk go" data-check="' + id + '" aria-label="Check ' + lab + '">Check</button><span class="hslot" id="hs' + id + '"></span></div>' + tk + tailHtml(id);
+}
+function cgPaint(it, svgOnly){
+  var w = document.querySelector('[data-cgw="' + it.id + '"]'); if (!w) return;
+  var a = CG.norm(it.x, S.ans[it.id]), R = S.res[it.id], lock = !!(R && R.v === 'right'), u = cgUi(it.id), secs = CG.sectors(it.x, a), ok = secs.length >= 2;
+  if (u.sel >= secs.length) u.sel = Math.max(0, secs.length - 1);
+  var c = $('cgc' + it.id); c.innerHTML = CG.svg(it.x, a, {mode: 'live', focus: u.cur, ghost: u.ghost, sel: ok && !lock ? u.sel : null});
+  c.setAttribute('aria-valuenow', String(u.cur)); c.setAttribute('aria-valuetext', CG.markWords(it.x, a, u.cur)); c.setAttribute('aria-disabled', String(lock)); w.classList.toggle('locked', lock);
+  var rd = $('cgr' + it.id); if (rd){ rd.textContent = u.ghost != null ? u.ghost + '°' : ''; rd.classList.toggle('on', u.ghost != null); }
+  if (svgOnly) return;
+  var sp = $('cgp' + it.id), t = CG.pickText(it.x, a, u.sel); sp.textContent = t; sp.setAttribute('aria-valuetext', t); sp.setAttribute('aria-valuemax', String(Math.max(1, secs.length))); sp.setAttribute('aria-valuenow', String(ok ? u.sel + 1 : 1));
+  if (ok && !lock) sp.removeAttribute('aria-disabled'); else sp.setAttribute('aria-disabled', 'true');
+  Array.prototype.forEach.call(w.querySelectorAll('[data-cgstep]'), function(b){ b.disabled = !ok || lock; });
+  var nb = w.querySelector('.cgnb'), had = nb.contains(document.activeElement) ? document.activeElement.getAttribute('data-cgn') : null;
+  nb.innerHTML = CG.namesHtml(it.id, it.x, a, u.sel);
+  Array.prototype.forEach.call(nb.querySelectorAll('button'), function(b){ if (lock) b.disabled = true; });
+  if (had != null){ var hb = nb.querySelector('[data-cgn="' + (window.CSS && CSS.escape ? CSS.escape(had) : had) + '"]'); if (hb) hb.focus({preventScroll: true}); }
+  var cl = w.querySelector('.cgclr'); if (cl) cl.disabled = lock || !a.length;
+  var sy = $('cgy' + it.id); if (sy) sy.textContent = CG.say(it.x, a);
+}
+function cgSet(id, a2){
+  var it = byId(id); if (!it || it.type !== 'cgraph') return;
+  var R = S.res[id]; if (R && R.v === 'right') return;
+  var a = CG.norm(it.x, a2);
+  if (sameAns(CG.norm(it.x, S.ans[id]), a) && S.ans[id]) { cgPaint(it); return; }
+  S.ans[id] = a.map(function(s){ return {name: s.name, deg: s.deg}; });
+  if (!S.running && !S.done && !it.extra) start();
+  if (FLASH[id]){ delete FLASH[id]; paintItem(it); }
+  cgPaint(it); save(); paintProgress(); paintScore(true);
+}
+function cgLocked(el){ return el.getAttribute('aria-disabled') === 'true'; }
+var CGDRAG = null;
+function cgHit(c, ev){ var it = byId(c.dataset.cg), svg = c.querySelector('svg'); if (!it || !svg) return null; var r = svg.getBoundingClientRect(); if (!r.width) return null;
+  return {it: it, h: CG.hit(it.x, (ev.clientX - r.left) / r.width * CG.W, (ev.clientY - r.top) / r.height * CG.H)}; }
+document.addEventListener('pointerdown', function(e){
+  var c = e.target && e.target.closest && e.target.closest('.cgc'); if (!c || cgLocked(c)) return;
+  if (e.button != null && e.button > 0) return;
+  var q = cgHit(c, e); if (!q) return; var it = q.it, u = cgUi(it.id), a = CG.norm(it.x, S.ans[it.id]);
+  e.preventDefault(); c.focus({preventScroll: true});
+  if (q.h.zone === 'ring'){
+    var m = q.h.mark, has = m !== 0 && CG.linesOf(it.x, a).indexOf(m) >= 0;
+    CGDRAG = {c: c, id: it.id, pid: e.pointerId, from: has ? m : null, at: m}; u.ghost = m; u.cur = m;
+    try { c.setPointerCapture(e.pointerId); } catch(x){}
+    cgPaint(it, true);
+  } else if (CG.sectors(it.x, a).length >= 2){ u.sel = CG.sectorAt(it.x, a, q.h.ang); cgPaint(it); }
+});
+document.addEventListener('pointermove', function(e){
+  if (!CGDRAG || e.pointerId !== CGDRAG.pid) return; var q = cgHit(CGDRAG.c, e); if (!q) return;
+  var m = q.h.mark; if (m === CGDRAG.at) return; CGDRAG.at = m; var u = cgUi(CGDRAG.id); u.ghost = m; u.cur = m; cgPaint(q.it, true);
+});
+document.addEventListener('pointerup', function(e){
+  if (!CGDRAG || e.pointerId !== CGDRAG.pid) return; var d = CGDRAG; CGDRAG = null;
+  var it = byId(d.id); if (!it) return; var u = cgUi(d.id), a = CG.norm(it.x, S.ans[it.id]), L = CG.linesOf(it.x, a); u.ghost = null; u.cur = d.at;
+  if (d.from == null){ if (d.at !== 0 && L.indexOf(d.at) < 0) a = CG.toggle(it.x, a, d.at); }
+  else if (d.at === d.from) a = CG.toggle(it.x, a, d.from);
+  else a = CG.move(it.x, a, d.from, d.at);
+  cgSet(d.id, a); cgPaint(it);
+});
+document.addEventListener('pointercancel', function(){ if (!CGDRAG) return; var it = byId(CGDRAG.id); cgUi(CGDRAG.id).ghost = null; CGDRAG = null; if (it) cgPaint(it, true); });
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest && e.target.closest('[data-cgn],[data-cgstep],[data-cgclr]'); if (!b || b.disabled) return;
+  var id = b.dataset.cg, it = byId(id); if (!it) return; var u = cgUi(id), a = CG.norm(it.x, S.ans[id]), n = CG.sectors(it.x, a).length;
+  if (b.hasAttribute('data-cgn')){ if (n >= 2) cgSet(id, CG.name(it.x, a, u.sel, b.getAttribute('data-cgn'))); }
+  else if (b.hasAttribute('data-cgstep')){ if (n >= 2){ u.sel = (u.sel + (+b.getAttribute('data-cgstep')) + n) % n; cgPaint(it); } }
+  else { u.sel = 0; u.cur = 0; cgSet(id, []); var c0 = $('cgc' + id); if (c0) c0.focus({preventScroll: true}); }
+});
+document.addEventListener('keydown', function(e){
+  var t = e.target; if (!t || !t.closest) return;
+  if (t.classList && t.classList.contains('cgc')){
+    var it = byId(t.dataset.cg); if (!it || cgLocked(t)) return; var u = cgUi(it.id), st = CG.spec(it.x).step, j = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') j = (u.cur + st) % 360; else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') j = (u.cur + 360 - st) % 360;
+    else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = 360 - st;
+    else if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); if (u.cur !== 0) cgSet(it.id, CG.toggle(it.x, S.ans[it.id], u.cur)); return; }
+    if (j == null) return; e.preventDefault(); u.cur = j; cgPaint(it, true); return;
+  }
+  if (t.classList && t.classList.contains('cgpk')){
+    var it2 = byId(t.dataset.cg); if (!it2 || cgLocked(t)) return; var u2 = cgUi(it2.id), n = CG.sectors(it2.x, S.ans[it2.id]).length, k = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') k = (u2.sel + 1) % n; else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') k = (u2.sel + n - 1) % n;
+    else if (e.key === 'Home') k = 0; else if (e.key === 'End') k = n - 1;
+    if (k == null || n < 2) return; e.preventDefault(); u2.sel = k; cgPaint(it2); return;
+  }
+  var rb = t.closest('[data-cgn]'); if (!rb) return;
+  var grp = Array.prototype.slice.call(rb.parentNode.querySelectorAll('[role=radio]')), i = grp.indexOf(rb);
+  var to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i + 1) % grp.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i + grp.length - 1) % grp.length : e.key === 'Home' ? 0 : e.key === 'End' ? grp.length - 1 : -1;
+  if (to < 0 || grp[to].disabled) return; e.preventDefault(); var nm = grp[to].getAttribute('data-cgn'); grp[to].click();
+  var nb2 = document.querySelector('[data-cg="' + rb.dataset.cg + '"][data-cgn="' + (window.CSS && CSS.escape ? CSS.escape(nm) : nm) + '"]'); if (nb2) nb2.focus();
+});
 /* the place a student is sent to in a question: its box, its first choice, or its number line */
-function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input') || host.querySelector('.nlpt'); }
+function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input') || host.querySelector('.nlpt') || host.querySelector('.cgc'); }
 function render(){
   DS = build(); ITEMS = []; EX = {}; RULES = {};
   var h = [], qn = 0;
@@ -385,20 +485,20 @@ function another(baseId){
     if (!nb) return;
     M0.n++; M0.bank = nb; seenB.push(nb); if (seenB.length > 40) seenB.shift(); save();
     mountExtra(b0); paintItem(b0);
-    var nidB = baseId + 'x' + M0.n, inpB = $('a' + nidB) || document.querySelector('input[name="q' + nidB + '"]') || $('nlp' + nidB), elB = $('ag' + baseId);
+    var nidB = baseId + 'x' + M0.n, inpB = $('a' + nidB) || document.querySelector('input[name="q' + nidB + '"]') || $('nlp' + nidB) || $('cgc' + nidB), elB = $('ag' + baseId);
     if (elB && elB.scrollIntoView) elB.scrollIntoView({block: 'nearest'}); if (inpB) inpB.focus({preventScroll: true});
     return;
   }
   M0.n++; var s, was = M0.seed ? U.key(atPos(U.generate(M0.seed), b0.pos).x) : null, base = U.key(b0.x), tries = 0, k;
   var seen = M0.seen || (M0.seen = []); if (was && seen.indexOf(was) < 0) seen.push(was);          /* never numbers served before (7 Nov 2026, item 2) */
-  var ansOf = function(x){ try { return x && x.kind === 'nline' ? NL.keyText(NL.graphOf(x)) : U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2, a2;
+  var ansOf = function(x){ try { return x && x.kind === 'nline' ? NL.keyText(NL.graphOf(x)) : x && x.kind === 'cgraph' ? CG.keyText(CG.graphOf(x)) : U.keyText && x && x.kind !== 'mc' ? String(U.keyText(x)) : null; } catch(e){ return null; } }, baseAns = ansOf(b0.x), k2, a2;
   /* never a disapproved kind (approvals.js, 8 Nov 2026): the draw goes on until the kind is approved (similarOk said one is) */
   do { s = randomSeed(); tries++; a2 = atPos(U.generate(s), b0.pos); k2 = a2.x; k = U.key(k2); } while ((famOff(a2.item) && tries < 400) || ((s === seed || k === base || k === was || (seen.indexOf(k) >= 0 && tries < 40) || (baseAns != null && ansOf(k2) === baseAns)) && tries < 60));
   if (famOff(a2.item)){ M0.n--; if (!M0.n && !M0.seed) delete S.more[baseId]; return; }
   seen.push(k); if (seen.length > 40) seen.shift();   /* never the same question again — nor the same answer (30 Oct 2026: a Hint that ended "5 tanks" was followed by a fresh one whose answer was 5) */
   M0.seed = s; save();
   mountExtra(b0); paintItem(b0);
-  var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]') || $('nlp' + nid);
+  var nid = baseId + 'x' + M0.n, inp = $('a' + nid) || document.querySelector('input[name="q' + nid + '"]') || $('nlp' + nid) || $('cgc' + nid);
   var el = $('ag' + baseId); if (el && el.scrollIntoView) el.scrollIntoView({block: 'nearest'});
   if (inp) inp.focus({preventScroll: true});                                           /* [R1-2] */
 }
@@ -407,7 +507,7 @@ function another(baseId){
 function byIdBase(id){ for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
 function byId(id){ return byIdBase(id) || EX[id] || null; }
 function answered(it){ var a = S.ans[it.id]; if (it.type === 'text' && boxesOf(it.x)) return boxAns(it.x, a).every(function(v){ return v.trim() !== ''; });   /* several boxes: every one filled */
-  return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : a != null && String(a).trim() !== ''; }
+  return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : it.type === 'cgraph' ? CG.done(it.x, a) : a != null && String(a).trim() !== ''; }
 /* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
    printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
 /* what the coach may know about a part: the student's part (a) and whether it is right yet, whether this is a fresh one
@@ -419,6 +519,7 @@ function ctxOf(it){
 }
 function judgeAns(it, a, tries){
   if (it.type === 'nline'){ try { return NL.judge(it.x, a, ctxOf(it), U.judge.nline); } catch(e){ return {v: 'unread', what: ['Place the point, then choose a dot and an arrow.']}; } }
+  if (it.type === 'cgraph'){ try { return CG.judge(it.x, a, ctxOf(it), U.judge.cgraph); } catch(e){ return {v: 'unread', what: ['Draw the lines, then name every sector.']}; } }
   var B = it.type === 'text' ? boxesOf(it.x) : null;
   if (B){                                                   /* several boxes: all blank is blank; some blank is not a try yet */
     var bs = boxAns(it.x, a), empty = bs.map(function(v){ return v.trim() === ''; });
@@ -512,7 +613,7 @@ function check(id){
 var TAG = {right: '<span class="tag ok">✓ Correct</span>', form: '<span class="tag fm">Almost</span>', wrong: '<span class="tag no">✗ Not yet</span>', unread: '<span class="tag fm">Not counted yet</span>'};
 function flash(it, f){
   FLASH[it.id] = 1;
-  $('fb' + it.id).innerHTML = f.v === 'blank' ? '<div class="fbx"><p>' + (it.type === 'text' ? 'Type an answer first.' : it.type === 'nline' ? 'Tap the number line to place the point first.' : 'Pick an answer first.') + '</p></div>'
+  $('fb' + it.id).innerHTML = f.v === 'blank' ? '<div class="fbx"><p>' + (it.type === 'text' ? 'Type an answer first.' : it.type === 'nline' ? 'Tap the number line to place the point first.' : it.type === 'cgraph' ? 'Tap a mark on the circle to draw a line first.' : 'Pick an answer first.') + '</p></div>'
     : '<div class="fbx"><p>' + TAG.unread + ' ' + (f.what[0] || '') + '</p></div>';
 }
 /* a choice's named misconception (7 Nov 2026, item 4; the survey after Diagnostic Questions: every distractor exposes one
@@ -551,12 +652,14 @@ function cardHtml(it, R, f){
 }
 function keyHtml(it){
   if (it.type === 'nline') return NL.keyHtml(it.x);
+  if (it.type === 'cgraph') return CG.keyHtml(it.x);
   if (it.type === 'mc') return '<b>' + LET[it.x.correct] + '.</b> ' + vOpt(it.x, it.x.correct);
   if (it.type === 'multi') return it.x.correct.map(function(k){ return '<b>' + LET[k] + '.</b> ' + vOpt(it.x, k); }).join('&nbsp;&nbsp; ');
   return it.x && it.x._ekey != null ? it.x._ekey : V.key(it.x);      /* a pinned test's tweaked key (teacher.js) */
 }
-function solOf(it){ try { var a = authored(it); return a && a.steps ? a.steps : U.solution(it.x, it.type, ctxOf(it)) || (it.type === 'nline' ? NL.rungs(it.x).steps : null); } catch(e){ return it.type === 'nline' ? NL.rungs(it.x).steps : null; } }
-function authored(it){ try { var a = U.rungs ? U.rungs(it.x, it.type, ctxOf(it)) || null : null; return a || (it.type === 'nline' ? NL.rungs(it.x) : null); } catch(e){ return it.type === 'nline' ? NL.rungs(it.x) : null; } }
+function graphRungs(it){ return it.type === 'nline' ? NL.rungs(it.x) : it.type === 'cgraph' ? CG.rungs(it.x) : null; }   /* a graph to build: the kit's own rungs when the unit gives none */
+function solOf(it){ try { var a = authored(it); return a && a.steps ? a.steps : U.solution(it.x, it.type, ctxOf(it)) || (graphRungs(it) || {}).steps || null; } catch(e){ return (graphRungs(it) || {}).steps || null; } }
+function authored(it){ try { var a = U.rungs ? U.rungs(it.x, it.type, ctxOf(it)) || null : null; return a || graphRungs(it); } catch(e){ return graphRungs(it); } }
 function picOf(it){ try { return V.picture(it.x, it.type) || ''; } catch(e){ return ''; } }
 function stepsHtml(it, R){
   var sol = solOf(it), n = sol ? sol.length : 0, shown = Math.min(R.steps || 0, n);
@@ -588,7 +691,7 @@ function ruleOf(it){                                       /* the coach's rule f
   try {
     var probe = function(a){ var f = U.judge.text(it.x, a, ctxOf(it)); return f && f.rule || ''; };
     if (it.type === 'text'){ var nb = boxesOf(it.x), pr = function(v){ return nb ? nb.map(function(){ return v; }) : v; }; r = probe(pr('987654')) || probe(pr('-987654')) || probe(pr('0')); }
-    else if (it.type === 'nline') r = '';
+    else if (it.type === 'nline' || it.type === 'cgraph') r = '';
     else if (it.type === 'mc'){ for (var k = 0; k < it.x.opts.length && !r; k++) if (k !== it.x.correct){ var f = U.judge.mc(it.x, k); r = f && f.rule || ''; } }
     else { var g = U.judge.multi(it.x, [], 1); r = g && g.rule || ''; }
   } catch(e){}
@@ -676,11 +779,12 @@ function paintItem(it){
     btn.classList.toggle('go', R.v !== 'right' && !mo.querySelector('button.go')); }
   /* a right answer locks this question's own choices — not the "Try another" mounted inside its box (23 Oct 2026: a
      student who got a select-all right on her second try asked for another; it opened locked, and she could not touch it) */
-  if (it.type !== 'text' && it.type !== 'nline') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
+  if (it.type !== 'text' && it.type !== 'nline' && it.type !== 'cgraph') Array.prototype.forEach.call(host.querySelectorAll('.ch input'), function(x){ if (x.closest('[data-host]') === host) x.disabled = R.v === 'right'; });
 }
 function paintChoices(it, R){
   if (it.type === 'nline') nlPaint(it);
-  if (it.type === 'text' || it.type === 'nline') return;
+  if (it.type === 'cgraph') cgPaint(it);
+  if (it.type === 'text' || it.type === 'nline' || it.type === 'cgraph') return;
   it.x.opts.forEach(function(o, k){
     var ch = $('ch' + it.id + LET[k]); if (!ch) return; ch.classList.remove('picked-no', 'is-key');
     if (!R) return;
@@ -1068,6 +1172,7 @@ function restoreOne(it){
   if (it.type === 'text' && boxesOf(it.x)){ boxAns(it.x, a).forEach(function(v, k){ var el = $(boxId(it.id, k)); if (el){ el.value = v; setPreview(el); } }); }
   else if (it.type === 'text'){ var el = $('a' + it.id); if (el){ el.value = a; setPreview(el); } }
   else if (it.type === 'nline') nlPaint(it);
+  else if (it.type === 'cgraph') cgPaint(it);
   else (it.type === 'mc' ? [a] : a).forEach(function(v){ var x = document.querySelector('input[name="q' + it.id + '"][value="' + v + '"]'); if (x) x.checked = true; });
 }
 function restore(){ ITEMS.forEach(restoreOne); }
@@ -1131,8 +1236,8 @@ function pq(d, qn){
     if (B) return '<div class="pans pboxes"><span class="pal bt">Answer:</span> ' + B.map(function(x){ return '<span class="pbx">' + (x.pre ? '<span class="pre">' + x.pre + '</span>' : '') + '<span class="pblank"></span>' + (x.unit ? ' <span class="unit">' + x.unit + '</span>' : '') + '</span>'; }).join(' ') + '</div><div class="pwork"></div>';   /* a blank per box, each with its label */
     return '<div class="pans"><span class="pal bt">Answer:</span> ' + (pre ? '<span class="pre">' + pre + '</span>' : '') + (V.blank ? V.blank(p) || '<span class="pblank"></span>' : '<span class="pblank"></span>') + (u ? ' <span class="unit">' + esc(u) + '</span>' : '') + '</div><div class="pwork"></div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : blank(p)) + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? line(it.part, '') + NL.blankHtml(it.part) : blank(it.part)) + '</div>';
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : p.kind === 'nline' ? NL.blankHtml(p) : p.kind === 'cgraph' ? CG.blankHtml(p) : blank(p)) + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? line(it.part, '') + NL.blankHtml(it.part) : it.part.kind === 'cgraph' ? line(it.part, '') + CG.blankHtml(it.part) : blank(it.part)) + '</div>';
   else h += '<div class="ppart">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -1158,6 +1263,7 @@ function yourAnswer(it){
   if (it.type === 'text' && boxesOf(it.x)){ var B = boxesOf(it.x), bs = boxAns(it.x, a); return bs.every(function(v){ return v.trim() === ''; }) ? '' : B.map(function(x, k){ return (x.pre ? x.pre + ' ' : '') + (bs[k].trim() ? esc(bs[k]) : '—') + (x.unit ? ' ' + x.unit : ''); }).join('; '); }
   if (it.type === 'text') return a == null || String(a).trim() === '' ? '' : esc(a);
   if (it.type === 'nline') return NL.empty(a) ? '' : NL.svg(it.x, a, {mode: 'key', cls: 'nl-small'}) + '<span class="nlkw">' + esc(NL.say(it.x, a)) + '</span>';
+  if (it.type === 'cgraph') return CG.empty(it.x, a) ? '' : '<span class="cgkey">' + CG.svg(it.x, a, {mode: 'key', degs: false, cls: 'cg-small'}) + '<span class="cgkw">' + esc(CG.say(it.x, a)) + '</span></span>';
   if (it.type === 'mc') return a == null ? '' : '<b>' + LET[+a] + '.</b> ' + V.opt(it.x, +a);
   return (a || []).map(function(k){ return '<b>' + LET[+k] + '.</b> ' + V.opt(it.x, +k); }).join('; ');
 }
@@ -1233,7 +1339,7 @@ function checkCode(s){ var n = K.fnv1a(s), o = ''; for (var i = 0; i < 5; i++){ 
 function setCheck(){
   return checkCode(U.id + '#' + U.contentVersion + '#' + ITEMS.map(function(it){
     var x = it.x, a;
-    try { a = it.type === 'nline' ? NL.keyText(NL.graphOf(x)) : it.type === 'mc' ? 'c:' + vOpt(x, x.correct) : it.type === 'multi' ? 'm:' + x.correct.map(function(k){ return vOpt(x, k); }).join('|') : x._ekey != null ? x._ekey : V.key(x); }
+    try { a = it.type === 'nline' ? NL.keyText(NL.graphOf(x)) : it.type === 'cgraph' ? CG.keyText(CG.graphOf(x)) : it.type === 'mc' ? 'c:' + vOpt(x, x.correct) : it.type === 'multi' ? 'm:' + x.correct.map(function(k){ return vOpt(x, k); }).join('|') : x._ekey != null ? x._ekey : V.key(x); }
     catch(e){ a = '?'; }
     return U.key(x) + '=' + a + (it.item && it.item._est != null ? '~' + it.item._est : '') + (x._eln != null ? '~' + x._eln : '');
   }).join(';'));
@@ -1272,6 +1378,10 @@ function mcOf(p){
       all = [g, {c: g.c, closed: g.closed, dir: turn}, {c: g.c, closed: !g.closed, dir: g.dir}, {c: g.c, closed: !g.closed, dir: turn}]
         .map(function(x){ return '<span class="pnlc">' + NL.svg(p, x, {mode: 'key'}) + '</span>'; });
       tag = 'nline:' + NL.keyText(g);
+    } else if (p.kind === 'cgraph'){                         /* a circle graph to draw: four graphs — the key, the unit's named mistakes, else the kit's */
+      var gs = CG.choices(p, U.choices(p) || []); if (!gs) return null;
+      all = gs.map(function(x){ return '<span class="pcgc">' + CG.svg(p, x, {mode: 'key', degs: false}) + '</span>'; });
+      tag = CG.keyText(CG.graphOf(p));
     } else {
       var key = p._ekey != null ? p._ekey : V.key(p), seen = [mcSame(key)], wrong = [];
       (U.choices(p) || []).forEach(function(h){ var t = typeof h === 'string' ? mcSame(h) : ''; if (!t || seen.indexOf(t) >= 0 || wrong.length >= 3) return; seen.push(t); wrong.push(h); });
@@ -1280,19 +1390,19 @@ function mcOf(p){
     }
   } catch(e){ return null; }
   var ord = mcOrder(4, String(U.key(p)) + '|' + (p.label || '') + '|' + tag);
-  return {opts: ord.map(function(k){ return all[k]; }), correct: ord.indexOf(0), nline: p.kind === 'nline'};
+  return {opts: ord.map(function(k){ return all[k]; }), correct: ord.indexOf(0), nline: p.kind === 'nline' || p.kind === 'cgraph', cgraph: p.kind === 'cgraph'};
 }
 function mcChoices(p){                                      /* a part's four choices on the paper, or '' when it stays as written */
   var m = ALLMC ? mcOf(p) : null; if (!m) return '';
-  return (m.nline ? '' : '<div class="pwork pwmc"></div>') + '<div class="pchoices pmc ' + (m.nline ? 'pgr' : 'p2') + '">' + m.opts.map(function(o, k){ return '<div class="pch"><span class="pbox"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + o + '</span></div>'; }).join('') + '</div>';
+  return (m.nline ? '' : '<div class="pwork pwmc"></div>') + '<div class="pchoices pmc ' + (m.nline ? 'pgr' + (m.cgraph ? ' pcg4' : '') : 'p2') + '">' + m.opts.map(function(o, k){ return '<div class="pch"><span class="pbox"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + o + '</span></div>'; }).join('') + '</div>';
 }
 /* a number line to graph that prints as four graphs asks for a choice, not a drawing (Croix, 14 Nov 2026: on the all-multiple-
    choice paper "Graph the solution" is wrong where the student is choosing); a line the teacher edited on a pinned form is his */
 var MC_GRAPH_LINE = 'Which graph shows the solution?';
-function mcLine(p){ return p && p.kind === 'nline' && p._eln == null && mcChoices(p) ? (V.mcLine ? V.mcLine(p) : MC_GRAPH_LINE) : vLine(p); }
+function mcLine(p){ return p && (p.kind === 'nline' || p.kind === 'cgraph') && p._eln == null && mcChoices(p) ? (V.mcLine ? V.mcLine(p) : p.kind === 'cgraph' ? CG.MC_LINE : MC_GRAPH_LINE) : vLine(p); }
 function mcKey(it){                                         /* its row on the key: the letter, then the answer */
-  var m = ALLMC && (it.type === 'text' || it.type === 'nline') ? mcOf(it.x) : null;
-  return m ? '<b>' + LET[m.correct] + '.</b> ' + (m.nline ? NL.keyHtml(it.x) : m.opts[m.correct]) : '';
+  var m = ALLMC && (it.type === 'text' || it.type === 'nline' || it.type === 'cgraph') ? mcOf(it.x) : null;
+  return m ? '<b>' + LET[m.correct] + '.</b> ' + (m.cgraph ? CG.keyHtml(it.x) : m.nline ? NL.keyHtml(it.x) : m.opts[m.correct]) : '';
 }
 /* A printed test form — a ruling-49 test or a make-up — has the paper's shape (A7 Unit 6's review, 25 Oct 2026): the points
    on the head, on every section and on every part; the show-your-work and follow-through lines the paper prints (from the
@@ -1304,8 +1414,8 @@ function pqTest(d, qn){
   var h = '<div class="pq"' + (d.k != null ? ' data-k="' + d.k + '"' : '') + '><div class="pqh">' + qidHtml(qidOf(d.si, d.ii, it), 'pqid') + '<div class="stem"><b class="num">' + qn + '.</b><span class="st">' + vStem(it) + '</span>' + (it.type === 'parts' ? '' : one) + '</div>' + fig(it) + '</div>';
   var line = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + mcLine(p) + '</span>' + one + '</div>'; };
   var choices = function(x){ return '<div class="pchoices">' + x.opts.map(function(o, k){ return '<div class="pch"><span class="pbox' + (it.type === 'multi' ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + vOpt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart" data-p="' + pi + '">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : mcChoices(p) || (p.kind === 'nline' ? NL.blankHtml(p) : '<div class="pwork"></div>')) + '</div>'; });
-  else if (it.type === 'solo') h += '<div class="ppart" data-p="0">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + mcLine(it.part) + '</span></div>' + (mcChoices(it.part) || NL.blankHtml(it.part)) : mcChoices(it.part) || '<div class="pwork"></div>') + '</div>';
+  if (it.type === 'parts') it.parts.forEach(function(p, pi){ if (d.keep && !d.keep[pi]) return; h += '<div class="ppart" data-p="' + pi + '">' + line(p, p.label) + (p.kind === 'mc' ? choices(p) : mcChoices(p) || (p.kind === 'nline' ? NL.blankHtml(p) : p.kind === 'cgraph' ? CG.blankHtml(p) : '<div class="pwork"></div>')) + '</div>'; });
+  else if (it.type === 'solo') h += '<div class="ppart" data-p="0">' + (it.part.kind === 'nline' ? '<div class="line"><span class="st">' + mcLine(it.part) + '</span></div>' + (mcChoices(it.part) || NL.blankHtml(it.part)) : it.part.kind === 'cgraph' ? '<div class="line"><span class="st">' + mcLine(it.part) + '</span></div>' + (mcChoices(it.part) || CG.blankHtml(it.part)) : mcChoices(it.part) || '<div class="pwork"></div>') + '</div>';
   else h += '<div class="ppart" data-p="0">' + choices(it) + '</div>';
   return h + '</div>';
 }
@@ -1382,10 +1492,10 @@ function pinnedForm(secs, o){
 function sampleOf(it){
   var lineOf = function(p, lab){ return '<div class="line">' + (lab ? '<b class="lab">' + lab + '.</b>' : '') + '<span class="st">' + V.line(p) + '</span></div>'; };
   var chs = function(x, multi){ return '<div class="choices">' + x.opts.map(function(o, k){ return '<div class="ch"><span class="box' + (multi ? ' sq' : '') + '"></span><span class="cl">' + LET[k] + '.</span><span class="cv">' + V.opt(x, k) + '</span></div>'; }).join('') + '</div>'; };
-  var nl = function(p){ return '<div class="nlw">' + NL.svg(p, null, {mode: 'blank'}) + '</div>'; };
+  var nl = function(p){ return p.kind === 'cgraph' ? '<div class="cgw">' + CG.svg(p, null, {mode: 'blank'}) + '</div>' : '<div class="nlw">' + NL.svg(p, null, {mode: 'blank'}) + '</div>'; };
   var h = '<div class="stem"><span class="st">' + V.stem(it) + '</span></div>' + fig(it), keys = [];
-  if (it.type === 'parts') it.parts.forEach(function(p){ h += '<div class="prt' + (p.kind === 'mc' ? ' mcp' : p.kind === 'nline' ? ' nlp' : '') + '">' + lineOf(p, p.label) + (p.kind === 'mc' ? chs(p, false) : p.kind === 'nline' ? nl(p) : '') + '</div>'; keys.push({lab: p.label, key: keyHtml({type: textType(p), x: p})}); });
-  else if (it.type === 'solo'){ if (it.part.kind === 'nline') h += '<div class="prt nlp solo">' + lineOf(it.part, '') + nl(it.part) + '</div>'; keys.push({lab: '', key: keyHtml({type: textType(it.part), x: it.part})}); }
+  if (it.type === 'parts') it.parts.forEach(function(p){ h += '<div class="prt' + (p.kind === 'mc' ? ' mcp' : p.kind === 'nline' ? ' nlp' : p.kind === 'cgraph' ? ' cgp' : '') + '">' + lineOf(p, p.label) + (p.kind === 'mc' ? chs(p, false) : p.kind === 'nline' || p.kind === 'cgraph' ? nl(p) : '') + '</div>'; keys.push({lab: p.label, key: keyHtml({type: textType(p), x: p})}); });
+  else if (it.type === 'solo'){ if (it.part.kind === 'nline' || it.part.kind === 'cgraph') h += '<div class="prt ' + (it.part.kind === 'cgraph' ? 'cgp' : 'nlp') + ' solo">' + lineOf(it.part, '') + nl(it.part) + '</div>'; keys.push({lab: '', key: keyHtml({type: textType(it.part), x: it.part})}); }
   else { h += '<div class="mcp">' + chs(it, it.type === 'multi') + '</div>'; keys.push({lab: '', key: keyHtml({type: it.type === 'multi' ? 'multi' : 'mc', x: it})}); }
   return {html: h, keys: keys};
 }

@@ -38,7 +38,7 @@ function unitKeys(dir, seeds) {
     const g = U.generate(s);
     g.sections.forEach(sec => sec.items.forEach(it => {
       const ps = it.type === 'parts' ? it.parts : it.type === 'solo' ? [it.part] : [];
-      ps.forEach(p => { if (!p || p.kind === 'mc' || p.kind === 'nline') return; let k = null; try { k = U.keyText(p); } catch (e) { return; } if (k != null) add(k); });
+      ps.forEach(p => { if (!p || p.kind === 'mc' || p.kind === 'nline' || p.kind === 'cgraph') return; let k = null; try { k = U.keyText(p); } catch (e) { return; } if (k != null) add(k); });
     }));
   }
   const bd = bankDir(dir);

@@ -156,7 +156,7 @@ var API = window.TEACHER = {random: !FIXED, forms: FORMS, errors: errors,
 })(0);
 
 function mount(PK){
-var K = window.Kit || {}, AP = K.Approvals || null, Unit = window.Unit, V = Unit.view, NL = K.NL;
+var K = window.Kit || {}, AP = K.Approvals || null, Unit = window.Unit, V = Unit.view, NL = K.NL, CG = K.CG;
 var ONSITE = !!(AP && AP.onSite), BASE = AP ? AP.base : '', COURSE = (AP && AP.course) || String(T.course).toLowerCase(), UNITN = (AP && AP.unit) || T.unit;
 var API_T = BASE + '/teacher/api/tests/' + COURSE + '/' + UNITN, API_I = BASE + '/teacher/api/items/' + COURSE + '/' + UNITN;
 var LKEY = 'teacher.tests.' + COURSE + '.' + UNITN, PICK_KEY = 'teacher.pick.' + T.course + '.' + T.unit;
@@ -255,7 +255,7 @@ function withEd(it, ed){
   PK.partsOf(c).forEach(function(p){
     var lab = c.type === 'parts' ? p.label : '', choice = p.kind === 'mc' || c.type === 'mc' || c.type === 'multi';
     if (ed.line && typeof ed.line[lab] === 'string') p._eln = clean(ed.line[lab]);
-    if (ed.key && typeof ed.key[lab] === 'string' && p.kind !== 'nline' && !choice) p._ekey = clean(ed.key[lab]);
+    if (ed.key && typeof ed.key[lab] === 'string' && p.kind !== 'nline' && p.kind !== 'cgraph' && !choice) p._ekey = clean(ed.key[lab]);
     if (ed.opt && Array.isArray(ed.opt[lab]) && choice) p._eopt = ed.opt[lab].map(function(h){ return typeof h === 'string' ? clean(h) : null; });
   });
   return c;
@@ -266,6 +266,7 @@ function keysOf(it){
   if (!it) return [];
   return PK.partsOf(it).map(function(p){ try {
     if (p.kind === 'nline') return 'g:' + NL.keyText(NL.graphOf(p));
+    if (p.kind === 'cgraph') return 'g:' + CG.keyText(CG.graphOf(p));
     if (it.type === 'mc' || p.kind === 'mc') return 'c:' + plain(V.opt(p, p.correct));
     if (it.type === 'multi') return 'm:' + p.correct.map(function(c){ return plain(V.opt(p, c)); }).sort().join('|');
     return 't:' + String(Unit.keyText(p)).replace(/\s+/g, '');
@@ -474,7 +475,7 @@ function rowsByK(r){ var m = {}; (r.rows || []).forEach(function(x){ (m[x.k] = m
 function keyLine(f, k, rows, item){
   var it, parts = [];
   if (FIXED){ it = item || fixedAt(f, k, SPEC); (it.parts || [it]).forEach(function(p){ parts.push([it.parts ? p.label : '', ansHtml(it, p)]); }); }
-  else (rows || []).forEach(function(x){ var h = x.key; if (x.type === 'nline'){ var d = document.createElement('div'); d.innerHTML = h; var w = d.querySelector('.nlkw'); h = w ? esc(w.textContent) : h; } parts.push([x.label, h]); });
+  else (rows || []).forEach(function(x){ var h = x.key; if (x.type === 'nline' || x.type === 'cgraph'){ var d = document.createElement('div'); d.innerHTML = h; var w = d.querySelector('.nlkw, .cgkw'); h = w ? esc(w.textContent) : h; } parts.push([x.label, h]); });
   return parts.length ? '<div class="tvkey"><span class="kl">Key</span>' + parts.map(function(x){ return '<span class="tvk">' + (x[0] ? '<b>' + esc(x[0]) + '.</b> ' : '') + x[1] + '</span>'; }).join('') + '</div>' : '';
 }
 function stripHtml(f, k){
@@ -564,12 +565,12 @@ function editRandom(el, k){
   var chs = function(x, lab, multi){ return '<div class="pchoices">' + x.opts.map(function(o, i){ return '<div class="pch"><span class="pbox' + (multi ? ' sq' : '') + '"></span><span class="cl">' + LET[i] + '.</span>' + edSpan(x._eopt && x._eopt[i] != null ? x._eopt[i] : V.opt(x, i), 'opt:' + lab + ':' + i, 'Choice ' + LET[i] + (lab ? ' of part ' + lab : '')) + '</div>'; }).join('') + '</div>'; };
   var right = function(x, multi){ var c = multi ? x.correct : [x.correct]; return stays('The right answer stays ' + c.map(function(i){ return LET[i]; }).join(' and ') + '.'); };
   var keyEd = function(p, lab){ return '<div class="tvkeyed"><span class="kl">Key</span>' + edSpan(p._ekey != null ? p._ekey : V.key(p), 'key:' + lab, 'Key' + (lab ? ' for part ' + lab : '')) + '</div>'; };
-  var graph = function(p){ return '<div class="tvkeyed"><span class="kl">Key</span>' + NL.keyHtml(p) + '</div>' + stays('The graph stays. To change its numbers, use New version.'); };
+  var graph = function(p){ return '<div class="tvkeyed"><span class="kl">Key</span>' + (p.kind === 'cgraph' ? CG.keyHtml(p) : NL.keyHtml(p)) + '</div>' + stays('The graph stays. To change its numbers, use New version.'); };
   if (it.type === 'parts') it.parts.forEach(function(p){
     h += '<div class="ppart"><div class="line"><b class="lab">' + esc(p.label) + '.</b>' + edSpan(p._eln != null ? p._eln : V.line(p), 'line:' + p.label, 'Part ' + p.label + ', its words') + '</div>' +
-      (p.kind === 'mc' ? chs(p, p.label, false) + right(p, false) : p.kind === 'nline' ? graph(p) : keyEd(p, p.label)) + '</div>';
+      (p.kind === 'mc' ? chs(p, p.label, false) + right(p, false) : p.kind === 'nline' || p.kind === 'cgraph' ? graph(p) : keyEd(p, p.label)) + '</div>';
   });
-  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' ? '<div class="line">' + edSpan(it.part._eln != null ? it.part._eln : V.line(it.part), 'line:', 'Its words') + '</div>' + graph(it.part) : keyEd(it.part, '')) + '</div>';
+  else if (it.type === 'solo') h += '<div class="ppart">' + (it.part.kind === 'nline' || it.part.kind === 'cgraph' ? '<div class="line">' + edSpan(it.part._eln != null ? it.part._eln : V.line(it.part), 'line:', 'Its words') + '</div>' + graph(it.part) : keyEd(it.part, '')) + '</div>';
   else h += '<div class="ppart">' + chs(it, '', it.type === 'multi') + right(it, it.type === 'multi') + '</div>';
   h += '<div class="tvedbar"><button type="button" class="go" data-tv="save">Save</button><button type="button" data-tv="cancel" data-k="' + k + '">Cancel</button></div>';
   el.innerHTML = h; el.classList.add('tvediting');

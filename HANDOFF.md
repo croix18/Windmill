@@ -29,26 +29,24 @@ through the site's own pages on 15 Nov and left the kit alone because `cgraph` i
 lands, the kit's start sheet, bar, end panel and messages want the same pass ("18 parts to answer", "Whole practice
 test"), in English and pt-BR together. Nothing in `practice/kit` was changed by this note.
 
-## Two sessions at once (15 Nov 2026, 3:55 pm): the practice kit is getting `cgraph`; M7 Unit 7 belongs to the M7 build session
+## The practice kit has `cgraph` — a circle graph the student builds (15 Nov 2026, evening; M7 Unit 7 is its first user)
 
-Croix, 3:11 pm, to the M7 build session (session_01W9n2X1WF6KyTFhvQQj7VNo), of M7 Unit 7's open items (no
-construct-a-circle-graph item on its test, among others): *"Can you take care of all of that for me. Make sure unit 7 is ready
-to push. Once it gets all of its updates push it."*
-- **The practice kit is gaining one part kind, `cgraph` — a circle graph the student builds** on a circle marked every 10°, on
-  the model of `nline` on every surface (the widget, judging, the ladder, the printed blank circle, the key's finished graph,
-  the all-multiple-choice paper's four graphs, a `check/page.js` part, the manifest, the README). It is being built on the
-  branch `cgraph` (a worktree of this repository in that session, base `342a2e5`) and comes to main when it passes; a unit
-  with no `cgraph` part changes only by one more inlined script. **If you change `practice/kit` on main meanwhile, say so
-  here** — that session rebases onto it.
-- **M7 Unit 7** (`m7/build/u7`, its package, `m7/practice/u7`) is being changed by that session through tonight (M7
-  `NOTES.md`, first section): the kits session is asked to leave Unit 7 alone and do everything else as it planned.
-- **`practice/kit` changed on main after `342a2e5` — once, by the kits session (15 Nov, 4:50 pm; rebase onto it):** the
-  several-boxes part only — `ui.js` `boxesHtml` (a box with a unit gets the class `bxu`), `kit.css` (the `.ans.boxes`
-  block: a box's label, box and unit never wrap apart; on a phone a box with a unit takes its own row, and `x =` / `y =`
-  share one line at 360 px in a lettered part too), `check/boxes_page.js` (page.js part T now measures EVERY part with
-  boxes at 360, 390 and 1280 px, not the first), `README.md` (that section), `KIT.sha256`. Found on A7 Unit 11's page
-  ("after ▢ weeks" wrapped under its box at 390 px). Nothing else in `practice/kit` is touched; **M7's vendored copy stays
-  at `095d912`** (no M7 page has boxes) until that session vendors again with `cgraph`.
+Croix, 3:11 pm, to the M7 build session, of M7 Unit 7's open items (its test had no construct-a-circle-graph item, "because
+the test is drawn from the web page"): *"Can you take care of all of that for me."* — and, 7 Nov, of number lines: *"make them
+graph … instead of just describing them."*
+- **`practice/kit/cgraph.js`, kind `cgraph`**, on the model of `nline` on every surface (`practice/kit/README.md`, "15 Nov 2026 —
+  a circle graph the student builds"): a circle marked every 10° with the 0° line drawn; a tap on a mark draws or erases a
+  line, a drag moves it (a ghost line and a readout while it moves); the student names each sector from the part's
+  categories; keyboard and screen reader throughout; no keypad. Right = every category on one sector of its keyed size, in
+  any order. Not finished is never a try; a wrong graph gets ONE line, sizes before names (a unit's `judge.cgraph`, else the
+  kit's). Paper: a blank marked circle 60 mm across on worksheets and every test form, the finished graph on the keys and the
+  teacher copy, four different graphs on the all-multiple-choice paper (a unit's named mistakes first). `check/page.js` part V
+  (`check/cgraph_page.js`); every page check that answers keys answers one (`check/cgraph.js`).
+- **Proved on** a fixture copy of M7 Unit 7 (student page and teacher copy, every check passing), and no regression on copies
+  of M7 Units 10 (its `nline` parts) and 13; `tools/check.sh`: all checks passed. Built by Claude Opus 5.5 from the lead's brief.
+- **A unit with no `cgraph` part** changes only by one more inlined script; its questions and locks do not move. A course
+  takes it at its next vendor: M7 vendored it for Unit 7's page (M7 `NOTES.md`); **A7 has not** — nothing of A7's needs it.
+- **M7 Unit 7** was finished and published by the M7 build session the same evening (M7 `NOTES.md`, first section).
 
 ## Where things stand (15 Nov 2026: the kit limits fixed — figures wherever a question is, a key's own figure, declared step lines, several answer boxes; matplotlib named once; the Drive script 3.1)
 
