@@ -781,8 +781,13 @@ class Deck:
         colw = CW - ow - 0.7
         if colw < 2.4:
             return False
-        # what stacking would give the figure: the options' rows under it (the 1.75 in the stacked board reserves)
-        _, _, h_stack = self._fit_figure(spec, CW, FOOT_Y - top - max(spec.get("reserve", 0.7), reserve + 1.75))
+        # what stacking would give the figure: the options' rows under it (the 1.75 in the stacked board reserves).
+        # Where stacking leaves the figure too little room to be drawn at all (its labels would fall under 11.5 pt
+        # and _fit_figure refuses), it gives the figure nothing, and the column beside it is the only layout.
+        try:
+            _, _, h_stack = self._fit_figure(spec, CW, FOOT_Y - top - max(spec.get("reserve", 0.7), reserve + 1.75))
+        except RuntimeError:
+            h_stack = 0.0
         path, w, h = self._fit_figure(spec, colw, avail, strict=True)
         if h <= h_stack + 0.05:
             return False

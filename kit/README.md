@@ -112,7 +112,9 @@ they fit), the pair centred. It declines — and the board stacks as before — 
 taller than stacking does (a wide, short figure) or the options do not fit beside it. The decision is made at the
 answer slide's reserve with every option measured bold, so the question slide and the answer slide lay out alike; the
 HTML deck (`figchoices`) follows the PowerPoint's choice (`_pptx_beside`). A Your Turn has no options in the schema, so
-this is the boards' (and the review day's boards'). Tests: "choices beside: …" (five lines).
+this is the boards' (and the review day's boards'). Where stacking could not draw the figure at all (its labels would fall
+under 11.5 pt, so the fit refuses), the measure of the stacked layout counts as no room rather than stopping the build,
+and the figure goes beside its options (A7 11.07, 15 Nov). Tests: "choices beside: …" (six lines).
 
 ### `shuffle_choices.py`: paths, select-all answer lines, and what it cannot rewrite
 It took `uN lNN.py` and not a path; it now takes either (`u11/l05.py`, an absolute path, several paths, a unit folder),

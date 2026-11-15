@@ -1004,6 +1004,18 @@ ok("choices beside: nothing sits on the figure, on either slide", _hits(*_q3[:2]
 _q3w, _ = _mc3_slides(_mc3(_wide3))
 ok("choices beside: a wide, short figure, which stacking serves better, stays stacked over its options",
    _optx(_q3w) and min(_optx(_q3w)) < _q3w[0][0][0][2] and min(r[1] for r, t in _q3w[1] if re.match(r"^[A-D]\.", t.strip())) > _q3w[0][0][0][3] - 0.02)
+# a board whose figure stacking cannot draw at all (stacked, its label would sit on a side unless the whole picture
+# were made smaller than 11.5-pt labels, and the fit refuses): measuring the stacked layout must not stop the build —
+# beside is the only layout (A7 11.07, 15 Nov 2026: a graph on a choice board; the build stopped at "a figure has 0.82 in")
+_crowd3 = dict(kind="shapes", fs=22, pt=18, **{"in": 4.2}, shapes=[dict(t="poly", pts=[(0, 0), (8, 0), (8, 8), (0, 8)]),
+               dict(t="seg", a=(0, 0), b=(8, 8)), dict(t="text", xy=(6.6, 2.0), s="8 cm")])
+try:
+    _q3c, _a3c = _mc3_slides(_mc3(_crowd3)); _e3c = ""
+except RuntimeError as e:
+    _q3c = _a3c = None; _e3c = str(e)
+ok("choices beside: a figure that stacking cannot draw at all (its labels under 11.5 pt) is laid out beside its options, not refused",
+   _q3c is not None and _figh(_q3c) >= 2.0 and _optx(_q3c) and min(_optx(_q3c)) > _q3c[0][0][0][2],
+   _e3c[:120] or (f"{_figh(_q3c):.2f} in" if _q3c else ""))
 with tempfile.TemporaryDirectory() as tmp:
     _H3 = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_H3, _mc3(_tall3)); _h3 = render_page(_H3)
     _H3w = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(_H3w, _mc3(_wide3)); _h3w = render_page(_H3w)
