@@ -31,7 +31,7 @@ K.Pager = function(api){
     '<button type="button" class="pgflag" id="pgFlag" aria-pressed="false">Flag for review</button>');
   var nav = make('nav', 'pgnav', '<button type="button" class="pgprev" id="pgPrev">Back</button><button type="button" id="pgBack" hidden>Score summary</button>' +
     '<button type="button" class="go pgnext" id="pgNext">Next</button>', {'aria-label': 'Back and Next'});
-  var list = make('section', 'pglist', '<h2 class="bt" id="pgLh">Every question</h2><p class="pgnote bt">Tap a question to review it.</p><ol class="pgrows" id="pgRows"></ol>', {'aria-labelledby': 'pgLh'});
+  var list = make('section', 'pglist', '<ol class="pgrows" id="pgRows"></ol>', {'aria-label': 'Questions'});   /* no heading and no note over it (15 Nov 2026, the words pass) */
   var map = make('section', 'sheet pgmap', '<button type="button" class="pgmt" id="pgMt" aria-expanded="false" aria-controls="pgGrid"></button><div class="pgmh"><h2 class="bt" id="pgMh">Questions</h2><ul class="pglg" aria-hidden="true"><li><i class="a"></i><span class="bt">Answered</span></li>' +
     '<li><i class="f"></i><span class="bt">Flagged</span></li><li><i class="c"></i><span class="bt">On screen</span></li></ul></div>' +
     '<nav class="pgm" id="pgGrid" aria-labelledby="pgMh"></nav>', {'aria-labelledby': 'pgMh'});

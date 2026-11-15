@@ -88,7 +88,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     if (ln.notes !== want || ln.other) fail('the line under the title is not just the unit’s ' + want + ' notes: ' + JSON.stringify(ln));
     if (ln.hidden === !!want) fail('the line under the title is ' + (ln.hidden ? 'hidden with notes to show' : 'showing with nothing in it'));
     const miss = await p.$eval('#scope option[value="miss"]', o => o.textContent);   /* and no aside in the menu: no "(none yet)" */
-    if (miss !== 'My misses, with new numbers') fail('with no misses yet the practice menu says "' + miss + '"'); }
+    if (miss !== 'My misses') fail('with no misses yet the practice menu says "' + miss + '"'); }
 
   /* A. every key */
   for (const seed of [11, 4821, 99999]) {
@@ -662,11 +662,11 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const tn = await p.$$('#result [data-newset]'); if (tn.length !== 1) fail('the end panel has ' + tn.length + ' "Try a new set" buttons');
     else { await tn[0].click(); await p.waitForTimeout(200); const h = await p.evaluate(() => location.hash); if (!/^#set-\d+$/.test(h) || h === '#set-4821') fail('"Try a new set" opened ' + h);
       if (await p.isVisible('#result')) fail('"Try a new set" left the end panel up');
-      /* item 5: "Since last time" — two right on the new set after one on the last: up */
+      /* item 5: "Last time" — the score of the set before, and no more words (15 Nov 2026) */
       const sd = +(/\d+/.exec(h) || [0])[0], i2 = itemsOf(sd); for (const it of i2.slice(0, 2)) { await answer(p, it); await check(p, it.id); }
       await p.click('#bFinish'); await p.click('#cy'); await p.waitForTimeout(100);
       const since = await p.$eval('#result .since', e => e.textContent.replace(/\s+/g, ' ').trim()).catch(() => '');
-      if (!/^Since last time: up — 1 \/ \d+ then, 2 \/ \d+ today\.$/.test(since)) fail('end panel: "' + since + '", not "Since last time: up — 1 / N then, 2 / N today."');
+      if (!/^Last time: 1 \/ \d+$/.test(since)) fail('end panel: "' + since + '", not "Last time: 1 / N"');
       if (await p.$('#result .confetti, #result canvas')) fail('the end panel celebrates'); }
     /* the way back: on /<course>/practice/unit-N/ only, to ../../unit-N/ with N the unit's own */
     const N = (/u(\d+)$/.exec(U.id) || [])[1];
@@ -849,11 +849,19 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* K. no follow-through line anywhere (7 Nov 2026, Croix: "Can you get rid of 'if an earlier part is wrong a later part still
      earns its point' line across everything"): the built page — everything it can show or print is inlined in it — never holds
      it; and which practice this is (Croix: "It was the switching mechanism that confused me"): a chip under the title names the
-     choice from What to practice, per scope, and a lesson's line is "Lesson 10.04 · 8 questions · today's practice" */
+     choice from What to practice — none on the whole test, whose title is the unit's — and a lesson's line is "Lesson 10.04 · 8
+     questions"; and the words Croix took out of every page (15 Nov 2026: "Fix them all" — notes on how to use the screen, a
+     choice said back, a count nobody asked for) are in no built page: WORDS, below */
   { const src = fs.readFileSync(path.join(dir, 'preview.html'), 'utf8'); if (/earlier part is wrong/i.test(src)) fail('K: the built page holds the follow-through line ("earlier part is wrong")');
+    const WORDS = ['parts to answer', "' to answer'", 'marked when you finish', 'Finish & mark', 'Whole practice test', '>Every question<', 'Tap a question to review it', 'goes one step at a time, up to the worked solution',
+      'has the steps; <b>', 'saved on this device yet', 'Stop the clock and', 'points earned on your own', '>time on the clock<', '· time on the clock', 'My misses, with new numbers', 'Since last time:',
+      '· today’s practice', 'If nothing happens, use your browser', 'checked at Finish', 'since you last opened it', 'Practising'];
+    const asRun = src.replace(/\/\*[\s\S]*?\*\//g, ' ');                       /* the page as it runs: a comment may still tell what a line used to say */
+    const held = WORDS.filter(w => asRun.indexOf(w) >= 0); if (held.length) fail('K: the built page still holds words taken out on 15 Nov 2026: ' + held.join(' | '));
     const chipOf = async h => { await p.goto(url + h); await p.reload(); await p.waitForTimeout(150); return p.evaluate(() => ({ chip: (document.getElementById('scopechip') || {}).textContent || '', total: document.getElementById('total').textContent, menu: (document.querySelector('#scope option:checked') || {}).textContent || '', cards: document.querySelectorAll('#paper .q[data-q]:not(.xq)').length,
       under: (() => { const c = document.getElementById('scopechip'), h1 = document.getElementById('h1'); return !!(c && h1 && (h1.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING) && c.getBoundingClientRect().top >= h1.getBoundingClientRect().bottom - 1); })() })); };
-    let c = await chipOf('#set-5'); if (c.chip !== 'Whole practice test' || !c.under) fail('K: the whole test\'s chip is "' + c.chip + '"' + (c.under ? '' : ', not under the title'));
+    let c = await chipOf('#set-5'); if (c.chip !== '' || await p.isVisible('#scopechip')) fail('K: the whole test shows a chip ("' + c.chip + '")');
+    c = await chipOf('#set-5-p1'); if (!c.under) fail('K: a section\'s chip is not under the title');
     const G = U.generate(5);
     for (let k = 0; k < G.sections.length; k++) { c = await chipOf('#set-5-p' + (k + 1)); const want = G.sections[k].title.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&'); if (c.chip !== want) fail('K: section ' + (k + 1) + '\'s chip is "' + c.chip + '", not "' + want + '"'); }
     await p.evaluate(([pre]) => { localStorage.setItem(pre + 'misses', JSON.stringify({ '0.0.-1': 'x', '0.0.0': 'x' })); }, [U.id + '.']);
@@ -861,10 +869,10 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
     const les = await p.evaluate(() => window.Kit && Kit.Bank ? Kit.Bank.keys().filter(k => Kit.Bank.shown(k)).slice(0, 2) : []);
     for (const k of les) { c = await chipOf('#set-5-' + k); const code = k.replace(/^lesson-/, '');
       if (!new RegExp('^Lesson ' + code.replace(/[.+]/g, '\\$&') + '$', 'i').test(c.chip) && !/^(Lessons |[A-Z]-)/.test(c.chip)) fail('K: lesson ' + code + '\'s chip is "' + c.chip + '"');
-      if (c.chip + ' · ' + c.total !== c.chip + ' · ' + c.cards + ' question' + (c.cards === 1 ? '' : 's') + ' · today’s practice') fail('K: lesson ' + code + '\'s line is "' + c.total + '" (' + c.cards + ' cards)');
+      if (c.chip + ' · ' + c.total !== c.chip + ' · ' + c.cards + ' question' + (c.cards === 1 ? '' : 's')) fail('K: lesson ' + code + '\'s line is "' + c.total + '" (' + c.cards + ' cards)');
       if (c.menu.indexOf(c.chip) !== 0) fail('K: the chip "' + c.chip + '" is not the choice in What to practice ("' + c.menu + '")'); }
     await fresh(p, 5);
-    console.log('K. no follow-through line; the chip on the whole test, ' + G.sections.length + ' sections, My misses and ' + les.length + ' lessons'); }
+    console.log('K. no follow-through line and none of the words taken out; no chip on the whole test, one on ' + G.sections.length + ' sections, My misses and ' + les.length + ' lessons'); }
   /* J. the graph a student builds (kit kind nline, 7 Nov 2026; Croix: "make them graph inequalities with an open or closed dot and
      an arrow instead of just describing them"): a tap on a tick places the point, a drag moves it, ← → Home End move it by the
      keyboard; Dot and Arrow are radiogroups that work by keyboard; the ray draws as soon as a point and a direction exist; the

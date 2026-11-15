@@ -44,7 +44,7 @@ in the code; the four reports are in the Windmill HANDOFF.
   gray bulb (the Hint button's own icon, no words) and "One on your own earns the point."; its fresh one, right unaided, earns
   it, and the question's card then says "point earned". A fresh one answered wrong and then corrected earns nothing; the next
   fresh one can. Two measures, never conflated: the bar and the end panel lead with the points earned ("9 earned 💡2 · 12 of
-  36 done"; "9 / 36 points earned on your own"); "Right on the first try: 7 / 36" is kept beneath as what happened on the
+  36 done"; "9 / 36 points"); "Right on the first try: 7 / 36" is kept beneath as what happened on the
   original first check, and is never rewritten. Help after the point is earned changes nothing. Croix brought the rule from a
   ChatGPT review of the A7 Unit 4 page (24 Oct): "The student may learn with as much help as needed. The final practice point
   must represent a complete and independent solution to a fresh problem, not merely recognition of an answer they just saw."
@@ -70,15 +70,14 @@ in the code; the four reports are in the Windmill HANDOFF.
 - **Where you are, and how it went** (7 Nov 2026, item 5): the bar says *"Question 4 of 16"* over a thin turquoise line (the question
   holding the focus, else the first on the screen; questions, not parts). The end panel keeps the first-try score and adds a
   chip per skill (the unit's sections) — **● Secure** (80% or more right on the first check with no help), **◐ Getting there**
-  (50% or more), **○ Not yet** — a word and an icon, never colour alone; and *"Since last time: up — 12 / 36 then, 18 / 36
-  today."* (down, the same) from this device's history of the same practice choice and mode, as a share when the sizes differ.
+  (50% or more), **○ Not yet** — a word and an icon, never colour alone; and *"Last time: 12 / 36"* from this device's history of the same practice choice and mode.
   Calm: no confetti, nothing that nags.
 - **Practice menu:** whole test, one part (two rounds with new numbers), or my misses (new numbers; one round if there
   are more than 8).
 - **The end:**
   - "Every one on the first try." when it's perfect; "Every point earned." when every point came, some from a fresh one.
   - Otherwise, jump links to the parts not right yet, "Practice my misses", and the parts under 80%.
-  - "Since last time: up — … then, … today." (it was "Last time: … Today: … (+6)").
+  - "Last time: 12 / 36" (15 Nov 2026; it was "Since last time: up — … then, … today.", and before that "Last time: … Today: … (+6)").
 - **The clock:** it starts with the first answer and pauses when the page is hidden (Resume brings it back). It is shown only in
   *Like the real test* (7 Nov 2026); in *Check as I go* it runs unseen, so the end panel still has the time.
 - **Progress:** each device keeps its last 25 sets in its own browser storage. Nothing is sent anywhere.
@@ -314,8 +313,9 @@ the graph of a one-variable inequality, built, not chosen:
   spec has one) still prints on the teacher's key. `check/page.js` part K fails a built page that holds "earlier part is wrong".
 - **Which practice this is, always in sight.** Croix: *"It was the switching mechanism that confused me. I would assume that if I
   open a specific lesson it would open to that section. Likewise if I open the full practice test."* A chip under the title names
-  the choice from What to practice — "Whole practice test", the section's name, "My misses", "Lesson 10.04" — and in a lesson the
-  line under the title reads "[Lesson 10.04] 8 questions · today's practice", the chip leading it (the count is the set's).
+  the choice from What to practice — the section's name, "My misses", "Lesson 10.04"; none on the whole test, whose title is
+  the unit's (15 Nov 2026, the words pass) — and in a lesson the line under the title reads "[Lesson 10.04] 8 questions", the
+  chip leading it (the count is the set's).
   A lone graph to build says its instruction line on the screen and on paper. Teacher copies the same.
   `check/page.js` part K checks the chip per scope and the lesson line against the cards.
 
@@ -591,7 +591,8 @@ My misses and every lesson set — shows one question at a time**, in the releas
   after a miss are not shown with the pager — its Next does what they did (the next question not right yet, the focus in its
   box) and takes the focus after a right answer; otherwise it opens the next question. The end panel's "Not right yet" links
   open their question. The bar's "Question 4 of 16" is hidden on the summary, where no question is on the screen.
-- **Finish** gives the score: the end panel, as before, and under the title **Every question** — ✓ Right, ✗ Not right (or
+- **Finish** gives the score: the end panel, as before, and under it every question, with no heading over the list (15 Nov
+  2026) — ✓ Right, ✗ Not right (or
   "1 of 2 right"), – Blank, with its section and ID. A tap opens the question to review (its verdict beside its number, the end
   panel out of the way); **Score summary** goes back. A finished set reopens on its summary.
 - **Saved:** the question on the screen and the flags are kept in the set's own record (`S.pg`), so a reload or a return opens
@@ -640,6 +641,41 @@ line meets is **`HELP_STANDARD.md`**. The kit carries what it needs as a module 
   12.5 px, contrast at least 4.5:1).
 - First met by M7 Unit 10 and A7 Unit 6. Other units are unchanged until they write a `help.js`; vendoring this kit into them is
   harmless (the module loads, nothing calls it).
+
+## 15 Nov 2026 — the words pass (`ui.js`, `pager.js`, `teacher.js`, `lang/pt-BR.js`, `check/page.js`)
+
+Croix, 15 Nov 2026, after circling notes on the site's pages for three days: *"Can you see the pattern in the text I am
+asking you to remove. They are what I consider ai mannerisms that make a project feel like ai. The over explaining, the odd
+phrasing, etc."* — and of the list that pass left for him, the unit practice pages among them: *"Fix them all."* The rule is
+in Windmill's HANDOFF ("Words on a page") and the site's README: a row is its name and a button is its verb; no note on how
+to use the screen, no choice said back, no count nobody asked for. What the kit's own words lost (the units' questions,
+feedback, hints and help are the units' and were not touched):
+
+- **The bar** says nothing before the first check (it said "18 parts to answer"), and in *Like the real test* "3 of 18
+  answered" (no "marked when you finish"). The button is **Finish** in both modes (it was "Finish & mark").
+- **The start sheet** has no chip on the whole test (it said "Whole practice test"; a section, My misses and a lesson keep
+  theirs), and a lesson's line is "8 questions" (no "today's practice").
+- **The end panel** is headed "Set 4821" (the practice choice only when it is not the whole test; the mode is not said back),
+  the score is "9 / 36 points" and the time "time"; "Last time: 12 / 36" for "Since last time: up — … then, … today."; the note
+  under "Not right yet" (what Hint and Try a similar one do) is gone. The list under it has no heading and no note ("Every
+  question", "Tap a question to review it.").
+- **Asking:** "Leave this set? It stays saved." · "12 of 18 still blank. Finish anyway?" / "Finish and see your score?" ·
+  "Switching clears your answers." · "Switch to “…”? This set stays saved." · "Start a new set? This one stays saved." ·
+  "Clear your answers and start over?" · the notice "This set was updated, so it starts over." · "No misses yet. Finish a set
+  first."
+- **Names:** What to practice says "My misses" (it was "My misses, with new numbers"); a right answer first checked at Finish
+  says "✓ Correct"; the chip's label for a screen reader is "Practicing: …".
+- **Print:** the preview's bar has Print and Close and no line under them (student page and teacher copy); the results sheet
+  says "points" and "time". The printed results still name the mode: on paper it is the teacher's to read.
+- **Kept on purpose:** the two streak lines, the first-try and effort lines, the skill chips and the table, "One on your own
+  earns the point.", the map's three-word legend, and every message a student needs in order to go on.
+
+`lang/pt-BR.js` has the same words as they now are; the keys of the lines that went are gone, but for "This set stays saved
+on this device.", which M7 Unit 4's own `bi_check.js` still carries (take the key out when that check says the new line).
+`check/page.js` part K fails a built page that still holds any of the old lines (its `WORDS` list, read in the page with its
+comments taken out), holds the whole test to no chip and a lesson's line to its count; the "Last time" check reads the new
+line. A unit's page changes when it is next built on this kit; no question, key
+or set number moves, and `contentVersion` stays.
 
 ## Files
 | Kit (`practice/kit/`) | |
@@ -780,7 +816,7 @@ marks right, results match, only the printout on paper, Close restores the page,
   questions as the unit test, new numbers every set.)"* Under the title there is only the unit's `notes` — how to write an
   answer ("Use 3.14 for π…") — and nothing at all when it has none; the old `intro` is not read. He added *"And this line
   'Same kinds of questions as the unit test, new numbers every set.'"*, so the menus' asides went too: the make-up prompt is
-  just "How many different forms?", and the practice menu's "My misses, with new numbers" has no "(none yet)" (it still
+  just "How many different forms?", and the practice menu's "My misses" has no "(none yet)" (it still
   shows how many when there are some).
 
 ## Make-up tests (18 Oct 2026)

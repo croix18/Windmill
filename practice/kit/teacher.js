@@ -448,7 +448,7 @@ function showPrint(kind, f, opener, back){
   else body = kind === 'key' ? '<div class="pform pkeyform tpage">' + r.key + '</div>' : '<div class="pform tpage" data-form="' + f + '">' + r.test + '</div>' + (kind === 'tk' ? '<div class="pbreak"></div><div class="pform pkeyform tpage">' + r.key + '</div>' : '');
   var pv = overlay('print', 'Print preview', opener);
   OV.back = back || null;
-  pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">' + (back ? 'Back' : 'Close') + '</button><span class="pvhint">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage' + (FIXED ? ' tpage' : '') + '">' + body + '</div>';
+  pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">' + (back ? 'Back' : 'Close') + '</button></div><div class="ppage' + (FIXED ? ' tpage' : '') + '">' + body + '</div>';
   $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };
   $('pvClose').onclick = function(){ if (back) back(); else closeOverlay(); };
   $('pvPrint').focus();

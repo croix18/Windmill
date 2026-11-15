@@ -161,7 +161,7 @@ module.exports = async function (newContext, url, U, dir, fail) {
   /* Português: the pager's own words have their translations */
   if (U.second && await p.$('.bi-toggle')) {
     await tap(p, '.bi-toggle'); await tap(p, '#pgNext'); await p.waitForTimeout(150);
-    const miss = await p.evaluate(() => Object.keys(window.__biMissing || {}).filter(k => /Flag for review|^Back$|^Next$|^Finish$|Questions|Question \d+ of|Answered|Flagged|On screen|Every question|Score summary|Tap a question/.test(k)));
+    const miss = await p.evaluate(() => Object.keys(window.__biMissing || {}).filter(k => /Flag for review|^Back$|^Next$|^Finish$|Questions|Question \d+ of|Answered|Flagged|On screen|Score summary/.test(k)));
     const flagTr = await p.evaluate(() => { const t = document.querySelector('#pgFlag .tr'); return t ? t.textContent : ''; });
     if (miss.length || !/revisão/.test(flagTr)) F('Português: missing ' + miss.slice(0, 4).join(' | ') + ' · the flag says "' + flagTr + '"');
     await tap(p, '.bi-toggle');

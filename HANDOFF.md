@@ -24,10 +24,25 @@ A row is its name and a button is its verb. If a thing needs a sentence to be un
 What stays: a message someone needs in order to go on, dates and rules people act on, a credit a source is owed. The
 long form, with the checks that hold the removed lines out, is in the site's README (`mrshaffer-site`, "Words on a page").
 
-**Not done yet: the unit practice pages** (this kit's `ui.js`, `pager.js`, `explain.js`, `lang/`). The site session went
-through the site's own pages on 15 Nov and left the kit alone because `cgraph` is being built in it today. When that
-lands, the kit's start sheet, bar, end panel and messages want the same pass ("18 parts to answer", "Whole practice
-test"), in English and pt-BR together. Nothing in `practice/kit` was changed by this note.
+**The practice kit has had this pass (15 Nov 2026, 7 pm; Croix: *"Fix them all."*).** Words only, on main after `cgraph`
+(`bd931fd`): `ui.js` (the bar, the start sheet's chip, the end panel, the confirms and the notice), `pager.js` and
+`pager.css` (no heading over the list after Finish), `teacher.js` and `kit.css` (the print preview's line),
+`lang/pt-BR.js`, `check/page.js` part K (a `WORDS` list a built page may not hold; no chip on the whole test; "Last
+time"), `check/pager_page.js`, `README.md` ("15 Nov 2026 — the words pass" has every line, and what was kept on purpose),
+`KIT.sha256`. No question, key, set number or `contentVersion` moves. Checked on this kit in scratch copies of both
+courses: every unit's page and teacher copy builds and holds none of the old lines (24 builds); M7 Unit 4 (the unit with
+Português) passes `check/run.py` whole; A7 Unit 6's page and teacher copy pass the page checks (`page.js`, `help_page.js`,
+`bank.js`).
+
+**Not on any page yet.** Croix stopped the site session there (*"Finish, push, and stop"*): no course has vendored this
+kit and nothing was published. A unit's page gets the new words at its next build on this kit
+(`tools/practice_kit.py --vendor`, `check/run.py`, then `publish_web.py --site`). On the website that is the published
+pages — M7 4, 5, 9, 10, 13 and A7 3, 4, 5, 6 — and publishing them also publishes whatever else those pages were rebuilt
+with on 15 Nov, which is Croix's word to give. Two things for whoever does it:
+- M7 Unit 4's own `bi_check.js` (line 29) still writes "…? This set stays saved on this device."; the kit's table keeps
+  that one old key so the check passes. Change the line to "This set stays saved." and the key can go.
+- One line was left for Croix to call: the help standard's "Open Hint, then tap Step by step with me." after a miss
+  nothing names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit).
 
 ## The practice kit has `cgraph` — a circle graph the student builds (15 Nov 2026, evening; M7 Unit 7 is its first user)
 

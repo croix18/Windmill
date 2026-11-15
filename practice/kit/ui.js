@@ -28,7 +28,7 @@ try { document.documentElement.lang = 'en'; } catch(e){}
 var G0 = U.generate(1), NSEC = G0.sections.length;
 var SCOPES = { all: 'Whole test' };
 G0.sections.forEach(function(s, k){ SCOPES['p' + (k + 1)] = s.title + ' only'; });   /* ruling 54: a section is named, never numbered */
-SCOPES.miss = 'My misses, with new numbers';
+SCOPES.miss = 'My misses';
 /* a lesson's practice from Cadence (bank.js, 7 Nov 2026): one choice per lesson of the plan, after the test's own */
 if (K.Bank) K.Bank.scopes(SCOPES);
 function lessonScope(sc){ return !!(K.Bank && K.Bank.isLesson(sc)); }
@@ -369,7 +369,7 @@ function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input'
 function render(){
   DS = build(); ITEMS = []; EX = {}; RULES = {};
   var h = [], qn = 0;
-  if (!DS.length) h.push('<p class="how">' + (scope === 'miss' ? 'No misses saved on this device yet. Finish a set first, then come back to practice the ones you missed.' : 'No questions here right now.') + '</p>');
+  if (!DS.length) h.push('<p class="how">' + (scope === 'miss' ? 'No misses yet. Finish a set first.' : 'No questions here right now.') + '</p>');
   DS.forEach(function(sec, di){
     var pts = 0;
     var body = sec.items.map(function(d){
@@ -401,9 +401,10 @@ function render(){
   if (teacherPage()){ var sc0 = $('setchk'); if (!sc0){ sc0 = document.createElement('p'); sc0.id = 'setchk'; sc0.className = 'setchk'; sc0.setAttribute('translate', 'no'); $('mMenu').appendChild(sc0); } sc0.textContent = scope === 'all' ? 'Set ' + seed + ' · version ' + U.contentVersion + ' · check ' + setCheck() : ''; sc0.hidden = scope !== 'all'; }   /* its own line at the foot of the ⋯ menu, never translated */
   /* which practice this is, always in sight (7 Nov 2026, Croix: "It was the switching mechanism that confused me. I would assume
      that if I open a specific lesson it would open to that section. Likewise if I open the full practice test."): a chip under the
-     title names the choice from What to practice, and a lesson's line says what it is — "Lesson 10.04 · 8 questions · today's
-     practice" */
-  $('total').textContent = lessonScope(scope) ? qn + ' question' + (qn === 1 ? '' : 's') + ' · today’s practice' : ITEMS.length + ' point' + (ITEMS.length === 1 ? '' : 's');
+     title names the choice from What to practice when it is not the whole test (15 Nov 2026, the words pass: the whole test's
+     title is the unit's, and a chip there said nothing), and a lesson's line is its chip and its count — "Lesson 10.04 · 8
+     questions" */
+  $('total').textContent = lessonScope(scope) ? qn + ' question' + (qn === 1 ? '' : 's') : ITEMS.length + ' point' + (ITEMS.length === 1 ? '' : 's');
   paintChip();
   paintScopes();
   Object.keys(S.more || {}).forEach(function(id){ var b = byIdBase(id); if (b) mountExtra(b); });
@@ -418,7 +419,7 @@ function paintScopes(){
   sc.innerHTML = les.length ? '<optgroup label="Practice test">' + test.map(opt).join('') + '</optgroup><optgroup label="Lessons" translate="no">' + les.map(opt).join('') + '</optgroup>' : test.map(opt).join('');
 }
 function scopeChip(){
-  if (scope === 'all') return 'Whole practice test';
+  if (scope === 'all') return '';
   if (scope === 'miss') return 'My misses';
   if (lessonScope(scope)) return String(K.Bank.name(scope) || '').split(' · ')[0];
   var k = +String(scope).slice(1) - 1; return G0.sections[k] ? plainText(G0.sections[k].title) : String(SCOPES[scope] || '');
@@ -428,7 +429,7 @@ function paintChip(){
   /* on the line under the title, before the points (its own row pushed question 1 off a phone's first screen on a teacher copy) */
   var t = $('total'), row = t && t.parentNode;
   if (!c){ c = document.createElement('span'); c.id = 'scopechip'; c.className = 'scopechip'; c.setAttribute('translate', 'no'); if (row) row.insertBefore(c, t); else h.parentNode.insertBefore(c, h.nextSibling); }
-  c.textContent = scopeChip(); c.setAttribute('aria-label', 'Practising: ' + scopeChip());
+  var cw = scopeChip(); c.textContent = cw; c.hidden = !cw; if (cw) c.setAttribute('aria-label', 'Practicing: ' + cw); else c.removeAttribute('aria-label');
 }
 /* the eyebrow and the title: the unit's, or in a lesson choice the lesson's ("GRADE 7 MATH · UNIT 9 · LESSON 9.03 PRACTICE") */
 function paintHead(){
@@ -634,7 +635,7 @@ function namedWhat(it, R){
 function cardHtml(it, R, f){
   var v = R.v;
   if (v === 'right'){
-    var own = R.first && !R.helped, line = R.late ? '✓ Correct — checked at Finish' : own ? (it.extra ? '✓ Correct on your own' : '✓ Correct on the first try') : R.first ? '✓ Correct' : R.shown ? '✓ Correct after seeing the steps' : '✓ Correct on try ' + R.tries;   /* [J-5] */
+    var own = R.first && !R.helped, line = R.late ? '✓ Correct' : own ? (it.extra ? '✓ Correct on your own' : '✓ Correct on the first try') : R.first ? '✓ Correct' : R.shown ? '✓ Correct after seeing the steps' : '✓ Correct on try ' + R.tries;   /* [J-5] */
     var note = f && f.v === 'right' && f.what && f.what.length ? '<p class="note2">' + f.what.join(' ') + '</p>' : '';
     var pt = S.mode === 'test' ? '' : !it.extra && R.earned && !own ? ' <span class="tag ok">point earned</span>' : '';
     var next = S.mode === 'test' || own || R.earned || (it.extra && res(byId(it.base)).earned) ? '' : '<p class="note2">One on your own earns the point.</p>';
@@ -881,7 +882,7 @@ document.addEventListener('click', function(e){
   var jm = t.closest('[data-jump]'); if (jm){ var ji = byId(jm.dataset.jump), jh = ji && hostOf(ji); if (jh){ jh.scrollIntoView({block: 'center'}); var jf = fieldOf(jh, ji.id); if (jf) jf.focus({preventScroll: true}); } return; }
   var nw = t.closest('[data-new]'); if (nw){ var sc = nw.dataset.scope || scope;
     var go = function(){ goSet(randomSeed(), sc, 'practice'); };                     /* [R2-N2] the results' buttons always practise with checking */
-    if (started() && !S.done) ask('Leave this set? It stays saved on this device.', 'Leave', go); else go(); return; }
+    if (started() && !S.done) ask('Leave this set? It stays saved.', 'Leave', go); else go(); return; }
 });
 document.addEventListener('toggle', function(e){ var d = e.target; if (d && d.dataset && d.dataset.pic){ var it = byId(d.dataset.pic); if (it){ res(it).pic = d.open; save(); } } }, true);
 
@@ -1034,8 +1035,8 @@ var progRaf = 0; window.addEventListener('scroll', function(){ if (progRaf) retu
 document.addEventListener('focusin', function(e){ if (DS && e.target && e.target.closest && e.target.closest('#paper')) paintProgress(); });
 function paintScore(light){
   var t = tally(), sc = $('score'), N = ITEMS.length, nb = function(s){ return '<span class="nw">' + s + '</span>'; };
-  if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered') + ' · ' + nb('marked when you finish');
-  else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = nb('<b>' + N + '</b> part' + (N === 1 ? '' : 's') + ' to answer');
+  if (S.mode === 'test' && !S.done) sc.innerHTML = nb('<b>' + ITEMS.filter(answered).length + ' of ' + N + '</b> answered');
+  else if (!Object.keys(S.res).length && !S.done) sc.innerHTML = '';                 /* nothing to say before the first check (15 Nov 2026, the words pass) */
   else sc.innerHTML = nb('<b>' + t.earned + '</b> ' + (S.mode === 'test' ? 'right' : 'earned')) + (t.helped ? bulb(t.helped) : '') + ' · ' + nb('<b>' + t.done + '</b> of ' + N + ' done') + runHtml();   /* [J-2]; the points earned on your own (24 Oct 2026) */
   if (light) return;
   paintResult(t); paintScopes(); paintSections();
@@ -1050,7 +1051,7 @@ function paintBar(){
   $('bPause').hidden = S.done || !S.running || !testMode;                                /* [J-2] Pause only while it runs */
   $('bResume').hidden = S.done || S.running || !started0 || !testMode;
   $('bFinish').hidden = S.done || !ITEMS.length;
-  $('bFinish').textContent = S.mode === 'test' ? 'Finish & mark' : 'Finish';
+  $('bFinish').textContent = 'Finish';
   document.body.classList.toggle('hidechk', S.mode === 'test' && !S.done);
   Array.prototype.forEach.call(document.querySelectorAll('.mode button'), function(b){ b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)); });
 }
@@ -1073,10 +1074,9 @@ function paintResult(t){
       (twin ? newSet(!nm) : '<button type="button"' + (nm ? '' : ' class="go"') + ' data-new="1" data-scope="all">New whole test</button>' + newSet(false));
   var hk = scope + '.' + S.mode, H = hist()[hk] || [], prev = H.filter(function(x){ return !(x.seed === seed && x.at === S.finishedAt); })[0];
   var pe = prev ? (prev.earned == null ? prev.first : prev.earned) : 0;
-  /* "Since last time: up / down / the same" (item 5; the survey after Khan's session summary), from this device's history of
-     the same practice choice and mode — as a share of the points when the sets differ in size */
-  var dir = prev ? (prev.of === N ? Math.sign(t.earned - pe) : Math.sign(t.earned / N - pe / prev.of)) : 0;
-  var lastLine = prev ? '<p class="last since">Since last time: <b>' + (dir > 0 ? 'up' : dir < 0 ? 'down' : 'the same') + '</b> — ' + pe + ' / ' + prev.of + ' then, ' + t.earned + ' / ' + N + ' today.</p>' : '';   /* [J-10] */
+  /* "Last time: 12 / 36" (item 5; the survey after Khan's session summary), from this device's history of the same practice
+     choice and mode — the score, and no more words (15 Nov 2026, the words pass) */
+  var lastLine = prev ? '<p class="last since">Last time: ' + pe + ' / ' + prev.of + '</p>' : '';   /* [J-10] */
   /* per skill — the unit's sections — as text and an icon, never colour alone (item 5; the survey after ALEKS's labelled
      pie): Secure at 80% or more right on the first check with no help, Getting there at 50%, else Not yet */
   var ICON = function(fill){ return '<svg class="ci" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>' + (fill === 2 ? '<circle cx="6" cy="6" r="4.6" fill="currentColor"/>' : fill === 1 ? '<path d="M6 1.4a4.6 4.6 0 0 1 0 9.2z" fill="currentColor"/>' : '') + '</svg>'; };   /* empty, half, full: a shape as well as a word */
@@ -1089,13 +1089,12 @@ function paintResult(t){
      it was right. A help opened after a right answer is not counted. */
   var ef = effort(), effortLine = test ? '' : '<p class="last effort">Solved without help: <b>' + ef.own + '</b> · With a hint: <b>' + ef.hint + '</b> · Saw the solution: <b>' + ef.saw + '</b></p>';
   var rec = record_(), runLine = test || !(S.best >= 2) ? '' : '<p class="last">Best run this set: <b>' + S.best + '</b> in a row' + (S.newRecord ? ' — a new record' : rec.n > S.best ? ' · your record: ' + rec.n : '') + '</p>';
-  box.innerHTML = '<h2>Set ' + seed + ' · ' + esc(SCOPES[scope]) + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</h2>' +
-    '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points earned on your own') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time on the clock</span></div></div>' +
+  box.innerHTML = '<h2>Set ' + seed + (scope === 'all' ? '' : ' · ' + esc(SCOPES[scope])) + '</h2>' +
+    '<div class="big"><div><b>' + t.earned + '<small> / ' + N + '</small></b><span>' + (test ? 'right' : 'points') + '</span></div><div><b>' + fmt(S.acc) + '</b><span>time</span></div></div>' +
     firstLine + effortLine + runLine + lastLine +
     (alone ? '<p class="perfect">Every one on the first try.</p>' : perfect ? '<p class="perfect">Every point earned.</p>' : '') + chips +
     '<div class="tw"><table><thead><tr><th>Section</th><th class="r">' + (test ? 'Right' : 'Earned') + '</th>' + (test ? '' : '<th class="r">First try</th><th class="r">' + bulb() + '</th>') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-    (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' +
-      '<p class="note"><b>Hint</b> goes one step at a time, up to the worked solution; <b>Try a similar one</b> gives you a fresh one.</p>' : '') +
+    (notYet.length ? '<p class="note"><span class="nry">Not right yet:</span> ' + notYet.map(function(it){ return '<button type="button" class="jump" data-jump="' + it.id + '">' + it.lab + '</button>'; }).join(' ') + '</p>' : '') +
     '<div class="btns">' + btns + '</div>';
   box.hidden = false;
 }
@@ -1153,7 +1152,7 @@ function openSet(n, sc, mode){
   S.more = S.more || {}; S.walk = S.walk || {}; S.walkOpen = S.walkOpen || {}; S.running = false; S.startedAt = null; FLASH = {};
   render(); paintHead();
   NOTICE = '';
-  if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated since you last opened it, so it starts fresh.'; }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
+  if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated, so it starts over.'; }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
   S.hash = HASHV;
   try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
   LSEED = 0;
@@ -1181,28 +1180,28 @@ $('bPause').addEventListener('click', pause);
 $('bResume').addEventListener('click', start);
 $('bFinish').addEventListener('click', function(){
   var left = ITEMS.length - ITEMS.filter(answered).length;
-  ask((left ? left + ' of ' + ITEMS.length + ' still blank. ' : '') + (S.mode === 'test' ? 'Stop the clock and mark everything?' : 'Stop the clock and see your score?'), 'Yes, finish', finish);
+  ask(left ? left + ' of ' + ITEMS.length + ' still blank. Finish anyway?' : 'Finish and see your score?', 'Yes, finish', finish);
 });
 Array.prototype.forEach.call(document.querySelectorAll('.mode button'), function(b){
   b.addEventListener('click', function(){
     var m = b.dataset.mode; if (m === S.mode) return;
     var go = function(){ var pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); };
-    if (started()) ask('Switching starts this set over. Your answers will be cleared.', 'Switch', go); else go();
+    if (started()) ask('Switching clears your answers.', 'Switch', go); else go();
   });
 });
 $('scope').addEventListener('change', function(){ var v = this.value; if (v === scope) return; moreClose();
   var to = v === 'all' ? (scope === 'all' ? seed : (load('lastAll') || seed)) : randomSeed();   /* [R2-N3] one part or misses: new numbers; back to the whole test you were on [B6] */
   var go = function(){ goSet(to, v); };
-  if (started() && !S.done) ask('Switch to “' + SCOPES[v] + '”? This set stays saved on this device.', 'Switch', go); else go();
+  if (started() && !S.done) ask('Switch to “' + SCOPES[v] + '”? This set stays saved.', 'Switch', go); else go();
   $('scope').value = scope; });
 function setBad(t){ var b = $('setbad'); if (!b){ b = document.createElement('span'); b.id = 'setbad'; b.className = 'setbad'; b.setAttribute('role', 'alert'); $('setin').parentNode.appendChild(b); } b.textContent = t; b.hidden = !t; if (t) $('setin').setAttribute('aria-invalid', 'true'); else $('setin').removeAttribute('aria-invalid'); }
 $('setgo').addEventListener('click', function(){ var v = okSetText($('setin').value); if (v){ setBad(''); moreClose(); goSet(v, scope); } else { setBad('A set number is 1 to 99999. This is still set ' + seed + '.'); $('setin').select(); } });   /* a number that is not one says so (14 Nov 2026): "48.5" was set 48, "4.8e3" set 4800, and anything else was dropped without a word */
 $('setin').addEventListener('input', function(){ setBad(''); });
 $('setin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); $('setgo').click(); } });
-function newSet(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Leave this set for a new one? This one stays saved on this device.', 'New set', go); else go(); }
+function newSet(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Start a new set? This one stays saved.', 'New set', go); else go(); }
 $('bNew').addEventListener('click', function(){ moreClose(); newSet(); });
 document.addEventListener('click', function(e){ if (e.target && e.target.closest && e.target.closest('[data-newset]')) newSet(); });   /* the end panel's "Try a new set" */
-$('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your answers to this set and start it again?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
+$('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your answers and start over?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
 /* Ruling 49 (22 Oct 2026): on a unit whose test is a random set of this page, the teacher bar (teacher.js) prints the
    TEST as n forms — the make-up printing, headed "Test · Form A" instead of "Make-up" (the set number on the key only,
    25 Oct 2026). Teacher copies only. */
@@ -1276,7 +1275,7 @@ function verdict(it){
 function resultsHtml(){
   var t = tally(), N = ITEMS.length, test = S.mode === 'test';
   var h = printHead('Results') + '<p class="pmeta"><span class="bt">' + setLine() + ' · ' + (test ? 'Like the real test' : 'Check as I go') + '</span></p>';
-  h += '<p class="pscore"><span class="bt"><b>' + t.earned + ' / ' + N + '</b> ' + (test ? 'right' : 'points earned on your own') + '</span>' + (test ? '' : '<span class="bt">' + t.first + ' / ' + N + ' right on the first try' + (t.helped ? ' ' + bulb(t.helped) : '') + '</span>') + '<span class="bt">' + t.done + ' of ' + N + ' done · time on the clock ' + fmt(elapsed()) + '</span>' +
+  h += '<p class="pscore"><span class="bt"><b>' + t.earned + ' / ' + N + '</b> ' + (test ? 'right' : 'points') + '</span>' + (test ? '' : '<span class="bt">' + t.first + ' / ' + N + ' right on the first try' + (t.helped ? ' ' + bulb(t.helped) : '') + '</span>') + '<span class="bt">' + t.done + ' of ' + N + ' done · time ' + fmt(elapsed()) + '</span>' +
     (S.done ? '' : '<span class="bt">Not finished yet.</span>') + '</p>';
   h += '<table class="ptab pres"><thead><tr><th><span class="bt">Section</span></th><th class="r"><span class="bt">' + (test ? 'Right' : 'Earned') + '</span></th></tr></thead><tbody>' +
     DS.map(function(s, k){ return '<tr><td><span class="bt">' + s.title + '</span></td><td class="r">' + (test ? t.bySec[k].got : t.bySec[k].earned) + ' / ' + t.bySec[k].of + '</td></tr>'; }).join('') + '</tbody></table>';
@@ -1512,7 +1511,7 @@ function showPrint(kind, label){
   if (kind === 'mk' || kind === 'mc'){ makeupMenu(kind === 'mc'); return; }
   var mk = /^m([kc])(\d)$/.exec(kind);
   var body = mk ? makeupHtml(+mk[2], label, mk[1] === 'c') : kind === 'res' ? resultsHtml() : worksheetHtml() + (kind === 'wk' ? '<div class="pbreak"></div>' + keyListHtml() : '');
-  pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button><span class="pvhint bt">If nothing happens, use your browser’s Print (Ctrl + P).</span></div><div class="ppage">' + body + '</div>';
+  pv.innerHTML = '<div class="pbar"><button type="button" class="go" id="pvPrint">Print</button><button type="button" id="pvClose">Close</button></div><div class="ppage">' + body + '</div>';
   pv.hidden = false; document.body.classList.add('printing'); window.scrollTo(0, 0);
   $('pvPrint').onclick = function(){ try { window.print(); } catch(e){} };
   $('pvClose').onclick = closePrint;
