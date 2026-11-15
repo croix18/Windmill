@@ -1,6 +1,6 @@
 # Nib — the handwriting engine, as the kit carries it
 
-`nib.js` is the built engine from [croix18/Nib](https://github.com/croix18/Nib) (`dist/nib.js`, about 1.3 MB: the
+`nib.js` is the built engine from [croix18/Nib](https://github.com/croix18/Nib) (`dist/nib.js`, about 1.4 MB: the
 recognizer, its models, the solver, the in-place views, the `<nib-pad>` element — since 1.6 an endless canvas with pens,
 markers, highlighters, shapes, text, pictures and papers — its PDF writer and the typeset fonts). It is copied here
 unchanged on each Nib release; `VERSION` names the release and the Nib commit it came from. Nib's own repository is the
@@ -40,6 +40,16 @@ over the slides does. A tool that puts a scribble's pieces back together itself 
 turn) times them by the pointer events' own `timeStamp`s, as the pad does since 1.6.6: a page busy between the pieces
 hears the second touch late, and timed by the clock instead, one scribble becomes two strokes of ink. An answer keeps the look it was first drawn with: `getState()` carries it (`looks`), so a tool that
 saves the pad's state draws each answer as it was when it is opened again.
+
+Speed (1.7.0): the symbol classifier is a small WebAssembly kernel carried inside `nib.js` as text — nothing is fetched,
+so a file opened from Drive on the Chromebox runs it — about 16 times as fast as before, and every reading is what 1.6
+read. A pad that comes back with a page of writing on it (a reload, a scene put back) has its answers back in a
+fraction of the time: a board of 60 expressions in 1.5 s where it took 19. `Nib.kernel` says which classifier runs:
+`'simd'`, or `'js'` where WebAssembly cannot (an old browser; a page served with a Content-Security-Policy whose
+`script-src` has no `'wasm-unsafe-eval'`): the same arithmetic in JavaScript, the same readings, at the old speed, said
+once in the console. A tool served with such a policy should allow it. On a pad, `busy` is true while a reading is due
+(the pad is waiting for the pen to rest, reading, or was put off by a touch), and a read that a touch put off — two
+fingers moving the board, a tap — now starts again by itself. The file is about 1.4 MB.
 
 ## What it stores in the browser (per origin; Chrome's file:// pages share one)
 
