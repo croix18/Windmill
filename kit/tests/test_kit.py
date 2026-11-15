@@ -1230,6 +1230,176 @@ with tempfile.TemporaryDirectory() as tmp:
        _ul.load(os.path.join(tmp, "u91", "l01.py")).L["te"]["materials"] == "drawn by u91")
     sys.modules.pop("figs", None)
 
+# ---- worked equations lined up on their signs (15 Nov 2026; lib/align.py). A7 Unit 11's Barton audit: "Worked equations are
+# not laid out to be followed. In every deck the equals signs are not aligned." A lesson that says align="=" sets each run of
+# rows that are each one relation with the signs in one column — on a Notes slide, a worked slide and an answer slide's steps.
+from lib import align as _al
+import io as _io, contextlib as _cl
+import checks as _ckA
+ok("align: a row of an equation being solved is one relation, cut at its sign",
+   _al.split("3(2x - 5) + 4 = 25") == ("3(2x - 5) + 4", "=", "25") and _al.split("x \\leq -3") == ("x", "\\leq", "-3")
+   and _al.split("\\sA{3}x = 21") == ("\\sA{3}x", "=", "21") and _al.split("\\frac{x}{2} + 3 = \\frac{x}{3} + 5")[1] == "=")
+ok("align: words, a check, two relations, a false ending with its words and a bare expression are not",
+   all(_al.split(t) is None for t in ("\\text{Check: } 5(7) + 9 = 30", "-10 = -10 \\qquad \\text{always true}", "2x = 8 = 8",
+                                       "x = 2, y = 3", "3x + 4", "= 25", "f(x = 2)", "\\sA{x = 2}"))
+   and _al.latex_of("$8 = 5$, never true", "row") is None and _al.latex_of("Add 9:  $3x = 24$", "row") is None
+   and _al.latex_of("Check: 5(7)", "worked") is None and _al.latex_of(("x = 7", "a gloss"), "worked") == "x = 7")
+ok("align: a run is two or more such rows in a row; a row that is not one breaks it",
+   _al.runs(["$a = 1$", "$b = 2$", "Check:  $a + b = 3$", "$c = 3$", "$d = 4$", "words", "$e = 5$"]) == [(0, 2), (3, 5)])
+# the sign's place in a row's picture, read off mathtext's layout, against where its pixels are (the sign painted alone)
+import numpy as _np
+from PIL import Image as _Img
+def _sign_pixels(tex, surface):
+    t, pt, face = _mi._slide_latex(tex, surface)
+    r = _mi.parse(f"${t}$", dpi=_mi.DPI, prop=_mi._prop(pt, face))
+    tol = 0.12 * pt * _mi.DPI / 72
+    col = ["FF0000" if (chr(g[2]) in _mi.RELATION_GLYPHS and abs(g[4]) < tol) else "000000" for g in r.glyphs]
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, "s.png"); _mi._paint(r, col, ["000000"] * len(r.rects), t, p)
+        a = _np.array(_Img.open(p).convert("RGBA")).astype(int)
+    xs = _np.where(((a[..., 3] > 60) & (a[..., 0] > 150) & (a[..., 1] < 90)).any(axis=0))[0]
+    return (xs.min() + xs.max() + 1) / 2 / _mi.DPI
+_px = [(t, s, abs(_mi.sign_offset(t, s) - _sign_pixels(t, s)) * _mi.DPI) for t, s in
+       (("6x - 15 + 4 = 25", "slidemid"), ("x = 6", "slidemid"), ("-\\frac{1}{2}(4x - 10) = x - 1", "slidemid"),
+        ("x \\leq -3", "slidestep"), ("3.14 \\times 5^{2} \\approx 78.5", "slidestepmid"), ("y \\neq 4", "slidestep"))]
+ok("align: the sign's measured place in a picture is where its pixels are (within 2 of the picture's 300 to the inch)",
+   all(d < 2 for _, _, d in _px), str([(t, round(d, 2)) for t, _, d in _px]))
+ok("align: a colored slot does not move the sign", abs(_mi.sign_offset("\\sA{3}x = 21", "slidemid") - _mi.sign_offset("3x = 21", "slidemid")) < 1e-9
+   and abs(_mi.sign_offset("\\sA{5}y = \\sB{45}", "slidestep") - _mi.sign_offset("5y = 45", "slidestep")) < 1e-9)
+ok("align: a row whose main line has no single sign has no place to stand", _mi.sign_offset("3x + 4", "slidemid") is None
+   and _mi.sign_offset("2x = 8 = 8", "slidemid") is None)
+A_ = copy.deepcopy(L); A_["align"] = "="
+A_["notes"] = [dict(numeral="I", head="Distribute, then collect", min=3, sub="", note="n", letters=False,
+                    math=["$3(2x - 5) + 4 = 25$", "$6x - 15 + 4 = 25$", "$6x - 11 = 25$", "$6x = 36$", "$x = 6$"]),
+               dict(numeral="II", head="Two runs", min=3, sub="", note="n", letters=False,
+                    math=["$2x + 3 = 11$", "$2x = 8$", "Check:  $2(4) + 3 = 11$", "$5x - 1 = 14$", "$5x = 15$"]),
+               dict(numeral="III", head="Not a chain", min=3, sub="", note="n", letters=False, align=False,
+                    math=["$4x = 20$", "$x = 5$"])]
+A_["examples"] = [dict(title="Example 1", sub="s", min_q=1, note_q="n", prompt=["$5x + 9 - 2x = 30$"], ask="Solve it, then check.",
+                       worked=[dict(sub="Worked.", min=2, note="n", answer="x = 7",
+                                    rows=[("5x + 9 - 2x = 30", "g"), ("3x + 9 = 30", "g"), ("\\sA{3}x = 21", "g"), ("x = 7", "g"),
+                                          ("\\text{Check: } 5(7) + 9 - 2(7) = 30", "g")]),
+                               dict(sub="Worked with its picture.", min=1, note="n", answer="x = 4", fig=_box("8 m", 8, 2),
+                                    rows=[("2x + 3 = 11", "g"), ("2x = 8", "g"), ("x = 4", "g")])],
+                       check=("eq", "1", "1"),
+                       your_turn=dict(min=2, note="n", prompt=["$7x - 3 - 4x = 24$", "Solve it, then check."], answer="x = 9",
+                                      steps=["$3x - 3 = 24$", "$3x = 27$", "$x = 9$", "Check:  $7(9) - 3 - 4(9) = 24$"]),
+                       yt_check=("eq", "1", "1"))]
+A_["whiteboard"] = copy.deepcopy(A_["whiteboard"])
+A_["whiteboard"][0].update(steps=["$8x = 56$", "$x = 7$"])
+A_["whiteboard"][1].update(steps=["$\\sA{5}y + 3 = 48$", "$5y = 45$", "$y = 9$"])
+A_["whiteboard"][2].update(steps=["Collect:  $5y + 3 = 48$", "Subtract 3:  $5y = 45$"])    # labeled steps: words beside the mathematics
+def _deck_of(spec, tmp, name):
+    D = Deck(C.COURSE, 90, "Lesson 1", "T", "foot")
+    with _cl.redirect_stdout(_io.StringIO()):
+        lb._fill_deck(D, spec)
+    p = os.path.join(tmp, name + ".pptx"); D.save(p, sidecar=False)
+    Hd = HtmlDeck(C.COURSE, 90, "Lesson 1", "T", "foot"); lb._fill_deck(Hd, spec)
+    return D, p, render_page(Hd)
+def _slide_xml(p):
+    z = zipfile.ZipFile(p)
+    return [z.read(nm) for nm in sorted((nm for nm in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", nm)),
+                                        key=lambda s: int(re.search(r"(\d+)", s.split("/")[-1]).group(1)))]
+_atmp = tempfile.mkdtemp(prefix="kitalign")
+DA, pA, hA = _deck_of(A_, _atmp, "on")
+_runsA = _ckA._aligned_runs(pA)
+_kind = {i + 1: x for i, x in enumerate(DA.side)}
+_spread = {k: max(v) - min(v) for k, v in _runsA.items()}
+_on = collections_counter = {}
+for (sn, _r) in _runsA:
+    _on[_kind[sn]["kind"] + ":" + (_kind[sn]["sub"] or "")] = _on.get(_kind[sn]["kind"] + ":" + (_kind[sn]["sub"] or ""), 0) + 1
+ok("align: in the PowerPoint every run's signs share one x — each picture's place plus its sign, measured again from the deck",
+   _runsA and all(s < 0.003 for s in _spread.values()), str(_spread))
+ok("align: the runs are the ones the spec asks for — Notes I, Notes II twice (its check breaks it), both worked slides, the Your Turn's and two boards' answers",
+   _on == {"notes:": 3, "example:Worked.": 1, "example:Worked with its picture.": 1, "yourturn:Answer.": 1, "wb:Answer.": 2}, str(_on))
+ok("align: a run's rows are the rows it holds — a words row breaks the run and is set as before",
+   sorted(len(v) for v in _runsA.values()) == [2, 2, 2, 3, 3, 3, 4, 5], str(sorted(len(v) for v in _runsA.values())))
+from pptx import Presentation as _Prs
+_prsA = _Prs(pA)
+def _al_pics(sn):
+    return [sh for sh in _prsA.slides[sn - 1].shapes if sh.shape_type == 13 and (sh._element.nvPicPr.cNvPr.get("descr") or "").startswith("align ")]
+_nI = [sn for sn, x in _kind.items() if x["kind"] == "notes"][0]
+_pI = _al_pics(_nI)
+_mid = (min(s.left for s in _pI) + max(s.left + s.width for s in _pI)) / 2 / 914400
+ok("align: a Notes run is centered on the slide as its rows were", abs(_mid - (_dk.LM + _dk.CW / 2)) < 0.01, f"{_mid:.3f}")
+_wk1 = [sn for sn, x in _kind.items() if x["sub"] == "Worked."][0]
+ok("align: a worked run's leftmost ink is at the worked rows' left edge (2.0 in)", abs(min(s.left for s in _al_pics(_wk1)) / 914400 - 2.0) < 0.005)
+_nIII = [sn for sn, x in _kind.items() if x["kind"] == "notes"][2]
+_pIII = [sh for sh in _prsA.slides[_nIII - 1].shapes if sh.shape_type == 13]
+ok("align: a block that says align=False is set as before — each row centered on its own",
+   not _al_pics(_nIII) and all(abs((s.left + s.width / 2) / 914400 - (_dk.LM + _dk.CW / 2)) < 0.01 for s in _pIII), str(len(_pIII)))
+_wkf = [sn for sn, x in _kind.items() if x["sub"] == "Worked with its picture."][0]
+_slA = _shapes_of(pA)[_wkf - 1]
+_figR = max(r[2] for r, _ in _slA[0]) if _slA[0] else None
+ok("align: rows lined up beside a figure still clear it (nothing on the picture, every row to its right)",
+   _slA[0] and _hits(*_slA[:2]) == [] and min(s.left for s in _al_pics(_wkf)) / 914400 > _figR + 0.5, f"{_figR} {[s.left / 914400 for s in _al_pics(_wkf)]}")
+ok("align: nothing a slide says changes — the same words on every slide as the deck without the field",
+   [b" ".join(re.findall(rb"<a:t>([^<]*)</a:t>", x)) for x in _slide_xml(pA)] ==
+   [b" ".join(re.findall(rb"<a:t>([^<]*)</a:t>", x)) for x in _slide_xml(_deck_of(dict(A_, align=None), _atmp, "none")[1])])
+# the field absent: the deck the kit built before, nothing marked, nothing on the HTML page that lines rows up
+_B = copy.deepcopy(A_); _B.pop("align")
+_DB, pB, hB = _deck_of(_B, _atmp, "off")
+_DN, pN, hN = _deck_of(dict(_B, align=None), _atmp, "null")
+_nB = [sn for sn, x in enumerate(_DB.side, 1) if x["kind"] == "notes"][0]
+ok("align: without the field nothing is lined up or marked, and a Notes row is centered on its own as before",
+   b'descr="align ' not in b"".join(_slide_xml(pB)) and 'class="eqs' not in hB and ".eqs{" not in hB and _ckA._aligned_runs(pB) == {}
+   and all(abs((s.left + s.width / 2) / 914400 - (_dk.LM + _dk.CW / 2)) < 0.01 for s in _Prs(pB).slides[_nB - 1].shapes if s.shape_type == 13))
+ok("align: the field absent and the field None build the same deck, slide for slide", _slide_xml(pB) == _slide_xml(pN) and hB == hN)
+# a run that would be worse lined up, or does not fit, is set as before — and said
+_geo_rows = ["$100x + 250 + 375 = 4$", "$4 = 100x + 250 + 375$"]
+with _cl.redirect_stdout(_io.StringIO()) as _o1:
+    _p1 = _al.plan(_geo_rows, "row", "slidemid", 11.6, quiet=False)
+ok("align: a run that lining up would spread past 1.25 times its widest row is set as before, and the console says so",
+   _p1 == {} and "not lined up" in _o1.getvalue() and "widest row" in _o1.getvalue(), _o1.getvalue())
+_ch = ["$3(2x - 5) + 4 = 25$", "$6x - 15 + 4 = 25$", "$x = 6$"]
+_g = _al.geometry([r[1:-1] for r in _ch], "slidemid"); _full = sum(_al.extent(_g))
+with _cl.redirect_stdout(_io.StringIO()) as _o2:
+    _p2 = [_al.plan(_ch, "row", "slidemid", _full * f, quiet=False) for f in (1.0, 0.95, 0.88, 0.5)]
+ok("align: a run too wide for its room steps down (92%, 85%), then falls back with a line on the console",
+   [p[0][1] if p else None for p in _p2] == [1.0, 0.92, 0.85, None] and _o2.getvalue().count("not lined up") == 1, f"{[p and p[0][1] for p in _p2]} {_o2.getvalue()}")
+with _cl.redirect_stdout(_io.StringIO()) as _o3:
+    _D3 = Deck(C.COURSE, 90, "L", "T", "f"); _D3.section("Notes", "", 1, "n", "notes"); _D3.cursor = 1.6
+    _D3.math_rows(_geo_rows, align=True, slots=True)
+    _D4 = Deck(C.COURSE, 90, "L", "T", "f"); _D4.section("Notes", "", 1, "n", "notes"); _D4.cursor = 1.6
+    for _r in _geo_rows:
+        _D4.math_row(_r, slots=True)
+_xy = lambda D_: [(s.left, s.top, s.width, s.height) for s in D_.s.shapes if s.shape_type == 13]
+ok("align: a run that falls back is placed exactly as the rows were before", _xy(_D3) == _xy(_D4) and "not lined up" in _o3.getvalue())
+ok("align: a scratch deck (a layout trial) says nothing on the console", "trial = True" in open(lb.__file__, encoding="utf-8").read())
+# planted: one row's picture moved — slidefit refuses the deck
+_pp = os.path.join(_atmp, "planted.pptx")
+with zipfile.ZipFile(pA) as _zi, zipfile.ZipFile(_pp, "w") as _zo:
+    _done = False
+    for _nm in _zi.namelist():
+        _b = _zi.read(_nm)
+        if not _done and re.fullmatch(r"ppt/slides/slide\d+\.xml", _nm) and b'descr="align ' in _b:
+            _t = _b.decode(); _m = re.search(r'descr="align [^"]*"/>.*?<a:off x="(\d+)"', _t, re.S)
+            _b = (_t[:_m.start(1)] + str(int(_m.group(1)) + 27432) + _t[_m.end(1):]).encode(); _done = True     # 0.03 in
+        _zo.writestr(_nm, _b)
+with _cl.redirect_stdout(_io.StringIO()) as _o4:
+    _f4 = _ckA.check_slidefit([pA]); _f5 = _ckA.check_slidefit([_pp])
+ok("align: slidefit measures every aligned run of a sound deck and finds nothing", _f4 == [] and "runs of rows lined up on their signs" in _o4.getvalue(), _o4.getvalue())
+ok("planted: one aligned row's picture 0.03 in out of its column is caught (slidefit)", any("not one column" in x for x in _f5), str(_f5))
+# the HTML deck: the same runs, as a three-column grid, its signs measured in a real browser
+ok("align: the HTML deck sets the same runs as grids (left sides, the sign, right sides): centered on a Notes slide, from the worked rows' edge, at the steps' edge (a worked slide's picture puts its rows in steps)",
+   hA.count('<div class="eqs center') == 3 and hA.count('<div class="eqs from') == 1 and hA.count('<div class="eqs left') == 4
+   and hA.count('class="k eq eqS"') == sum(len(v) for v in _runsA.values()) and ".eqs{" in hA)
+if _browser:
+    _h0 = C.HTML; C.HTML = True
+    _ha = os.path.join(_atmp, "on.html"); open(_ha, "w", encoding="utf-8").write(hA)
+    _hp = os.path.join(_atmp, "planted.html")
+    open(_hp, "w", encoding="utf-8").write(hA.replace('<span class="k eq eqS"', '<span style="margin-left:30px" class="k eq eqS"', 1))
+    with _cl.redirect_stdout(_io.StringIO()) as _o6:
+        _f6 = _ckA.check_html([_ha]); _f7 = _ckA.check_html([_hp])
+    C.HTML = _h0
+    ok("align: in the browser every grid's signs stand in one column (htmlcheck measures them)",
+       not [x for x in _f6 if "aligned run" in x] and "8 runs of rows on their signs measured" in _o6.getvalue(), str(_f6)[:300] + _o6.getvalue()[-300:])
+    ok("planted: a row's sign pushed out of its column in the HTML deck is caught (htmlcheck)", any("aligned run's signs are" in x for x in _f7), str(_f7)[:300])
+_bad = copy.deepcopy(A_); _bad["align"] = "yes"; _bad["notes"][0]["align"] = "left"
+_rb = lb.rulingcheck_lesson(slotmark.strip_deep(_bad))
+ok("align: a lesson's or a block's align that is neither \"=\" nor False is refused", len([x for x in _rb if "align=" in x]) == 2, str([x for x in _rb if "align" in x]))
+ok("align: a board may carry align (it is a field a builder reads)", "align" in lb.WB_FIELDS)
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
