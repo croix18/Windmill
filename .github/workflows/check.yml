@@ -14,7 +14,8 @@ jobs:
         run: |
           MPL=$(sed -n 's/^MATPLOTLIB = "\([0-9.]*\)".*/\1/p' kit/lib/mathimg.py)
           test -n "$MPL" || { echo "kit/lib/mathimg.py names no MATPLOTLIB"; exit 1; }
-          pip install jsonschema sympy python-docx python-pptx "matplotlib==$MPL.*" Pillow
+          # brotli: the kit tests read the house pi's WOFF2 with fontTools, which needs it to open one
+          pip install jsonschema sympy python-docx python-pptx "matplotlib==$MPL.*" Pillow brotli
       # the source repositories are private to Croix; CI validates the committed spine and runs the
       # room conformance test. Regeneration happens in a session with the three checkouts beside this one.
       - run: bash tools/check.sh

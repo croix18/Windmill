@@ -37,11 +37,11 @@ python3 tools/practice_kit.py --check
 
 echo "== kit (the build kit both courses vendor)"
 python3 tools/kit_manifest.py --check
-if python3 -c "import sympy, docx, pptx, matplotlib, PIL" 2>/dev/null; then
+if python3 -c "import sympy, docx, pptx, matplotlib, PIL, brotli" 2>/dev/null; then
   for prof in course_on course_acc; do
     KIT_COURSE=kit/tests/$prof.py python3 kit/tests/test_kit.py | tail -1
   done
 else
-  echo "   kit tests skipped: sympy, python-docx, python-pptx, matplotlib and Pillow are needed (CI installs them)"
+  echo "   kit tests skipped: sympy, python-docx, python-pptx, matplotlib, Pillow and brotli are needed (CI installs them)"
 fi
 echo "all checks passed"
