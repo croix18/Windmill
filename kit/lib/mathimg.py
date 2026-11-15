@@ -479,7 +479,7 @@ def _slide_latex(latex, surface):
 
 
 def sign_offset(latex, surface):
-    """How far (inches) the centre of the expression's one relation sign on its main line stands from the left
+    """How far (inches) the center of the expression's one relation sign on its main line stands from the left
     edge of its ink — that is, from the left edge of its picture as m() draws it — at the picture's natural size.
     None when the main line carries no relation sign, or more than one."""
     key = (latex, surface)

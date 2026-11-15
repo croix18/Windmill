@@ -90,6 +90,7 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 | `bank`, `additional` | list of item dicts | the two question banks; `additional` mirrors `bank` position by position with new numbers |
 | `independent` | list of exactly 6 item dicts | the independent set (ruling 21), unless `no_set=True`. Printed as a handout with a key, or set on one slide with its six answers in the teacher's edition — the profile's `SET` decides **The six questions are on a slide in both courses** (4 Oct 2026: "the individual review portion of the slides needs to put the problems on the board"); `SET` only decides whether they are printed as a page as well. Mathematics in a stem is typeset on the slide and the type steps down until the six fit — a set that does not fit at 16 pt is refused, not split. |
 | `no_set` | bool, optional | the lesson carries no six-question set (M7 Unit 4 — Croix, 27 September) |
+| `align` | `"="`, optional | **the rows of an equation being solved stand on their equals signs** (15 Nov 2026) — on the Notes slides, the worked slides and the answer slides' `steps`. Absent, nothing moves. A notes dict, a worked entry, a `your_turn` or a board may say `align=False` to set its own rows as before. See "Rows lined up on their signs" below |
 | `review` | bool, optional | the spec is the review day built as a lesson (`uN/review.py`); it joins the unit deck where the profile's `REVIEW_IN_DECK` is set and writes nothing to the bank |
 | `handout` | str, optional | names a printed page the lesson uses that the build does not make (4.05's measuring sheet); printed under Materials |
 | `mtr`, `hoq`, `differentiation` | see below | ruling 25 — the build refuses a lesson without them |
@@ -375,6 +376,35 @@ It is the mathematics, not a remark about it (the grey `gloss` and `hint` stay o
   and one chained line of mathematics is shorter than two lines of mathematics).
 - A slide without steps is a finding where the course profile says `STEPS = "required"`; until a
   unit's steps are all written it is only counted ("N of M answer slides show their steps").
+
+## Rows lined up on their signs (`align="="`, 15 November 2026)
+
+A7 Unit 11's Barton audit: *"Worked equations are not laid out to be followed. In every deck the equals signs are not
+aligned."* A Notes slide centered each row on its own and a worked slide began each row at one left edge, so each row's
+"=" stood somewhere else. A lesson that says **`align="="`** at its top level sets every run of rows that solve an
+equation with the signs in one column: the left sides end at it, the right sides start from it.
+
+- **Which rows.** A row is lined up when it is ONE relation — an expression, one `=`, `<`, `>`, `\le`, `\ge`, `\approx` or
+  `\ne` outside every brace and bracket, an expression — and nothing else: a Notes `math` row that is one `$…$`; a worked
+  row's `(latex, gloss)`; an answer slide's step that is one `$…$` (after its `[equation]`/`[false]` declaration is
+  stripped). Two or more such rows in a row are a run. Anything else breaks the run and is set as before: words, words
+  beside the mathematics (`"Add 9:  $3x = 24$"` — a labeled step), `\text{…}`, `\quad`, two relations (`2x = 8 = 8`), a
+  comma between two statements, a check, a false ending with its words. A run of one row is set as before.
+- **Where the block stands.** Where the rows were centered (a Notes slide), the lined-up block is centered; where they
+  shared a left edge (a worked slide, 2.0 in; the steps on an answer slide), its leftmost ink is at that edge. A worked
+  slide with a figure and an answer slide's steps beside a figure keep the figure's column: the lined-up rows' width is
+  what the column is measured against.
+- **When it is set as before.** A run is set as before, with a line on the console (`align (slide N): … rows not lined
+  up — …`), when lining it up would make it more than 1.25 times as wide as its widest row (one row with a long left
+  side and another with a long right side would push every other row far to one side), or when it does not fit its
+  room even at 92% and then 85% of its size (it steps down first). Nothing is clipped and nothing overlaps.
+- **A block may say no.** `align=False` on a notes dict, a worked entry, a `your_turn` or a board sets that block's rows
+  as before (a Notes slide whose rows are not a solving chain). Any other value of `align` is refused by `rulingcheck`.
+- **Nothing a slide says changes** — only where its rows sit. Colored slots (`\sA{…}`) are honored as before and never
+  move a sign. The Teacher's Edition and the papers are not changed (they print no worked rows set this way).
+- **Checked.** `checks.py slidefit` finds every lined-up run in a built PowerPoint and measures each row's sign again —
+  the picture's place and width, and where the sign stands in the expression the picture says it is — and refuses a run
+  whose signs are more than 0.02 in apart; `htmlcheck` measures each grid's signs in the browser (2 px).
 
 ## American English (15 November 2026)
 

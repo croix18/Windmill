@@ -1,5 +1,5 @@
 # The build kit, file by file (sha256). Written by Windmill's tools/kit_manifest.py; never by hand.
-5f1c533cc45d145998057dbc3c69865cb182d38ffff2ab47a7f9b4ae8ce9a282  SPEC SCHEMA.md
+efc521c5445adcac84e22eb1f1fd04b21ceed0dbaa5675cce12ebe00cc133894  SPEC SCHEMA.md
 af63d2bc81155a04f2d183d41abe1246a93e46a222de6b597511c9ab80c156a9  build_all.py
 750d95fb3498c4abc8a7a32a497f3373b179b1ecb67cb0096c098d8ce49b4c5f  build_lesson.py
 93f9704ed80f035223542dc10dba7f06b2e88701c42eaf3ebbf2314e5cd1174e  build_unit.py
@@ -37,7 +37,7 @@ f7d985fed8308c935ac8bd19e21db895135ce407c5d0f798ce7ae568c27e4bed  lib/consolekit
 f4926146ec91d25d9c1c73db100a4d241b9ba47f70cfcab9c4fe87c17d34a8c6  lib/htmlkit.py
 608d866061a841ef26142f588e21680c148879af15e80104ccbb7291f6b0d173  lib/ixlplan.py
 7063c47dd1ff21bb24cf2c9ebff7d93ceb92a87246a4bf8b023728b19e4be389  lib/lessonbuild.py
-b0601de4eef8a45e325b17df243455b5468740ea0156bac4c973520cc583e0f8  lib/mathimg.py
+caeb1b48d916330c0d78323e50c705a1c99027df7e178e0c80463ee83434fad6  lib/mathimg.py
 d0eaea8e9751a1f3c86664100cea8ec59b218e88b13b1f503ece7fe3b0c33f1d  lib/names.py
 e879a4165f55d671b93765ff05623466efc726bd7937103efbe3301203494c4a  lib/packkit.py
 38f009d7780170bbb2c57a5992d4196502b010c9f6e3a4903b0df11a0b3b1cf3  lib/plankit.py
