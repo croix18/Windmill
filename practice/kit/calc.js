@@ -33,6 +33,24 @@
 (function(){
 'use strict';
 var btn = document.getElementById('bCalc'); if (!btn) return;
+/* the page makes room for a docked panel (15 Nov 2026): window.KitDock, the same lines in calc.js and scratch.js, defined by the
+   first to load. A panel within 24 px of the window's left or right edge reports how far it reaches in; the page gets that
+   much plus a 12 px gap at that side (--dockL, --dockR on <html>; kit.css's calculator block), unless under 520 px would be
+   left between the panels, when nothing is reserved and they float. */
+var DOCK = window.KitDock || (window.KitDock = (function(){
+  var R = {}, cur = '';
+  function paint(){
+    var W = document.documentElement.clientWidth, l = 0, r = 0, s = document.documentElement.style;
+    Object.keys(R).forEach(function(k){ if (R[k].s === 'l') l = Math.max(l, R[k].e); else r = Math.max(r, R[k].e); });
+    if (W - l - r < 520) l = r = 0;
+    var L = l ? Math.round(l - 4) : 0, Rt = r ? Math.round(r - 4) : 0, key = L + ',' + Rt;   /* the body's own 16 px padding stays */
+    if (key === cur) return; cur = key;
+    if (L) s.setProperty('--dockL', L + 'px'); else s.removeProperty('--dockL');
+    if (Rt) s.setProperty('--dockR', Rt + 'px'); else s.removeProperty('--dockR');
+    document.documentElement.classList.toggle('kdock', !!(L || Rt)); document.documentElement.classList.toggle('kdock2', !!(L && Rt));   /* both: the bar's two buttons are icons */
+  }
+  return {set: function(id, side, reach){ if (side) R[id] = {s: side, e: reach}; else delete R[id]; paint(); }, paint: paint};
+})());
 
 var CALCS = {
   /* the FAST test's calculator (Cambium's Desmos for assessment, its restricted scientific mode): a live app, laid out once at
@@ -211,7 +229,7 @@ function apply(fr, c, s){
 
 /* the place: the remembered one, else docked at the right just under the bar — always inside the window, never over the bar */
 function place(){
-  if (P.classList.contains('kcfull')){ st(P, 'left', ''); st(P, 'top', ''); return; }
+  if (P.classList.contains('kcfull')){ st(P, 'left', ''); st(P, 'top', ''); DOCK.set('calc', null); return; }
   var w = P.offsetWidth, top0 = barBottom() + GAP;
   if (POS) moveTo(POS.s === 'l' ? POS.x : vw() - w - POS.x, POS.y, false); else moveTo(vw() - w - 2 * GAP, top0 + 4, false);
 }
@@ -221,6 +239,7 @@ function moveTo(x, y, remember){
   y = Math.round(Math.min(Math.max(y, top0), Math.max(top0, H - h - GAP)));
   st(P, 'left', x + 'px'); st(P, 'top', y + 'px');
   if (remember){ var r = W - x - w; POS = r < x ? {s: 'r', x: Math.max(0, r), y: y} : {s: 'l', x: x, y: y}; }
+  DOCK.set('calc', x <= 24 ? 'l' : W - x - w <= 24 ? 'r' : null, x <= 24 ? x + w : W - x);
 }
 /* at most once a frame, however many resizes and bar changes ask */
 function layout(){ if (!RAF && P && !P.hidden) RAF = requestAnimationFrame(now); }
@@ -243,7 +262,7 @@ function close(back){
   if (!P || P.hidden) return;
   unstick(true);
   inert(false); document.documentElement.classList.remove('kcalc-lock');
-  P.hidden = true; btn.setAttribute('aria-expanded', 'false');
+  P.hidden = true; btn.setAttribute('aria-expanded', 'false'); DOCK.set('calc', null);
   if (back) focusNo(btn);
 }
 btn.addEventListener('click', function(){ if (P && !P.hidden) close(true); else open(); });

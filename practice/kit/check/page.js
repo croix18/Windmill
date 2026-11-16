@@ -1005,7 +1005,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./approve_page.js')(b, url, U, dir, fail);
   if (/^teacher$/.test(path.basename(dir))) await require('./tests_page.js')(b, url, U, dir, fail);
   /* N. the calculators (calc.js, 8 Nov 2026): the FAST one and the TI-30Xa, both addresses answered by stand-ins (page.route) */
-  await require('./calc_page.js')(b, url, U, dir, fail);
+  await require('./calc_page.js')(b, url, U, dir, fail, rawContext);   /* and the room made for it docked (check/dock.js), as students have the page */
   /* O. the keypad, even and tidy, with the unit's keys (8 Nov 2026) */
   await require('./keys_page.js')(b, url, U, dir, fail);
   /* P. an all-multiple-choice test (14 Nov 2026): a teacher copy of a unit that gives its wrong answers */

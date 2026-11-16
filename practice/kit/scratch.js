@@ -33,6 +33,24 @@ var K = window.Kit = window.Kit || {};
 K.Scratch = function(host){
   var btn = document.getElementById('bScratch');
   if (!btn || !host || typeof host.where !== 'function') return null;
+  /* the page makes room for a docked panel (15 Nov 2026): window.KitDock, the same lines in calc.js and scratch.js, defined by the
+     first to load. A panel within 24 px of the window's left or right edge reports how far it reaches in; the page gets that
+     much plus a 12 px gap at that side (--dockL, --dockR on <html>; kit.css's calculator block), unless under 520 px would be
+     left between the panels, when nothing is reserved and they float. */
+  var DOCK = window.KitDock || (window.KitDock = (function(){
+    var R = {}, cur = '';
+    function paint(){
+      var W = document.documentElement.clientWidth, l = 0, r = 0, s = document.documentElement.style;
+      Object.keys(R).forEach(function(k){ if (R[k].s === 'l') l = Math.max(l, R[k].e); else r = Math.max(r, R[k].e); });
+      if (W - l - r < 520) l = r = 0;
+      var L = l ? Math.round(l - 4) : 0, Rt = r ? Math.round(r - 4) : 0, key = L + ',' + Rt;   /* the body's own 16 px padding stays */
+      if (key === cur) return; cur = key;
+      if (L) s.setProperty('--dockL', L + 'px'); else s.removeProperty('--dockL');
+      if (Rt) s.setProperty('--dockR', Rt + 'px'); else s.removeProperty('--dockR');
+      document.documentElement.classList.toggle('kdock', !!(L || Rt)); document.documentElement.classList.toggle('kdock2', !!(L && Rt));   /* both: the bar's two buttons are icons */
+    }
+    return {set: function(id, side, reach){ if (side) R[id] = {s: side, e: reach}; else delete R[id]; paint(); }, paint: paint};
+  })());
 
   var PRE = 'practice.scratch.v1.', TABKEY = 'practice.scratch.tab', POSKEY = 'practice.scratch.pos', KEEP = 30, MAXO = 200, MAXU = 200;
   var GAP = 8, PHONE = '(max-width: 600px), (max-height: 460px)', NS = 'http://www.w3.org/2000/svg';
@@ -403,7 +421,7 @@ K.Scratch = function(host){
     if (over > 0) P.style.setProperty('--ksgs', Math.max(200, w - over) + 'px');
   }
   function place(sheet){
-    if (sheet){ P.style.left = ''; P.style.top = ''; return; }
+    if (sheet){ P.style.left = ''; P.style.top = ''; DOCK.set('scratch', null); return; }
     if (POS) moveTo(POS.s === 'l' ? POS.x : vw() - P.offsetWidth - POS.x, POS.y, false); else moveTo(2 * GAP, barBottom() + GAP + 4, false);
   }
   function moveTo(x, y, remember){
@@ -412,6 +430,7 @@ K.Scratch = function(host){
     y = Math.round(Math.min(Math.max(y, top0), Math.max(top0, H - h - GAP)));
     P.style.left = x + 'px'; P.style.top = y + 'px';
     if (remember){ var r = W - x - w; POS = r < x ? {s: 'r', x: Math.max(0, r), y: y} : {s: 'l', x: x, y: y}; }
+    DOCK.set('scratch', x <= 24 ? 'l' : W - x - w <= 24 ? 'r' : null, x <= 24 ? x + w : W - x);
   }
   /* the phone's sheet: the page gets room under it (screen only, so paper is never changed) */
   function pad(on){
@@ -432,7 +451,7 @@ K.Scratch = function(host){
   function close(back){
     if (!P || P.hidden) return;
     flush(); PEND = null; GO = -1; HOVER = false;
-    P.hidden = true; btn.setAttribute('aria-expanded', 'false'); pad(false);
+    P.hidden = true; btn.setAttribute('aria-expanded', 'false'); pad(false); DOCK.set('scratch', null);
     if (D){ D = null; P.classList.remove('ksdrag'); }
     if (back && !btn.hidden) focusNo(btn);
   }

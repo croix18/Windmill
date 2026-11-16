@@ -38,8 +38,6 @@ async function run(newContext, switched, url, U, dir, fail) {
   }
   const go = async (p, seed) => { await p.goto(url + '#set-' + (seed || SEED)); await p.waitForTimeout(120); };
   const begin = async p => { await p.waitForSelector('#pgStart:visible, #pgNext:visible', { timeout: 8000 }); if (await p.locator('#pgStart').isVisible()) await p.click('#pgStart'); await p.waitForSelector('#pgNext:visible', { timeout: 8000 }); await p.waitForTimeout(60); };
-  /* Back and Next by the keyboard: the floating panel, docked at the left, can sit over Back on a short window */
-  const nav = async (p, id) => { await p.focus(id); await p.keyboard.press('Enter'); };
   const fresh = async p => { await go(p); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(150); };
   const stored = (p, k) => p.evaluate(k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return 'refused'; } }, k || KEY);
   const look = p => p.evaluate(() => {
@@ -55,7 +53,7 @@ async function run(newContext, switched, url, U, dir, fail) {
   const at = (p, x, y) => p.evaluate(([x, y]) => { const s = document.getElementById('kscrG'), m = s.getScreenCTM(), q = s.createSVGPoint(); q.x = x * 18; q.y = 360 - y * 18; const o = q.matrixTransform(m); return [o.x, o.y]; }, [x, y]);
   const click = async (p, x, y) => { const c = await at(p, x, y); await p.mouse.click(c[0], c[1]); };
   const tool = (p, v) => p.click('#kscr [role=radio][data-v="' + v + '"]');
-  const things = async p => { await p.waitForTimeout(380); const s = await stored(p); const q = s && s.q && s.q[await p.evaluate(() => { const c = document.querySelector('.q.pg-on[data-q]') || document.querySelector('.q[data-q]'); return c.getAttribute('data-q'); })]; return JSON.stringify(q ? q.g.o : []); };
+  const things = async p => { await p.evaluate(() => window.dispatchEvent(new Event('pagehide'))); const s = await stored(p); const q = s && s.q && s.q[await p.evaluate(() => { const c = document.querySelector('.q.pg-on[data-q]') || document.querySelector('.q[data-q]'); return c.getAttribute('data-q'); })]; return JSON.stringify(q ? q.g.o : []); };
 
   /* ---- 1. the button and opening */
   let { ctx, p } = await context();
@@ -79,10 +77,10 @@ async function run(newContext, switched, url, U, dir, fail) {
   /* ---- 2. notes per question, the dot, a reload, Clear and Undo */
   await p.focus('#kscrN'); await p.keyboard.type('3x + 4 = 19');
   L = await look(p); if (!L.used || L.label !== 'Scratch paper, used on this question') F('no dot on a question with notes: ' + JSON.stringify(L));
-  await nav(p, '#pgNext'); await p.waitForTimeout(80); L = await look(p);
+  await p.click('#pgNext'); await p.waitForTimeout(80); L = await look(p);
   if (!L.open || L.chip !== 'Question 2' || L.notes !== '' || L.used) F('Next did not show question 2\'s own (empty) notes: ' + JSON.stringify(L));
   await p.focus('#kscrN'); await p.keyboard.type('two');
-  await nav(p, '#pgPrev'); await p.waitForTimeout(80); L = await look(p);
+  await p.click('#pgPrev'); await p.waitForTimeout(80); L = await look(p);
   if (L.notes !== '3x + 4 = 19' || L.chip !== 'Question 1') F('Back did not bring question 1\'s notes: ' + JSON.stringify(L));
   await p.waitForTimeout(350); await p.reload(); await p.waitForTimeout(150); await begin(p); await p.click('#bScratch'); await p.waitForTimeout(60); L = await look(p);
   if (L.notes !== '3x + 4 = 19' || !L.used) F('after a reload the notes are gone: ' + JSON.stringify(L));
@@ -129,7 +127,7 @@ async function run(newContext, switched, url, U, dir, fail) {
   { const s = await stored(p); if (JSON.stringify(s.q['1'].g.v) !== '[1,5]') F('the view and scale are not kept: ' + JSON.stringify(s.q['1'].g.v)); }
   await p.reload(); await p.waitForTimeout(150); await begin(p); await p.click('#bScratch'); await p.waitForTimeout(80);
   if (!await p.isVisible('#kscrG') || JSON.stringify(await nums()).indexOf('100') < 0 || (await p.$$('#kscrG .ksitems line.kspen')).length !== 3) F('after a reload the grid (tab, view, scale or things) is not back');
-  await nav(p, '#pgNext'); await p.waitForTimeout(80);
+  await p.click('#pgNext'); await p.waitForTimeout(80);
   if ((await p.$$('#kscrG .ksitems > *')).length || (await nums()).includes('100')) F('question 2 shows question 1\'s grid');
 
   /* ---- 4. the grid by keyboard, on question 2 */
@@ -172,10 +170,10 @@ async function run(newContext, switched, url, U, dir, fail) {
   await fresh(p); await begin(p);
   const p2 = await ctx.newPage(); p2.on('pageerror', e => errs.push(e.message)); await go(p2); await begin(p2);
   await p.click('#bScratch'); await p.keyboard.type('tab one'); await p.waitForTimeout(350);
-  await nav(p2, '#pgNext'); await p2.waitForTimeout(60); await p2.click('#bScratch'); await p2.keyboard.type('tab two'); await p2.waitForTimeout(350);
+  await p2.click('#pgNext'); await p2.waitForTimeout(60); await p2.click('#bScratch'); await p2.keyboard.type('tab two'); await p2.waitForTimeout(350);
   await p.focus('#kscrN'); await p.keyboard.type('!'); await p.waitForTimeout(350);
   { const s = await stored(p); if (!s || !s.q['1'] || s.q['1'].n !== 'tab one!' || !s.q['2'] || s.q['2'].n !== 'tab two') F('two tabs: ' + JSON.stringify(s)); }
-  await nav(p2, '#pgPrev'); await p2.waitForTimeout(80); if ((await look(p2)).notes !== 'tab one!') F('the second tab does not show the first tab\'s notes for question 1');
+  await p2.click('#pgPrev'); await p2.waitForTimeout(80); if ((await look(p2)).notes !== 'tab one!') F('the second tab does not show the first tab\'s notes for question 1');
 
   /* ---- 7. dragging, the window, and the calculator */
   await p.close(); p = p2; await p.click('#kscr [data-v="grid"]');
@@ -258,10 +256,13 @@ async function run(newContext, switched, url, U, dir, fail) {
   /* ---- 10. storage refused: it all works for the visit */
   ({ ctx, p } = await context());
   await ctx.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('refused'); } }); });
-  await go(p); await p.reload(); await p.waitForTimeout(120); await begin(p); await p.click('#bScratch'); await p.keyboard.type('kept'); await nav(p, '#pgNext'); await nav(p, '#pgPrev'); await p.waitForTimeout(60);
+  await go(p); await p.reload(); await p.waitForTimeout(120); await begin(p); await p.click('#bScratch'); await p.keyboard.type('kept'); await p.click('#pgNext'); await p.click('#pgPrev'); await p.waitForTimeout(60);
   L = await look(p); if (L.notes !== 'kept' || !L.used) F('with storage refused the notes are not kept for the visit: ' + JSON.stringify(L));
   await p.click('#kscr [data-v="grid"]'); await click(p, 10, 10); if ((await p.$$('#kscrG .ksitems .ksdot')).length !== 1) F('with storage refused the grid does not plot');
   await ctx.close();
+
+  /* ---- 11. the page makes room for it docked (check/dock.js) */
+  await require('./dock.js')(newContext, url, 'scratch', teacher, F);
 
   if (off.length) F('asked the network for ' + off.length + ': ' + off.slice(0, 3).join(' | '));
   if (errs.length) F('page errors: ' + errs.slice(0, 3).join(' | '));

@@ -737,6 +737,16 @@ svg.cgg.cg-small{width:min(100%,14rem)}
 .kcalc.kcfull .kcb{flex:1 1 auto;min-height:0;padding:6px 6px 10px}
 
 html.kcalc-lock,html.kcalc-lock body{overflow:hidden}
+/* the page makes room for a docked panel (15 Nov 2026; calc.js and scratch.js set --dockL and --dockR through window.KitDock):
+   the body's sides grow, so the sheet and the map card center in what is left (narrower if they must); the bar stays full-bleed
+   and its row centers with them. Screen only; never under a print preview or a teacher's view. */
+@media screen{
+  body:not(.printing):not(.tview){padding-left:calc(16px + var(--dockL,0px));padding-right:calc(16px + var(--dockR,0px))}
+  body:not(.printing):not(.tview) .watch{margin-left:calc(-16px - var(--dockL,0px));margin-right:calc(-16px - var(--dockR,0px));
+    padding-left:calc(16px + var(--dockL,0px));padding-right:calc(16px + var(--dockR,0px))}
+  html.kdock .watch .score{overflow-wrap:normal}
+  html.kdock2 .watch .btns .calcb{width:44px;padding:0} html.kdock2 .watch .calcb .cw{display:none}
+}
 /* never over a print preview or the teacher's panels, and never on paper */
 body.printing>.kcalc,body.tview>.kcalc{display:none!important}
 @media print{ .kcalc,.calcb{display:none!important} }

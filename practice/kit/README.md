@@ -767,6 +767,23 @@ site's FAST pages (`mrshaffer-site` `released/kit/`), so `scratch.css` uses only
   panel's words exactly its list; every question on one screen (the checks' switch) naming the bar's question; storage
   refused; no request off the page.
 
+**The page makes room for a docked panel (15 Nov 2026, the coordinator's ruling on a panel covering Back).** A panel must not
+sit on the question. On a wide screen a panel within 24 px of the window's left or right edge (its first place, or dragged
+back there) reports how far it reaches to `window.KitDock` — the same few lines at the top of `calc.js` and `scratch.js`,
+defined by whichever loads first. The registry sets `--dockL` and `--dockR` on `<html>` (the reach plus a 12 px gap, less the
+body's own 16 px) and the classes `kdock` (one side) and `kdock2` (both); if under 520 px would be left between the panels it
+reserves nothing and they float, as before. The rules are in `kit.css`'s calculator block (so the site's `calc.css` has them):
+the body's sides grow, so the sheet and the map card center in what is left and narrow if they must; the bar stays full-bleed
+and its row centers with them, so its buttons end where the sheet ends; with both docked the Calculator and Scratch paper
+buttons are their icons. Screen only; never under a print preview or a teacher's view; nothing on a phone; no animation.
+Opening, closing, dragging and a resize update it; the calculator's frame is never re-laid by it. At 1366 × 657: scratch paper
+docks left and the sheet keeps 736 px; the calculator docks right; both leave a sheet of about 517 px. At 1280 × 800 both float
+(under 520 px would be left). At 1024 × 700 one panel still docks (604 px is left), the sheet narrowing to 576 px.
+**Checked:** `check/dock.js`, run by part N (the calculator) and part W (scratch paper, and both): at 1366 × 657 Back, Next,
+Flag for review, Check and the first answer not under a panel, the bar's buttons ending at the sheet's edge, no sideways
+scroll, both leaving 460–600 px; 1280 × 800 reserving nothing; dragged away and closed reserving nothing; a print preview, a
+teacher's view and print reserving nothing.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -795,6 +812,7 @@ site's FAST pages (`mrshaffer-site` `released/kit/`), so `scratch.css` uses only
 | `check/pager_page.js` | page.js part R (one question at a time, 14 Nov 2026, above), on every page, without the checks' switch that parts A–Q use |
 | `scratch.js`, `scratch.css` | scratch paper: Notes and graph paper to plot on, per question, in a panel from the top bar (15 Nov 2026, above); the same two files on the site's FAST pages |
 | `check/scratch_page.js` | page.js part W (scratch paper, 15 Nov 2026, above), on every page |
+| `check/dock.js` | the room the page makes for a docked panel (15 Nov 2026, above), run by parts N and W |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |

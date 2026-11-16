@@ -39,8 +39,8 @@ const STAND = who => '<!doctype html><html lang="en"><meta charset="utf-8"><titl
   'addEventListener("keydown", function(e){ if (e.target.id !== "work") document.getElementById("keys").textContent += e.key; });' +
   'addEventListener("click", function(e){ document.getElementById("clicks").textContent += Math.round(e.clientX) + "," + Math.round(e.clientY) + " "; });</script></body></html>';
 
-module.exports = async function partN(b, url, U, dir, fail) {
-  try { await run(b, url, U, dir, fail); } catch (e) { fail('N: the check stopped: ' + String(e && e.message || e).split('\n')[0]); }
+module.exports = async function partN(b, url, U, dir, fail, raw) {
+  try { await run(b, url, U, dir, fail); if (raw) await require('./dock.js')(raw, url, 'calc', /^teacher$/.test(path.basename(dir)), m => fail((/^teacher$/.test(path.basename(dir)) ? 'N (teacher copy): ' : 'N: ') + m)); } catch (e) { fail('N: the check stopped: ' + String(e && e.message || e).split('\n')[0]); }
 };
 async function run(b, url, U, dir, fail) {
   const teacher = /^teacher$/.test(path.basename(dir)), where = teacher ? 'N (teacher copy): ' : 'N: ';
@@ -265,12 +265,15 @@ async function run(b, url, U, dir, fail) {
     await p.tap('#kcalcX'); await p.waitForTimeout(80);
     if (await p.isVisible('#pgMt')) { await p.tap('#pgMt'); await p.waitForTimeout(80); await p.tap('#bCalc'); await p.waitForTimeout(250); await hits(p, 'the phone\'s sheet with the pager\'s drawer open'); await p.tap('#kcalcX'); }
     await ctx.close(); }
-  { const { ctx, p } = await context({ viewport: { width: 1024, height: 768 }, hasTouch: true });
+  { const { ctx, p } = await context({ viewport: { width: 1024, height: 768 }, isMobile: true, hasTouch: true });   /* a tablet: a coarse pointer, so the unit's keypad shows (ui.js coarse()) */
     await p.goto(url + '#set-4821'); await p.waitForTimeout(250); if (await p.isVisible('#pgStart')) await p.tap('#pgStart');
+    if (!(await p.evaluate(() => matchMedia('(pointer: coarse)').matches))) F('a touch screen: the context is not pointer: coarse');
     const box = async () => { const h = await p.$$('#paper input[type=text], #paper input:not([type])'); for (const e of h) if (await e.isVisible()) { await e.tap(); return true; } return false; };
     for (let i = 0; i < 40 && !(await p.$$eval('#paper input[type=text], #paper input:not([type])', x => x.some(e => e.offsetParent))) && await p.isVisible('#pgNext'); i++) await p.tap('#pgNext');   /* a question with a box */
     await p.tap('#bCalc'); await p.waitForTimeout(400);
-    if (!(await box())) F('a touch screen: no question with a box to show the keypad for the hit test');
+    const noKeys = Array.isArray(U.keypad) && !U.keypad.length;   /* a unit with no keys of its own (A7 Unit 6: keypad []) shows no keypad anywhere: nothing to hold against the calculator */
+    if (noKeys) { await hits(p, 'a touch screen'); }
+    else if (!(await box())) F('a touch screen: no question with a box to show the keypad for the hit test');
     else { await p.waitForTimeout(150); const kp = await p.evaluate(() => { const k = Array.from(document.querySelectorAll('.keys')).find(x => x.offsetParent); return !!k; });
       if (!kp) F('a touch screen: the unit\'s keypad did not show for the hit test'); await hits(p, 'a touch screen with the unit\'s keypad showing'); }
     await ctx.close(); }
