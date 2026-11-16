@@ -14,12 +14,12 @@
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 /* an element's textContent after innerHTML = h, without a DOM (a box's "Fill in every box" line names it by its pre or unit):
    comments and tags out, character references decoded; a "<" that does not open a tag stays, as the HTML parser keeps it */
-var NAMED = {amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', minus: '−', times: '×', divide: '÷', middot: '·',
-  le: '≤', ge: '≥', ne: '≠', deg: '°', pi: 'π', thinsp: ' ', ensp: ' ', emsp: ' ', ndash: '–', mdash: '—',
-  hellip: '…', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', frac12: '½', frac14: '¼', frac34: '¾', sup2: '²', sup3: '³', cent: '¢', ZeroWidthSpace: '​'};
+var NAMED = {amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0', minus: '\u2212', times: '\u00d7', divide: '\u00f7', middot: '\u00b7',
+  le: '\u2264', ge: '\u2265', ne: '\u2260', deg: '\u00b0', pi: '\u03c0', thinsp: '\u2009', ensp: '\u2002', emsp: '\u2003', ndash: '\u2013', mdash: '\u2014',
+  hellip: '\u2026', rsquo: '\u2019', lsquo: '\u2018', rdquo: '\u201d', ldquo: '\u201c', frac12: '\u00bd', frac14: '\u00bc', frac34: '\u00be', sup2: '\u00b2', sup3: '\u00b3', cent: '\u00a2', ZeroWidthSpace: '\u200b'};
 function plainText(h){
   return String(h == null ? '' : h).replace(/<!--[\s\S]*?(?:-->|$)/g, '').replace(/<\/?[A-Za-z][^>]*>/g, '').replace(/&(#[xX][0-9A-Fa-f]+|#\d+|[A-Za-z][A-Za-z0-9]*);/g, function(m, e){
-    if (e.charAt(0) === '#'){ var n = e.charAt(1) === 'x' || e.charAt(1) === 'X' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); try { return n === 0 || n > 0x10FFFF ? '�' : String.fromCodePoint(n); } catch(x){ return m; } }
+    if (e.charAt(0) === '#'){ var n = e.charAt(1) === 'x' || e.charAt(1) === 'X' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); try { return n === 0 || n > 0x10FFFF ? '\ufffd' : String.fromCodePoint(n); } catch(x){ return m; } }
     return Object.prototype.hasOwnProperty.call(NAMED, e) ? NAMED[e] : m; }).replace(/&(amp|lt|gt|quot|nbsp)(?![A-Za-z0-9;])/g, function(m, e){ return NAMED[e]; });   /* the old ones a parser reads without their ";" */
 }
 function Judge(o){

@@ -1167,3 +1167,37 @@ for that graph, built, not chosen.
   it; `judge.cgraph` your one line for `'size'` and `'names'`; `rungs`, `solution` and `walk` for type `'cgraph'` (or none, for the
   kit's); `choices(part)` your named wrong graphs (or `[]`, for the kit's); in your own checks, `Kit.CG.check(part)` on every part,
   the key and the key in another order right, unfinished graphs never a try, each named mistake judged on its own `which`.
+
+## 15 Nov 2026 — one judge for the page and the site (`judge.js`), parts as text (`pack.js`), the site's side of a test (`exam/server.js`)
+The first stage of the test the site grades (`practice/exam/DESIGN.md`; Croix, 7:52 pm: *"I'm fully on board with a bigger
+build. Make it airtight."*). Nothing a student sees changes.
+- **`judge.js`, one judge:** what `ui.js` did to judge an answer — `boxesOf`, `boxAns`, `boxSay`, `answered`, `judgeAns`,
+  `formOf`, `tidy`, `equivUp`, `boxForm`, `boxKeys`, `equivBoxes` — moved, unchanged, into `Kit.Judge({U, V, K, NL, CG})`, with
+  one more: `atFinish(it, a, ctx)`, what Finish makes of a part on Like the real test (a blank is "Left blank.", an answer that
+  cannot be read keeps the reader's line, both marked wrong; an "Almost" earns no point). No DOM and no page state: the context
+  (`ctxOf`: part (a)'s answer, whether it is right, the mode) is passed in, by the page from its state and by the site from
+  its own. `ui.js` keeps every one of those names as a one-line call into it, and `finish()` calls `atFinish`; nothing else in
+  `ui.js` moved. A box's name in "Fill in every box" was read through a DOM element; `judge.js` has its own `plainText` (tags
+  out, character references decoded), the same on every box of every unit (A7 Unit 11's, the only boxes, 24,000 over 3,000
+  sets). Loaded after `cgraph.js`, before the unit's scripts (`build.py`, `check/run.py`'s hash, `tools/practice_kit.py`);
+  `check/times.js` reads its words.
+- **Proved the same:** M7 Unit 10 and A7 Unit 6 built before and after, 40 sets each, both modes, five rounds a set so every
+  part is typed its key, a wrong answer, its key written another way, an unreadable string and a blank (every other part
+  checked in Check as I go), then Finish: the saved set, misses and streaks, every feedback card, readout and preview, the
+  score and the end panel, identical (800 rounds, 16,800 parts).
+- **`pack.js`, a part as text:** `Kit.pack(part)` → text, `Kit.unpack(text)` → the part, BigInt, undefined, NaN, ±Infinity
+  and −0 kept exact. What is not data — a function, a symbol, a Date, an object made by a class, an object inside itself — is
+  refused, with where it is (`Kit.pack.problems(part)`). `check/pack.js <unit>`: 60 sets, every part judged as drawn and after
+  `unpack(pack())`, its key, a wrong answer, each choice, a number line and a circle graph by their keys, every verdict and word
+  the same. **Not one of `run.py`'s steps:** a practice page does not need it; it will gate the test page's build. Every unit
+  passes but A7 Unit 11, whose story part (14(a)) carries three functions (`st.say`, `st.ask`, `st.amt`), and so its 14(b),
+  which has 14(a) as its part (a); that is fixed in the unit.
+- **`exam/server.js`, the site's side** (Node and the site's Worker; CommonJS, static `require`s only): `read(U, item, text)`
+  → `{ok, pretty}` — `ok` false exactly where the page says "Can't read this yet" (not for boxes still empty), `pretty` the
+  unit's preview (one per box for a part with boxes), never right or wrong; `grade(U, items, answers, verdicts, from, n)` →
+  `[{v: right|wrong|blank|unread}]` for the next n parts, part (a)'s verdict feeding its part (b), so it refuses to be called
+  out of order; `summary(items, verdicts)` → `{points, of}`, as the end panel counts them. The items are the page's own,
+  `Kit.items()` (read only: id, type, part, its part (a), what was shown, place, label), packed and unpacked.
+  `check/exam_server.js <unit>`: 30 sets through the built page on Like the real test, every part answered (the five in turn),
+  Finish; the site's verdict for every part and its score are the page's, and its `read` the page's readout and preview.
+  It prints the CPU time of a grade call of three parts and of a read, cold and warm, against the site's 10 ms a request.
