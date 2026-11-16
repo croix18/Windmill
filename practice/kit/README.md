@@ -1397,3 +1397,19 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   browser in the same opening refused with the shake, a malformed id `400`, storage refused still starting; New test refused in
   the same opening and starting after a new opening; with the device's clock an hour ahead, an `ends` moved later by a save's
   answer and followed, a digit typed 1.6 s before `ends`, the test finished by itself before `ends`, the record holding it.
+- **Never stuck, never losing work, never looking like they left** (16 Nov 2026, after the review of the test page;
+  CHANGES-16NOV §11, `/home/claude/reviews/test-page/REVIEW.md`). When the site has ended a test (`403 closed` or `409
+  finished` on a save, a read, an unlock or the reload's GET) the page goes straight to grading and the seal, whatever cover is
+  up — a locked child included. A save, a Finish refused 429 or 5xx, a grade step and the seal that fail are tried again by
+  themselves (5 s, 10 s, 20 s, then every 30 s; at once on `online`), the line and Try again up meanwhile; `409 order` takes
+  the site's `next`; `409 grading` on the seal grades again; a Finish refused for good puts the child back in the test, the
+  proctor on again (Start first, which counts nothing). Start answers the same test again while it is open (a lost answer, a
+  mistaken New test), and New test never takes a result off the device until a new test has started. The screen is kept
+  awake. A reload whose GET is refused goes on from the device's copy (the rule, the start time, the form link) and asks
+  again; the test's id, token and the browser's id are in sessionStorage too. End after N holds across a reload. The
+  not-open screen asks again every 20 s and has Try again. Ctrl/⌘+F, Ctrl/⌘+G and F3 are stopped and logged as `find`; a
+  touch long-press is not `menu`. The log is never over 60 KB. Turn in is a real link; the results are a live region and the
+  focus goes to the code; lengths come from `performance.now()`; nothing runs off a 390 px screen at 200%; a second tab of a
+  finished test shows the code. The stand-in: the same test again for a `dev` whose test is open, `409 finished` on unlock,
+  Lock refused with no code. Checked (part 10, one claim each, the review's probes in essence) on four units, M7 Unit 7's
+  circle graph among them.

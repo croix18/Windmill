@@ -88,6 +88,52 @@ through `exam.js`, the calculator's and scratch paper's panels, input/paste/keyd
 - Not proven: `ends` from the site's deadline (the stand-in has no time allowed; `ends` there is the opening's `until`);
   the `429` on wrong codes past the address limit is not driven by the check.
 
+## CHANGES-16NOV §11 (K): the review of the test page — each finding, and the probe's line at HEAD
+The reviewer's probes were re-run (a copy, its harness pointed at /home/claude/examwt2) against this kit; their essence is
+check/exam_page.js part 10.
+- **C1** (page half): a locked child whose test the site ended: unlock answers `409 finished` (stand-in) or the page asks the
+  test's status after a refused code → the lock goes, Grading…, the code. Check part 10 C1. The stand-in refuses Lock with no
+  code (`400 unlock`; p14 now cannot even set it up).
+- **H1**: `409 finished` joins `403 closed` (save, read, unlock, the reload's GET) → straight to grading. p21, the real site's
+  way: `6 s after typing: {"code":"BMQE-ZX77-PQY0"}` — finished by itself (was: no Grading…, no code).
+- **H2**: retries by itself, 5/10/20/30 s and at once on `online`. p23: `15 s after the network came back, still up: false |
+  the site has: {…every answer…}` (was: still up, the site had only the first).
+- **H3**: a refused grade step tried again, `409 order` takes `next`, `409 grading` grades again. p22: `after 8 s: {"code":
+  "DJZK-AY8T-7SGE"}` for both the 429 and the 409 (was: Grading… for good).
+- **H4/L1**: New test never removes the result until a new test has started (p27: New test after Finish → `403 again`, the
+  code stays; part 10 checks a reload after it). The stand-in answers a Start whose `dev` has an open, live test with that
+  test and a fresh token (old token dead); part 10 L1: a lost Start answer and Try again make one test.
+- **H5**: the wake lock, in the Start press, on each return to visible, released at Finish. p24: `Screen Wake Lock asked for at
+  Start: true`. Not tried on a device (headless).
+- **M1**: a refused reload GET goes on from the device's copy and asks again. p20: after a 429 and a 409 on the reload the
+  rule, start, form and skew are all still there; part 10 M1: locked on the reload under Lock after 2, the clock running.
+- **M2**: End after N holds across a reload. p12: `end after 2, one leaving then a reload: … record ended left`; p13 now
+  ends the test on the reload (the probe itself then fails reading a log that was sent and cleared).
+- **M3**: the not-open screen asks again every 20 s; Try again under the words. p28: `loaded before Open; 30 s after Open the
+  page shows "Start"`; `code turned on after load; Start → pinShown: true`.
+- **M4**: a Finish refused 429/5xx is retried; refused for good, back in the test with the proctor on under Start. p22:
+  `Finish answered 400 once: … then the tab hidden and back: {"cover":true,…}` (was: no cover, count 0).
+- **M5, L4**: Ctrl/⌘+F, Ctrl/⌘+G, F3 → `find`; a touch long-press is not `menu`. p24: `Ctrl+F kept, Ctrl+G kept`; the long
+  press logged nothing (the two entries are the Ctrl+F and Ctrl+G).
+- **M6**: never over 60 KB. p41: 200-character values → `41955 bytes (fits)` (was 72 KB, kept as null). Part 10: the honest
+  log at every cap at once with every value 200 characters on M7 U10, **45,427 bytes**; with 120 more parts than any test,
+  61,347 bytes (the middle values cut, `n` kept).
+- **M7**: id, token and `dev` in sessionStorage too. p26: storage full, a reload → the test resumed under its cover (was:
+  the start screen and a second test).
+- **L3**: Turn in is a real link; Copied always. p27: `Turn in with pop-ups blocked: tabs opened 1 | … Copied`.
+- **L5**: lengths and the bar's clock from `performance.now()`. p30: `device clock +1 h: bar 60:10 | site 60:01 | idle []`
+  (was: bar 120:09 and an invented idle hour).
+- **L7**: the results in a live region, the focus on the code. p51: `results: focus exCode`.
+- **L8**: p50 at 195 px with Larger text: Back to the test inside the screen; the start screen's 26 px sideways scroll was the
+  start code's Start (min-width 10rem with Larger text): now `min(10rem, 100%)`, 0 px (re-measured after p50 ran).
+- **L9**: p26: `tab B after A finished: {"code":"VKS5-7H9M-T1PQ"}` (was: no code).
+- L2, L6, L10 and the notes: nothing built (L2 and N3 are in DESIGN's "Known, and said to Croix").
+- p11 (a tablet's long press and rotation) did not run here: `setViewportSize` refuses a full-screen window in this
+  Playwright. p70's words: only the declared extras.
+- **A circle graph on the test page:** the M7 Unit 7 in /home/claude/examwt was an old copy (before 4e839b2, no circle graph);
+  the course's M7 Unit 7 draws one in every test (slot 4(b)). examwt2's M7 Unit 7 is a copy of that (copied, read only, from
+  windy-hill-m7), so the four units' checks answer a circle graph through the test page.
+
 ## Decisions the design did not make
 - A leaving ends when the student presses Back to the test (or Unlock with a right code), not when the signals clear: time on
   the cover is time away. Its kind is the strongest seen, reload ranked above tab, window, full screen.

@@ -15,6 +15,8 @@
    - proctor.js tells it each time away (away()), each blocked attempt (blocked()), and when an away begins and ends (hold()),
      so a stretch away is not also an idle stretch. It keeps proctor.js's small state with the log (slot()), so a reload
      cannot shake off a count or a lock.
+   - Never over 60 KB (16 Nov 2026, CHANGES-16NOV §11, M6): a value kept to 80 characters; then the middle values of the parts
+     with the most, then the oldest visits — never away, blocked or device. Lengths are a steady count (performance.now()).
    Nothing here makes a request, and nothing here shows anything. */
 (function(){
 'use strict';

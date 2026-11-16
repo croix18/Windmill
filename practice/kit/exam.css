@@ -14,7 +14,7 @@ body:not(.exam-pre) .exgo{display:none}
 .exgo .expin:focus{outline:3px solid var(--focus);outline-offset:2px}
 .exgo .expin:disabled{opacity:.55}
 .exgo .expin[hidden]{display:none}
-.exgo:has(.expin:not([hidden])) button{min-width:10rem}   /* the box and Start one width */
+.exgo:has(.expin:not([hidden])) button{min-width:min(10rem, 100%)}   /* the box and Start one width */
 .exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0 0 10px}
 .exclosedw[hidden]{display:none}
 .exgo button, .exgo .expin{max-width:100%}

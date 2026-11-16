@@ -324,6 +324,7 @@ function paintResult(fresh){
   if (PHASE === 'grading'){ box.innerHTML = '<p class="exgrading" role="status">' + WORDS.grading + '</p>'; box.hidden = false; return; }
   if (PHASE !== 'done' || !ST.result){ box.hidden = true; box.innerHTML = ''; return; }
   var sure = $('exSure') && !$('exSure').hidden;          /* a New test being asked stays asked through a repaint */
+  var onCode = document.activeElement && document.activeElement.id === 'exCode';
   var R = ST.result, rule = ST.start && ST.start.rule || {}, L = R.left || {n: 0, sec: 0}, href = formHref();
   box.innerHTML = '<div role="status"><p class="exscore"><b>' + R.points + ' / ' + R.of + '</b> points</p><p class="extime" translate="no">' + clock(R.seconds) + '</p>' +
     (R.ended === 'left' ? '<p class="exended">' + esc(WORDS.ended + (rule.after || L.n) + ((rule.after || L.n) === 1 ? WORDS.time : WORDS.times)) + '</p>' : '') +
@@ -339,7 +340,7 @@ function paintResult(fresh){
   if ($('exNew')) $('exNew').addEventListener('click', function(){ $('exSure').hidden = false; this.hidden = true; (p2 || $('exNewGo')).focus(); });
   $('exNewNo').addEventListener('click', function(){ $('exSure').hidden = true; if ($('exNew')){ $('exNew').hidden = false; $('exNew').focus(); } });
   $('exNewGo').addEventListener('click', newTest);
-  if (fresh) try { $('exCode').focus({preventScroll: true}); } catch(e){}   /* the results are announced, and the focus is on the code (L7) */
+  if (fresh || onCode) try { $('exCode').focus({preventScroll: true}); } catch(e){}   /* the results are announced, and the focus is on the code (L7) */
 }
 function copy(t){
   if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).catch(function(){ return copyOld(t); });

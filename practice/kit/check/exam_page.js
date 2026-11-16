@@ -126,6 +126,7 @@ function checkPub(f, WL) {
     if (bad.length) fail('the words, ' + state + ': ' + bad.slice(0, 6).map(t => '“' + t + '”').join(', '));
     return runs;
   }
+  const press = async (p, sel) => { if (await p.isVisible(sel)) await p.click(sel, { timeout: 3000 }).catch(() => {}); };   /* Try again, if a retry by itself has not already got through (§11, H2) */
   const put = (o) => fetch(base + '/teacher/api/test/config', { method: 'PUT', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify(o) });
   const hide = p => p.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange')); });
   const unhide = p => p.evaluate(() => { delete document.hidden; delete document.visibilityState; document.dispatchEvent(new Event('visibilitychange')); });
@@ -257,7 +258,7 @@ function checkPub(f, WL) {
     await p.route('**/api/test/*/save', r => r.abort()); await p.click('#pgFlag');
     await p.waitForSelector('#exNet:not([hidden])', { timeout: 10000 }).catch(() => fail('a failed save said nothing'));
     await sayOnly(p, 'can’t reach the site');
-    await p.unroute('**/api/test/*/save'); await p.click('#exRetry'); await sleep(600);
+    await p.unroute('**/api/test/*/save'); await press(p, '#exRetry'); await p.waitForSelector('#exNet', { state: 'hidden', timeout: 10000 }).catch(() => fail('the line stayed after the network came back')); await sleep(300);
     /* a reload in the middle: the log kept, and a "reload" */
     const before = await take(p);
     await p.reload(); await p.waitForSelector('#exCover:not([hidden])', { timeout: 15000 }).catch(() => fail('a reload: no cover'));
@@ -592,7 +593,7 @@ function checkPub(f, WL) {
     await goQ(p, fq, 'map'); await p.click('#pgFlag'); flagged.push(fq);
     await p.waitForSelector('#exNet:not([hidden])', { timeout: 8000 }).catch(() => fail('a save that failed said nothing'));
     const msg = await p.textContent('#exNet'); if (msg !== 'Can’t reach the site. Your answers are saved on this device.Try again') fail('the message: ' + msg);
-    await p.unroute('**/api/test/*/save'); await p.click('#exRetry'); await p.waitForSelector('#exNet', { state: 'hidden' });
+    await p.unroute('**/api/test/*/save'); await press(p, '#exRetry'); await p.waitForSelector('#exNet', { state: 'hidden', timeout: 10000 });
     await p.waitForFunction(() => true); await sleep(700);
     const dev = await p.evaluate(k => JSON.parse(localStorage.getItem(k)), 'exam.' + U.id + '.set.' + t.id + '.all');
     if (JSON.stringify(newest().answers) !== JSON.stringify(dev.ans)) fail('after Try again the site does not have the device\'s answers');
@@ -606,7 +607,7 @@ function checkPub(f, WL) {
     if (newest().status !== 'open') fail('the site finished a test whose finish never came');
     let held = 0; await p.unroute('**/api/test/*/finish');
     await p.route('**/api/test/*/grade', async r => { if (held++ === 0) await sleep(1200); return r.continue(); });
-    await p.click('#exRetry'); await p.waitForSelector('.exgrading'); await shot(p, 'grading-1366-light');
+    await press(p, '#exRetry'); await p.waitForSelector('.exgrading'); await shot(p, 'grading-1366-light');
     if (await p.textContent('.exgrading') !== 'Grading…') fail('Grading… is not said');
     await p.waitForSelector('#exCode', { timeout: 30000 });
     const T = Object.values(site.state.tests).find(x => x.id === t.id), sm = SV.summary(items, T.verdicts);
@@ -657,7 +658,7 @@ function checkPub(f, WL) {
     /* closed again: the start screen says so */
     await fetch(base + '/teacher/api/test/close', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) });
     const c3 = await ctxOf(), p3 = watch(await c3.newPage()); await p3.goto(base + TPATH); await p3.waitForSelector('#exClosed:not([hidden])');
-    if (await p3.textContent('#exClosed') !== 'This test isn’t open.') fail('closed: ' + await p3.textContent('#exClosed'));
+    if (await p3.textContent('#exClosed .exclosed') !== 'This test isn’t open.' || !(await p3.isVisible('#exClosedRetry'))) fail('closed: ' + await p3.textContent('#exClosed'));
     await sayOnly(p3, 'closed'); await c3.close(); ok('closed: “This test isn’t open.”, and nothing else');
   }
 
@@ -729,10 +730,8 @@ function checkPub(f, WL) {
     await p2.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => fail('a second tab did not open the browser\'s own test'));
     await A.p.close(); await p2.close(); const pc = watch(await c.newPage()); await pc.goto(base + '/no-such-page'); await pc.evaluate(k => localStorage.removeItem(k), 'exam.' + COURSE + '.u' + UNIT); await pc.close();   /* as if its copy of the test were gone: only exam.dev is left */
     const p3 = watch(await c.newPage()); await p3.goto(base + TPATH); await p3.waitForSelector('#exStart:not([hidden])');
-    const rq = p3.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); await p3.click('#exStart'); const r3 = await rq, j3 = await r3.json().catch(() => ({})); await sleep(150);
-    const s3 = await p3.evaluate(() => ({ anim: getComputedStyle(document.getElementById('exStart')).animationName, start: !document.getElementById('exStart').hidden, q: !!document.querySelector('body:not(.exam-pre)') }));
-    if (r3.status() !== 403 || j3.error !== 'again' || s3.anim !== 'exshake' || !s3.start || s3.q || Object.keys(site.state.tests).length !== n0) fail('a second start from this browser: ' + r3.status() + ' ' + JSON.stringify(j3) + ' ' + JSON.stringify(s3));
-    await sayOnly(p3, 'a second start refused');
+    const rq = p3.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); await p3.click('#exStart'); const r3 = await rq; await p3.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => {});
+    if (r3.status() !== 200 || Object.keys(site.state.tests).length !== n0 || newest().id !== A.t.id) fail('a second start from this browser while its test is open: ' + r3.status() + ', tests ' + (Object.keys(site.state.tests).length - n0) + ' more, ' + (newest().id === A.t.id ? 'the same' : 'another'));
     const bad = await fetch(base + '/api/test/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT, dev: 'nope' }) });
     if (bad.status !== 400) fail('a malformed dev was answered ' + bad.status);
     await c.close();
@@ -741,7 +740,7 @@ function checkPub(f, WL) {
     const ps = watch(await cs.newPage()); await ps.goto(base + TPATH); await ps.waitForSelector('#exStart:not([hidden])'); await ps.click('#exStart');
     await ps.waitForSelector('#pgQ', { timeout: 20000 }).catch(() => fail('storage refused: the test did not start'));
     const dev1 = site.state.tests[newest().id].dev; await cs.close();
-    ok('one start a browser, an opening: a second tab opens the browser\'s own test; a Start from the same browser in the same opening refused (403 again; Start shakes; no word; no test); a malformed id 400; storage refused still starts' + (dev1 ? '' : ' (no id?)'));
+    ok('one start a browser, an opening: a second tab opens the browser\'s own test; a Start from the same browser while that test is open comes back to it (no second test; after it is sealed, 403 again: part 4\'s New test); a malformed id 400; storage refused still starts' + (dev1 ? '' : ' (no id?)'));
     /* the end of the time, with the device's clock an hour wrong: the site's clock real time for this part */
     const off = CLOCK - Date.now() + 1000; site.state.now = () => Date.now() + off;
     const T1 = site.state.now() + 22000; await OPEN({ until: T1 });
@@ -906,13 +905,13 @@ function checkPub(f, WL) {
       else ok('L5: the device\'s clock moved an hour mid-test: the bar ' + st.clock + ', no idle hour, the visits ' + vs + ' s');
       await c.close(); }
     /* L8: 390 px at 200% (195 CSS px) with Larger text: nothing off the screen */
-    { const c = await ctxOf({ viewport: { width: 195, height: 422 }, hasTouch: true, isMobile: true }); await c.addInitScript(() => { try { localStorage.setItem('practice.big', '1'); } catch (e) {} });
+    { await put({ startCode: true }); const c = await ctxOf({ viewport: { width: 195, height: 422 }, hasTouch: true, isMobile: true }); await c.addInitScript(() => document.addEventListener('DOMContentLoaded', () => document.documentElement.classList.add('lg')));
       const p = watch(await c.newPage()); await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])'); await p.evaluate(() => document.documentElement.classList.add('lg'));
       const s1 = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-      await p.click('#exStart'); await p.waitForSelector('#pgQ'); await sleep(400); await hide(p); await sleep(500); await unhide(p); await sleep(300);
+      await p.fill('#exPin', site.state.open[K10].pin); await p.click('#exStart'); await p.waitForSelector('#pgQ'); await sleep(400); await hide(p); await sleep(500); await unhide(p); await sleep(300);
       const b = await p.evaluate(() => { const r = document.getElementById('exBackIn').getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right), innerWidth]; });
-      if (s1 > 0 || b[0] < 0 || b[1] > b[2]) fail('L8: at 195 px, Larger text: the start scrolls ' + s1 + ' px; Back to the test at ' + b); else ok('L8: 390 px at 200% with Larger text: the start does not scroll sideways, Back to the test inside the screen');
-      await c.close(); }
+      if (s1 > 0 || b[0] < 0 || b[1] > b[2]) fail('L8: at 195 px, Larger text: the start scrolls ' + s1 + ' px; Back to the test at ' + b); else ok('L8: 390 px at 200% with Larger text: the start (with the start code\'s box) does not scroll sideways, Back to the test inside the screen');
+      await c.close(); await put({ startCode: false }); }
     /* L9, H4: two tabs of one test; the first finishes: the second shows the results and the code; New test refused leaves the code */
     { const c = await ctxOf(), A = await begin(c), pB = watch(await c.newPage()); await pB.goto(base + TPATH); await pB.waitForSelector('#pgQ');
       await A.p.bringToFront(); await A.p.click('#bFinish'); await A.p.click('#cy'); await code(A.p);

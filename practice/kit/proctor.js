@@ -21,6 +21,11 @@
    - The sheet cannot be selected, copied, cut, dragged, right-clicked, printed or saved (Ctrl/⌘+P, Ctrl/⌘+S, Ctrl/⌘+A outside a
      box, beforeprint; exam.css prints nothing); each attempt is logged (trace.js's blocked). Answer boxes and scratch notes still
      take typing, selection inside them and paste.
+   - After the review of the test page (16 Nov 2026, CHANGES-16NOV §11): Ctrl/⌘+F, Ctrl/⌘+G and F3 are stopped and logged as
+     "find" (the find bar would take the focus, a leaving the child did not mean); a long press on a touch screen is not a
+     "menu"; the screen is kept awake (navigator.wakeLock, asked for in the Start press and each time the page is shown,
+     released at Finish); lengths are a steady count (performance.now()); End after N holds across a reload; again() watches
+     a child sent back to the test by a Finish that could not be sent (Start first, which counts nothing).
    Its state — the count, the leaving still open, the lock — is kept with the log (trace.js's slot), so a reload cannot shake it
    off; a reload is itself a leaving. Only on the test page, from start() to stop(); nothing here makes a request.
    Its words are DESIGN.md's: Back to the test, Locked. Ask your teacher., Unlock, Start, Left the test: N. */
