@@ -136,8 +136,9 @@ function checkPub(f, WL) {
   const count = p => p.evaluate(() => Kit.Proctor.count());
   const take = p => p.evaluate(() => Kit.Trace.take());
   const fsOn = p => p.evaluate(() => !!document.fullscreenElement);
-  async function begin(c) {
+  async function begin(c, o) {
     const p = watch(await c.newPage());
+    if (o && o.clock) await p.clock.install().catch(e => fail('the clock: ' + e.message));   /* before the page: its Date and its performance.now() one clock from the start */
     await p.addInitScript(() => { window.__fs = 0; const f = Element.prototype.requestFullscreen; Element.prototype.requestFullscreen = function () { window.__fs++; return f.apply(this, arguments); }; });
     await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])');
     await p.click('#exStart'); await p.waitForSelector('#pgQ'); await p.waitForFunction(() => window.Kit && Kit.Proctor && Kit.Proctor.count, null, { timeout: 15000 });
@@ -165,8 +166,7 @@ function checkPub(f, WL) {
     const asked = []; c.on('request', r => asked.push(r.url()));
     const p0 = watch(await c.newPage()); await p0.goto(base + TPATH); await p0.waitForSelector('#exStart:not([hidden])'); await sayOnly(p0, 'the start');
     if (await p0.isVisible('#exPin')) fail('a start-code box with the start code off'); else ok('the start code off: no box'); await p0.close();
-    const { p, t } = await begin(c);
-    await p.clock.install().catch(e => fail('the clock: ' + e.message));
+    const { p, t } = await begin(c, { clock: true });
     const items = t.priv.map(x => P.unpack(x)), N = await p.evaluate(() => document.querySelectorAll('#paper .q[data-q]').length);
     if (!(await p.evaluate(() => window.__fs)) || !(await fsOn(p))) fail('full screen was not asked for at Start (' + (await p.evaluate(() => window.__fs)) + ' asks, full screen ' + (await fsOn(p)) + ')');
     else ok('full screen asked for inside the Start press, and on');
