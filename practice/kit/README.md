@@ -1290,7 +1290,9 @@ the two cannot drift apart on a byte. Nothing on a practice page or a test page 
   record). It takes one site key or a list, so a site key made again never orphans the old records.
 - **The code:** `newCode()` 12 Crockford base-32 characters of fresh randomness, always with a digit (so a twelve-letter word
   in a pasted sheet is never taken for one); `showCode` `K7QF-2M9D-X4TB`; `readCode` forgives case, spacing, hyphens and
-  I/L/O; `findCodes(text)` for a pasted sheet of form answers.
+  I/L/O; `findCodes(text)` for a pasted sheet of form answers — a code as the site shows it (no I, L, O, U; a digit) before
+  one that needs a letter forgiven, and of overlapping runs the one written as one thing, so `code K7QF-2M9D-X4TB` and
+  `Mary K7QF 2M9D X4TB` both give the code (Tally's review, 16 Nov).
 - **The keys, as text:** the site's public key is base64url of the 65-byte point; Tally's is `TALLY1.` and the same (what
   Croix pastes into the cockpit); private halves are JWK and stay where they were made.
 - **Proving a pairing:** `newTrial(code, now)` is the made-up record the site locks when a Tally key is pasted;

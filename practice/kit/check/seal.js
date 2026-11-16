@@ -37,6 +37,13 @@ function record(code, big) {
   const found = S.findCodes('3:14 PM\tAda L.\tk7qf-2m9d-x4tb\n3:15 PM\tGrace H.\t9ZZZ0AAA1BBB\nrelationship, K7QF 2M9D X4TB again');
   ok(found.length === 2 && found[0] === c0 && found[1] === '9ZZZ0AAA1BBB', 'codes are found in a pasted sheet, each once, and a twelve-letter word is not one: ' + found.join(' '));
 
+  /* a code among other words (Tally's review, 16 Nov: "code K7QF-2M9D-X4TB" was read as C0DE-K7QF-2M9D) */
+  const FC = [['code K7QF-2M9D-X4TB', [c0]], ['my code is K7QF-2M9D-X4TB.', [c0]], ['Code: k7qf-2m9d-x4tb', [c0]], ['K7QF - 2M9D - X4TB', [c0]], ['K7QF.2M9D.X4TB', [c0]], ['K7QF/2M9D/X4TB', [c0]],
+    ['Mary K7QF 2M9D X4TB', [c0]], ['Mary K7QF-2M9D-X4TB', [c0]], ['K7QF-2M9D-X4TB 9ZZZ-0AAA-1BBB', [c0, '9ZZZ0AAA1BBB']], ['K7QF2M9DX4TB\n9ZZZ0AAA1BBB', [c0, '9ZZZ0AAA1BBB']],
+    ['K7QF-2M9D-X4TB, K7QF 2M9D X4TB', [c0]], ['k7qf-2m9d-x4tO', ['K7QF2M9DX4T0']], ['KOQF-2M9D-X4TB', ['K0QF2M9DX4TB']], ['Mary Jane Reed', []], ['relationship', []], ['', []], [null, []],
+    ['ABCD-EFGH-JKMN', []], ['see 2026-11-16 10:12:31 K7QF-2M9D-X4TB', [c0]], ['11/16/2026 10:12:31\tAda Lovelace\tK7QF-2M9D-X4TB', [c0]]];
+  for (const [t, want] of FC) { const got = S.findCodes(t); ok(JSON.stringify(got) === JSON.stringify(want), 'findCodes(' + JSON.stringify(t) + ') gave ' + JSON.stringify(got) + ', not ' + JSON.stringify(want)); }
+
   /* a record comes back as it went in */
   const site = await S.makeSiteKey(), tally = await S.makeTallyKey(), other = await S.makeTallyKey(), site2 = await S.makeSiteKey();
   ok(/^TALLY1\.[A-Za-z0-9_-]{87}$/.test(tally.pub) && /^[A-Za-z0-9_-]{87}$/.test(site.pub) && tally.priv.kty === 'EC' && tally.priv.d && site.priv.d, 'the keys are in the forms the design names');
