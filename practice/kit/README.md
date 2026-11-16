@@ -1379,3 +1379,7 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   answers, `ended: 'teacher'`; the record's `site.opened`). Checked (part 8): no box with it off; with it on the box, empty,
   wrong and lapsed codes refused with the shake and no new words and no test started, a new code, the right one typed in lower
   case with a space, a reload asking nothing; with `--shots` the start screen with the box, light and dark, 1366 × 657 and 390.
+- **A test over in the middle** (16 Nov 2026): a save, a read or an unlock answered `403 {error: 'closed'}` — Croix closed the
+  test or opened it again, or the test's time allowed ran out — and the page finishes at once, as Finish does (Grading…, then
+  the results); the site commits what it last saved. No words of its own. Checked (part 8): the unit opened again mid-test,
+  the next save refused, the page finished, the record the last saved answers with `ended: 'teacher'`.

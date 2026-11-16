@@ -125,7 +125,11 @@ function page(api){
   window.addEventListener('pagehide', function(){ if (DIRTY && PHASE === 'test') send(true); });
   document.addEventListener('visibilitychange', function(){ if (document.hidden && DIRTY && PHASE === 'test') send(true); });
 }
-function unlock(code, cb){ call('POST', '/' + ST.test + '/unlock', {code: code}).then(function(r){ cb(!!(r.ok && r.j && r.j.ok), r.status); }, function(){ cb(false, 0); }); }
+function unlock(code, cb){ call('POST', '/' + ST.test + '/unlock', {code: code}).then(function(r){ if (closed(r)) return over(); cb(!!(r.ok && r.j && r.j.ok), r.status); }, function(){ cb(false, 0); }); }
+/* the site says the test is over (16 Nov 2026: Croix closed it, opened it again, or its time allowed ran out): a save, a read or
+   an unlock answers 403 closed. The page finishes at once, as Finish does; the site commits what it last saved. */
+function closed(r){ return r && r.status === 403 && r.j && r.j.error === 'closed'; }
+function over(){ if (PHASE === 'test') finish(); }
 function elapsed(){
   if (ST.result) return ST.result.seconds || 0;
   return Math.max(0, (Date.now() + (ST.skew || 0) - (ST.start.started || Date.now())) / 1000);
@@ -141,7 +145,7 @@ function send(leaving){
   SEQ = Math.max(SEQ + 1, (ST.n || 0) + 1); ST.n = SEQ; keep();
   var body = {answers: S.ans, flags: (S.pg && S.pg.flag) || {}, n: SEQ};
   DIRTY = false; SENT = Date.now(); INFLIGHT = !leaving;
-  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok) mended(); }, function(){ INFLIGHT = false; DIRTY = true; if (K.Trace && K.Trace.fail) K.Trace.fail(); if (!leaving) fail(function(){ send(false); }); });
+  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok) mended(); else if (closed(r)) over(); }, function(){ INFLIGHT = false; DIRTY = true; if (K.Trace && K.Trace.fail) K.Trace.fail(); if (!leaving) fail(function(){ send(false); }); });
 }
 
 /* ---- read: "can't read this yet" and the preview, from the site */
@@ -158,6 +162,7 @@ function ask(it, then){
   if (PV[it.id] && PV[it.id].k === key){ paintPv(it.id, PV[it.id].r); if (then) then(PV[it.id].r); return; }
   var body = {part: it.id, text: text}; if (a !== undefined) body.a = a;
   call('POST', '/' + ST.test + '/read', body).then(function(r){
+    if (closed(r)) return over();
     if (!r.ok || !r.j) return; var now = JSON.stringify([PAGE.S().ans[it.id], it.sib ? PAGE.S().ans[it.sib] : null]);
     var res = {ok: r.j.ok !== false, pretty: r.j.pretty == null ? '' : r.j.pretty}; PV[it.id] = {k: key, r: res};
     if (now === key){ paintPv(it.id, res); if (then) then(res); }

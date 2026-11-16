@@ -689,7 +689,20 @@ function checkPub(f, WL) {
     const t = newest(), n1 = starts();
     await p.reload(); await p.waitForSelector('#pgQ');
     if (await p.isVisible('#exPin') || newest().id !== t.id || starts() !== n1 || site.log.filter(L => L.path === '/api/test/start').length !== site.log.filter(L => L.path === '/api/test/start').length) fail('a reload after starting asked for the code or started again');
+    /* the test over in the middle (the unit opened again: a new opening; the same answer as a time allowed run out): the next
+       save is 403 closed, and the page finishes at once — Grading…, the results — the site committing what it last saved */
+    await p.click('#exBackIn').catch(() => {}); await sleep(300);
+    const it8 = t.priv.map(x => P.unpack(x))[0];
+    await answer(p, it8, 'key'); await sleep(1800);
+    const saved8 = JSON.stringify(site.state.tests[t.id].answers);
+    await fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) });
+    await p.click('#pgFlag');
+    await p.waitForSelector('#exCode', { timeout: 30000 }).catch(() => fail('a test over in the middle: the page did not finish'));
+    const T8 = site.state.tests[t.id];
+    if (T8.ended !== 'teacher' || JSON.stringify(T8.answers) !== saved8 || !T8.sealed) fail('a test over in the middle: ended ' + T8.ended + ', sealed ' + !!T8.sealed);
+    await sayOnly(p, 'the end panel, the test over');
     await c.close();
+    ok('a test over in the middle (403 closed on the next save): Grading… and the results at once, the record the last saved answers, ended “teacher”');
     ok('the start code on: the box (focused, “Start code”, over Start); empty, wrong and lapsed codes refused (403 pin; the box shakes, clears and keeps the focus; no new words; no test started); New code; “' + typed + '” shown as ' + shownV + ' and sent as ' + body.pin + ', the test started; a reload asks for nothing');
     await put({ startCode: false });
   }
