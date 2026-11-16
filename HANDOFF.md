@@ -123,8 +123,9 @@ told no: it adds headroom, not security) — which is why the tests are drawn in
 the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
 `practice/exam/DESIGN.md`** (on the branch `exam`, which is ahead of main's copy).
 
-**Where the test stands (16 Nov, 2:15 pm): built, reviewed four times, in the kit and both courses; the site and Tally are
-on their last steps; nothing is deployed and no class has seen it.**
+**Where the test stands (16 Nov, 3:00 pm): built, reviewed, in the kit and both courses, and DEPLOYED on the site
+(mrshaffer-site `294aa6a`, 2:57 pm); Tally is on its last round; no test can be opened until Croix pairs Tally with the site,
+and no class has seen it.**
 - **The kit — on main** (merged from branch `exam`; the kit is `86dfa38`): `judge.js`, `pack.js`, `exam/server.js`, the
   test page (`exam_pool.js`, `exam_unit.js`, `exam.js`, `proctor.js`, `trace.js`, `exam/build_exam.py`), the Node stand-in
   `check/exam_site.js` and the page's whole-test check `check/exam_page.js` (10 parts), and the lock `exam/seal.js` with
@@ -140,11 +141,15 @@ on their last steps; nothing is deployed and no class has seen it.**
 - **The courses — done and pushed**: A7 `18f146d` and M7 `cbdf10f`: every practice page and teacher copy re-run on the
   kit (each ALL CHECKS PASSED), each unit's test page and site bundle built (each TEST BUILT AND CHECKED; teacher copy,
   bundle and test page all carry kit version `daf8735ed626`). A7 Unit 11's story part holds data only now.
-- **The site** — `mrshaffer-site` branch `exam` (local worktree `/home/claude/site-exam`): the store and routes
-  (`exam.js`), the bundles in the Worker, the cockpit's Test card, `EXAM_NOTES.md` (Cloudflare's Free-plan limits as read
-  that day, the budget measured, 39 decisions, each review finding and what was done). Being finished by this session:
-  the final pages, tests and bundles of all eleven published units copied in, the kit's own page check run against the
-  site, then main and the deploy.
+- **The site — deployed** (`mrshaffer-site` main `294aa6a`; Workers Builds success): the store and routes (`exam.js`), the
+  bundles of all eleven published units in the Worker (start-up 250 ms of CPU under Node, 0.96 MB gzipped), each unit's test
+  page at `/<course>/test/unit-N/`, the practice pages and teacher copies on the kit, and the cockpit's Test card (the open
+  test and its start code first, each course's current unit, the rest under More units; Leaving the test, Start code, Time
+  allowed, Students see, Unlock code, Google Form, Tally, Results). `EXAM_NOTES.md` there has Cloudflare's Free-plan limits
+  as read that day, the budget measured, 39 decisions and each review finding with what was done. The kit's own whole-test
+  page check passes against the site's handlers on M7 Units 10 and 7 and A7 Units 6 and 3 (`tools/test_exam_page.mjs`), and
+  a whole test passes through `wrangler dev`. **Nothing of it has been run on Cloudflare itself by anyone** — the site
+  cannot be reached from a session; his trial is the first real run.
 - **Tally** — branch `tests` in `croix18/Tally` (pushed; `NOTES.md` there): Connect, the trial's four words, responses to
   the class view and each sitting's detail, the flags; matching that never places a test silently unless it is certainly
   that child's; the locked records kept in IndexedDB and checked each session. Its second review's findings are being
