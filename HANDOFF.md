@@ -44,14 +44,18 @@ to figure out or fake."*
   the kit and re-runs every page but M7 Unit 7's, and puts the published ones on the site. A session rolling out the kit
   now does not need to wait for these branches or pick them up.
 
-**Still to build, in this order:**
-1. **The test mode** — a third way to take the whole practice test: full screen; the questions covered while a student is
-   away; a coral count of the times away in the bar; no selecting, copying, right-click, dragging or printing; a results
-   screen with Turn in. The cockpit's card: count only, lock after N, end after N, the unlock code, the form's link, the key.
-2. **The result code**, as a Windmill contract with tests: everything the page can see (time on each question, every change
-   of answer, calculator and scratch-paper use, the order of visits, each time away), sealed to a public key whose private
-   half stays in Tally, so a student can neither read a code nor edit one.
-3. **Tally's decoder**: the form's responses in, a class list out.
+**The test is to be airtight** (Croix, 7:52 pm, told that a code made on the student's own device could be faked by a
+student who can program, and that a page which draws its own questions holds their answers: *"I'm fully on board with a
+bigger build. Make it airtight."*). So the site draws nothing on the student's device and trusts nothing from it: the
+test page holds no engine and no key, the site judges the answers at Finish, signs the record and locks it to Tally.
+His other choices that evening: **a short code, the full record kept locked on the site** (no name on it; only his Tally
+opens it); and **the Workers Free plan** (*"Id like to stay on free"*; asked whether $5 a month was worth it, he was
+told no: it adds headroom, not security) — which is why the tests are drawn in his own browser when he opens a test and
+the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
+`practice/exam/DESIGN.md`.** Nothing of it is built.
+
+**Where the two branches stand:** `calc-harden` is finished and checked (part N on M7 Unit 10, its teacher copy and A7
+Unit 11; one commit, not pushed). `scratch-paper` is being built. Both wait for the words-pass rollout.
 
 ## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out
 
