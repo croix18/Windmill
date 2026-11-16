@@ -31,8 +31,8 @@ the practice kit could take it: *"Publish and yes move it to windmill"*.
 - **In use on the site** (`croix18/mrshaffer-site`): 51 drawings — the Algebra 1 EOC Spring 2024 (35), the Grade 7 FAST
   2026 (11) and question 23 of the Grade 8 FAST 2025 (5). Over the state's own pictures: at most 0.4% of either's ink more
   than 0.75 pt from the other's; 687 strings within 0.59 pt. The tests went live at site `e54a64c` with the kit in the
-  site's own tree; the site's next commit takes the kit from here (`released/kit/draw/`, its `DRAW_VERSION` names the
-  Windmill commit).
+  site's own tree; site `7929fe2` takes the kit from here (`released/kit/draw/` is `draw/` at `f483d15`; its
+  `DRAW_VERSION` names the Windmill commit, and the site's `tools/test_released.mjs` holds the copy to `DRAW.sha256`).
 
 **Things a session must know.**
 - **Windmill is public; the site is private.** The state's pictures (`state/`, cut from FLDOE's pages) and the specs
