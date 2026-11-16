@@ -108,7 +108,9 @@ the fixed copy."* Everything below is in `kit/README.md` and `practice/kit/READM
   page the several boxes; Units 3–6 rebuilt and their pages run again (A7 `27ff84b`). M7 — build kit `095d912`,
   practice kit `095d912`; Unit 13 draws the displays it had in words; Units 4, 5, 8, 9, 10 and 13 rebuilt and every page
   but Unit 7's run again, no set lock moved (M7 `ebb4d1d`; Unit 7 is its own session's). Each course's `NOTES.md` (top)
-  has the detail and what is open for Croix. Nothing rebuilt today is on the website: publishing is his word.
+  has the detail and what is open for Croix. **Published that evening** (Croix, 6:55 pm: "Publish it"): site `e919cfe` —
+  A7 Unit 11 (new on the site) and Units 3–6 as rebuilt; M7 Units 4, 5, 9, 10 and 13 as rebuilt; SITE CHECKS PASS and
+  the deploy succeeded. M7 Units 7 and 8 stay on the site's `hold.json`.
 
 ## Where things stand (14 Nov 2026, afternoon: M7 Unit 13 built; the test's directions in Croix's words; no follow-through line on paper)
 
