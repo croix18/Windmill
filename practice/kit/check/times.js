@@ -30,7 +30,7 @@ const READS = [
   /label: '×'/g, /KSHOW = \{'×': '·'\}/g,                                            /* a key NAMED × (it types *), shown as · (ui.js KSHOW) */
   /\[\s*'−'\s*,\s*'×'\s*,/g, /\['×'\]/g, /label === '× 10\^'/g, /'× 10\^'/g, /'×'\s*,\s*'× 10\^'/g, /KORDER|KNOWN/g   /* the keypad's vocabulary: names of keys a unit may bring */
 ];
-const KITFILES = ['ui.js', 'pager.js', 'teacher.js', 'bank.js', 'nline.js', 'cgraph.js', 'explain.js', 'core.js', 'calc.js', 'approvals.js', 'bilingual.js', 'tex.js', 'keyset.js', 'build.py', 'lang/pt-BR.js'];
+const KITFILES = ['ui.js', 'judge.js', 'pager.js', 'teacher.js', 'bank.js', 'nline.js', 'cgraph.js', 'explain.js', 'core.js', 'calc.js', 'approvals.js', 'bilingual.js', 'tex.js', 'keyset.js', 'build.py', 'lang/pt-BR.js'];
 let kitN = 0;
 for (const f of KITFILES) {
   const fp = path.join(KIT, f); if (!fs.existsSync(fp)) continue;

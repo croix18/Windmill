@@ -100,6 +100,7 @@
 /* the start: Start (or Keep going, with how far the set is) under the header */
 .pgstart{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
 .pgstart .go{min-height:48px;min-width:10rem;padding:12px 22px;border-radius:10px;font:600 16px/1.2 var(--chrome)}
+.pgstart .pgtest{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:8rem;padding:12px 22px;border-radius:10px;font:600 16px/1.2 var(--chrome);color:var(--ink);border:1.5px solid var(--edge);text-decoration:none}   /* the unit's test, while it is open (exam_link.js) */
 .pgresume{margin:0;flex:1 1 100%;font:500 15px/1.4 var(--chrome);color:var(--ink)}
 /* how to practice and the ⋯ menu at the top of the map card, under the question */
 .pgmap>.ctl{margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid var(--rule)}

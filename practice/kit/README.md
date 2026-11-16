@@ -791,6 +791,17 @@ teacher's view and print reserving nothing.
 | `nline.js` | the number-line graph a student builds (kind `nline`): the line, the widget, judging, paper; pure, so a unit's Node checks use it |
 | `cgraph.js` | the circle graph a student builds (kind `cgraph`, 15 Nov 2026, below): the marked circle, the widget, the edits, judging, the key, paper, the four graphs; pure, so a unit's Node checks use it |
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
+| `judge.js` | the judge, one source for the page and the site (15 Nov 2026, below): a part's boxes, blank, can't read, the unit's judge, equivalent forms, what Finish makes of a part on Like the real test; `Kit.Judge({U, V, K, NL, CG})`, pure, the context passed in |
+| `pack.js` | a part as text and back, BigInt kept exact; refuses what is not data (a function, a class's object), saying where (15 Nov 2026, below) |
+| `exam/server.js` | the site's side of a test: `read`, `grade` (n parts a call), `summary`; Node and the site's Worker, no DOM (15 Nov 2026, below) |
+| `exam/seal.js` | the lock on a test's record, both ends in one file: the site's `seal`, Tally's `open`, the code, the keys, the four-word check; Web Crypto only (16 Nov 2026, below) |
+| `exam_pool.js` | the test's pool, in a teacher copy at `#exam-pool`: n tests drawn for the cockpit, each `{seed, pub, priv, fams}`, proved by `exam/server.js` before it goes (15 Nov 2026, below); teacher builds only, with `pack.js` and `exam/server.js` |
+| `exam_unit.js` | the stub unit the test page runs on: the test's skeleton and the recorded view, no judge, solution, walk or key (15 Nov 2026, below) |
+| `exam.js`, `exam.css` | the test on the student's device: the start, the site's routes, the clock, Grading…, the results, Turn in (15 Nov 2026, below) |
+| `trace.js` | the test's log: everything the test page can see, in the pinned shape, kept on the device as it grows, sent at Finish, removed after the seal (16 Nov 2026, below); test page only |
+| `proctor.js` | the test's proctor: full screen at Start, each leaving counted and covered, Back to the test, the site's rule (count, lock, end), no copying or printing the sheet (16 Nov 2026, below); test page only |
+| `exam_link.js` | a student page on the site: Test on its start screen while the unit's test is open (15 Nov 2026, below) |
+| `exam/build_exam.py` | `python3 kit/exam/build_exam.py <unit>`: the test page and the site's bundle, gated on `check/pack.js`, checked by `check/exam_page.js` (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
 | `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
@@ -819,6 +830,12 @@ teacher's view and print reserving nothing.
 | `check/walk.js`, `check/times.js` | a walkthrough's options shuffled by the question; no × for multiplication, the kit's words and the unit's (15 Nov 2026, below). `run.py` runs both on every student page |
 | `check/boxes.js`, `check/boxes_page.js`, `check/order_page.js` | typing into a part's boxes for every page check; page.js part T (several boxes in one part) and part U (a walkthrough's order in the browser, no × on the sheet or any paper), 15 Nov 2026 |
 | `check/cgraph.js`, `check/cgraph_page.js` | answering a circle graph through the page for every page check (the keyboard, as a student without a mouse does); page.js part V (a circle graph the student builds), 15 Nov 2026 |
+| `check/pack.js` | every part judges the same after `unpack(pack())`, over 60 sets; not one of `run.py`'s steps (it will gate the test page) |
+| `check/exam_server.js` | the site's verdicts and score are the page's on Like the real test, 30 sets, through the page in Chromium; `read` against the page's "can't read" and preview; the CPU time of a grade call and a read |
+| `check/exam_site.js` | a stand-in for the site's test routes, in memory, on `exam/server.js`: the reference the site is built from (its routes written at its top); not for production |
+| `check/seal.js` | the lock holds: round trips, every byte of a locked record changed, the wrong keys, a record a student made, the four words, and `check/seal_vector.json` (a record locked on 16 Nov 2026) still opens; no unit, no browser; `tools/check.sh` runs it |
+| `check/exam_page.js` | the test page in Chromium against the stand-in: the pool through a cockpit, the same sheet on 12 tests, nothing to steal, a whole test, a phone in dark, the words; run by `exam/build_exam.py` |
+| `check/exam_link_page.js` | page.js part X: the practice page's Test link on the site; the teacher copy at `#exam-pool` |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
@@ -1162,3 +1179,237 @@ for that graph, built, not chosen.
   it; `judge.cgraph` your one line for `'size'` and `'names'`; `rungs`, `solution` and `walk` for type `'cgraph'` (or none, for the
   kit's); `choices(part)` your named wrong graphs (or `[]`, for the kit's); in your own checks, `Kit.CG.check(part)` on every part,
   the key and the key in another order right, unfinished graphs never a try, each named mistake judged on its own `which`.
+
+## 15 Nov 2026 — one judge for the page and the site (`judge.js`), parts as text (`pack.js`), the site's side of a test (`exam/server.js`)
+The first stage of the test the site grades (`practice/exam/DESIGN.md`; Croix, 7:52 pm: *"I'm fully on board with a bigger
+build. Make it airtight."*). Nothing a student sees changes.
+- **`judge.js`, one judge:** what `ui.js` did to judge an answer — `boxesOf`, `boxAns`, `boxSay`, `answered`, `judgeAns`,
+  `formOf`, `tidy`, `equivUp`, `boxForm`, `boxKeys`, `equivBoxes` — moved, unchanged, into `Kit.Judge({U, V, K, NL, CG})`, with
+  one more: `atFinish(it, a, ctx)`, what Finish makes of a part on Like the real test (a blank is "Left blank.", an answer that
+  cannot be read keeps the reader's line, both marked wrong; an "Almost" earns no point). No DOM and no page state: the context
+  (`ctxOf`: part (a)'s answer, whether it is right, the mode) is passed in, by the page from its state and by the site from
+  its own. `ui.js` keeps every one of those names as a one-line call into it, and `finish()` calls `atFinish`; nothing else in
+  `ui.js` moved. A box's name in "Fill in every box" was read through a DOM element; `judge.js` has its own `plainText` (tags
+  out, character references decoded), the same on every box of every unit (A7 Unit 11's, the only boxes, 24,000 over 3,000
+  sets). Loaded after `cgraph.js`, before the unit's scripts (`build.py`, `check/run.py`'s hash, `tools/practice_kit.py`);
+  `check/times.js` reads its words.
+- **Proved the same:** M7 Unit 10 and A7 Unit 6 built before and after, 40 sets each, both modes, five rounds a set so every
+  part is typed its key, a wrong answer, its key written another way, an unreadable string and a blank (every other part
+  checked in Check as I go), then Finish: the saved set, misses and streaks, every feedback card, readout and preview, the
+  score and the end panel, identical (800 rounds, 16,800 parts).
+- **`pack.js`, a part as text:** `Kit.pack(part)` → text, `Kit.unpack(text)` → the part, BigInt, undefined, NaN, ±Infinity
+  and −0 kept exact. What is not data — a function, a symbol, a Date, an object made by a class, an object inside itself — is
+  refused, with where it is (`Kit.pack.problems(part)`). `check/pack.js <unit>`: 60 sets, every part judged as drawn and after
+  `unpack(pack())`, its key, a wrong answer, each choice, a number line and a circle graph by their keys, every verdict and word
+  the same. **Not one of `run.py`'s steps:** a practice page does not need it; it will gate the test page's build. Every unit
+  passes but A7 Unit 11, whose story part (14(a)) carries three functions (`st.say`, `st.ask`, `st.amt`), and so its 14(b),
+  which has 14(a) as its part (a); that is fixed in the unit.
+- **`exam/server.js`, the site's side** (Node and the site's Worker; CommonJS, static `require`s only): `read(U, item, text)`
+  → `{ok, pretty}` — `ok` false exactly where the page says "Can't read this yet" (not for boxes still empty), `pretty` the
+  unit's preview (one per box for a part with boxes), never right or wrong; `grade(U, items, answers, verdicts, from, n)` →
+  `[{v: right|wrong|blank|unread}]` for the next n parts, part (a)'s verdict feeding its part (b), so it refuses to be called
+  out of order; `summary(items, verdicts)` → `{points, of}`, as the end panel counts them. The items are the page's own,
+  `Kit.items()` (read only: id, type, part, its part (a), what was shown, place, label), packed and unpacked.
+  `check/exam_server.js <unit>`: 30 sets through the built page on Like the real test, every part answered (the five in turn),
+  Finish; the site's verdict for every part and its score are the page's, and its `read` the page's readout and preview.
+  It prints the CPU time of a grade call of three parts and of a read, cold and warm, against the site's 10 ms a request.
+
+## 15 Nov 2026 — the test page (`exam_pool.js`, `exam_unit.js`, `exam.js`, `exam/build_exam.py`, `check/exam_site.js`)
+The second stage of the test the site grades (`practice/exam/DESIGN.md`). The full-screen rule and the log
+(`proctor.js`, `trace.js`) are the next stage; `exam.js` calls them when they are there.
+- **The pool is drawn in the teacher copy.** A teacher build carries `exam_pool.js` (before `ui.js`), `pack.js` and
+  `exam/server.js` (its `require`s given the page's `Kit`). At `…/practice/#exam-pool`, in a frame of a page on the same
+  origin, it says `{kit: 'exam-pool', ready: true, course, unit, cv, kitv}`; told `{kit: 'exam-pool', draw: n}`, it answers in
+  fives, `{kit: 'exam-pool', forms: [{seed, pub, priv, fams}], done, of}`, or `{kit: 'exam-pool', error}`. A message is read
+  only from its parent, on its origin. Each seed is 128 bits, 32 hex characters: every unit draws through `Kit.draw`, which
+  hashes `unit|seed|slot`, so no `#set-N` opens a test. The set is drawn as *Like the real test* by the page itself
+  (`PracticeKit.draw`, a hook in `ui.js`: `render()` and the paint, as a student page draws — no key under a graph — and every
+  kind kept, since the site leaves out a disapproved kind by `fams`), then the page is put back.
+  - `pub`: every call the page made to the unit's `view` while it drew, its result under `fn|place|args` (`stem|@0.2`,
+    `opt|@1.0|3`; a place is `si.ii` for an item, `si.ii.pi` for a part, `si.ii.-1` for a solo item's part); which view
+    functions the unit has; a skeleton of the set; the unit's title, eyebrow, h1, notes, its keypad as data (each key's
+    typing for each kind of box in the test), `contentVersion` and the kit's version (the manifest's hash). The skeleton's
+    fields are a whitelist written down once, with a reason each, at the top of `exam_pool.js`: an item's `type`, `parts`,
+    `part` and how many choices; a part's `label`, `kind`, `imode`, how many choices, a number line's `line` (`{lo, st, n}`),
+    a circle graph's `circle` and `cats` (its names, no sizes), declared `boxes` and `form`, and `flab`, the form label the
+    page shows over a box (it comes from the key, so the copy works it out). No `fam`: nothing reads it on the test page,
+    and it names the method.
+  - `priv`: the page's `ITEMS` (`Kit.items()`), each packed with its `keyText`, in order.
+  - Before it goes, each test proves itself through `exam/server.js` after `unpack(pack())`: every key right, a wrong answer
+    not, the keys every point; two seeds that drew the same set are an error.
+- **The stub unit** (`exam_unit.js`, the same for every unit): `generate()` gives the skeleton, fresh objects each call;
+  `view.*` gives back what was recorded; a call that was not is `''` and counted (`Kit.ExamUnit.unknown`). No `judge`,
+  `solution`, `walk`, `key`, `keyText`, `rungs` or `choices`. `Kit.ExamUnit.judge(J)` gives `ui.js` a judge whose form label
+  is the recorded one and whose judging refuses.
+- **`ui.js` in exam mode** (`window.KIT_EXAM`, set only by the test page; hooks marked "the test"): the set is the test (its
+  id for the set number, `HASHV` from it, no link read or written, its storage under `exam.<unit>.`); always *Like the real
+  test*; Check, Enter and the coach do nothing; "Can't read this yet" and the preview come from `exam.js`; the clock is the
+  site's; Pause does nothing; Finish (the bar's or the pager's, after the kit's own question) goes to `exam.js`, and
+  `examDone` marks each part right or not as the site says and paints it with no card, no key and no help, every box
+  locked. The mode switch, What to practice, the set number, Print, Pause and Resume are not shown (`exam.css`). Everything
+  else is the page: the pager, flags, the keypad, boxes, the number line, the circle graph, the Calculator, Scratch paper,
+  docking, dark, Larger text.
+- **The test page** (`python3 kit/exam/build_exam.py <unit>` → `M7 Unit 10 Test.html` beside the page): `build.py` makes the
+  page's body (`--body-to`, nothing written there) and the build takes the unit out — its scripts, the lesson bank (its key
+  list stays, for the keypad), `bilingual.js`, `explain.js`, `approvals.js` — and holds `pager.js`, `scratch.js`, `ui.js` and
+  `calc.js` inert (`<script type="text/x-kit-held">`); `exam.js` runs them, in order, once the test has come. It refuses a
+  page that holds a line of the unit's scripts. `judge.js` stays: `ui.js` makes its judge at load (it holds no unit).
+- **`exam.js`:** the start (the unit's title, Test, Start — or "This test isn't open."); the routes as `check/exam_site.js`
+  writes them; a save at most every 20 s while anything changed (a question change is a change) and at once when the page
+  goes; a read on a pause in typing and on leaving a box (a read that fails is dropped; the next asks again); Finish → finish,
+  grade until done, seal; Grading…; the results (`24 / 36 points`, `41:07`, the code `K7QF-2M9D-X4TB`, Turn in, and each
+  question Right, Not right or Blank in the pager's list, read, not opened, when the site shows them), kept on the device
+  so the page reopens on them; New test while the test is open, after a second New test (Back keeps the result). Turn in
+  copies the code and opens the form with `CODE` replaced, or says "Copied". A request that fails says "Can't reach the
+  site. Your answers are saved on this device." with Try again. Its words are DESIGN.md's list, New test, Copied and Back.
+- **The site's bundle** (`test_bundle/` beside the page): the unit's scripts and the kit files they `require`, in the same
+  layout; `judge.js`, `pack.js`, `exam/server.js`; `index.js` → `{course, unit, cv, kit, U, server, pack}`; `sample.json`, a
+  test drawn under Node with its keys as answers, judged every point before the build ends.
+- **The practice page** gets `exam_link.js`: on the site, Test beside Start while `GET /api/test/status` says `{open: true}`.
+- **`check/exam_site.js`**, a stand-in for the site's routes, in memory, on `exam/server.js` — the reference for the site;
+  `exam/server.js`'s `grade` now marks an "Almost" (`{v: 'wrong', almost: true}`).
+- **Checked** (`check/exam_page.js`, run by the build): the pool through a page that plays the cockpit; on 12 tests every
+  question card of the test page is the teacher copy's own HTML for that seed (the pager's `pg-on` aside) and the stub was
+  asked nothing it did not have; nothing to steal (the unit's lines searched, the stub's fields, every `pub` against the
+  whitelist, every response of the stand-in before seal); a whole test (keys, wrong answers, equivalent forms, an unreadable
+  one fixed, blanks, two flags, Back, Next, the map, a reload, the network lost on a save and on Finish, the score the site's
+  and the practice page's judge's, the code, Turn in, reopened, New test, a second finish refused, no token refused, closed
+  again); 390 × 844 in dark. page.js part X (`check/exam_link_page.js`): the Test link and `#exam-pool`.
+
+## 16 Nov 2026 — the lock on a test's record (`exam/seal.js`, `check/seal.js`)
+The record a test ends in (`practice/exam/DESIGN.md`, "3. The record and the code"; Croix, 15 Nov, 7:40 pm: *"The code also has
+to be something crazy looking that is impossible for the students to figure out or fake."*; 9:03 pm: *"How do I know it'll
+open on my tally?"*). Written once, for both ends: the site's Worker calls `seal`, Tally calls `open`, from this one file — so
+the two cannot drift apart on a byte. Nothing on a practice page or a test page loads it.
+- **A locked record:** the record as JSON, deflated; signed by the site (ECDSA P-256, a key that never leaves the site);
+  then locked to Tally's public key (a fresh ECDH P-256 pair a record, HKDF-SHA-256, AES-256-GCM) — `01 ‖ fresh public key ‖
+  iv ‖ ciphertext`, carried as base64url text. Only Tally's private half opens one; one that opens and passes was signed by
+  the site; the record is inflated and read only after the signature holds.
+- **`open` says why it refuses** (`.why`): `format` (not a locked record), `key` (not locked to this Tally's key, or
+  damaged), `signature` (it opened, and the site did not sign it — the record is not handed back), `code` (another code's
+  record). It takes one site key or a list, so a site key made again never orphans the old records.
+- **The code:** `newCode()` 12 Crockford base-32 characters of fresh randomness, always with a digit (so a twelve-letter word
+  in a pasted sheet is never taken for one); `showCode` `K7QF-2M9D-X4TB`; `readCode` forgives case, spacing, hyphens and
+  I/L/O; `findCodes(text)` for a pasted sheet of form answers — a code as the site shows it (no I, L, O, U; a digit) before
+  one that needs a letter forgiven, and of overlapping runs the one written as one thing, so `code K7QF-2M9D-X4TB` and
+  `Mary K7QF 2M9D X4TB` both give the code (Tally's review, 16 Nov).
+- **The keys, as text:** the site's public key is base64url of the 65-byte point; Tally's is `TALLY1.` and the same (what
+  Croix pastes into the cockpit); private halves are JWK and stay where they were made.
+- **Proving a pairing:** `newTrial(code, now)` is the made-up record the site locks when a Tally key is pasted;
+  `words(nonce, sitePub, tallyPub)` gives the four words both ends show — only a Tally that opened the trial knows its nonce,
+  and the words change with either key.
+- **`check/seal.js`** (no unit, no browser; `tools/check.sh` runs it): a record comes back as it went in, small and at the
+  log's largest; every byte of a locked record changed in turn, bytes cut and added, none opens; another Tally's key, another
+  site's key, another code; a record locked by someone holding Tally's public key and not the site's key is not shown; the four
+  words; and `check/seal_vector.json` — a record locked on 16 Nov 2026 with keys made for that file — must open, so the format
+  cannot change under records already turned in. It prints the time to lock and open the largest record (about 3 ms each).
+
+## 16 Nov 2026 — the proctor and the log (`proctor.js`, `trace.js`)
+The third stage of the test the site grades (`practice/exam/DESIGN.md`, "The log" and "The log's shape"). Croix, 15 Nov: a test
+mode — *full screen, the times a student navigated away shown on screen, the questions hard to copy*; of a student who leaves,
+*"Count it and show it. Give me the option in the cockpit to turn on lock or end after x amount of times."*; of the record, *"I
+want literally all the data that is possible to get."* Both files are on the test page only, before `exam.js` (`build_exam.py`);
+no practice page, teacher copy or FAST page has them, and no shared file has a hook for them: they watch the page from outside.
+- **Full screen at Start.** `exam.js` calls `Kit.Proctor.enter()` inside the Start press (a browser asks for a press). Where the
+  browser allows it Escape is kept for the page (`navigator.keyboard.lock`), so Escape closes the calculator without leaving full
+  screen; a press and hold still leaves. A test begun with no press (New test) opens under a cover with **Start**, which counts
+  nothing.
+- **Away.** The page hidden (`"tab"`: another tab or app), the window without focus (`"window"`: `document.hasFocus()`, polled
+  five times a second, so a click into the calculator's frame, part of this page, is not away), out of full screen where full
+  screen is available (`"fullscreen"`), or the page loaded again mid-test (`"reload"`). One leaving is one entry however many
+  signals fire, from the first signal to the press that brings the student back, and its kind is the strongest seen (reload, tab,
+  window, full screen). A loss of focus shorter than `GRACE` (1 s) with the page never hidden is logged nowhere and counted
+  nowhere, so a stray system pop-up never locks a child out.
+- **The cover.** While away the sheet is covered: opaque (`--ground`), everything under it `inert`, nothing under it readable;
+  its one button, **Back to the test**, takes the focus and brings the student back, into full screen again (its press is the
+  gesture). Escape and Tab do nothing there. The bar shows **Left the test: 2** once the count is not zero: solid coral with the
+  alarm's ink, the only coral on the page; on a phone it shares the answered line, so the clock and the buttons keep one row.
+- **The rule** comes from the site at start (`{leave, after}`). *Count only*: nothing more. *Lock after N*: from the Nth leaving
+  on, each leaving locks — **Locked. Ask your teacher.**, one box, **Unlock**; the code goes to `POST /api/test/<id>/unlock`; a
+  right one goes back to the test (and into full screen); a wrong one clears the box and shakes it (not with reduced motion) and
+  says nothing; after the site's five tries a minute (`429`) the box and Unlock wait a minute. *End after N*: the Nth leaving
+  finishes the test as it stands (`ended: 'left'`), and the end panel says **Test ended: left the test 3 times.** The end panel
+  always says **Left the test 2 times · 1 min 5 s** when the count is not zero, from the log's `away`.
+- **Not copied.** Outside the answer boxes and scratch notes the sheet cannot be selected (CSS and `selectstart`), copied, cut,
+  dragged, right-clicked, printed or saved: Ctrl/⌘+C, X, A, P and S, the context menu, `dragstart` and `beforeprint` are stopped
+  and each is a `blocked` entry; printed, the test page is nothing at all (`exam.css`). The boxes and the notes keep typing,
+  selection and paste; a paste into an answer box is counted in that part's `pastes`.
+- **The log** (`trace.js`), in exactly the pinned shape — `v, t0, t1, q, visits, parts, calc, scratch, away, blocked, idle,
+  device, fails, drop` — with `device.fs` added to the shape (full screen available on this device). Every `sec` is the
+  difference of two `at`s, so the visits add up to the test's length. The question on the screen comes from the page's own
+  `at()`; a part's values from the page's saves (`exam.js` hands each `S` on), `"typed"` for a keyboard's input, `"keypad"` for
+  the kit's on-screen keypad (its input is the page's own, not the browser's), `"tap"` for a choice, a number line or a circle
+  graph — the first 4 and the last 8 kept, `n` counting all; the calculator's openings from its panel (`fast` or `ti`, calc.js's
+  ids) and scratch paper's from its panel (Notes or Grid), a new entry when the calculator, the tab or the question changes; what
+  is on scratch paper at Finish from `scratch.js`'s own saved entry, 4 KB in all (the longest notes cut first, to one length that
+  fits; then the largest grids' last things); `idle` each stretch over a minute with nothing typed or tapped, never counted
+  while away; the device from `navigator.userAgentData` where there is one (else the user-agent string), the time zone's name,
+  the kit's dark and Larger text, and zoom as the window's outer width over its inner (a browser's zoom step within 3%). Caps:
+  300 visits, 100 of each other list, `drop` counting the rest. It is kept under `exam.log.<test>` (half a second after a change,
+  every 5 s, and when the page goes), so a reload loses nothing, and removed once the record is sealed. It never makes a request.
+- **Finish** asks in the bar with the list's words, **Finish** and **Back** (the practice page's question counts the blanks and
+  says Keep working). After Finish a question with only some parts right is **Not right** in the list.
+- **The words.** The test page shows only DESIGN.md's list (and New test and Copied, from stage 2): the map has no heading or
+  legend and on a phone shows its buttons in place of the drawer's line; "Question 4 of 16" is read to a screen reader only (the
+  number is on the question and the map); the unit's typing tip is not shown. The calculator's and scratch paper's own panels
+  and the ⋯ menu keep their words (`BUILD_NOTES.md` lists them for Croix).
+- **Checked** (`check/exam_page.js` part 7, run by `build_exam.py`, against `check/exam_site.js` in Chromium): full screen asked
+  for in the Start press; one leaving of each kind on questions 1, 2 and 3, logged with its kind, length and question and counted
+  once, the cover over the sheet at 25 points with the sheet inert and the focus on Back to the test, Escape and Tab staying on
+  it, back into full screen; a blur of 0.45 s and a click and typing in the calculator's frame, nothing; the coral count and
+  nothing else coral; a drag across the sheet selecting nothing, and Ctrl+A, C, X, the context menu, a drag, Ctrl+P, Ctrl+S and
+  the print event doing nothing and logged; printed, nothing; typing, Ctrl+A, copy and paste in an answer box and in scratch
+  notes, the paste counted; an idle stretch (the page's clock moved on 75 s); a failed save; a reload mid-test (the log the same,
+  one `"reload"` more, the cover); Finish's question; the whole log at Finish against the session (every field, the visits in
+  the session's order adding up to the test's length, typed and tapped values, the calculator's openings, scratch paper's
+  openings and its notes and point, four leavings, eight blocked, the idle stretch, the device, one failed save, nothing
+  dropped); the end panel's line; the log gone after the seal; no request but the page, the test routes and the calculator
+  opened. Lock after 3 on a touch tablet: the keypad's key logged `"keypad"` (on a part whose kind of box shows keys; M7 Units 7 and 13 have no keypad); locked on the third; five wrong codes, the box
+  shaking only without reduced motion; the sixth try `429` and the box waiting; the right code; locked again on the fourth; the
+  record's `unlocks` 2. End after 3 at 390 × 844 in dark: finished as it stood, both lines, the record's `ended`. The caps (the
+  visits' and the blocked list's lowered through `Kit.Trace.CAP`), a part's 15 values, 4 KB of scratch paper. The visible words of
+  every state (the start, a question, can't reach the site, Finish asked, Grading…, the end panel, locked, ended, closed), and
+  the words in `exam.js` and `proctor.js`. With `--shots`: the start, a question, away, the bar, locked and the end panel, light
+  and dark, at 1366 × 657 and 390 × 844.
+- **The start code** (16 Nov 2026, after the review of the site's side; `practice/exam/DESIGN.md`): when the site's status says
+  `{open: true, pin: true}`, the start screen has one box over Start, *Start code* its placeholder and its label, focused,
+  upper-cased as typed, Enter starts; Start sends `{course, unit, pin}` (upper-cased, spaces stripped); `403 {error: 'pin'}`
+  shakes and clears the box as the unlock box does, and `429` makes the box and Start wait a minute; no other words. A reload
+  of a started test never asks. With a start code asked for, New test goes back to the start screen and its box. The stand-in
+  has the same (`cfg.startCode`, a code per opening living 15 minutes on its clock, `POST /teacher/api/test/pin`), and a test
+  belongs to its opening there too (save, read and unlock `403 closed` once it is over; finish then commits the last saved
+  answers, `ended: 'teacher'`; the record's `site.opened`). Checked (part 8): no box with it off; with it on the box, empty,
+  wrong and lapsed codes refused with the shake and no new words and no test started, a new code, the right one typed in lower
+  case with a space, a reload asking nothing; with `--shots` the start screen with the box, light and dark, 1366 × 657 and 390.
+- **A test over in the middle** (16 Nov 2026): a save, a read or an unlock answered `403 {error: 'closed'}` — Croix closed the
+  test or opened it again, or the test's time allowed ran out — and the page finishes at once, as Finish does (Grading…, then
+  the results); the site commits what it last saved. No words of its own. Checked (part 8): the unit opened again mid-test,
+  the next save refused, the page finished, the record the last saved answers with `ended: 'teacher'`.
+- **One start a browser, an opening; the end of the time** (16 Nov 2026, after the second review of the site; CHANGES-16NOV §10).
+  The page makes a random id once (`exam.dev`, 32 hex from `crypto.getRandomValues`; in memory only if storage is refused) and
+  sends it with Start (`{course, unit, pin, dev}`); a second start from it in the same opening is `403 {error: 'again'}`, shown
+  as a refused code is — the box shakes and clears, and with no box Start (or New test) shakes; no word. Start, a reload and
+  every save answer with `ends` (ms, the site's clock), when the test stops being live; the page keeps the newest, saves 3 s
+  before it and finishes 1 s before it by the ordinary Finish, so what was typed up to then is committed (a finish after `ends`
+  would commit only the last save), and it follows an `ends` moved later. It reckons on the site's clock (the device's plus
+  the offset from the site's `now`), so a device clock that is wrong changes nothing. The stand-in keeps the id's hash on the
+  test, answers `ends` (the opening's `until`) and has `POST /teacher/api/test/extend`. Checked (part 9): a Start from the same
+  browser in the same opening refused with the shake, a malformed id `400`, storage refused still starting; New test refused in
+  the same opening and starting after a new opening; with the device's clock an hour ahead, an `ends` moved later by a save's
+  answer and followed, a digit typed 1.6 s before `ends`, the test finished by itself before `ends`, the record holding it.
+- **Never stuck, never losing work, never looking like they left** (16 Nov 2026, after the review of the test page;
+  CHANGES-16NOV §11, `/home/claude/reviews/test-page/REVIEW.md`). When the site has ended a test (`403 closed` or `409
+  finished` on a save, a read, an unlock or the reload's GET) the page goes straight to grading and the seal, whatever cover is
+  up — a locked child included. A save, a Finish refused 429 or 5xx, a grade step and the seal that fail are tried again by
+  themselves (5 s, 10 s, 20 s, then every 30 s; at once on `online`), the line and Try again up meanwhile; `409 order` takes
+  the site's `next`; `409 grading` on the seal grades again; a Finish refused for good puts the child back in the test, the
+  proctor on again (Start first, which counts nothing). Start answers the same test again while it is open (a lost answer, a
+  mistaken New test), and New test never takes a result off the device until a new test has started. The screen is kept
+  awake. A reload whose GET is refused goes on from the device's copy (the rule, the start time, the form link) and asks
+  again; the test's id, token and the browser's id are in sessionStorage too. End after N holds across a reload. The
+  not-open screen asks again every 20 s and has Try again. Ctrl/⌘+F, Ctrl/⌘+G and F3 are stopped and logged as `find`; a
+  touch long-press is not `menu`. The log is never over 60 KB. Turn in is a real link; the results are a live region and the
+  focus goes to the code; lengths come from `performance.now()`; nothing runs off a 390 px screen at 200%; a second tab of a
+  finished test shows the code. The stand-in: the same test again for a `dev` whose test is open, `409 finished` on unlock,
+  Lock refused with no code. Checked (part 10, one claim each, the review's probes in essence) on four units, M7 Unit 7's
+  circle graph among them.

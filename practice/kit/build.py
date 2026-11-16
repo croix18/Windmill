@@ -8,7 +8,7 @@ and writes, in the unit folder:
   <file>      the artifact body (the claude.ai publisher adds the document skeleton)
   preview.html and <download>   the same page as a complete document (doctype, lang, charset): for Google Sites,
               Netlify Drop, or opening locally.
-Order: kit/core.js, kit/nline.js and kit/cgraph.js (the graphs a student builds), kit/bilingual.js, kit/explain.js (the help's terms and pictures, 14 Nov 2026), kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
+Order: kit/core.js, kit/nline.js and kit/cgraph.js (the graphs a student builds), kit/judge.js (the judge, 15 Nov 2026), kit/bilingual.js, kit/explain.js (the help's terms and pictures, 14 Nov 2026), kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
 end with test.js and kit/teacher.js), the lesson bank and kit/bank.js (if any), kit/approvals.js (the disapproved questions, from the
 site, 8 Nov 2026), kit/pager.js (one question at a time, 14 Nov 2026; with kit/pager.css after kit.css), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026), kit/scratch.js (scratch paper, 15 Nov 2026; loaded before kit/ui.js, with kit/scratch.css after kit/explain.css). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
@@ -21,7 +21,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "nline.js", "cgraph.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css", "scratch.js", "scratch.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "cgraph.js", "judge.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css", "scratch.js", "scratch.css", "exam_pool.js", "pack.js", "exam/server.js", "exam_link.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 
@@ -111,6 +111,16 @@ def source_hash():
     for _fam, _w, f, _r in FONTS: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())
     for f in bank_files(): h.update(open(f, "rb").read())
     return h.hexdigest()[:16]
+# the test's pool (15 Nov 2026; practice/exam/DESIGN.md): a teacher copy draws the tests the site hands out (kit/exam_pool.js,
+# before kit/ui.js, which it reads), packs them (kit/pack.js) and proves each with the site's own judge (kit/exam/server.js,
+# given the page's Kit in place of its require()s); the kit's version (its manifest's hash) goes with every test
+def kit_version():
+    f = os.path.join(KIT, "KIT.sha256")
+    return hashlib.sha256(open(f, "rb").read()).hexdigest()[:12] if os.path.exists(f) else ""
+def exam_pool_scripts():
+    req = "var module={exports:{}},Kit=window.Kit,R={'../core.js':Kit,'../nline.js':Kit.NL,'../cgraph.js':Kit.CG,'../judge.js':{Judge:Kit.Judge}};var require=function(p){if(!(p in R))throw new Error('exam/server.js: '+p);return R[p];};"
+    return (f"<script>window.KIT_V={json.dumps(kit_version())};</script>\n<script>{rk('pack.js')}</script>\n"
+            f"<script>(function(){{{req}\n{rk('exam/server.js')}\nKit.ExamServer=module.exports;}})();</script>\n<script>{rk('exam_pool.js')}</script>\n")
 if "--force" not in sys.argv:
     ok = os.path.exists(os.path.join(UD, "CHECKED")) and open(os.path.join(UD, "CHECKED")).read().split()[0] == source_hash()
     if not ok: sys.exit("build: the checks have not passed for these sources — run the unit's checks first (or --force for a look only)")
@@ -148,9 +158,10 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <script>{rk('core.js')}</script>
 <script>{rk('nline.js')}</script>
 <script>{rk('cgraph.js')}</script>
+<script>{rk('judge.js')}</script>
 <script>{rk('bilingual.js')}</script>
 <script>{rk('explain.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('scratch.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('scratch.js')}</script>\n" + (exam_pool_scripts() if TEACHER else "") + f"<script>{rk('ui.js')}</script>\n" + ("" if TEACHER else f"<script>{rk('exam_link.js')}</script>\n") + f"<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
 # holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
 tf = os.path.join(UD, "test_forms.js")
@@ -161,6 +172,9 @@ if os.path.exists(tf):
         line = line.strip()
         if line.startswith("//") or line.startswith("/*") or line.startswith("*") or len(line) < 12 or line.startswith("const ") or line.startswith("if ("): continue
         if line.rstrip(",") in body: sys.exit("REFUSED: the page holds a line of test_forms.js: " + line[:60])
+# the test page (kit/exam/build_exam.py, 15 Nov 2026) is made from this page as built: it asks for the body and nothing is written here
+if "--body-to" in sys.argv:
+    open(sys.argv[sys.argv.index("--body-to") + 1], "w", encoding="utf-8").write(body); sys.exit(0)
 open(os.path.join(UD, cfg["file"]), "w", encoding="utf-8").write(body)
 title = body.split("\n", 1)[0]
 full = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'

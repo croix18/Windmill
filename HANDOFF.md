@@ -123,31 +123,37 @@ told no: it adds headroom, not security) — which is why the tests are drawn in
 the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
 `practice/exam/DESIGN.md`** (on the branch `exam`, which is ahead of main's copy).
 
-**Where the test stands (16 Nov, 10:30 am) — four pieces, none on main yet, none deployed:**
-- **The kit** — Windmill branch `exam` (pushed; based on main `2cdc2c3`). Built and checked: `judge.js` (the page's judging
-  in one module the site also calls; 16,800 parts, no verdict changed), `pack.js`, `exam/server.js`, the test page
-  (`exam_pool.js`, `exam_unit.js`, `exam.js`, `exam/build_exam.py`, the Node stand-in `check/exam_site.js`), and the lock
-  `exam/seal.js` with `check/seal.js` (the site's `seal`, Tally's `open`, the code, the keys, the four-word check — one file
-  for both ends; every byte of a locked record changed in turn and none opens). **Being built:** `proctor.js` and
-  `trace.js` (full screen, the times away, the cover, the lock and end rules, the log in DESIGN's pinned shape) and the
-  start code's box. Merging `exam` changes every practice page (`ui.js` judges through `judge.js`), so it goes with a full
-  re-run of every unit in both courses, then each unit's test page and bundle (`build_exam.py`).
-- **The site** — `mrshaffer-site` branch `exam` (local worktree `/home/claude/site-exam`, not pushed): `exam.js` (the store
-  and every route on the SiteStore), the bundles in the Worker (`exam_units.js`), the cockpit's Test card, its checks and
-  budget (`EXAM_NOTES.md` has Cloudflare's Free-plan limits as verified that day and what was measured). An independent
-  reviewer then attacked it: the lock, the races and the teacher's routes held; the holes were around the record (a test
-  outliving its opening, as many tests as a student likes, one crafted log breaking a day's results, the pool emptied by a
-  loop). **The review and the changes it led to are in `practice/exam/review-16nov/`** (`REVIEW.md`, `CHANGES.md`: a
-  test belongs to its opening; a four-character start code good for 15 minutes; top-up and extend; the site finishes and
-  seals what students abandon; the pairing proven by typing Tally's four words; input bounded before it is judged). The
-  second pass is being built.
-- **The courses** — nothing published. A7 Unit 11's story part held three functions and could not be sent as text; the
-  three-line fix is ready (`st` as data, `storyAmt` from the part's own unit; 600 parts compared before and after, no
-  word, key or verdict changed) and goes in with that unit's re-run.
-- **Tally** — branch `tests` in `croix18/Tally` (pushed as it goes; `NOTES.md` there has its log): Connect (Tally's key
-  pair, kept in the Full save), the trial and its four words, the form's responses to the class view and each record's
-  detail, the flags.
-- **Then Croix** pairs Tally with the site and takes a whole test himself before any class does.
+**Where the test stands (16 Nov, 2:15 pm): built, reviewed four times, in the kit and both courses; the site and Tally are
+on their last steps; nothing is deployed and no class has seen it.**
+- **The kit — on main** (merged from branch `exam`; the kit is `86dfa38`): `judge.js`, `pack.js`, `exam/server.js`, the
+  test page (`exam_pool.js`, `exam_unit.js`, `exam.js`, `proctor.js`, `trace.js`, `exam/build_exam.py`), the Node stand-in
+  `check/exam_site.js` and the page's whole-test check `check/exam_page.js` (10 parts), and the lock `exam/seal.js` with
+  `check/seal.js`. **`practice/exam/DESIGN.md` is the contract as built.**
+- **Reviewed** — `practice/exam/review-16nov/` (its README lists them): the site's side twice, the test page, Tally's
+  Tests twice, each by a reviewer that had not built it, each finding with a probe; `CHANGES.md` there is the decision on
+  every finding (§1–11) and all of it is in DESIGN.md. What the reviews changed, in a line each: a test belongs to its
+  opening; a four-character start code good for 15 minutes; one start a browser an opening, and Start again is the same
+  test; a time allowed (120 minutes unless he changes it); the pool topped up and the time moved while a test is open;
+  the site finishes and seals what students abandon; the pairing proven by typing Tally's four words; Lock after N needs
+  an unlock code; input bounded before it is judged; a failed save, grade step or seal tried again by itself; the screen
+  kept awake; a child whose test the site has ended goes straight to their results.
+- **The courses — done and pushed**: A7 `18f146d` and M7 `cbdf10f`: every practice page and teacher copy re-run on the
+  kit (each ALL CHECKS PASSED), each unit's test page and site bundle built (each TEST BUILT AND CHECKED; teacher copy,
+  bundle and test page all carry kit version `daf8735ed626`). A7 Unit 11's story part holds data only now.
+- **The site** — `mrshaffer-site` branch `exam` (local worktree `/home/claude/site-exam`): the store and routes
+  (`exam.js`), the bundles in the Worker, the cockpit's Test card, `EXAM_NOTES.md` (Cloudflare's Free-plan limits as read
+  that day, the budget measured, 39 decisions, each review finding and what was done). Being finished by this session:
+  the final pages, tests and bundles of all eleven published units copied in, the kit's own page check run against the
+  site, then main and the deploy.
+- **Tally** — branch `tests` in `croix18/Tally` (pushed; `NOTES.md` there): Connect, the trial's four words, responses to
+  the class view and each sitting's detail, the flags; matching that never places a test silently unless it is certainly
+  that child's; the locked records kept in IndexedDB and checked each session. Its second review's findings are being
+  closed; then it goes to main (the site's Tally link downloads main).
+- **Then Croix** pairs Tally with the site, sets his form's link, and takes a whole test himself — on a Chromebook and
+  his tablet, with the hand checklist at the end of `review-16nov/TEST-PAGE-REVIEW.md` — before any class does.
+- **Not proven anywhere but on paper:** CPU on Cloudflare itself (the seal of a large record is the one request near the
+  Free plan's 10 ms; if seals fail in his trial, split the seal in two requests or take the $5 plan), and everything a
+  real Chromebook does (its keys, a closed lid, the screen sleeping).
 
 ## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out — the practice kit's pass is rolled out (9:18 pm)
 

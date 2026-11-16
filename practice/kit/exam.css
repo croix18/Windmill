@@ -1,0 +1,91 @@
+/* Practice-test kit: the test page's own few rules (exam.css, 15 Nov 2026; with exam.js). The page is the practice page; these
+   take away what a test does not have (the mode switch, What to practice, the set number, Print, Pause, the end panel's
+   practice) and set out its start, its message and its results. Only the kit's own tokens. */
+body.exam .ctl .mode, body.exam #mMenu .mlab[for=scope], body.exam #scope, body.exam #mMenu .mprint, body.exam #mMenu .setbox,
+body.exam #bPause, body.exam #bResume, body.exam #total, body.exam .pgchev, body.exam #setchk{display:none !important}
+body.exam-pre .watch .btns, body.exam-pre .watch .score, body.exam-pre .watch .time, body.exam-pre .qbar{visibility:hidden}
+body.exam-pre .ctl, body.exam-pre #intro{display:none !important}
+body:not(.exam-pre) .exgo{display:none}
+.exgo{margin:18px 0 6px}
+.exgo button{min-height:44px;min-width:120px}
+.exgo .expin{display:block;margin:0 0 12px;min-height:48px;width:10rem;max-width:100%;padding:8px 12px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:700 20px/1.2 var(--ui);letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.exgo .expin::placeholder{font-weight:500;font-size:16px;letter-spacing:.02em;text-transform:none;color:var(--mut);opacity:1}
+.exgo .expin:focus{outline:3px solid var(--focus);outline-offset:2px}
+.exgo .expin:disabled{opacity:.55}
+.exgo .expin[hidden]{display:none}
+.exgo:has(.expin:not([hidden])) button{min-width:min(10rem, 100%)}   /* the box and Start one width */
+.exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0 0 10px}
+.exclosedw[hidden]{display:none}
+.exgo button, .exgo .expin{max-width:100%}
+.exchip{margin-right:8px}
+/* the message when a request does not get through: an alarm, with the way to go on */
+.exnet{position:sticky;top:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:46rem;margin:12px auto 0;padding:10px 14px;
+  color:var(--alarmInk);background:var(--alarm);border-radius:10px;font:600 14.5px/1.35 var(--ui)}
+.exnet[hidden]{display:none}
+.exnet button{min-height:44px}
+/* Grading…, then the results */
+body.exam-grading main.sheet, body.exam-grading .pgmap, body.exam-noparts main.sheet, body.exam-noparts .pgmap{display:none !important}
+body.exam-grading .watch .btns{visibility:hidden}
+.exgrading{font:700 18px/1.3 var(--ui);color:var(--ink);margin:6px 0}
+.exscore{font:400 15px/1.2 var(--ui);color:var(--mut);margin:0 0 6px}
+.exscore b{font:700 clamp(30px,8vw,40px)/1.1 var(--ui);color:var(--ink);margin-right:6px}
+.extime{font:700 20px/1.2 var(--ui);color:var(--ink);margin:0 0 6px;font-variant-numeric:tabular-nums}
+.exaway{font:400 14.5px/1.3 var(--ui);color:var(--mut);margin:0 0 6px}
+.excode{font:700 clamp(22px,6.4vw,30px)/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;color:var(--ink);margin:14px 0 4px;
+  user-select:all;-webkit-user-select:all;overflow-wrap:anywhere}
+.exbtns, .exsure{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.exbtns button, .exsure button{min-height:44px}
+/* Turn in, a real link to the form (a pop-up blocker cannot stop it), dressed as the primary button */
+a.exturn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font:600 14px/1 var(--ui);background:var(--go);border:1px solid var(--go);color:var(--goInk);
+  border-radius:8px;padding:9px 13px;text-decoration:none}
+a.exturn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.exsure .expin{min-height:44px;width:8rem;max-width:100%;padding:6px 10px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:700 18px/1.2 var(--ui);letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.exsure .expin::placeholder{font-weight:500;font-size:14px;letter-spacing:.02em;text-transform:none;color:var(--mut);opacity:1}
+.exsure .expin[hidden]{display:none}
+.excode:focus{outline:none}
+.excopied{font:600 14px/1 var(--ui);color:var(--ok)}
+.excopied:empty{display:none}
+.exsure[hidden]{display:none}
+/* the list of questions after Finish: read, not opened */
+body.exam .pgrow{pointer-events:none}
+@media print{ .exnet, .exgo{display:none} }
+/* the test's own words only (16 Nov 2026, DESIGN.md's list): the map without its heading and legend, and on a phone the map's
+   buttons themselves (its drawer's line has words of its own); "Question 4 of 16" kept for a screen reader, the number being on
+   the question and on the map */
+body.exam .pgmh, body.exam #intro, body.exam .pgtip{display:none !important}   /* and the unit's typing tip, an instruction */
+body.exam #pgQt{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+body.exam .pgq{min-width:1px;min-height:44px}   /* still the place Back and Next put the focus */
+body.exam .pghead{justify-content:space-between}
+@media (max-width:600px){ body.exam .pgmt{display:none !important} body.exam .pgmap .pgm{display:grid !important;margin:10px 0} }
+
+/* the proctor (proctor.js): the sheet can't be selected; answer boxes and scratch notes can */
+body.exam-on, body.exam-on *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.exam-on input[type=text], body.exam-on input:not([type]), body.exam-on textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* away: the sheet covered, opaque, with the one way back */
+.excover{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ground);color:var(--ink)}
+.excover[hidden]{display:none}
+.excin{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:26rem;width:100%;text-align:center}
+.excin > button{min-height:48px;min-width:min(200px, 100%);max-width:100%;font-size:17px}
+.excin [hidden]{display:none !important}
+.exlock{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.exlockt{margin:0;font:700 20px/1.3 var(--ui);color:var(--ink)}
+.exlockr{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%}
+.exlockr input{min-height:48px;width:12rem;max-width:100%;padding:8px 12px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:600 18px/1.2 var(--ui);text-align:center;letter-spacing:.04em}
+.exlockr input:focus{outline:3px solid var(--focus);outline-offset:2px}
+.exlockr input:disabled{opacity:.55}
+.exlockr button{min-height:48px;min-width:110px}
+@media (prefers-reduced-motion:no-preference){ .exshake{animation:exshake .32s ease-in-out} }
+@keyframes exshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+body.exam-away .exnet{position:fixed;left:12px;right:12px;top:12px;z-index:90;margin:0 auto}
+/* the count in the bar: the kit's alarm, solid coral with its own ink, the only coral on the page */
+.exleft{display:inline-flex;align-items:center;min-height:28px;padding:3px 10px;border-radius:999px;background:var(--alarm);color:var(--alarmInk);
+  font:700 13.5px/1.2 var(--chrome);white-space:nowrap;font-variant-numeric:tabular-nums}
+.exleft[hidden]{display:none}
+.exended{font:700 15px/1.35 var(--ui);color:var(--ink);margin:0 0 6px}
+/* printed, the test page is nothing at all */
+@media print{ body.exam > *{display:none !important} body.exam{background:none} }
+/* on a phone the count shares the answered line, so the clock and the buttons keep one row */
+@media (max-width:480px){ body.exam .exleft{order:6;margin-left:auto} body.exam .watch .in:has(.exleft:not([hidden])) .score{flex:1 1 55%} }

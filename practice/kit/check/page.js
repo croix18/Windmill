@@ -11,7 +11,8 @@ const { chromium } = require('playwright');
 const dir = path.resolve(process.argv[2] || '.'), U = require(path.join(dir, 'unit.js'));
 /* served over http (as on Google Sites), so the browser behaves as it will for students: storage events between tabs, etc. */
 const http = require('http'), fs = require('fs');
-const server = http.createServer((q, r) => { if (/^\/api\/items\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"edits":[],"custom":[],"v":""}'); }   /* the site's approvals (approvals.js): none disapproved, as the site answers a unit without any */
+const server = http.createServer((q, r) => { if (/^\/api\/test\/status\?/.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"open":false}'); }   /* the site's test status (exam_link.js, part X): no test open */
+  if (/^\/api\/items\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json' }); return r.end('{"edits":[],"custom":[],"v":""}'); }   /* the site's approvals (approvals.js): none disapproved, as the site answers a unit without any */
   if (/^\/teacher\/api\/(tests|items)\//.test(q.url)) { r.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); return r.end(/tests/.test(q.url) ? '{"store":false,"spec":null,"updated":null}' : '{"store":false,"edits":[]}'); }   /* a teacher copy served at a site address (part F's way back): the site before its store, as teacher.js reads it */
   let f = path.join(dir, decodeURIComponent(q.url.split('?')[0].split('#')[0])); if (f.endsWith(path.sep)) f = path.join(f, 'index.html');   /* a folder serves its index.html, as the site does */ if (!f.startsWith(dir) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); fs.createReadStream(f).pipe(r); });
 let url = '';
@@ -1024,6 +1025,8 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   await require('./cgraph_page.js')(b, rawContext, url, U, dir, fail);
   /* W. scratch paper (scratch.js, 15 Nov 2026): notes and graph paper per question, as students have it (and once with the checks' switch) */
   await require('./scratch_page.js')(rawContext, b.newContext, url, U, dir, fail);
+  /* X. the test's touches (15 Nov 2026): the practice page's Test link on the site while the test is open; the teacher copy at #exam-pool */
+  await require('./exam_link_page.js')(rawContext, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

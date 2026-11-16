@@ -1,6 +1,10 @@
 # The test — changes after the adversarial review (16 Nov 2026, 10:15 am)
 
-An independent reviewer attacked the site's side (`REVIEW.md` beside this file; its probes were run against the site branch and their essence is in the site's `tools/test_exam.mjs`).
+An independent reviewer attacked the site's side (`REVIEW.md` beside this file; a second pass after the fixes is `REVIEW2.md`).
+The test page was attacked next (`TEST-PAGE-REVIEW.md`), and Tally's Tests twice (`TALLY-REVIEW.md`, `TALLY-REVIEW2.md`). Each
+reviewer ran a probe for every finding; the probes' essence is in the site's `tools/test_exam.mjs`, the kit's
+`check/exam_page.js` and Tally's `tests/exam-*.js`. Paths under `/home/claude/reviews/` in these files were the reviewers'
+working folders in the session that ran them.
 The lock itself held. The holes are around it. This file is the contract for closing them; it overrides
 `practice/exam/DESIGN.md` wherever the two differ, and will be folded into DESIGN.md (the kit's builder does that, §K).
 Sections: **S** = the site, **K** = the kit (test page, stand-in), **T** = Tally. Read every section — the pieces must agree.
@@ -96,3 +100,92 @@ When it lapses nobody can start until he presses **New code**. Tests already sta
 - Publish a unit's new bundle only while that unit's test is closed.
 - The sections above (1–7), each in its place; the words list with **Start code**; the record with `site.opened`; the
   teacher's routes with `pin`, `extend`, the trial's `words`, the config's `startCode`.
+
+## 9. Time allowed (added 10:50 am, after the site's second pass: the same-day half of review C1)
+The start code limits when a test can be *started*; a test started in 1st period could still be answered in 6th. So a test
+also has a time allowed, set in the cockpit.
+- **S** The config gains `minutes`: a whole number from 10 to 600, or `null` for no limit; default **120**. It is pinned to a
+  test at Start as its deadline (`started + minutes`). A test is live only while its opening is live **and** its deadline has
+  not passed. Past the deadline: `save`, `read`, `unlock` → `403 {error: 'closed'}` (exactly as when the test closes, so the
+  page needs nothing new); `finish` commits the last saved answers with `ended: 'time'`; the site's own finishing of
+  abandoned tests uses `finished` = the deadline and `ended: 'time'`.
+- **S** The record gains `site.limit` (minutes, or `null`). `ended` is now `null | 'left' | 'teacher' | 'time'`.
+- **S** The card's settings: **Time allowed** — 60 min · 90 min · 120 min · No limit.
+- **S** (found while reading the second pass) The site's own sealing of abandoned tests must not be able to break the
+  board: count each try on the test before making it, and leave a test alone after two tries that did not end in a seal
+  (its student's page, or a later look, can still seal it). A record built from the largest hostile answers and log is the
+  one request that may not fit 10 ms; it must cost its author a code, never the teacher the board.
+- **T** `ended: 'time'` is shown and flagged as `'teacher'` is ("ran out of time: the site closed it with what was saved");
+  `site.limit` is shown with the rule.
+- **K** DESIGN.md only: the config's `minutes`, the record's `site.limit` and `ended: 'time'`, "live" in What airtight means.
+
+## 10. After the second review of the site (11:30 am; `/home/claude/reviews/site-exam/REVIEW2.md`)
+- **S** (R2-H1) A limit by address may never refuse a right code. For Start's code and for Unlock: the code is checked
+  first; a right one is accepted whatever the address has done; only wrong ones are counted, and past the limit a wrong one
+  answers `429 wait` instead of `403`/`{ok: false}`. (The per-test unlock limit, 5 a minute, stays as it is: it can only
+  stop that test's own student.) One student with a script must not be able to keep a class from starting or a teacher
+  from unlocking.
+- **S, K** (R2-H2) **One start a browser, an opening.** The page makes a random id once (`exam.dev` in localStorage, 32 hex)
+  and sends it with Start: `POST /api/test/start {course, unit, pin, dev}`. The site keeps its hash on the test and
+  refuses a second start from the same id in the same opening: `403 {error: 'again'}`. A missing or malformed `dev` is
+  `400 {error: 'body'}`. On the page `again` is shown exactly as a refused code is (the box shakes; with no box, Start
+  shakes): no new word. A new opening (a retake day) starts clean. The stand-in does the same. (A second browser or a
+  cleared one still gets a test; this stops New test and the second tab, which is what a child without a script would do.)
+- **S, K** (R2-M1) **Nothing typed is lost at the end of the time.** Start, the reload and every save's answer carry
+  `ends`: the moment (ms, the site's clock) this test stops being live — the sooner of the opening's `until` and the test's
+  deadline; it moves when Croix extends the test, and the page takes the newest it is given. The page saves three seconds
+  before `ends` and finishes at `ends` (the ordinary Finish path, so those answers are the ones committed). The stand-in
+  gets `ends` too (`until` only is enough there) and the check covers it: typed up to the last seconds, all of it in the
+  record.
+- **S** (R2-M2 and the Lows) The card keeps asking for the board while a test is open, whatever one answer was (a failed
+  answer waits longer before the next: 5 s, 10 s, 20 s, at most 60 s; back to normal on the next good one; nothing while the
+  tab is hidden). A finished test whose unit has no bundle is `stuck`, not `pending`. A Close after `until` records
+  `until`. An opening's id is unique (never the same millisecond twice: the last id + 1 if need be). The card's time-out
+  on a draw and upload starts again with every chunk that arrives.
+- **S** A check in `tools/test_site.mjs`: for every unit with a bundle, its teacher copy carries the same kit version
+  (`window.KIT_V`) and content version as the bundle — a teacher copy and a bundle published out of step would make every
+  Open fail with `409 version`.
+
+## 11. After the review of the test page (12:10 pm; `/home/claude/reviews/test-page/REVIEW.md`, probes beside it)
+The rule for all of it: **a child who did nothing wrong is never stuck, never loses work, and never looks like they left.**
+- **S, K** (C1) **Lock needs a code.** The site refuses the rule `lock` with no unlock code: `PUT …/config` that would leave
+  `rule.leave: 'lock'` without a code (in the store or in the same body), or that clears the code while the rule is `lock`,
+  → `400 {error: 'unlock'}`; `open` with such a config → `409 {error: 'unlock'}`. The card asks for the code when Lock
+  after is chosen. On the page, a locked child whose test ends (below) leaves the lock and gets their results.
+- **K** (H1) **When the site has ended a test the page ends it too, at once.** `403 {error: 'closed'}` or
+  `409 {error: 'finished'}` on a save, a read, an unlock or a reload's GET → the page goes straight to grading and the
+  seal (a `finish` that answers `409 finished` with `steps` is the normal way in), whatever cover is up.
+- **K** (H2) **A save that fails is tried again by itself** — after 5 s, 10 s, 20 s, then every 30 s, and at once when the
+  browser says it is back online — until one succeeds; the line "Can't reach the site. Your answers are saved on this
+  device." stays up meanwhile with Try again, and goes when a save succeeds. Nothing typed after a blip is lost.
+- **K** (H3) **Grading never hangs.** A grade step that fails or is refused is tried again (same pace as saves; `409 order`
+  takes the site's `next`); the seal likewise; the child never has to reload to get a code.
+- **K, S** (H4, L1) **Start is the same test again, not a second one.** S: a Start whose `dev` already has a test in this
+  opening that is still open and live answers that test again (a fresh token; the old one stops working) — so a Start whose
+  answer was lost on the way, or a New test pressed by mistake, comes back to the same test; if that test is finished or
+  sealed it is `403 {error: 'again'}` as before. K: **New test never removes a result from the device until a new test has
+  really started**; refused, backed out of or reloaded, the old result and its code are still there.
+- **K** (H5) **The screen stays awake** during a test (`navigator.wakeLock`, asked for in the Start press and again each time
+  the page is shown; released at Finish; where there is no wake lock, nothing).
+- **K** (M1, M2, M4, M7) A reload whose GET is refused for a while (429, 5xx, no network) waits and asks again; it never
+  goes on without the rule, the start time and the form link, which are also kept in the device's copy of the test. The
+  proctor's count and its rule hold across a reload: End after N ends on the leaving that reaches N, a reload included. A
+  Finish that is refused (429, 5xx) is tried again as a save is; if it cannot be sent the child is back in the test with the
+  proctor on. The test's id, token and `dev` are kept in sessionStorage as well, so a reload resumes when localStorage is
+  full or refused.
+- **K** (M3) **A page opened before the test is open** asks the status again every 20 s while it is shown (never while
+  hidden) and shows Start when the test opens; every "This test isn't open." has Try again under it.
+- **K** (M5, L4) Ctrl/⌘+F, Ctrl/⌘+G and F3 are stopped and logged as `find` (a seventh kind in `blocked`); a long press on
+  a touch screen is not logged as `menu`.
+- **K** (M6) **The log the page sends is never over 60 KB**: a value in `parts[].vals` is kept to 80 characters; if the
+  whole is still too large the middle values of the longest parts go first (`n` still counts them), then the oldest visits
+  — never `away`, `blocked` or `device`.
+- **K** (L3, L5, L7, L8, L9) Turn in is a real link (`target="_blank"`), so a pop-up blocker cannot stop it, and the code is
+  copied on the press with `Copied` shown; lengths in the log come from `performance.now()`, not the device's clock; the
+  results are announced (`role="status"`) and focus goes to the code; nothing runs off a 390 px screen at 200%; a second
+  tab of a finished test shows the results and the code.
+- **T** `how: 'tap'` means chosen (a choice, a number line, a circle graph — by touch, mouse or keyboard): Tally says
+  "picked", never "touch". A record with no log (`log: null`) is a note on the test's page: "this device sent no log (or one
+  too large to keep)". `blocked` may hold `find`.
+- **For Croix** (not built; he should know): a wrong and a lapsed start code look the same to a child (the box shakes); a
+  reload is a leaving, so "just refresh it" counts and, under Lock after N, can lock; students are not shown a countdown.
