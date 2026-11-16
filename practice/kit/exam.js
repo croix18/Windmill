@@ -30,7 +30,22 @@ function load(){ try { return JSON.parse(localStorage.getItem(NAME) || 'null'); 
 function keep(){ try { localStorage.setItem(NAME, JSON.stringify(ST)); } catch(e){} }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
 var ST = load() || {}, PAGE = null, SKEW = 0, OPEN = null, PIN = false, PHASE = 'pre';
-var WAIT = window.KIT_EXAM_UNLOCK_WAIT || 60000;          /* after the site's 429, the box and Start wait (the checks' switch shortens it) */   /* pre · test · grading · done */
+var WAIT = window.KIT_EXAM_UNLOCK_WAIT || 60000;
+/* one start a browser, an opening (16 Nov 2026, CHANGES-16NOV §10): a random id made once and sent with Start; the site refuses
+   a second start from it in the same opening (403 again), shown as a refused code is. In memory only if storage is refused. */
+var DEV = (function(){
+  var d = null; try { d = localStorage.getItem('exam.dev'); } catch(e){}
+  if (d && /^[0-9a-f]{32}$/.test(d)) return d;
+  var b = new Uint8Array(16); (window.crypto || window.msCrypto).getRandomValues(b);
+  d = Array.prototype.map.call(b, function(x){ return (x < 16 ? '0' : '') + x.toString(16); }).join('');
+  try { localStorage.setItem('exam.dev', d); } catch(e){}
+  return d;
+})();
+/* the end of the time (CHANGES-16NOV §10): the site says when this test stops being live (ends, ms, its clock), on Start, a
+   reload and every save; the newest one is kept. The page saves SAVE_BEFORE before it and finishes END_BEFORE before it, by the
+   ordinary Finish, so what was typed up to then is what the site commits (a finish that came after ends would commit only the
+   last save). The site's clock is the device's plus the offset kept from the site's own now. */
+var SAVE_BEFORE = 3000, END_BEFORE = 1000, ENDT = 0, PRESAVED = null;          /* after the site's 429, the box and Start wait (the checks' switch shortens it) */   /* pre · test · grading · done */
 
 /* ---- the site */
 function call(method, path, body, o){
@@ -68,7 +83,7 @@ function showGo(open){
   OPEN = open; $('exStart').hidden = !open; $('exClosed').hidden = open;
   var p = $('exPin'), was = p.hidden; p.hidden = !(open && PIN); if (!p.hidden && was) try { p.focus(); } catch(e){}
 }
-function shake(el){ el.value = ''; el.classList.remove('exshake'); void el.offsetWidth; el.classList.add('exshake'); try { el.focus(); } catch(e){} }
+function shake(el){ if ('value' in el && el.tagName === 'INPUT') el.value = ''; el.classList.remove('exshake'); void el.offsetWidth; el.classList.add('exshake'); try { el.focus(); } catch(e){} }
 function status(then){
   call('GET', '/status?course=' + encodeURIComponent(CFG.course) + '&unit=' + encodeURIComponent(CFG.unit), undefined, {anon: true})
     .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); PIN = OPEN && !!(r.j && r.j.pin); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }); });
@@ -76,17 +91,18 @@ function status(then){
 function startTest(){
   if (K.Proctor && K.Proctor.enter) try { K.Proctor.enter(); } catch(e){}   /* full screen needs this press */
   var b = $('exStart'), box = $('exPin'); b.disabled = true;
-  var body = {course: CFG.course, unit: CFG.unit}; if (PIN) body.pin = box.value.toUpperCase().replace(/\s+/g, '');
+  var body = {course: CFG.course, unit: CFG.unit, dev: DEV}; if (PIN) body.pin = box.value.toUpperCase().replace(/\s+/g, '');
   call('POST', '/start', body, {anon: true}).then(function(r){
     b.disabled = false; mended();
-    if (!r.ok && PIN && (r.status === 429 || (r.status === 403 && r.j && r.j.error === 'pin'))){   /* a code refused: the box shakes and clears, no words; 429 waits */
+    var why = r.j && r.j.error;
+    if (!r.ok && ((PIN && r.status === 429) || (r.status === 403 && (why === 'pin' || why === 'again')))){   /* a code refused, or a second start from this browser: the box (or Start) shakes, no words; 429 waits */
       if (K.Proctor && K.Proctor.leave) K.Proctor.leave();
       if (r.status === 429){ box.value = ''; box.disabled = b.disabled = true; setTimeout(function(){ box.disabled = b.disabled = false; try { box.focus(); } catch(e){} }, WAIT); }
-      else shake(box);
+      else shake(PIN ? box : b);
       return;
     }
     if (!r.ok){ showGo(false); if (K.Proctor && K.Proctor.leave) K.Proctor.leave(); return; }
-    ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null}; SKEW = r.j.now - Date.now(); ST.skew = SKEW; keep();
+    ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null}; SKEW = r.j.now - Date.now(); ST.skew = SKEW; ends(r.j.ends); keep();
     mount(r.j);
   }, function(){ b.disabled = false; fail(startTest); });
 }
@@ -121,7 +137,7 @@ function page(api){
   if (K.Trace && K.Trace.start) try { K.Trace.start({test: ST.test, api: api, set: setKey()}); } catch(e){}
   if (K.Proctor && K.Proctor.start && !ST.finishing) try { K.Proctor.start({rule: ST.start.rule, onEnd: function(why){ ENDED = why || 'left'; finish(); }, unlock: unlock}); } catch(e){}
   if (ST.finishing) finish();
-  setInterval(tick, 1000);
+  setInterval(tick, 1000); plan();
   window.addEventListener('pagehide', function(){ if (DIRTY && PHASE === 'test') send(true); });
   document.addEventListener('visibilitychange', function(){ if (document.hidden && DIRTY && PHASE === 'test') send(true); });
 }
@@ -139,13 +155,22 @@ function elapsed(){
 var DIRTY = false, SENT = 0, SEQ = 0, INFLIGHT = false, LAST = null, ENDED = null;
 function saved(S){ if (PHASE !== 'test') return; DIRTY = true; if (K.Trace && K.Trace.saw) try { K.Trace.saw(S); } catch(e){} var c = S.pg ? S.pg.cur : 0; if (LAST && c !== LAST.cur){ LAST.cur = c; tick(); } }
 var GAP = window.KIT_EXAM_GAP || 20000;                   /* the checks' switch (check/exam_page.js sets it before the page loads; nothing on a page does) */
+function siteNow(){ return Date.now() + (ST.skew || 0); }
+function ends(v){ if (typeof v !== 'number' || !isFinite(v)) return; if (ST.ends !== v){ ST.ends = v; PRESAVED = null; keep(); } plan(); }
+function plan(){
+  clearTimeout(ENDT); ENDT = 0; if (PHASE !== 'test' || !PAGE || typeof ST.ends !== 'number') return;
+  var left = ST.ends - siteNow();
+  if (left <= END_BEFORE) return finish();
+  if (left <= SAVE_BEFORE && PRESAVED !== ST.ends){ PRESAVED = ST.ends; if (!INFLIGHT) send(false); }
+  ENDT = setTimeout(plan, Math.max(50, Math.min(left - (PRESAVED === ST.ends ? END_BEFORE : SAVE_BEFORE), 60000)));
+}
 function tick(){ if (DIRTY && !INFLIGHT && !RETRY && PHASE === 'test' && Date.now() - SENT >= GAP) send(false); }
 function send(leaving){
   if (!PAGE) return; var S = PAGE.S();
   SEQ = Math.max(SEQ + 1, (ST.n || 0) + 1); ST.n = SEQ; keep();
   var body = {answers: S.ans, flags: (S.pg && S.pg.flag) || {}, n: SEQ};
   DIRTY = false; SENT = Date.now(); INFLIGHT = !leaving;
-  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok) mended(); else if (closed(r)) over(); }, function(){ INFLIGHT = false; DIRTY = true; if (K.Trace && K.Trace.fail) K.Trace.fail(); if (!leaving) fail(function(){ send(false); }); });
+  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok){ mended(); if (r.j) ends(r.j.ends); } else if (closed(r)) over(); }, function(){ INFLIGHT = false; DIRTY = true; if (K.Trace && K.Trace.fail) K.Trace.fail(); if (!leaving) fail(function(){ send(false); }); });
 }
 
 /* ---- read: "can't read this yet" and the preview, from the site */
@@ -254,10 +279,11 @@ function turnIn(){
 function newTest(){
   if (PIN){ ST = {}; keep(); location.reload(); return; }   /* a start code is asked for: the start screen, with its box */
   var b = $('exNewGo'); b.disabled = true;
-  call('POST', '/start', {course: CFG.course, unit: CFG.unit}, {anon: true}).then(function(r){
+  call('POST', '/start', {course: CFG.course, unit: CFG.unit, dev: DEV}, {anon: true}).then(function(r){
     b.disabled = false; mended();
+    if (r.status === 403 && r.j && r.j.error === 'again') return shake(b);   /* this browser has had its test in this opening */
     if (!r.ok){ OPEN = false; paintResult(); return; }
-    ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null, skew: r.j.now - Date.now()}; keep();
+    ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null, skew: r.j.now - Date.now(), ends: typeof r.j.ends === 'number' ? r.j.ends : null}; keep();
     location.reload();                                    /* the page's scripts start again on the new test */
   }, function(){ b.disabled = false; fail(newTest); });
 }
@@ -292,7 +318,7 @@ function boot(){
       mended();
       if (r.status === 401 || r.status === 403 || r.status === 404){ ST = {}; keep(); return status(showGo); }
       var s0 = strip(r.j); if (!s0.pub && ST.start) s0.pub = ST.start.pub;   /* a sealed test's halves are gone from the site: this device's copy draws it */
-      ST.start = s0; ST.skew = r.j.now - Date.now(); if (r.j.status && r.j.status !== 'open') ST.finishing = true; keep();
+      ST.start = s0; ST.skew = r.j.now - Date.now(); ends(r.j.ends); if (r.j.status && r.j.status !== 'open') ST.finishing = true; keep();
       if (!ST.start.pub){ ST = {}; keep(); return status(showGo); }
       mount(r.j);
     }, function(){

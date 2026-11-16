@@ -40,7 +40,7 @@ if (!fs.existsSync(TEACHER) || fs.readFileSync(TEACHER, 'utf8').indexOf('Kit.Exa
 const fails = []; const fail = msg => { if (fails.length < 60) console.log('  FAIL ' + msg); fails.push(msg); };
 const ok = msg => console.log('  ok ' + msg);
 const TPATH = '/' + COURSE + '/test/unit-' + UNIT + '/', CPATH = '/' + COURSE + '/practice/unit-' + UNIT + '/teacher/';
-const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
+const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + 6 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
 const COCKPIT = '<!doctype html><meta charset="utf-8"><title>cockpit</title><iframe id="f" src="' + CPATH + '#exam-pool" style="display:none"></iframe><script>' +
   'window.batches=[];window.ready=null;window.err=null;window.done=false;' +
   'addEventListener("message",function(e){if(e.origin!==location.origin||e.source!==document.getElementById("f").contentWindow||!e.data||e.data.kit!=="exam-pool")return;' +
@@ -493,6 +493,7 @@ function checkPub(f, WL) {
   /* 7. the proctor and the log (16 Nov 2026); 8. the start code (16 Nov 2026) */
   if (WHOLE) await proctor();
   if (WHOLE) await startCode();
+  if (WHOLE) await onceAndEnds();
   if (WHOLE) await whole();
   /* the stand-in's responses before seal: no priv item, keyText or verdict; read is {ok, pretty} */
   let reads = 0;
@@ -637,10 +638,17 @@ function checkPub(f, WL) {
     await p.reload(); await p.waitForSelector('#exCode');
     if (await p.textContent('#exCode') !== shown.code || await p.textContent('.exscore') !== shown.score) fail('the page reopened without its result');
     ok('Turn in (' + (FORM !== 'none' ? 'the form with the code' : 'Copied') + ', the code copied); a second finish refused; no token, no test; reopened on the result');
-    /* New test */
-    await p.click('#exNew'); await p.click('#exNewGo'); await p.waitForSelector('#pgQ', { timeout: 20000 });
+    /* New test: refused in the same opening (one start a browser, an opening: 403 again, Start shakes, no word); after a new opening, another test */
+    const n9 = Object.keys(site.state.tests).length;
+    await p.click('#exNew'); const rr = p.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); await p.click('#exNewGo');
+    const ra = await rr, ja = await ra.json().catch(() => ({})); await sleep(150);
+    const shk = await p.evaluate(() => getComputedStyle(document.getElementById('exNewGo')).animationName);
+    if (ra.status() !== 403 || ja.error !== 'again' || shk !== 'exshake' || Object.keys(site.state.tests).length !== n9 || !(await p.isVisible('#exCode'))) fail('New test in the same opening: ' + ra.status() + ' ' + JSON.stringify(ja) + ' ' + shk);
+    await sayOnly(p, 'New test refused');
+    await fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) });
+    await p.click('#exNewGo'); await p.waitForSelector('#pgQ', { timeout: 20000 });
     if (newest().id === t.id) fail('New test did not draw another');
-    ok('New test: another test (' + newest().seed.slice(0, 6) + ')');
+    ok('New test: refused in the same opening (403 again; New test shakes, no word, no test); after a new opening, another test (' + newest().seed.slice(0, 6) + ')');
     /* 5. at 390 × 844, dark */
     await phone(); await c.close();
     /* closed again: the start screen says so */
@@ -705,6 +713,54 @@ function checkPub(f, WL) {
     ok('a test over in the middle (403 closed on the next save): Grading… and the results at once, the record the last saved answers, ended “teacher”');
     ok('the start code on: the box (focused, “Start code”, over Start); empty, wrong and lapsed codes refused (403 pin; the box shakes, clears and keeps the focus; no new words; no test started); New code; “' + typed + '” shown as ' + shownV + ' and sent as ' + body.pin + ', the test started; a reload asks for nothing');
     await put({ startCode: false });
+  }
+
+  /* ---- 9. one start a browser, an opening; the end of the time (16 Nov 2026; CHANGES-16NOV §10) ---- */
+  async function onceAndEnds() {
+    const OPEN = (o) => fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ course: COURSE, unit: UNIT }, o || {})) });
+    await put({ startCode: false, rule: { leave: 'count', after: 3 } }); await OPEN();
+    /* a second tab's Start in the same opening: refused, Start shakes */
+    const c = await ctxOf(), A = await begin(c), n0 = Object.keys(site.state.tests).length;
+    const p2 = watch(await c.newPage());
+    await p2.goto(base + TPATH);    /* the same browser: its own test is on the device, so this tab opens that test */
+    await p2.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => fail('a second tab did not open the browser\'s own test'));
+    await p2.evaluate(k => localStorage.removeItem(k), 'exam.' + COURSE + '.u' + UNIT); await p2.close();   /* as if its copy of the test were gone: only exam.dev is left */
+    const p3 = watch(await c.newPage()); await p3.goto(base + TPATH); await p3.waitForSelector('#exStart:not([hidden])');
+    const rq = p3.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); await p3.click('#exStart'); const r3 = await rq, j3 = await r3.json().catch(() => ({})); await sleep(150);
+    const s3 = await p3.evaluate(() => ({ anim: getComputedStyle(document.getElementById('exStart')).animationName, start: !document.getElementById('exStart').hidden, q: !!document.querySelector('body:not(.exam-pre)') }));
+    if (r3.status() !== 403 || j3.error !== 'again' || s3.anim !== 'exshake' || !s3.start || s3.q || Object.keys(site.state.tests).length !== n0) fail('a second start from this browser: ' + r3.status() + ' ' + JSON.stringify(j3) + ' ' + JSON.stringify(s3));
+    await sayOnly(p3, 'a second start refused');
+    const bad = await fetch(base + '/api/test/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT, dev: 'nope' }) });
+    if (bad.status !== 400) fail('a malformed dev was answered ' + bad.status);
+    await c.close();
+    /* storage refused: it still starts, once */
+    const cs = await ctxOf(); await cs.addInitScript(() => { const no = () => { throw new Error('refused'); }; Storage.prototype.getItem = no; Storage.prototype.setItem = no; Storage.prototype.removeItem = no; });
+    const ps = watch(await cs.newPage()); await ps.goto(base + TPATH); await ps.waitForSelector('#exStart:not([hidden])'); await ps.click('#exStart');
+    await ps.waitForSelector('#pgQ', { timeout: 20000 }).catch(() => fail('storage refused: the test did not start'));
+    const dev1 = site.state.tests[newest().id].dev; await cs.close();
+    ok('one start a browser, an opening: a second tab opens the browser\'s own test; a Start from the same browser in the same opening refused (403 again; Start shakes; no word; no test); a malformed id 400; storage refused still starts' + (dev1 ? '' : ' (no id?)'));
+    /* the end of the time, with the device's clock an hour wrong: the site's clock real time for this part */
+    const off = CLOCK - Date.now() + 1000; site.state.now = () => Date.now() + off;
+    const T1 = site.state.now() + 22000; await OPEN({ until: T1 });
+    const ce = await ctxOf(); const pe = watch(await ce.newPage());
+    await pe.clock.install({ time: Date.now() + 3600000 });
+    await pe.goto(base + TPATH); await pe.waitForSelector('#exStart:not([hidden])'); await pe.click('#exStart'); await pe.waitForSelector('#pgQ');
+    const te = newest(), ie = te.priv.map(x => P.unpack(x)), ti = textItem(ie), tq = await cardOf(pe, ti.id); await toQ(pe, tq);
+    await sleep(3000);
+    const T2 = site.state.now() + 32000;
+    await fetch(base + '/teacher/api/test/extend', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT, until: T2 }) });
+    await pe.click('#a' + ti.id); await pe.keyboard.type('1');   /* a save's answer carries the later ends */
+    await sleep(Math.max(0, T1 - site.state.now()) + 2500);
+    if (!(await pe.evaluate(() => !document.querySelector('#exCode') && !document.body.classList.contains('exam-grading')))) fail('the end of the time: finished at the first ends, not the later one');
+    await sleep(Math.max(0, T2 - site.state.now() - 7000)); await pe.keyboard.type('2');
+    await sleep(Math.max(0, T2 - site.state.now() - 1600)); await pe.keyboard.type('3');   /* after the save three seconds before ends */
+    await pe.waitForSelector('#exCode', { timeout: 15000 }).catch(() => fail('the end of the time: the test did not finish itself'));
+    const TE = site.state.tests[te.id], fin = TE.finished;
+    if (TE.answers[ti.id] !== '123' || TE.ended !== null || !(fin < T2) || !(fin > T2 - 4000)) fail('the end of the time: the record holds ' + JSON.stringify(TE.answers[ti.id]) + ', ended ' + TE.ended + ', finished ' + (fin - T2) + ' ms from ends');
+    else ok('the end of the time (the device\'s clock an hour ahead): ends moved later by a save\'s answer and followed; typed 1.6 s before ends, finished by itself ' + ((T2 - fin) / 1000).toFixed(1) + ' s before it, the record “123”, ended null');
+    await ce.close();
+    CLOCK = site.state.now() + 1000; site.state.now = stamp;
+    await OPEN();                    /* a new opening with no end, for what follows */
   }
   async function phone() {
     const c = await ctxOf({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true }), p = watch(await c.newPage());

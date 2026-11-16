@@ -12,6 +12,7 @@ let n = 0; const ok = (c, what) => { n++; if (!c) { console.error('FAILED: ' + w
 const why = async (p) => { try { await p; return null; } catch (e) { return e.why || ('(no why) ' + e.message); } };
 const rnd = (k) => Math.floor(Math.random() * k);
 
+/* written before the log's shape was pinned (16 Nov 2026): its log is not in the pinned shape — a stand-in for size; the lock does not care what a record holds */
 function record(code, big) {
   const parts = [];
   for (let q = 1; q <= (big ? 40 : 6); q++) parts.push({ id: q + (q % 3 ? '' : 'a'), type: q % 5 ? 'text' : 'mc', typed: q % 4 ? '3/' + q : null, v: ['right', 'wrong', 'blank', 'unread'][q % 4], almost: q % 7 === 0, key: '−' + q + ' ½ x²' });

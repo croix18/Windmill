@@ -5,19 +5,23 @@
    `X-Teacher: <password>` (on the site, its password session). Times are milliseconds since 1970 (the site's clock).
 
    GET  /api/test/status?course=&unit=   → {open, pin}   pin: a start code is asked for (a boolean, never the code; 16 Nov 2026)
-   POST /api/test/start {course, unit, pin} → {test, token, started, now, rule, show, form, pub}
+   POST /api/test/start {course, unit, pin, dev} → {test, token, started, now, ends, rule, show, form, pub}
+                                           dev: the browser's id (32 hex); missing or malformed → 400 {error: 'body'}; a second start
+                                           from the same dev in the same opening → 403 {error: 'again'} (16 Nov 2026, §10);
+                                           ends: when this test stops being live (ms, this clock): the opening's until, or null
                                            403 {error: 'closed'} when not open; 409 {error: 'empty'} when no test is left;
                                            with cfg.startCode on: 403 {error: 'pin'} for a missing, wrong or lapsed code (compared
-                                           upper-cased, spaces stripped; a code lives 15 minutes on this clock); 429 {error: 'wait'}
-                                           after 60 wrong codes a minute from one address
+                                           upper-cased, spaces stripped; a code lives 15 minutes on this clock); the code is checked
+                                           first: a right one is always taken, and past 60 wrong codes a minute from one address a
+                                           wrong one is 429 {error: 'wait'}
         A test belongs to its opening (16 Nov 2026): it is live only while the opening it began in is open and before its until;
         a test that is not live: save, read, unlock → 403 {error: 'closed'}; finish commits the last saved answers, ended
         'teacher'.
         rule: {leave: 'count' | 'lock' | 'end', after: N}   show: 'parts' | 'score'   form: the pre-filled link with CODE, or null
         pub: the drawn test's public half (exam_pool.js)
-   GET  /api/test/<id>                   → the same again (no token in it), with {answers, flags, n, status}
+   GET  /api/test/<id>                   → the same again (no token in it, ends the newest), with {answers, flags, n, status}
         status: 'open' | 'finished' (committed, not sealed yet) | 'sealed'
-   PUT  /api/test/<id>/save {answers, flags, n}  → {ok: true}   (the newest n is kept; an older one changes nothing)
+   PUT  /api/test/<id>/save {answers, flags, n}  → {ok: true, ends}   (the newest n is kept; an older one changes nothing)
    POST /api/test/<id>/read {part, text, a?}     → {ok, pretty}   a: the part's part (a) answer as it now stands on the device
                                                                   (else the last saved); never right or wrong
    POST /api/test/<id>/unlock {code}             → {ok}   five tries a minute (429 {error: 'wait'} after)
@@ -34,6 +38,7 @@
    PUT  /teacher/api/test/pool/<course>/<unit> {forms: [{seed, pub, priv, fams}]} → {n}   (5 a request on the site)
    POST /teacher/api/test/open {course, unit, until?} → {ok, opened}  (a new opening, with its first start code)
    POST /teacher/api/test/close {course, unit} → {ok}
+   POST /teacher/api/test/extend {course, unit, until} → {ok, until}   moves an open test's until (ends follows)
    POST /teacher/api/test/pin {course, unit}     → {pin, until}   a new start code, 4 of 23456789ABCDEFGHJKMNPQRSTVWXYZ, 15 minutes
    GET  /teacher/api/test/board                  → {tests: [{course, unit, open, started, finished, pin, pinUntil}]}
    GET  /teacher/api/test/results?course=&unit=&day= → {results: [{code, points, of, seconds, away, finished}]}
@@ -58,23 +63,25 @@ function create(o) {
   const ukey = (c, u) => c + '/' + (+u), wrongPins = {};
   const live = t => { const o = state.open[ukey(t.course, t.unit)]; return !!o && o.opened === t.opened && (!o.until || state.now() < o.until); };
   function itemsOf(t) { return t.items || (t.items = t.priv.map(x => P.unpack(x))); }
-  function pubStart(t) { return { test: t.id, started: t.started, now: state.now(), rule: state.cfg.rule, show: state.cfg.show, form: state.cfg.form, pub: t.pub }; }
+  const endsOf = t => { const o = state.open[ukey(t.course, t.unit)]; return o && o.opened === t.opened && o.until ? o.until : null; };
+  function pubStart(t) { return { test: t.id, started: t.started, now: state.now(), ends: endsOf(t), rule: state.cfg.rule, show: state.cfg.show, form: state.cfg.form, pub: t.pub }; }
   const routes = [
     ['GET', /^\/api\/test\/status$/, (q) => { const open = !!state.open[ukey(q.query.course, q.query.unit)]; return { open, pin: open && !!state.cfg.startCode }; }],
     ['POST', /^\/api\/test\/start$/, (q) => {
       const k = ukey(q.body.course, q.body.unit);
       if (!state.open[k]) return [403, { error: 'closed' }];
+      if (!/^[0-9a-f]{32}$/.test(String(q.body.dev || ''))) return [400, { error: 'body' }];
       if (state.cfg.startCode) {
         const now = state.now(), ip = q.ip || '', w = (wrongPins[ip] || []).filter(x => now - x < 60000); wrongPins[ip] = w;
-        if (w.length >= 60) return [429, { error: 'wait' }];
         const o = state.open[k], pin = String(q.body.pin == null ? '' : q.body.pin).toUpperCase().replace(/\s+/g, '');
-        if (!o.pin || pin !== o.pin || now >= o.pinUntil) { w.push(now); return [403, { error: 'pin' }]; }
+        if (!o.pin || pin !== o.pin || now >= o.pinUntil) { if (w.length >= 60) return [429, { error: 'wait' }]; w.push(now); return [403, { error: 'pin' }]; }
       }
+      const dh = sha(q.body.dev); if (Object.values(state.tests).some(x => x.course === q.body.course && x.unit === +q.body.unit && x.opened === state.open[k].opened && x.dev === dh)) return [403, { error: 'again' }];
       const pool = state.pools[k] || [], i = pool.findIndex(f => !f.used && !(f.fams || []).some(x => state.cfg.hidden.indexOf(x) >= 0));
       if (i < 0) return [409, { error: 'empty' }];
       const f = pool[i]; f.used = true;
       const id = rnd(8), token = rnd(16);
-      const t = state.tests[id] = { id, tok: sha(token), opened: state.open[k].opened, course: q.body.course, unit: +q.body.unit, seed: f.seed, pub: f.pub, priv: f.priv, answers: {}, flags: {}, n: 0, saves: 0, timeline: [],
+      const t = state.tests[id] = { id, tok: sha(token), dev: dh, opened: state.open[k].opened, course: q.body.course, unit: +q.body.unit, seed: f.seed, pub: f.pub, priv: f.priv, answers: {}, flags: {}, n: 0, saves: 0, timeline: [],
         parts: f.priv.length, started: state.now(), finished: null, status: 'open', verdicts: [], log: null, ended: null, unlocks: 0, tries: [], sealed: null };
       return Object.assign(pubStart(t), { token });
     }],
@@ -84,11 +91,11 @@ function create(o) {
     ['PUT', /^\/api\/test\/([0-9a-f]{16})\/save$/, (q, m, t) => {
       if (t.status !== 'open') return [409, { error: 'finished' }];
       if (!live(t)) return [403, { error: 'closed' }];
-      const b = q.body; if (!(+b.n > t.n)) return { ok: true };
+      const b = q.body; if (!(+b.n > t.n)) return { ok: true, ends: endsOf(t) };
       const was = t.answers || {}, now = b.answers || {}, sec = Math.round((state.now() - t.started) / 1000);
       itemsOf(t).forEach(it => { if (JSON.stringify(was[it.id]) !== JSON.stringify(now[it.id])) t.timeline.push([sec, it.id]); });
       t.answers = now; t.flags = b.flags || {}; t.n = +b.n; t.saves++;
-      return { ok: true };
+      return { ok: true, ends: endsOf(t) };
     }, 'token'],
     ['POST', /^\/api\/test\/([0-9a-f]{16})\/read$/, (q, m, t) => {
       if (t.status !== 'open') return [409, { error: 'finished' }];
@@ -143,6 +150,8 @@ function create(o) {
     ['PUT', /^\/teacher\/api\/test\/pool\/([a-z0-9]+)\/(\d+)$/, (q, m) => { const k = ukey(m[1], m[2]); (state.pools[k] = state.pools[k] || []).push(...(q.body.forms || [])); return { n: state.pools[k].length }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/open$/, (q) => { const k = ukey(q.body.course, q.body.unit); if (!(state.pools[k] || []).length) return [409, { error: 'no pool' }];
       const now = state.now(); state.open[k] = { until: q.body.until || null, opened: now, pin: pin4(), pinUntil: now + START_WINDOW_MS }; return { ok: true, opened: now }; }, 'teacher'],
+    ['POST', /^\/teacher\/api\/test\/extend$/, (q) => { const o = state.open[ukey(q.body.course, q.body.unit)]; if (!o) return [409, { error: 'closed' }];
+      if (!(+q.body.until > state.now())) return [400, { error: 'until' }]; o.until = +q.body.until; return { ok: true, until: o.until }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/pin$/, (q) => { const o = state.open[ukey(q.body.course, q.body.unit)]; if (!o) return [409, { error: 'closed' }];
       o.pin = pin4(); o.pinUntil = state.now() + START_WINDOW_MS; return { pin: o.pin, until: o.pinUntil }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/close$/, (q) => { const k = ukey(q.body.course, q.body.unit); delete state.open[k]; delete state.pools[k]; return { ok: true }; }, 'teacher'],

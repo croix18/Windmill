@@ -1383,3 +1383,15 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   test or opened it again, or the test's time allowed ran out — and the page finishes at once, as Finish does (Grading…, then
   the results); the site commits what it last saved. No words of its own. Checked (part 8): the unit opened again mid-test,
   the next save refused, the page finished, the record the last saved answers with `ended: 'teacher'`.
+- **One start a browser, an opening; the end of the time** (16 Nov 2026, after the second review of the site; CHANGES-16NOV §10).
+  The page makes a random id once (`exam.dev`, 32 hex from `crypto.getRandomValues`; in memory only if storage is refused) and
+  sends it with Start (`{course, unit, pin, dev}`); a second start from it in the same opening is `403 {error: 'again'}`, shown
+  as a refused code is — the box shakes and clears, and with no box Start (or New test) shakes; no word. Start, a reload and
+  every save answer with `ends` (ms, the site's clock), when the test stops being live; the page keeps the newest, saves 3 s
+  before it and finishes 1 s before it by the ordinary Finish, so what was typed up to then is committed (a finish after `ends`
+  would commit only the last save), and it follows an `ends` moved later. It reckons on the site's clock (the device's plus
+  the offset from the site's `now`), so a device clock that is wrong changes nothing. The stand-in keeps the id's hash on the
+  test, answers `ends` (the opening's `until`) and has `POST /teacher/api/test/extend`. Checked (part 9): a Start from the same
+  browser in the same opening refused with the shake, a malformed id `400`, storage refused still starting; New test refused in
+  the same opening and starting after a new opening; with the device's clock an hour ahead, an `ends` moved later by a save's
+  answer and followed, a digit typed 1.6 s before `ends`, the test finished by itself before `ends`, the record holding it.
