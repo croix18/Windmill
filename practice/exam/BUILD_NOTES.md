@@ -14,9 +14,12 @@ Working in `/home/claude/windmill-exam` (branch `exam`); course trees in `/home/
 - G `check/exam_page.js` (run by build_exam), `check/exam_link_page.js` (page.js part X). README section + Files rows; manifest.
 - `exam/server.js` grade: `{v, almost: true}` for an "Almost".
 
-## Next / open
-- Batch (`/home/claude/scratch/batch.sh`, log `/tmp/exam_batch.log`): every packing unit's test build + checks; then run.py on
-  M7 U10, its teacher copy, A7 U6. Screenshots in `/home/claude/shots/exam/`.
+## Status
+- Every packing unit's test built and `check/exam_page.js` passed (M7 4 5 7 8 9 10 13, A7 3 4 5 6); A7 Unit 11 refused (pack).
+- Existing checks: M7 U10 teacher copy run.py passed; M7 U10 student run.py failed only in the new part X (pager-off contexts;
+  fixed: part X takes rawContext) — rerun in `/home/claude/scratch/batch3.sh` (log `/tmp/exam_batch3.log`, `/tmp/run_u10b.log`),
+  which then rebuilds and checks every unit's test on the final kit. A7 U6 run.py: `/tmp/run_a7u6.log`.
+- Screenshots: `/home/claude/shots/exam/` (m7u10, a7u3, m7u4).
 
 ## Decisions
 - Seeds: 32 hex characters passed to `U.generate` as a string (all units draw through `KIT.draw`).
@@ -32,3 +35,7 @@ Working in `/home/claude/windmill-exam` (branch `exam`); course trees in `/home/
 - New test's confirm: a second New test with Back (no sentence).
 - Reads that fail are dropped silently (the next change asks again); save/finish/grade/seal/start failures show the message.
 - 390 px target check covers buttons, links, choices, a graph's controls; a text box keeps the kit's own height (37 px on A7 U3).
+- The reload check compares the paper with previews/readouts emptied, attributes sorted and an emptied style dropped
+  (the practice page itself reorders attributes and leaves style="" behind).
+- The pool proof tries a part (b) wrong beside its part (a)'s key: a wrong (a) carried into (b) is right on Like the real
+  test (M7 Unit 9's 5b).
