@@ -116,8 +116,11 @@ check/exam_page.js part 10.
 - **M5, L4**: Ctrl/⌘+F, Ctrl/⌘+G, F3 → `find`; a touch long-press is not `menu`. p24: `Ctrl+F kept, Ctrl+G kept`; the long
   press logged nothing (the two entries are the Ctrl+F and Ctrl+G).
 - **M6**: never over 60 KB. p41: 200-character values → `41955 bytes (fits)` (was 72 KB, kept as null). Part 10: the honest
-  log at every cap at once with every value 200 characters on M7 U10, **45,427 bytes**; with 120 more parts than any test,
-  61,347 bytes (the middle values cut, `n` kept).
+  log at every cap at once with every value 200 characters: **59,426 bytes on A7 U3** (36 parts, the largest), 45,4xx on
+  the other three; with 120 more parts than any test, at most 61,423 bytes (the middle values cut, `n` kept).
+- The circle graph, answered through the test page (M7 U7), showed that the reload check compared the widget's own place —
+  the keyboard cursor, the selected sector, which name is checked — which a reload sets back to the first sector, as the
+  practice page does; the answer is the same. The check now leaves those out and compares the set's saved answers too.
 - **M7**: id, token and `dev` in sessionStorage too. p26: storage full, a reload → the test resumed under its cover (was:
   the start screen and a second test).
 - **L3**: Turn in is a real link; Copied always. p27: `Turn in with pop-ups blocked: tabs opened 1 | … Copied`.

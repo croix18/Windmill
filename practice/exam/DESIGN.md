@@ -395,7 +395,8 @@ of one part).
 The page never sends a log over 60 KB (every string in a value kept to 80 characters; if the whole is still too large, the
 middle values of the parts with the most go first — `n` still counts them — then the oldest visits, `drop` counting them;
 never `away`, `blocked` or `device`); every length in it is from a steady count (`performance.now()`), and only `t0` and `t1`
-are the device's clock. Measured: the honest log at every cap at once with every value 200 characters is under 45 KB.
+are the device's clock. Measured: the honest log at every cap at once with every value 200 characters is 58 KB on A7 Unit 3 (36 parts, the largest),
+44 KB on M7 Unit 10.
 The site takes the log as it comes (JSON, at most 64 KB — the honest log's caps add up to well under that; a larger or
 broken one, or one nested too deep to be turned to text, is kept as `null` and the test still finishes): it is the device's
 account, not the site's, and Tally shows everything in it as text, never as HTML, never trusted for length or type. The score
