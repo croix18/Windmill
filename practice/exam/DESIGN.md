@@ -6,8 +6,9 @@ this file is the plan the builders work from. Change it here first, then build.
 **Built so far** (kit, branch `exam`): `pack.js`, `judge.js`, `exam/server.js` with `check/pack.js` and
 `check/exam_server.js` — the page judges through `judge.js` (proved on 16,800 parts, before and after, no difference),
 and the site's verdicts are the page's on every unit that packs; the test page (`exam_pool.js`, `exam_unit.js`,
-`exam.js`, `exam/build_exam.py`, proved against the Node stand-in `check/exam_site.js`); and the lock, `exam/seal.js`
-(16 Nov). Still to build: `proctor.js`, `trace.js`, the site, the courses' test pages, Tally.
+`exam.js`, `exam/build_exam.py`, proved against the Node stand-in `check/exam_site.js`); the lock, `exam/seal.js`
+(16 Nov); and the proctor and the log, `proctor.js` and `trace.js` (16 Nov; `BUILD_NOTES.md`). Still to build: the site, the
+courses' test pages, Tally.
 
 ## What Croix asked for
 
@@ -284,9 +285,10 @@ of one part).
  away: [[at, sec, kind, "4"], …],          // kind: "tab" (another tab or app) | "window" | "fullscreen" | "reload"
  blocked: [[at, what, "4"], …],            // what: "copy" | "cut" | "menu" | "print" | "selectall" | "drag" | "save"
  idle: [[at, sec, "4"], …],                // each pause of more than a minute with nothing typed or tapped
- device: {sw, sh, ww, wh, dpr, touch, os, osv, br, brv, dark, large, zoom, tz},   // screen and window in CSS px · touch
+ device: {sw, sh, ww, wh, dpr, touch, os, osv, br, brv, dark, large, zoom, tz, fs},   // screen and window in CSS px · touch
                                            //   true/false · system and browser family and version (strings) · dark · the
-                                           //   kit's Larger text · zoom (1 = 100%) · the time zone's name
+                                           //   kit's Larger text · zoom (1 = 100%) · the time zone's name · fs: full screen is
+                                           //   available on this device (added 16 Nov, with trace.js)
  fails,                                    // saves that failed
  drop: {visits, calc, scratch, away, blocked, idle}}   // entries past each list's cap (300 visits, 100 of each other)
 ```

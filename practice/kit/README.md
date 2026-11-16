@@ -1362,7 +1362,7 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   the session's order adding up to the test's length, typed and tapped values, the calculator's openings, scratch paper's
   openings and its notes and point, four leavings, eight blocked, the idle stretch, the device, one failed save, nothing
   dropped); the end panel's line; the log gone after the seal; no request but the page, the test routes and the calculator
-  opened. Lock after 3 on a touch tablet: the keypad's key logged `"keypad"`; locked on the third; five wrong codes, the box
+  opened. Lock after 3 on a touch tablet: the keypad's key logged `"keypad"` (on a part whose kind of box shows keys; M7 Units 7 and 13 have no keypad); locked on the third; five wrong codes, the box
   shaking only without reduced motion; the sixth try `429` and the box waiting; the right code; locked again on the fourth; the
   record's `unlocks` 2. End after 3 at 390 × 844 in dark: finished as it stood, both lines, the record's `ended`. The caps (the
   visits' and the blocked list's lowered through `Kit.Trace.CAP`), a part's 15 values, 4 KB of scratch paper. The visible words of
