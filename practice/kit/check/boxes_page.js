@@ -24,7 +24,10 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
   const find = seed => { const g = U.generate(seed); let qn = 0, hit = null;
     g.sections.forEach((sec, si) => sec.items.forEach((it, ii) => { qn++; if (hit) return;
       const ps = it.type === 'parts' ? it.parts.map(p => ({ p, id: qn + p.label })) : it.type === 'solo' ? [{ p: it.part, id: String(qn) }] : [];
-      ps.forEach(({ p, id }) => { if (!hit && boxesOf(U, p)) hit = { seed, id, x: p, qn, pos: si + '.' + ii }; }); }));
+      /* bi: this part's place among its question's parts that have boxes (the worksheet prints one group of blanks a part);
+         others: the question's other parts — a lettered question is "answered" on the map only when each of them is too */
+      ps.forEach(({ p, id }, k) => { if (!hit && boxesOf(U, p)) hit = { seed, id, x: p, qn, pos: si + '.' + ii,
+        bi: ps.slice(0, k).filter(o => boxesOf(U, o.p)).length, others: ps.filter((o, j) => j !== k) }; }); }));
     return hit; };
   let T = find(4821); for (let s = 1; !T && s <= 300; s++) T = find(s);
   if (!T) { console.log('T. no part with several boxes — skipped'); return; }
@@ -150,8 +153,9 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
 
   /* print: the worksheet's blanks, the key, My results */
   await p.click('#bMore'); await p.click('#bPrint'); await p.click('[data-print="wk"]'); await p.waitForTimeout(100);
-  { const pr = await p.evaluate(qn => { const q = Array.from(document.querySelectorAll('#printview .pq'))[qn - 1]; if (!q) return null;
-      return { boxes: Array.from(q.querySelectorAll('.pboxes .pbx')).map(x => (x.querySelector('.pre') || { textContent: '' }).textContent.trim()), rows: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }; }, T.qn);
+  { const pr = await p.evaluate(([qn, bi]) => { const q = Array.from(document.querySelectorAll('#printview .pq'))[qn - 1]; if (!q) return null;
+      const grp = Array.from(q.querySelectorAll('.pboxes'))[bi];   /* this part's own blanks: a lettered question may have another boxed part */
+      return { boxes: Array.from(grp ? grp.querySelectorAll('.pbx') : []).map(x => (x.querySelector('.pre') || { textContent: '' }).textContent.trim()), rows: Array.from(document.querySelectorAll('#printview .pkey tr')).map(r => [r.cells[0].textContent.trim(), r.cells[1].textContent.replace(/\s+/g, ' ').trim()]) }; }, [T.qn, T.bi]);
     const want = B.map(x => (x.pre || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim());
     if (!pr || pr.boxes.length !== n || pr.boxes.join('|') !== want.join('|')) F('the worksheet\'s blanks for it: ' + JSON.stringify(pr && pr.boxes) + ', not ' + JSON.stringify(want));
     const row = pr && pr.rows.find(r => r[0] === String(id) || r[0] === String(T.qn)), kv = String(U.view.key(T.x)).replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -185,9 +189,15 @@ module.exports = async function partT(b, rawContext, url, U, dir, fail) {
     const go = await q.$('#pgStart'); if (go) await go.click(); await q.waitForTimeout(80);
     const tap = await q.$('#pgGrid [data-pgi="' + (T.qn - 1) + '"]'); if (tap) { await tap.click(); await q.waitForTimeout(80); }
     const lab = async () => q.$eval('#pgGrid [data-pgi="' + (T.qn - 1) + '"]', e => e.getAttribute('aria-label')).catch(() => '');
+    /* a lettered question: its other typed parts are filled first, so the map's word turns on this part's boxes alone; with
+       a part this check cannot type (a choice, a graph to build) only the "not answered" half is held */
+    let all = true;
+    for (const o of T.others) { const kt = U.keyText(o.p), bo = boxesOf(U, o.p);
+      if (o.p.kind === 'mc' || o.p.kind === 'nline' || o.p.kind === 'cgraph' || kt == null || (bo && !Array.isArray(kt))) { all = false; continue; }
+      if (bo) { for (let k = 0; k < bo.length; k++) await put(q, boxSel(o.id, k), kt[k]); } else await put(q, boxSel(o.id, 0), kt); }
     await put(q, boxSel(id, 0), key[0]); await q.waitForTimeout(80); const a1 = await lab();
     for (let k = 1; k < n; k++) await put(q, boxSel(id, k), key[k]); await q.waitForTimeout(80); const a2 = await lab();
-    if (!/not answered/.test(a1) || !/, answered/.test(a2)) F('the pager\'s map: one box filled "' + a1 + '", every box "' + a2 + '"');
+    if (!/not answered/.test(a1) || (all && !/, answered/.test(a2))) F('the pager\'s map: one box filled "' + a1 + '", every box "' + a2 + '"');
     await pc.close(); }
   if (errs.length) F('page errors: ' + errs.slice(0, 3).join(' | '));
   await ctx.close();

@@ -927,7 +927,9 @@ whose paper says "Give its x and its y"). Now a unit may give a part labeled box
 - **A unit that gives no boxes is exactly as before**: the same HTML, the same answers, the same locks (A7 Units 6 and 11, M7 Units
   10 and 13, student pages and teacher copies, every check passing on this kit untouched). The boxes are a view of the part, so
   giving a part boxes does not change a set's questions or its lock.
-- **Checked:** `check/page.js` part T (`check/boxes_page.js`, a unit with a part that has boxes): the names, the group, the Tab order;
+- **Checked:** `check/page.js` part T (`check/boxes_page.js`, a unit with a part that has boxes — in a lettered question too: the
+  worksheet's blanks are read for that part alone, and the pager's map after the question's other typed parts are filled; M7
+  Unit 7's 6(a), 15 Nov): the names, the group, the Tab order;
   one line at 360, 390 and 1280 px, nothing past the edge; and every part with boxes in the unit (each boxed place, and each way its
   boxes are labeled, from set 4821 then 1–300) at 360, 390 and 1280 px: each box's label and unit on its box's row, the Check button
   on the screen, no sideways scroll, boxes without a unit on one line, boxes with a unit a row each on a phone; one box filled is not a try; Enter; a wrong pair (the key reversed), its
