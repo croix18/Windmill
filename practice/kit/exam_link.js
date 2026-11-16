@@ -10,8 +10,15 @@ fetch('/api/test/status?course=' + m[1] + '&unit=' + m[2], {credentials: 'same-o
   .then(function(r){ return r.ok ? r.json() : null; })
   .then(function(j){
     if (!j || j.open !== true) return;
-    var at = document.getElementById('pgStart'); if (!at || document.getElementById('pgTest')) return;
-    var a = document.createElement('a'); a.id = 'pgTest'; a.className = 'pgtest'; a.href = '../../test/unit-' + m[2] + '/'; a.textContent = 'Test';
-    at.parentNode.insertBefore(a, at.nextSibling);
+    /* on the site ui.js draws only once the approvals have come (approvals.js), so the start screen may not be there yet (16 Nov
+       2026: on a busy machine the status came first and the link was never shown): wait for it */
+    var put = function(){
+      var at = document.getElementById('pgStart'); if (!at) return false; if (document.getElementById('pgTest')) return true;
+      var a = document.createElement('a'); a.id = 'pgTest'; a.className = 'pgtest'; a.href = '../../test/unit-' + m[2] + '/'; a.textContent = 'Test';
+      at.parentNode.insertBefore(a, at.nextSibling); return true;
+    };
+    if (put() || !window.MutationObserver) return;
+    var ob = new MutationObserver(function(){ if (put()) ob.disconnect(); }); ob.observe(document.body, {childList: true, subtree: true});
+    setTimeout(function(){ ob.disconnect(); }, 30000);
   }).catch(function(){});
 })();
