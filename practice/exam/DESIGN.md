@@ -147,7 +147,8 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | `PUT /teacher/api/test/pool/<course>/<unit>` | password | a chunk of drawn tests (5 a request) |
 | `POST /teacher/api/test/open` `{course, unit, until}` / `…/close` | password | opens once the pool is whole; closes at `until` (4:15 pm school time the same day unless he sets another) |
 | `GET /teacher/api/test/board` | password | for each open test: started, finished — counts only |
-| `GET /teacher/api/test/results?course=&unit=&day=` | password | that day's locked records in one file, for Tally without a network |
+| `GET /teacher/api/test/results?course=&unit=&day=` | password | that day's locked records in one file, for Tally without a network; and each code's score, seconds, times away and finish time in the clear |
+| `POST /teacher/api/test/trial` / `…/trial/confirm` | password | a trial record sealed to the key just pasted, and the confirmation that Tally opened it (the key is then proven) |
 
 - **Store** (SiteStore, SQLite): `exam_cfg`, `exam_key` (the signing pair, made on first use, as the push key is),
   `exam_open`, `exam_pool` (a row a drawn test; the private half one packed part a row so a grade step reads three),
@@ -190,7 +191,17 @@ AES-GCM(sig ‖ plain)`. **The code** is 12 Crockford base-32 characters of fres
 is the record's name on the site and what the student turns in. Tally derives the same key with its private half, opens
 the record, checks `sig` against the site key it holds, inflates, reads.
 
-Until Tally's key is in the cockpit a test cannot be opened (there would be nobody to lock the record to).
+**Proving the pairing before it matters** (Croix, 9:03 pm: *"How do I know it'll open on my tally?"*). A test cannot be
+opened until the pairing is proven: when Tally's public key is pasted into the cockpit, the site makes a **trial record**
+(a made-up test, sealed exactly as a real one) and shows its code; Croix enters the code in Tally; Tally opens it, checks
+the site's signature and shows a four-word check that the cockpit shows too; only after he confirms it in the cockpit is
+the key marked proven. Changing the key starts over. The private half is part of Tally's Full save, so any Tally that
+has loaded his Full save — the laptop, the tablet, the panel, a Tally.html downloaded fresh — opens the records.
+
+**If the key is ever lost** (Tally's data gone and no Full save), the locked records cannot be opened by anyone. So
+`exam_result` also keeps, in the clear and behind the teacher's password only, each code's score, points possible,
+seconds, times away and finish time — no name, no answers — and the cockpit can list them by day. Grades survive a lost
+key; the detail does not. Tally says so when it makes the key and offers the Full save then.
 
 **The log** (`trace.js`; kept on the device as it grows, sent at Finish; everything the page can see):
 - each question: seconds on screen, visits, seconds before its first answer, flagged at any time and at Finish;
