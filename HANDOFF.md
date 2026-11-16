@@ -57,7 +57,7 @@ the site judges three parts a request. **The whole design, the routes, the recor
 **Where the two branches stand:** `calc-harden` is finished and checked (part N on M7 Unit 10, its teacher copy and A7
 Unit 11; one commit, not pushed). `scratch-paper` is being built. Both wait for the words-pass rollout.
 
-## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out
+## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out — the practice kit's pass is rolled out (9:18 pm)
 
 Croix, to the site session, after circling notes on the site page by page for three days: *"Can you see the pattern in the
 text I am asking you to remove. They are what I consider ai mannerisms that make a project feel like ai. The over
@@ -87,13 +87,22 @@ courses: every unit's page and teacher copy builds and holds none of the old lin
 Português) passes `check/run.py` whole; A7 Unit 6's page and teacher copy pass the page checks (`page.js`, `help_page.js`,
 `bank.js`).
 
-**The rollout (15 Nov 2026, from 7:20 pm).** Croix stopped the site session after the kit was pushed (*"Finish, push,
-and stop"*), then, at 7:16 pm: *"Go through and rebuild and republish everything that needs it."* The site session is
-vendoring this kit into both courses, re-running every page and teacher copy but M7 Unit 7's (its build session's), and
-putting the published ones on the site; each course's `NOTES.md` (top) and this paragraph say when it is done. The one
-old key the kit's Portuguese table kept for M7 Unit 4's `bi_check.js` is gone: that check now writes "This set stays
-saved." One line was left for Croix to call: the help standard's "Open Hint, then tap Step by step with me." after a
-miss nothing names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit).
+**Rolled out the same evening (15 Nov 2026, 9:18 pm).** Croix stopped the site session after the kit was pushed
+(*"Finish, push, and stop"*), then, at 7:16 pm: *"Go through and rebuild and republish everything that needs it."*
+- **Both courses carry this kit at `9f3dc9b`** (the words pass, and the Portuguese table without the one old key it had
+  kept: M7 Unit 4's `bi_check.js` now writes "This set stays saved."). Every page and teacher copy was run again on it,
+  each ALL CHECKS PASSED, no set lock or `contentVersion` moved: A7 Units 3, 4, 5, 6 and 11 (A7 `dfb8176a`); M7 Units 4,
+  5, 9, 10, 13 and 8 (M7 `8800253`).
+- **On the website:** site `7400048` — the ten published practice pages and their teacher copies (A7 3, 4, 5, 6, 11; M7
+  4, 5, 9, 10, 13); SITE CHECKS PASS and Cloudflare's build of that commit succeeded. Only those twenty files: the
+  slides and the units' documents are as the kits session published them at `e919cfe` (every published unit's package
+  files compare equal to the site's). The site's `tools/test_site.mjs` now fails a practice page or teacher copy built
+  on a kit from before the words pass.
+- **Not done, on purpose: M7 Unit 7's page** (its build session's until it is published; M7 `NOTES.md`, first section,
+  says to vendor from main and run it again first). M7 Unit 8 was re-run and stays held.
+- **Left for Croix to call:** the help standard's "Open Hint, then tap Step by step with me." after a miss nothing
+  names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit); and the end panel
+  lists each section twice (the chips and the table).
 
 ## Everything that draws from Cadence (15 Nov 2026, 7–10 pm: Cadence 29.28; the FAST bank on state levels, with pictures as choices)
 
