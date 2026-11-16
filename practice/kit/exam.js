@@ -239,7 +239,9 @@ function boot(){
     call('GET', '/' + ST.test).then(function(r){
       mended();
       if (r.status === 401 || r.status === 403 || r.status === 404){ ST = {}; keep(); return status(showGo); }
-      ST.start = strip(r.j); ST.skew = r.j.now - Date.now(); if (r.j.status === 'finished') ST.finishing = true; keep();
+      var s0 = strip(r.j); if (!s0.pub && ST.start) s0.pub = ST.start.pub;   /* a sealed test's halves are gone from the site: this device's copy draws it */
+      ST.start = s0; ST.skew = r.j.now - Date.now(); if (r.j.status && r.j.status !== 'open') ST.finishing = true; keep();
+      if (!ST.start.pub){ ST = {}; keep(); return status(showGo); }
       mount(r.j);
     }, function(){
       if (ST.start && ST.start.pub){ mount(null); fail(function(){ DIRTY = true; tick(); }); }   /* offline: the test goes on from this device; a save tries again */
