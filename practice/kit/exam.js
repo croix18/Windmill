@@ -25,11 +25,12 @@ var $ = function(id){ return document.getElementById(id); };
 var NAME = 'exam.' + CFG.course + '.u' + CFG.unit;          /* this unit's test on this device: {test, token, start, result} */
 var WORDS = {net: 'Can’t reach the site. Your answers are saved on this device.', retry: 'Try again', closed: 'This test isn’t open.',
   start: 'Start', test: 'Test', grading: 'Grading…', turnin: 'Turn in', copied: 'Copied', newtest: 'New test', back: 'Back', unread: 'Can’t read this yet',
-  finish: 'Finish', notright: 'Not right', ended: 'Test ended: left the test ', times: ' times.', time: ' time.', leftN: 'Left the test ', leftT: ' times · ', leftT1: ' time · ', min: ' min', sec: ' s'};
+  code: 'Start code', finish: 'Finish', notright: 'Not right', ended: 'Test ended: left the test ', times: ' times.', time: ' time.', leftN: 'Left the test ', leftT: ' times · ', leftT1: ' time · ', min: ' min', sec: ' s'};
 function load(){ try { return JSON.parse(localStorage.getItem(NAME) || 'null'); } catch(e){ return null; } }
 function keep(){ try { localStorage.setItem(NAME, JSON.stringify(ST)); } catch(e){} }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
-var ST = load() || {}, PAGE = null, SKEW = 0, OPEN = null, PHASE = 'pre';   /* pre · test · grading · done */
+var ST = load() || {}, PAGE = null, SKEW = 0, OPEN = null, PIN = false, PHASE = 'pre';
+var WAIT = window.KIT_EXAM_UNLOCK_WAIT || 60000;          /* after the site's 429, the box and Start wait (the checks' switch shortens it) */   /* pre · test · grading · done */
 
 /* ---- the site */
 function call(method, path, body, o){
@@ -50,25 +51,40 @@ function headInit(){
   var chip = document.createElement('span'); chip.className = 'scopechip exchip'; chip.id = 'exChip'; chip.setAttribute('translate', 'no'); chip.textContent = WORDS.test;
   if (tot && tot.parentNode) tot.parentNode.insertBefore(chip, tot);
   var go = document.createElement('div'); go.className = 'exgo'; go.id = 'exGo';
-  go.innerHTML = '<button type="button" class="go" id="exStart" hidden>' + WORDS.start + '</button><p class="exclosed" id="exClosed" hidden>' + WORDS.closed + '</p>';
+  go.innerHTML = '<input type="text" class="expin" id="exPin" hidden placeholder="' + WORDS.code + '" aria-label="' + WORDS.code + '" maxlength="12" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go">' +
+    '<button type="button" class="go" id="exStart" hidden>' + WORDS.start + '</button><p class="exclosed" id="exClosed" hidden>' + WORDS.closed + '</p>';
   var paper = $('paper'); paper.parentNode.insertBefore(go, paper);
   var net = document.createElement('div'); net.className = 'exnet'; net.id = 'exNet'; net.setAttribute('role', 'alert'); net.hidden = true;
   net.innerHTML = '<span>' + WORDS.net + '</span><button type="button" id="exRetry">' + WORDS.retry + '</button>';
   document.body.insertBefore(net, $('result'));
   $('exRetry').addEventListener('click', function(){ var f = RETRY; mended(); if (f) f(); });
   $('exStart').addEventListener('click', startTest);
+  /* the start code (16 Nov 2026): upper-cased as typed; Enter starts */
+  $('exPin').addEventListener('input', function(){ var a = this.selectionStart, v = this.value.toUpperCase(); if (v !== this.value){ this.value = v; try { this.setSelectionRange(a, a); } catch(e){} } });
+  $('exPin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); if (!$('exStart').disabled) startTest(); } });
   var more = $('bMore'); if (more) more.setAttribute('aria-label', 'More');
 }
-function showGo(open){ OPEN = open; $('exStart').hidden = !open; $('exClosed').hidden = open; }
+function showGo(open){
+  OPEN = open; $('exStart').hidden = !open; $('exClosed').hidden = open;
+  var p = $('exPin'), was = p.hidden; p.hidden = !(open && PIN); if (!p.hidden && was) try { p.focus(); } catch(e){}
+}
+function shake(el){ el.value = ''; el.classList.remove('exshake'); void el.offsetWidth; el.classList.add('exshake'); try { el.focus(); } catch(e){} }
 function status(then){
   call('GET', '/status?course=' + encodeURIComponent(CFG.course) + '&unit=' + encodeURIComponent(CFG.unit), undefined, {anon: true})
-    .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }); });
+    .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); PIN = OPEN && !!(r.j && r.j.pin); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }); });
 }
 function startTest(){
   if (K.Proctor && K.Proctor.enter) try { K.Proctor.enter(); } catch(e){}   /* full screen needs this press */
-  var b = $('exStart'); b.disabled = true;
-  call('POST', '/start', {course: CFG.course, unit: CFG.unit}, {anon: true}).then(function(r){
+  var b = $('exStart'), box = $('exPin'); b.disabled = true;
+  var body = {course: CFG.course, unit: CFG.unit}; if (PIN) body.pin = box.value.toUpperCase().replace(/\s+/g, '');
+  call('POST', '/start', body, {anon: true}).then(function(r){
     b.disabled = false; mended();
+    if (!r.ok && PIN && (r.status === 429 || (r.status === 403 && r.j && r.j.error === 'pin'))){   /* a code refused: the box shakes and clears, no words; 429 waits */
+      if (K.Proctor && K.Proctor.leave) K.Proctor.leave();
+      if (r.status === 429){ box.value = ''; box.disabled = b.disabled = true; setTimeout(function(){ box.disabled = b.disabled = false; try { box.focus(); } catch(e){} }, WAIT); }
+      else shake(box);
+      return;
+    }
     if (!r.ok){ showGo(false); if (K.Proctor && K.Proctor.leave) K.Proctor.leave(); return; }
     ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null}; SKEW = r.j.now - Date.now(); ST.skew = SKEW; keep();
     mount(r.j);
@@ -231,6 +247,7 @@ function turnIn(){
   copy(c).then(function(){ if (!form){ var s = $('exCopied'); if (s) s.textContent = WORDS.copied; } });
 }
 function newTest(){
+  if (PIN){ ST = {}; keep(); location.reload(); return; }   /* a start code is asked for: the start screen, with its box */
   var b = $('exNewGo'); b.disabled = true;
   call('POST', '/start', {course: CFG.course, unit: CFG.unit}, {anon: true}).then(function(r){
     b.disabled = false; mended();

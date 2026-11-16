@@ -8,6 +8,13 @@ body.exam-pre .ctl, body.exam-pre #intro{display:none !important}
 body:not(.exam-pre) .exgo{display:none}
 .exgo{margin:18px 0 6px}
 .exgo button{min-height:44px;min-width:120px}
+.exgo .expin{display:block;margin:0 0 12px;min-height:48px;width:10rem;max-width:100%;padding:8px 12px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:700 20px/1.2 var(--ui);letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.exgo .expin::placeholder{font-weight:500;font-size:16px;letter-spacing:.02em;text-transform:none;color:var(--mut);opacity:1}
+.exgo .expin:focus{outline:3px solid var(--focus);outline-offset:2px}
+.exgo .expin:disabled{opacity:.55}
+.exgo .expin[hidden]{display:none}
+.exgo:has(.expin:not([hidden])) button{min-width:10rem}   /* the box and Start one width */
 .exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0}
 .exchip{margin-right:8px}
 /* the message when a request does not get through: an alarm, with the way to go on */

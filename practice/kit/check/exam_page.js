@@ -40,7 +40,7 @@ if (!fs.existsSync(TEACHER) || fs.readFileSync(TEACHER, 'utf8').indexOf('Kit.Exa
 const fails = []; const fail = msg => { if (fails.length < 60) console.log('  FAIL ' + msg); fails.push(msg); };
 const ok = msg => console.log('  ok ' + msg);
 const TPATH = '/' + COURSE + '/test/unit-' + UNIT + '/', CPATH = '/' + COURSE + '/practice/unit-' + UNIT + '/teacher/';
-const NDRAW = SHEETS + (WHOLE ? 4 + 14 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
+const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
 const COCKPIT = '<!doctype html><meta charset="utf-8"><title>cockpit</title><iframe id="f" src="' + CPATH + '#exam-pool" style="display:none"></iframe><script>' +
   'window.batches=[];window.ready=null;window.err=null;window.done=false;' +
   'addEventListener("message",function(e){if(e.origin!==location.origin||e.source!==document.getElementById("f").contentWindow||!e.data||e.data.kit!=="exam-pool")return;' +
@@ -103,7 +103,7 @@ function checkPub(f, WL) {
     /^Left the test: \d+$/, /^Back to the test$/, /^Locked\. Ask your teacher\.$/, /^Unlock$/, /^Test ended: left the test \d+ times?\.$/, /^Grading…$/,
     /^\d+ \/ \d+ points$/, /^\d+:\d\d$/, /^Left the test \d+ times? · (\d+ min( \d+ s)?|\d+ s)$/, /^[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$/,
     /^Turn in$/, /^Right$/, /^Not right$/, /^Blank$/, /^This test isn’t open\.$/, /^Can’t reach the site\. Your answers are saved on this device\.$/, /^Try again$/,
-    /^New test$/, /^Copied$/, /^\d+$/];
+    /^New test$/, /^Copied$/, /^Start code$/, /^\d+$/];
   async function shown(p) {                /* every text the page shows, as runs of words, with where each comes from */
     return p.evaluate(() => {
       const own = '#paper, .head, #pgGrid, .pgrt, .pgrid, .pgrn, .kcalc, .kscr', out = [], seen = new Set();
@@ -162,7 +162,8 @@ function checkPub(f, WL) {
     /* A. count only, the scripted session: 1366 × 657, light, the clock in the page under the check's hand */
     const c = await ctxOf({ timezoneId: 'America/New_York' }); await c.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
     const asked = []; c.on('request', r => asked.push(r.url()));
-    const p0 = watch(await c.newPage()); await p0.goto(base + TPATH); await p0.waitForSelector('#exStart:not([hidden])'); await sayOnly(p0, 'the start'); await p0.close();
+    const p0 = watch(await c.newPage()); await p0.goto(base + TPATH); await p0.waitForSelector('#exStart:not([hidden])'); await sayOnly(p0, 'the start');
+    if (await p0.isVisible('#exPin')) fail('a start-code box with the start code off'); else ok('the start code off: no box'); await p0.close();
     const { p, t } = await begin(c);
     await p.clock.install().catch(e => fail('the clock: ' + e.message));
     const items = t.priv.map(x => P.unpack(x)), N = await p.evaluate(() => document.querySelectorAll('#paper .q[data-q]').length);
@@ -456,7 +457,7 @@ function checkPub(f, WL) {
   if (await p0.isVisible('#exStart')) fail('Start shows while the test is not open');
   await c0.close();
   await fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) });
-  await fetch(base + '/teacher/api/test/config', { method: 'PUT', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ show: 'parts', form: FORM === 'none' ? null : FORM }) });
+  await fetch(base + '/teacher/api/test/config', { method: 'PUT', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ startCode: false, show: 'parts', form: FORM === 'none' ? null : FORM }) });
 
   /* 2. the sheet is the same sheet */
   const norm = h => h.replace(/ class="([^"]*)"/g, (x, c) => { const k = c.split(/\s+/).filter(z => z && z !== 'pg-on').join(' '); return k ? ' class="' + k + '"' : ''; });
@@ -489,8 +490,9 @@ function checkPub(f, WL) {
   ok('nothing to steal: ' + lines + ' lines of the unit\'s scripts searched, none on the page; the stub has ' + stub.keys.join(', ') + '; its judge refuses; every pub on the whitelist');
 
   /* 4. a whole test */
-  /* 7. the proctor and the log (16 Nov 2026) */
+  /* 7. the proctor and the log (16 Nov 2026); 8. the start code (16 Nov 2026) */
   if (WHOLE) await proctor();
+  if (WHOLE) await startCode();
   if (WHOLE) await whole();
   /* the stand-in's responses before seal: no priv item, keyText or verdict; read is {ok, pretty} */
   let reads = 0;
@@ -504,7 +506,7 @@ function checkPub(f, WL) {
   /* 6. the words: exam.js's own */
   const src = fs.readFileSync(path.join(KIT, 'exam.js'), 'utf8'), wordsAt = src.indexOf('var WORDS = {'), words = src.slice(wordsAt, src.indexOf('};', wordsAt));
   const LIST = ['Start', 'Test', 'Grading…', 'Turn in', 'Copied', 'New test', 'Back', 'Try again', 'This test isn’t open.', 'Can’t reach the site. Your answers are saved on this device.', 'Can’t read this yet',
-    'Finish', 'Not right', 'Test ended: left the test ', ' times.', ' time.', 'Left the test ', ' times · ', ' time · ', ' min', ' s'];   /* the end panel's two lines in pieces (16 Nov 2026) */
+    'Start code', 'Finish', 'Not right', 'Test ended: left the test ', ' times.', ' time.', 'Left the test ', ' times · ', ' time · ', ' min', ' s'];   /* the end panel's two lines in pieces (16 Nov 2026) */
   (words.match(/'[^']*'/g) || []).map(w => JSON.parse('"' + w.slice(1, -1) + '"')).forEach(w => { if (LIST.indexOf(w) < 0) fail('exam.js says “' + w + '”'); });
   const psrc = fs.readFileSync(path.join(KIT, 'proctor.js'), 'utf8'), pat = psrc.indexOf('var WORDS = {'), pw = psrc.slice(pat, psrc.indexOf('};', pat));
   (pw.match(/'[^']*'/g) || []).map(w => JSON.parse('"' + w.slice(1, -1) + '"')).forEach(w => { if (['Back to the test', 'Locked. Ask your teacher.', 'Unlock', 'Start', 'Left the test: '].indexOf(w) < 0) fail('proctor.js says “' + w + '”'); });
@@ -646,6 +648,50 @@ function checkPub(f, WL) {
     const c3 = await ctxOf(), p3 = watch(await c3.newPage()); await p3.goto(base + TPATH); await p3.waitForSelector('#exClosed:not([hidden])');
     if (await p3.textContent('#exClosed') !== 'This test isn’t open.') fail('closed: ' + await p3.textContent('#exClosed'));
     await sayOnly(p3, 'closed'); await c3.close(); ok('closed: “This test isn’t open.”, and nothing else');
+  }
+
+  /* ---- 8. the start code (16 Nov 2026; CHANGES-16NOV §2): four characters typed above Start while the site asks for one ---- */
+  async function startCode() {
+    await put({ startCode: true, rule: { leave: 'count', after: 3 } });
+    const K8 = COURSE + '/' + UNIT, starts = () => site.log.filter(L => L.path === '/api/test/start' && L.status === 200).length;
+    if (SHOTS) for (const [w, h] of [[1366, 657], [390, 844]]) for (const scheme of ['light', 'dark']) {
+      const cs = await ctxOf(Object.assign({ viewport: { width: w, height: h }, colorScheme: scheme }, w < 500 ? { hasTouch: true, isMobile: true } : {})), ps = watch(await cs.newPage());
+      await ps.goto(base + TPATH); await ps.waitForSelector('#exPin:not([hidden])'); await ps.screenshot({ path: path.join(SHOTS, U.id + '-pin-start-' + w + '-' + scheme + '.png') });
+      await ps.keyboard.type('7k4'); await ps.screenshot({ path: path.join(SHOTS, U.id + '-pin-typed-' + w + '-' + scheme + '.png') }); await cs.close();
+    }
+    const c = await ctxOf(), p = watch(await c.newPage());
+    await p.goto(base + TPATH); await p.waitForSelector('#exPin:not([hidden])', { timeout: 10000 }).catch(() => fail('the start code on: no box'));
+    const look = await p.evaluate(() => { const b = document.getElementById('exPin'), s = document.getElementById('exStart'); return { focus: document.activeElement === b, ph: b.placeholder, above: b.getBoundingClientRect().bottom <= s.getBoundingClientRect().top + 1 }; });
+    if (!look.focus || look.ph !== 'Start code' || !look.above) fail('the box: ' + JSON.stringify(look));
+    await sayOnly(p, 'the start, with the start code');
+    const n0 = starts();
+    const refused = async (what, type) => {
+      if (type != null) { await p.fill('#exPin', ''); await p.type('#exPin', type); }
+      const r = p.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); if (type == null) await p.click('#exStart'); else await p.press('#exPin', 'Enter');
+      const res = await r, j = await res.json().catch(() => ({})); await sleep(120);
+      const st = await p.evaluate(() => { const b = document.getElementById('exPin'); return { v: b.value, anim: getComputedStyle(b).animationName, vis: !!b.offsetParent, start: !document.getElementById('exStart').hidden, closed: !document.getElementById('exClosed').hidden, focus: document.activeElement === b }; });
+      if (res.status() !== 403 || j.error !== 'pin' || st.v !== '' || st.anim !== 'exshake' || !st.vis || !st.start || st.closed || !st.focus) fail('the start code ' + what + ': ' + res.status() + ' ' + JSON.stringify(j) + ' ' + JSON.stringify(st));
+      await sayOnly(p, 'the start code ' + what);
+    };
+    await refused('empty', null);
+    let pin = site.state.open[K8].pin, wrong = pin.split('').reverse().join(''); if (wrong === pin) wrong = pin.slice(0, 3) + (pin[3] === 'Z' ? 'Y' : 'Z');
+    await refused('wrong', wrong);
+    skip(16 * 60000); await refused('lapsed', pin);
+    if (starts() !== n0) fail('a refused start code started a test');
+    const np = await (await fetch(base + '/teacher/api/test/pin', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) })).json();
+    pin = np.pin; if (!/^[23456789ABCDEFGHJKMNPQRSTVWXYZ]{4}$/.test(pin || '') || !(np.until > 0)) fail('New code: ' + JSON.stringify(np));
+    const typed = pin.slice(0, 2).toLowerCase() + ' ' + pin.slice(2).toLowerCase();
+    await p.fill('#exPin', ''); await p.type('#exPin', typed);
+    const shownV = await p.inputValue('#exPin'); if (shownV !== typed.toUpperCase()) fail('the box shows ' + shownV + ' for ' + typed);
+    const sent = p.waitForRequest(x => /\/api\/test\/start$/.test(x.url())); await p.press('#exPin', 'Enter');
+    const body = JSON.parse((await sent).postData() || '{}'); await p.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => fail('the right code did not start the test'));
+    if (body.pin !== pin) fail('Start sent ' + JSON.stringify(body));
+    const t = newest(), n1 = starts();
+    await p.reload(); await p.waitForSelector('#pgQ');
+    if (await p.isVisible('#exPin') || newest().id !== t.id || starts() !== n1 || site.log.filter(L => L.path === '/api/test/start').length !== site.log.filter(L => L.path === '/api/test/start').length) fail('a reload after starting asked for the code or started again');
+    await c.close();
+    ok('the start code on: the box (focused, “Start code”, over Start); empty, wrong and lapsed codes refused (403 pin; the box shakes, clears and keeps the focus; no new words; no test started); New code; “' + typed + '” shown as ' + shownV + ' and sent as ' + body.pin + ', the test started; a reload asks for nothing');
+    await put({ startCode: false });
   }
   async function phone() {
     const c = await ctxOf({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true }), p = watch(await c.newPage());

@@ -1369,3 +1369,13 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   every state (the start, a question, can't reach the site, Finish asked, Grading…, the end panel, locked, ended, closed), and
   the words in `exam.js` and `proctor.js`. With `--shots`: the start, a question, away, the bar, locked and the end panel, light
   and dark, at 1366 × 657 and 390 × 844.
+- **The start code** (16 Nov 2026, after the review of the site's side; `practice/exam/DESIGN.md`): when the site's status says
+  `{open: true, pin: true}`, the start screen has one box over Start, *Start code* its placeholder and its label, focused,
+  upper-cased as typed, Enter starts; Start sends `{course, unit, pin}` (upper-cased, spaces stripped); `403 {error: 'pin'}`
+  shakes and clears the box as the unlock box does, and `429` makes the box and Start wait a minute; no other words. A reload
+  of a started test never asks. With a start code asked for, New test goes back to the start screen and its box. The stand-in
+  has the same (`cfg.startCode`, a code per opening living 15 minutes on its clock, `POST /teacher/api/test/pin`), and a test
+  belongs to its opening there too (save, read and unlock `403 closed` once it is over; finish then commits the last saved
+  answers, `ended: 'teacher'`; the record's `site.opened`). Checked (part 8): no box with it off; with it on the box, empty,
+  wrong and lapsed codes refused with the shake and no new words and no test started, a new code, the right one typed in lower
+  case with a space, a reload asking nothing; with `--shots` the start screen with the box, light and dark, 1366 × 657 and 390.

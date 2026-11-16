@@ -4,9 +4,15 @@
    these. JSON both ways; a test's routes take its token as `Authorization: Bearer <token>`; the teacher's take
    `X-Teacher: <password>` (on the site, its password session). Times are milliseconds since 1970 (the site's clock).
 
-   GET  /api/test/status?course=&unit=   → {open}
-   POST /api/test/start {course, unit}   → {test, token, started, now, rule, show, form, pub}
-                                           403 {error: 'closed'} when not open; 409 {error: 'empty'} when no test is left
+   GET  /api/test/status?course=&unit=   → {open, pin}   pin: a start code is asked for (a boolean, never the code; 16 Nov 2026)
+   POST /api/test/start {course, unit, pin} → {test, token, started, now, rule, show, form, pub}
+                                           403 {error: 'closed'} when not open; 409 {error: 'empty'} when no test is left;
+                                           with cfg.startCode on: 403 {error: 'pin'} for a missing, wrong or lapsed code (compared
+                                           upper-cased, spaces stripped; a code lives 15 minutes on this clock); 429 {error: 'wait'}
+                                           after 60 wrong codes a minute from one address
+        A test belongs to its opening (16 Nov 2026): it is live only while the opening it began in is open and before its until;
+        a test that is not live: save, read, unlock → 403 {error: 'closed'}; finish commits the last saved answers, ended
+        'teacher'.
         rule: {leave: 'count' | 'lock' | 'end', after: N}   show: 'parts' | 'score'   form: the pre-filled link with CODE, or null
         pub: the drawn test's public half (exam_pool.js)
    GET  /api/test/<id>                   → the same again (no token in it), with {answers, flags, n, status}
@@ -23,13 +29,17 @@
    GET  /api/test/result/<code>                  → {code, record}   CORS *; here the record is base64 JSON, not locked
    GET  /api/test/key                            → {key: null}      CORS *; the stand-in signs nothing
    GET  /teacher/api/test/config                 → {rule, show, form, unlock: bool, hidden: [fams]}
-   PUT  /teacher/api/test/config {rule?, show?, form?, unlock?, hidden?} → the config (unlock: the code, kept hashed)
+   PUT  /teacher/api/test/config {rule?, show?, form?, unlock?, hidden?, startCode?} → the config (unlock: the code, kept hashed;
+                                                   startCode: true | false, a start code asked for at Start; default true)
    PUT  /teacher/api/test/pool/<course>/<unit> {forms: [{seed, pub, priv, fams}]} → {n}   (5 a request on the site)
-   POST /teacher/api/test/open {course, unit, until?} → {ok}    POST /teacher/api/test/close {course, unit} → {ok}
-   GET  /teacher/api/test/board                  → {tests: [{course, unit, open, started, finished}]}
+   POST /teacher/api/test/open {course, unit, until?} → {ok, opened}  (a new opening, with its first start code)
+   POST /teacher/api/test/close {course, unit} → {ok}
+   POST /teacher/api/test/pin {course, unit}     → {pin, until}   a new start code, 4 of 23456789ABCDEFGHJKMNPQRSTVWXYZ, 15 minutes
+   GET  /teacher/api/test/board                  → {tests: [{course, unit, open, started, finished, pin, pinUntil}]}
    GET  /teacher/api/test/results?course=&unit=&day= → {results: [{code, points, of, seconds, away, finished}]}
    Any other path under /api/ or /teacher/api/ → 404 {error}. Anything else is a file the caller handed in (opts.files).
 
+   The record's site block carries opened, the opening's id (ms).
    const S = require('./exam_site.js').create({units: {'m7/10': U}, password, files: {'/path': file or {type, body}}});
    S.listen(port) → Promise<port>; S.state (the store, for the checks); S.log (every response's body, for the checks). */
 'use strict';
@@ -37,25 +47,34 @@ const http = require('http'), crypto = require('crypto'), fs = require('fs'), pa
 const P = require(path.join(__dirname, '..', 'pack.js')), SV = require(path.join(__dirname, '..', 'exam', 'server.js'));
 const ABC = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';                 /* Crockford base 32 */
 const rnd = n => crypto.randomBytes(n).toString('hex'), sha = t => crypto.createHash('sha256').update(String(t)).digest('hex');
+const PINS = '23456789ABCDEFGHJKMNPQRSTVWXYZ', START_WINDOW_MS = 15 * 60000;
+const pin4 = () => { const b = crypto.randomBytes(4); let s = ''; for (let i = 0; i < 4; i++) s += PINS[b[i] % PINS.length]; return s; };
 const code12 = () => { const b = crypto.randomBytes(12); let s = ''; for (let i = 0; i < 12; i++) s += ABC[b[i] & 31]; return s; };
 
 function create(o) {
   const units = o.units || {}, files = o.files || {}, password = o.password || 'teacher';
-  const state = { cfg: { rule: { leave: 'count', after: 3 }, show: 'parts', form: null, unlock: null, hidden: [] }, pools: {}, open: {}, tests: {}, results: {}, now: o.now || (() => Date.now()) };
+  const state = { cfg: { rule: { leave: 'count', after: 3 }, show: 'parts', form: null, unlock: null, hidden: [], startCode: true }, pools: {}, open: {}, tests: {}, results: {}, now: o.now || (() => Date.now()) };
   const log = [];
-  const ukey = (c, u) => c + '/' + (+u);
+  const ukey = (c, u) => c + '/' + (+u), wrongPins = {};
+  const live = t => { const o = state.open[ukey(t.course, t.unit)]; return !!o && o.opened === t.opened && (!o.until || state.now() < o.until); };
   function itemsOf(t) { return t.items || (t.items = t.priv.map(x => P.unpack(x))); }
   function pubStart(t) { return { test: t.id, started: t.started, now: state.now(), rule: state.cfg.rule, show: state.cfg.show, form: state.cfg.form, pub: t.pub }; }
   const routes = [
-    ['GET', /^\/api\/test\/status$/, (q) => ({ open: !!state.open[ukey(q.query.course, q.query.unit)] })],
+    ['GET', /^\/api\/test\/status$/, (q) => { const open = !!state.open[ukey(q.query.course, q.query.unit)]; return { open, pin: open && !!state.cfg.startCode }; }],
     ['POST', /^\/api\/test\/start$/, (q) => {
       const k = ukey(q.body.course, q.body.unit);
       if (!state.open[k]) return [403, { error: 'closed' }];
+      if (state.cfg.startCode) {
+        const now = state.now(), ip = q.ip || '', w = (wrongPins[ip] || []).filter(x => now - x < 60000); wrongPins[ip] = w;
+        if (w.length >= 60) return [429, { error: 'wait' }];
+        const o = state.open[k], pin = String(q.body.pin == null ? '' : q.body.pin).toUpperCase().replace(/\s+/g, '');
+        if (!o.pin || pin !== o.pin || now >= o.pinUntil) { w.push(now); return [403, { error: 'pin' }]; }
+      }
       const pool = state.pools[k] || [], i = pool.findIndex(f => !f.used && !(f.fams || []).some(x => state.cfg.hidden.indexOf(x) >= 0));
       if (i < 0) return [409, { error: 'empty' }];
       const f = pool[i]; f.used = true;
       const id = rnd(8), token = rnd(16);
-      const t = state.tests[id] = { id, tok: sha(token), course: q.body.course, unit: +q.body.unit, seed: f.seed, pub: f.pub, priv: f.priv, answers: {}, flags: {}, n: 0, saves: 0, timeline: [],
+      const t = state.tests[id] = { id, tok: sha(token), opened: state.open[k].opened, course: q.body.course, unit: +q.body.unit, seed: f.seed, pub: f.pub, priv: f.priv, answers: {}, flags: {}, n: 0, saves: 0, timeline: [],
         parts: f.priv.length, started: state.now(), finished: null, status: 'open', verdicts: [], log: null, ended: null, unlocks: 0, tries: [], sealed: null };
       return Object.assign(pubStart(t), { token });
     }],
@@ -64,6 +83,7 @@ function create(o) {
     ['GET', /^\/api\/test\/([0-9a-f]{16})$/, (q, m, t) => Object.assign(pubStart(t), { answers: t.answers, flags: t.flags, n: t.n, status: t.status }), 'token'],
     ['PUT', /^\/api\/test\/([0-9a-f]{16})\/save$/, (q, m, t) => {
       if (t.status !== 'open') return [409, { error: 'finished' }];
+      if (!live(t)) return [403, { error: 'closed' }];
       const b = q.body; if (!(+b.n > t.n)) return { ok: true };
       const was = t.answers || {}, now = b.answers || {}, sec = Math.round((state.now() - t.started) / 1000);
       itemsOf(t).forEach(it => { if (JSON.stringify(was[it.id]) !== JSON.stringify(now[it.id])) t.timeline.push([sec, it.id]); });
@@ -72,12 +92,14 @@ function create(o) {
     }, 'token'],
     ['POST', /^\/api\/test\/([0-9a-f]{16})\/read$/, (q, m, t) => {
       if (t.status !== 'open') return [409, { error: 'finished' }];
+      if (!live(t)) return [403, { error: 'closed' }];
       const it = itemsOf(t).find(x => x.id === q.body.part); if (!it || it.type !== 'text') return [404, { error: 'part' }];
       const a = Object.prototype.hasOwnProperty.call(q.body, 'a') ? q.body.a : (it.sib ? t.answers[it.sib] : undefined);
       const r = SV.read(units[ukey(t.course, t.unit)], it, q.body.text == null ? '' : q.body.text, a);
       return { ok: r.ok, pretty: r.pretty };
     }, 'token'],
     ['POST', /^\/api\/test\/([0-9a-f]{16})\/unlock$/, (q, m, t) => {
+      if (!live(t)) return [403, { error: 'closed' }];
       const now = state.now(); t.tries = t.tries.filter(x => now - x < 60000);
       if (t.tries.length >= 5) return [429, { error: 'wait' }];
       t.tries.push(now); const ok = !!state.cfg.unlock && sha(String(q.body.code || '')) === state.cfg.unlock; if (ok) t.unlocks++;
@@ -86,7 +108,8 @@ function create(o) {
     ['POST', /^\/api\/test\/([0-9a-f]{16})\/finish$/, (q, m, t) => {
       const steps = Math.ceil(t.parts / 2);
       if (t.status !== 'open') return [409, { error: 'finished', steps }];
-      t.answers = q.body.answers || t.answers; t.log = q.body.log == null ? null : q.body.log; t.ended = q.body.ended || null;
+      if (!live(t)) { t.log = q.body.log == null ? null : q.body.log; t.ended = 'teacher'; }   /* the opening is over: the last saved answers */
+      else { t.answers = q.body.answers || t.answers; t.log = q.body.log == null ? null : q.body.log; t.ended = q.body.ended || null; }
       t.finished = state.now(); t.status = 'finished';
       return { steps };
     }, 'token'],
@@ -103,7 +126,7 @@ function create(o) {
       if (!t.sealed) {
         const items = itemsOf(t), code = code12(), sm = SV.summary(items, t.verdicts), seconds = Math.round((t.finished - t.started) / 1000);
         const record = { v: 1, id: t.id, code, course: t.course, unit: t.unit, cv: t.pub.cv, kit: t.pub.kit, seed: t.seed,
-          site: { started: t.started, finished: t.finished, saves: t.saves, timeline: t.timeline }, rule: state.cfg.rule, ended: t.ended, unlocks: t.unlocks,
+          site: { opened: t.opened, started: t.started, finished: t.finished, saves: t.saves, timeline: t.timeline }, rule: state.cfg.rule, ended: t.ended, unlocks: t.unlocks,
           parts: items.map((it, i) => ({ id: it.id, type: it.type, typed: t.answers[it.id] == null ? null : t.answers[it.id], v: t.verdicts[i].v, almost: !!t.verdicts[i].almost, key: it.keyText })),
           points: sm.points, of: sm.of, log: t.log };
         state.results[code] = { record, course: t.course, unit: t.unit, finished: t.finished, points: sm.points, of: sm.of, seconds, away: t.log && t.log.away ? t.log.away.length : 0 };
@@ -116,16 +139,19 @@ function create(o) {
     }, 'token'],
     ['GET', /^\/teacher\/api\/test\/config$/, () => cfgOut(), 'teacher'],
     ['PUT', /^\/teacher\/api\/test\/config$/, (q) => { const b = q.body;
-      ['rule', 'show', 'form', 'hidden'].forEach(k => { if (b[k] !== undefined) state.cfg[k] = b[k]; }); if (b.unlock !== undefined) state.cfg.unlock = b.unlock ? sha(String(b.unlock)) : null; return cfgOut(); }, 'teacher'],
+      ['rule', 'show', 'form', 'hidden', 'startCode'].forEach(k => { if (b[k] !== undefined) state.cfg[k] = b[k]; }); if (b.unlock !== undefined) state.cfg.unlock = b.unlock ? sha(String(b.unlock)) : null; return cfgOut(); }, 'teacher'],
     ['PUT', /^\/teacher\/api\/test\/pool\/([a-z0-9]+)\/(\d+)$/, (q, m) => { const k = ukey(m[1], m[2]); (state.pools[k] = state.pools[k] || []).push(...(q.body.forms || [])); return { n: state.pools[k].length }; }, 'teacher'],
-    ['POST', /^\/teacher\/api\/test\/open$/, (q) => { const k = ukey(q.body.course, q.body.unit); if (!(state.pools[k] || []).length) return [409, { error: 'no pool' }]; state.open[k] = { until: q.body.until || null }; return { ok: true }; }, 'teacher'],
+    ['POST', /^\/teacher\/api\/test\/open$/, (q) => { const k = ukey(q.body.course, q.body.unit); if (!(state.pools[k] || []).length) return [409, { error: 'no pool' }];
+      const now = state.now(); state.open[k] = { until: q.body.until || null, opened: now, pin: pin4(), pinUntil: now + START_WINDOW_MS }; return { ok: true, opened: now }; }, 'teacher'],
+    ['POST', /^\/teacher\/api\/test\/pin$/, (q) => { const o = state.open[ukey(q.body.course, q.body.unit)]; if (!o) return [409, { error: 'closed' }];
+      o.pin = pin4(); o.pinUntil = state.now() + START_WINDOW_MS; return { pin: o.pin, until: o.pinUntil }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/close$/, (q) => { const k = ukey(q.body.course, q.body.unit); delete state.open[k]; delete state.pools[k]; return { ok: true }; }, 'teacher'],
     ['GET', /^\/teacher\/api\/test\/board$/, () => ({ tests: Object.keys(state.open).map(k => { const [c, u] = k.split('/'), ts = Object.values(state.tests).filter(t => t.course === c && t.unit === +u);
-      return { course: c, unit: +u, open: true, started: ts.length, finished: ts.filter(t => t.status !== 'open').length }; }) }), 'teacher'],
+      return { course: c, unit: +u, open: true, pin: state.open[k].pin, pinUntil: state.open[k].pinUntil, started: ts.length, finished: ts.filter(t => t.status !== 'open').length }; }) }), 'teacher'],
     ['GET', /^\/teacher\/api\/test\/results$/, (q) => ({ results: Object.keys(state.results).map(code => Object.assign({ code }, state.results[code])).filter(r => (!q.query.course || r.course === q.query.course) && (!q.query.unit || r.unit === +q.query.unit))
       .map(r => ({ code: r.code, points: r.points, of: r.of, seconds: r.seconds, away: r.away, finished: r.finished })) }), 'teacher']
   ];
-  function cfgOut() { return { rule: state.cfg.rule, show: state.cfg.show, form: state.cfg.form, unlock: !!state.cfg.unlock, hidden: state.cfg.hidden }; }
+  function cfgOut() { return { rule: state.cfg.rule, show: state.cfg.show, form: state.cfg.form, unlock: !!state.cfg.unlock, hidden: state.cfg.hidden, startCode: !!state.cfg.startCode }; }
   const server = http.createServer((req, res) => {
     const u = new URL(req.url, 'http://x'), send = (st, body, cors) => {
       const h = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }; if (cors) h['Access-Control-Allow-Origin'] = '*';
@@ -141,7 +167,7 @@ function create(o) {
       const r = routes.find(x => x[0] === req.method && x[1].test(u.pathname));
       if (!r) return send(404, { error: 'no route' });
       let body = {}; if (raw) { try { body = JSON.parse(raw); } catch (e) { return send(400, { error: 'json' }); } }
-      const m = r[1].exec(u.pathname), q = { body, query: Object.fromEntries(u.searchParams), headers: req.headers };
+      const m = r[1].exec(u.pathname), q = { body, query: Object.fromEntries(u.searchParams), headers: req.headers, ip: req.socket.remoteAddress };
       let t = null;
       if (r[3] === 'token') { t = state.tests[m[1]]; const a = /^Bearer\s+([0-9a-f]+)$/.exec(req.headers.authorization || '');
         if (!t) return send(404, { error: 'no test' }); if (!a || sha(a[1]) !== t.tok) return send(401, { error: 'token' }); }
