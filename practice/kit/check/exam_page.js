@@ -329,7 +329,8 @@ function checkPub(f, WL) {
     const cb = await ctxOf({ viewport: { width: 1024, height: 768 }, hasTouch: true, isMobile: true });
     const B = await begin(cb), pb = B.p, ib = B.t.priv.map(x => P.unpack(x));
     const ki = textItem(ib), kq = await cardOf(pb, ki.id); await toQ(pb, kq);
-    await pb.tap('#a' + ki.id); await pb.waitForSelector('.keys:not([hidden]) [data-k]', { timeout: 8000 }).catch(() => fail('no keypad on the tablet'));
+    const keyless = Array.isArray(U.keypad) && !U.keypad.length;   /* a unit may have no keypad at all (M7 Units 7 and 13: plain numbers) */
+    await pb.tap('#a' + ki.id); if (!keyless) await pb.waitForSelector('.keys:not([hidden]) [data-k]', { timeout: 8000 }).catch(() => fail('no keypad on the tablet'));
     const key = await pb.evaluate(() => { const k = Array.prototype.find.call(document.querySelectorAll('.keys [data-k]'), b => !b.hidden && b.offsetParent); return k && k.getAttribute('data-k'); });
     if (key) { await pb.tap('.keys [data-k="' + key + '"]'); await sleep(400); }
     for (let i = 1; i <= 2; i++) { await leave(pb, 'tab', 900); if (await pb.isVisible('#exLock')) fail('locked on leaving ' + i); await back(pb); }
@@ -362,7 +363,7 @@ function checkPub(f, WL) {
     const kv = GB.parts[ki.id];
     if (key && (!kv || kv.vals[kv.vals.length - 1][2] !== 'keypad')) fail('a key of the keypad logged as ' + JSON.stringify(kv));
     if (GB.away.length !== 4 || RB.unlocks !== 2 || GB.device.touch !== true) fail('lock: ' + JSON.stringify({ away: GB.away, unlocks: RB.unlocks, touch: GB.device.touch }));
-    ok('lock after 3 (a touch tablet): open on leavings 1 and 2; locked on the third (the words, focus in the box, Escape does nothing); five wrong codes each cleared, the box still, no word, shaking only without reduced motion; the sixth try 429 and the box waits; the right code unlocks into full screen; the fourth leaving locks again; the record\'s unlocks 2; the keypad\'s “' + key + '” logged as keypad');
+    ok('lock after 3 (a touch tablet): open on leavings 1 and 2; locked on the third (the words, focus in the box, Escape does nothing); five wrong codes each cleared, the box still, no word, shaking only without reduced motion; the sixth try 429 and the box waits; the right code unlocks into full screen; the fourth leaving locks again; the record\'s unlocks 2; ' + (key ? 'the keypad\'s “' + key + '” logged as keypad' : 'no keypad in this unit'));
     await cb.close();
 
     /* C. end after 3, at 390 × 844 in dark: finished as it stands */
