@@ -8,6 +8,7 @@
 'use strict';
 const path = require('path'), fs = require('fs');
 module.exports = async function (newContext, url, U, dir, fail) {   /* contexts as students have the page (the pager on) */
+  if (newContext && typeof newContext.newContext === 'function') newContext = newContext.newContext.bind(newContext);   /* a browser will do */
   const F = m => fail('X. ' + m), file = path.join(dir, 'preview.html'), teacher = /^teacher$/.test(path.basename(dir));
   const m = /^([a-z]+\d+)u(\d+)$/.exec(U.id || ''); if (!m) return;
   const origin = new URL(url).origin, at = origin + '/' + m[1] + '/practice/unit-' + m[2] + '/';
