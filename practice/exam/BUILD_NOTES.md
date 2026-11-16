@@ -195,6 +195,10 @@ check/exam_page.js part 10.
   `navigator.keyboard.lock` is not proved (headless).
 - `device.zoom` is a ratio, evidence only. On an iPhone there is no full screen (`fs` false): only tab and window count.
 - An unlock or a start that cannot reach the site is treated as a refused code (no words): Croix may want the network line.
-- (§11, L5) Lengths now come from `performance.now()`. On ChromeOS (and Linux) that clock may stop while the device is
-  suspended (the lid shut), so a leaving that spans a closed lid is still counted, but its seconds may be short. Not proven
-  either way (headless); worth watching on the trial Chromebook (the review's checklist item 4).
+- (§11, L5) Lengths come from a steady count (`performance.now()`), one clock for `trace.js`, `proctor.js` and `exam.js`
+  (`window.KitExamClock`, the same lines in the three files, made by the first to load). On ChromeOS and Linux that count
+  may stand still while the device is suspended (the lid shut), so the clock takes a gap that opens **while the page is
+  hidden** from the device's own clock (over 2 s, under a day): a leaving across a closed lid has its real length, and a
+  change to the clock with the page in view still moves nothing (the L5 claim). Not proven on a Chromebook: whether its
+  page is marked hidden when the lid shuts — the trial's lid step settles it (if the count stood still and the page was
+  never hidden, the leaving is still counted on waking, with a short length).

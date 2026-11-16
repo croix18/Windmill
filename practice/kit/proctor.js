@@ -40,8 +40,19 @@ var $ = function(id){ return document.getElementById(id); };
 var de = document.documentElement;
 var FSAPI = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled), REFUSED = false, PENDING = false;
 var ON = false, O = null, PR = null, OPEN = null, MODE = null, INERT = [], TICK = 0, WAITING = 0, WAKE = null, TOUCH = 0;
-var MONO = Date.now() - performance.now();
-function now(){ return MONO + performance.now(); }        /* a steady count: a change to the device's clock moves no length (§11, L5) */
+/* the device's clock as a steady count (§11, L5): a change to the clock in the middle of the test moves no length. A device
+   that slept (the lid shut) may have a steady count that stood still meanwhile, so a gap that opens while the page is hidden is
+   taken from the clock (16 Nov 2026). The same lines in trace.js, proctor.js and exam.js; the first to load makes it. */
+var CLOCK = window.KitExamClock || (window.KitExamClock = (function(){
+  var mono = Date.now() - performance.now(), d0 = Date.now(), p0 = performance.now(), hid = document.visibilityState === 'hidden';
+  function wake(){ var d = Date.now(), p = performance.now(), gap = (d - d0) - (p - p0); d0 = d; p0 = p;
+    if (hid && gap > 2000 && gap < 864e5) mono += gap; hid = document.visibilityState === 'hidden'; }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') hid = true; wake(); });
+  document.addEventListener('freeze', function(){ hid = true; }); document.addEventListener('resume', wake);
+  window.addEventListener('pageshow', wake); window.addEventListener('focus', wake); setInterval(wake, 1000);
+  return {now: function(){ return mono + performance.now(); }};
+})());
+function now(){ return CLOCK.now(); }
 /* the screen stays awake during a test (§11, H5): asked for in the Start press, again each time the page is shown; released at
    Finish; where there is no wake lock, nothing */
 function wake(){

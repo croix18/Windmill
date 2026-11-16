@@ -64,9 +64,19 @@ var DEV = (function(){
   sput('exam.dev', d);
   return d;
 })();
-/* the device's clock, as a steady count: a change to the device's clock in the middle of the test moves nothing (§11, L5) */
-var MONO = Date.now() - performance.now();
-function dnow(){ return MONO + performance.now(); }
+/* the device's clock as a steady count (§11, L5): a change to the clock in the middle of the test moves no length. A device
+   that slept (the lid shut) may have a steady count that stood still meanwhile, so a gap that opens while the page is hidden is
+   taken from the clock (16 Nov 2026). The same lines in trace.js, proctor.js and exam.js; the first to load makes it. */
+var CLOCK = window.KitExamClock || (window.KitExamClock = (function(){
+  var mono = Date.now() - performance.now(), d0 = Date.now(), p0 = performance.now(), hid = document.visibilityState === 'hidden';
+  function wake(){ var d = Date.now(), p = performance.now(), gap = (d - d0) - (p - p0); d0 = d; p0 = p;
+    if (hid && gap > 2000 && gap < 864e5) mono += gap; hid = document.visibilityState === 'hidden'; }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') hid = true; wake(); });
+  document.addEventListener('freeze', function(){ hid = true; }); document.addEventListener('resume', wake);
+  window.addEventListener('pageshow', wake); window.addEventListener('focus', wake); setInterval(wake, 1000);
+  return {now: function(){ return mono + performance.now(); }};
+})());
+function dnow(){ return CLOCK.now(); }
 /* the end of the time (CHANGES-16NOV §10): the site says when this test stops being live (ends, ms, its clock), on Start, a
    reload and every save; the newest one is kept. The page saves SAVE_BEFORE before it and finishes END_BEFORE before it, by the
    ordinary Finish, so what was typed up to then is what the site commits (a finish that came after ends would commit only the

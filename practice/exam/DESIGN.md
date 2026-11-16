@@ -148,7 +148,7 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
   grade step and the seal that fail are tried again by themselves — 5 s, 10 s, 20 s, then every 30 s, and at once when the
   browser is back online — with "Can't reach the site…" and Try again up meanwhile; `409 order` takes the site's `next`, `409
   grading` on the seal grades again; a Finish refused for good puts the child back in the test with the proctor on), the clock
-  from the site's start (a steady count, `performance.now()`, so a change to the device's clock moves nothing), the results
+  from the site's start (a steady count, `performance.now()`, so a change to the device's clock moves nothing; a gap that opens while the page is hidden — the lid shut — is taken from the clock, so a sleep has its real length), the results
   panel (announced, `role="status"`, the focus on the code), Turn in (a real link to the form, `target="_blank"`, so a pop-up
   blocker cannot stop it; the code copied on the press and `Copied` shown). A reload whose GET is refused for a while (429,
   5xx, no network) goes on from the device's copy (the rule, the start time and the form link are kept there) and asks again;

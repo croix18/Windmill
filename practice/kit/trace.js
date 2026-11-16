@@ -26,8 +26,19 @@ var HEAD = 4, TAIL = 8, IDLE = 60000, SCRATCH_BYTES = 4096, POLL = 250, BEAT = 5
 var LOG_BYTES = 60 * 1024, VAL_CHARS = 80;                /* the log sent is never over 60 KB (the site keeps 64 KB); a value kept to 80 characters (§11, M6) */
 var PRE = 'exam.log.';
 var R = null, API = null, NAME = '', TIMER = 0, LAST_WRITE = 0, HOW = {}, KP = 0, RESUMED = false, SEEN = 0, HELD = false, ON = false;
-var MONO = Date.now() - performance.now();
-function now(){ return MONO + performance.now(); }        /* a steady count, set by the device's clock once a page load: a change to the clock in the middle of the test moves no length (§11, L5) */
+/* the device's clock as a steady count (§11, L5): a change to the clock in the middle of the test moves no length. A device
+   that slept (the lid shut) may have a steady count that stood still meanwhile, so a gap that opens while the page is hidden is
+   taken from the clock (16 Nov 2026). The same lines in trace.js, proctor.js and exam.js; the first to load makes it. */
+var CLOCK = window.KitExamClock || (window.KitExamClock = (function(){
+  var mono = Date.now() - performance.now(), d0 = Date.now(), p0 = performance.now(), hid = document.visibilityState === 'hidden';
+  function wake(){ var d = Date.now(), p = performance.now(), gap = (d - d0) - (p - p0); d0 = d; p0 = p;
+    if (hid && gap > 2000 && gap < 864e5) mono += gap; hid = document.visibilityState === 'hidden'; }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') hid = true; wake(); });
+  document.addEventListener('freeze', function(){ hid = true; }); document.addEventListener('resume', wake);
+  window.addEventListener('pageshow', wake); window.addEventListener('focus', wake); setInterval(wake, 1000);
+  return {now: function(){ return mono + performance.now(); }};
+})());
+function now(){ return CLOCK.now(); }
 function get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function put(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 function blank(v){ return v == null || (Array.isArray(v) ? v.every(function(x){ return !String(x == null ? '' : x).trim(); }) : typeof v === 'object' ? false : !String(v).trim()); }
