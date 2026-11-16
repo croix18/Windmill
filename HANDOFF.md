@@ -41,8 +41,14 @@ dated section in `practice/kit/README.md`):
   window it was being squeezed to 454 px and sized again on every resize); focus into the frame on open; a drag can
   never leave the frames without pointer events; a line and Try again when a calculator has not loaded. **His Desmos
   trouble ("it wouldnt respond when I was clicking clear") was not reproduced**: neither calculator's site can be reached
-  from a session, and a probe of the published M7 Unit 10 page found nothing over the frame at eight window sizes. He
-  has been asked which device it was on.
+  from a session, and a probe of the published M7 Unit 10 page found nothing over the frame at eight window sizes.
+  **What he then said (9:30 pm):** *"It was on my tablet, after I used the calculator and interacted back with the test
+  without closing the calculator then I clicked the next question. Then I tried to clear the desmos calculator and it's
+  wouldn't work right"* — it reacted only to the number pad. The likeliest cause is the one the hardening removes: on
+  the tablet, Next scrolls the page, the browser's address bar slides, the window changes height, and the old `calc.js`
+  sized the FAST frame again each time, so Desmos laid itself out again while it was not in use. The frame's inside is
+  now never sized again. If he still sees it on the new pages, the next thing to try is focus: a first touch on a frame
+  that has lost focus (a shield over the frame that takes that touch and focuses it — at the cost of one tap).
 - **The page makes room for a docked panel** (`window.KitDock` in both scripts, `check/dock.js`): scratch paper docks
   left, the calculator right, and the bar, the sheet and the map card center in what is left; under 520 px left, or
   dragged away from an edge, a panel floats as before.
