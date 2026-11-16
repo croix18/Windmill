@@ -391,13 +391,14 @@ function checkPub(f, WL) {
     for (let i = 0; i < 5; i++) await pd.evaluate(() => Kit.Trace.blocked('copy'));
     const di = textItem(idd), dq = await cardOf(pd, di.id); await toQ(pd, dq);
     await pd.click('#a' + di.id); for (let i = 0; i < 15; i++) await pd.keyboard.type(String(i % 10));
-    await pd.evaluate(([set, q]) => localStorage.setItem('practice.scratch.v1.' + set, JSON.stringify({ t: Date.now(), q: { [q]: { n: 'a'.repeat(3000), g: { v: [4, 1], o: [] } }, '1': { n: 'b'.repeat(1500), g: { v: [4, 1], o: [['p', 1, 2]] } } } })), ['exam.' + U.id + '.set.' + D4.t.id + '.all', String(dq + 1)]);
+    const oq = dq === 0 ? '2' : '1';        /* another question's notes, shorter */
+    await pd.evaluate(([set, q, o]) => localStorage.setItem('practice.scratch.v1.' + set, JSON.stringify({ t: Date.now(), q: { [q]: { n: 'a'.repeat(3000), g: { v: [4, 1], o: [] } }, [o]: { n: 'b'.repeat(1500), g: { v: [4, 1], o: [['p', 1, 2]] } } } })), ['exam.' + U.id + '.set.' + D4.t.id + '.all', String(dq + 1), oq]);
     const LD = await take(pd), vals = LD.parts[di.id], bytes = Buffer.byteLength(JSON.stringify(LD.scratch.end));
     const typed = []; for (let i = 0; i < 15; i++) typed.push('0123456789012345'.slice(0, i + 1));
     if (LD.visits.length !== 5 || LD.drop.visits !== LD.visits.length + LD.drop.visits - 5 || !(LD.drop.visits >= 4)) fail('visits capped: ' + LD.visits.length + ' kept, ' + LD.drop.visits + ' dropped');
     if (LD.blocked.length !== 3 || LD.drop.blocked !== 2) fail('blocked capped: ' + LD.blocked.length + ' kept, ' + LD.drop.blocked + ' dropped');
     if (!vals || vals.n !== 15 || vals.vals.length !== 12 || JSON.stringify(vals.vals.map(v => v[1])) !== JSON.stringify(typed.slice(0, 4).concat(typed.slice(7)))) fail('a part\'s values capped: ' + JSON.stringify(vals && { n: vals.n, kept: vals.vals.map(v => v[1]) }));
-    const e1 = LD.scratch.end['1'], e2 = LD.scratch.end[String(dq + 1)];
+    const e1 = LD.scratch.end[oq], e2 = LD.scratch.end[String(dq + 1)];
     if (bytes > 4096 || !LD.scratch.cut || !e1 || e1.n.length !== 1500 || e1.g.o.length !== 1 || !e2 || !(e2.n.length < 3000 && e2.n.length >= 1500)) fail('scratch paper capped: ' + bytes + ' bytes, cut ' + LD.scratch.cut + ', notes ' + (e1 && e1.n.length) + ' and ' + (e2 && e2.n.length));
     ok('the caps: visits kept 5 (the hook\'s cap), ' + LD.drop.visits + ' in drop; blocked 3, 2 in drop; a part\'s 15 values: the first 4 and the last 8, n 15; scratch paper ' + bytes + ' bytes, the longest notes cut first (3000 → ' + e2.n.length + ', 1500 kept), cut true');
     await cd.close();

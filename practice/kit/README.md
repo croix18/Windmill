@@ -798,6 +798,8 @@ teacher's view and print reserving nothing.
 | `exam_pool.js` | the test's pool, in a teacher copy at `#exam-pool`: n tests drawn for the cockpit, each `{seed, pub, priv, fams}`, proved by `exam/server.js` before it goes (15 Nov 2026, below); teacher builds only, with `pack.js` and `exam/server.js` |
 | `exam_unit.js` | the stub unit the test page runs on: the test's skeleton and the recorded view, no judge, solution, walk or key (15 Nov 2026, below) |
 | `exam.js`, `exam.css` | the test on the student's device: the start, the site's routes, the clock, Grading…, the results, Turn in (15 Nov 2026, below) |
+| `trace.js` | the test's log: everything the test page can see, in the pinned shape, kept on the device as it grows, sent at Finish, removed after the seal (16 Nov 2026, below); test page only |
+| `proctor.js` | the test's proctor: full screen at Start, each leaving counted and covered, Back to the test, the site's rule (count, lock, end), no copying or printing the sheet (16 Nov 2026, below); test page only |
 | `exam_link.js` | a student page on the site: Test on its start screen while the unit's test is open (15 Nov 2026, below) |
 | `exam/build_exam.py` | `python3 kit/exam/build_exam.py <unit>`: the test page and the site's bundle, gated on `check/pack.js`, checked by `check/exam_page.js` (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
@@ -1299,3 +1301,71 @@ the two cannot drift apart on a byte. Nothing on a practice page or a test page 
   site's key, another code; a record locked by someone holding Tally's public key and not the site's key is not shown; the four
   words; and `check/seal_vector.json` — a record locked on 16 Nov 2026 with keys made for that file — must open, so the format
   cannot change under records already turned in. It prints the time to lock and open the largest record (about 3 ms each).
+
+## 16 Nov 2026 — the proctor and the log (`proctor.js`, `trace.js`)
+The third stage of the test the site grades (`practice/exam/DESIGN.md`, "The log" and "The log's shape"). Croix, 15 Nov: a test
+mode — *full screen, the times a student navigated away shown on screen, the questions hard to copy*; of a student who leaves,
+*"Count it and show it. Give me the option in the cockpit to turn on lock or end after x amount of times."*; of the record, *"I
+want literally all the data that is possible to get."* Both files are on the test page only, before `exam.js` (`build_exam.py`);
+no practice page, teacher copy or FAST page has them, and no shared file has a hook for them: they watch the page from outside.
+- **Full screen at Start.** `exam.js` calls `Kit.Proctor.enter()` inside the Start press (a browser asks for a press). Where the
+  browser allows it Escape is kept for the page (`navigator.keyboard.lock`), so Escape closes the calculator without leaving full
+  screen; a press and hold still leaves. A test begun with no press (New test) opens under a cover with **Start**, which counts
+  nothing.
+- **Away.** The page hidden (`"tab"`: another tab or app), the window without focus (`"window"`: `document.hasFocus()`, polled
+  five times a second, so a click into the calculator's frame, part of this page, is not away), out of full screen where full
+  screen is available (`"fullscreen"`), or the page loaded again mid-test (`"reload"`). One leaving is one entry however many
+  signals fire, from the first signal to the press that brings the student back, and its kind is the strongest seen (reload, tab,
+  window, full screen). A loss of focus shorter than `GRACE` (1 s) with the page never hidden is logged nowhere and counted
+  nowhere, so a stray system pop-up never locks a child out.
+- **The cover.** While away the sheet is covered: opaque (`--ground`), everything under it `inert`, nothing under it readable;
+  its one button, **Back to the test**, takes the focus and brings the student back, into full screen again (its press is the
+  gesture). Escape and Tab do nothing there. The bar shows **Left the test: 2** once the count is not zero: solid coral with the
+  alarm's ink, the only coral on the page; on a phone it shares the answered line, so the clock and the buttons keep one row.
+- **The rule** comes from the site at start (`{leave, after}`). *Count only*: nothing more. *Lock after N*: from the Nth leaving
+  on, each leaving locks — **Locked. Ask your teacher.**, one box, **Unlock**; the code goes to `POST /api/test/<id>/unlock`; a
+  right one goes back to the test (and into full screen); a wrong one clears the box and shakes it (not with reduced motion) and
+  says nothing; after the site's five tries a minute (`429`) the box and Unlock wait a minute. *End after N*: the Nth leaving
+  finishes the test as it stands (`ended: 'left'`), and the end panel says **Test ended: left the test 3 times.** The end panel
+  always says **Left the test 2 times · 1 min 5 s** when the count is not zero, from the log's `away`.
+- **Not copied.** Outside the answer boxes and scratch notes the sheet cannot be selected (CSS and `selectstart`), copied, cut,
+  dragged, right-clicked, printed or saved: Ctrl/⌘+C, X, A, P and S, the context menu, `dragstart` and `beforeprint` are stopped
+  and each is a `blocked` entry; printed, the test page is nothing at all (`exam.css`). The boxes and the notes keep typing,
+  selection and paste; a paste into an answer box is counted in that part's `pastes`.
+- **The log** (`trace.js`), in exactly the pinned shape — `v, t0, t1, q, visits, parts, calc, scratch, away, blocked, idle,
+  device, fails, drop` — with `device.fs` added to the shape (full screen available on this device). Every `sec` is the
+  difference of two `at`s, so the visits add up to the test's length. The question on the screen comes from the page's own
+  `at()`; a part's values from the page's saves (`exam.js` hands each `S` on), `"typed"` for a keyboard's input, `"keypad"` for
+  the kit's on-screen keypad (its input is the page's own, not the browser's), `"tap"` for a choice, a number line or a circle
+  graph — the first 4 and the last 8 kept, `n` counting all; the calculator's openings from its panel (`fast` or `ti`, calc.js's
+  ids) and scratch paper's from its panel (Notes or Grid), a new entry when the calculator, the tab or the question changes; what
+  is on scratch paper at Finish from `scratch.js`'s own saved entry, 4 KB in all (the longest notes cut first, to one length that
+  fits; then the largest grids' last things); `idle` each stretch over a minute with nothing typed or tapped, never counted
+  while away; the device from `navigator.userAgentData` where there is one (else the user-agent string), the time zone's name,
+  the kit's dark and Larger text, and zoom as the window's outer width over its inner (a browser's zoom step within 3%). Caps:
+  300 visits, 100 of each other list, `drop` counting the rest. It is kept under `exam.log.<test>` (half a second after a change,
+  every 5 s, and when the page goes), so a reload loses nothing, and removed once the record is sealed. It never makes a request.
+- **Finish** asks in the bar with the list's words, **Finish** and **Back** (the practice page's question counts the blanks and
+  says Keep working). After Finish a question with only some parts right is **Not right** in the list.
+- **The words.** The test page shows only DESIGN.md's list (and New test and Copied, from stage 2): the map has no heading or
+  legend and on a phone shows its buttons in place of the drawer's line; "Question 4 of 16" is read to a screen reader only (the
+  number is on the question and the map); the unit's typing tip is not shown. The calculator's and scratch paper's own panels
+  and the ⋯ menu keep their words (`BUILD_NOTES.md` lists them for Croix).
+- **Checked** (`check/exam_page.js` part 7, run by `build_exam.py`, against `check/exam_site.js` in Chromium): full screen asked
+  for in the Start press; one leaving of each kind on questions 1, 2 and 3, logged with its kind, length and question and counted
+  once, the cover over the sheet at 25 points with the sheet inert and the focus on Back to the test, Escape and Tab staying on
+  it, back into full screen; a blur of 0.45 s and a click and typing in the calculator's frame, nothing; the coral count and
+  nothing else coral; a drag across the sheet selecting nothing, and Ctrl+A, C, X, the context menu, a drag, Ctrl+P, Ctrl+S and
+  the print event doing nothing and logged; printed, nothing; typing, Ctrl+A, copy and paste in an answer box and in scratch
+  notes, the paste counted; an idle stretch (the page's clock moved on 75 s); a failed save; a reload mid-test (the log the same,
+  one `"reload"` more, the cover); Finish's question; the whole log at Finish against the session (every field, the visits in
+  the session's order adding up to the test's length, typed and tapped values, the calculator's openings, scratch paper's
+  openings and its notes and point, four leavings, eight blocked, the idle stretch, the device, one failed save, nothing
+  dropped); the end panel's line; the log gone after the seal; no request but the page, the test routes and the calculator
+  opened. Lock after 3 on a touch tablet: the keypad's key logged `"keypad"`; locked on the third; five wrong codes, the box
+  shaking only without reduced motion; the sixth try `429` and the box waiting; the right code; locked again on the fourth; the
+  record's `unlocks` 2. End after 3 at 390 × 844 in dark: finished as it stood, both lines, the record's `ended`. The caps (the
+  visits' and the blocked list's lowered through `Kit.Trace.CAP`), a part's 15 values, 4 KB of scratch paper. The visible words of
+  every state (the start, a question, can't reach the site, Finish asked, Grading…, the end panel, locked, ended, closed), and
+  the words in `exam.js` and `proctor.js`. With `--shots`: the start, a question, away, the bar, locked and the end panel, light
+  and dark, at 1366 × 657 and 390 × 844.
