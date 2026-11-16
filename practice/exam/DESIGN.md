@@ -49,11 +49,22 @@ courses' test pages, Tally.
    start. When it lapses nobody can start until Croix presses **New code**; tests already started are untouched. So a
    student at home with the link cannot start one, and a test cannot be started long after the class began.
 6. **One start a browser, an opening.** The page makes a random id once (`exam.dev`, 32 hex) and sends it with Start; the
-   site keeps its hash on the test and refuses a second start from it in the same opening. A second browser or a cleared one
+   site keeps its hash on the test. A Start from it while its test in this opening is still open and live answers that test
+   again (a fresh token; the old one stops working), so a Start whose answer was lost on the way, or a New test pressed by
+   mistake, comes back to the same test; once that test is finished or sealed a second start is refused. A second browser or a cleared one
    still gets a test; this stops New test and the second tab, which is what a child without a script would do. A new opening
    (a retake day) starts clean.
 7. **Nothing typed is lost at the end of the time.** The site tells the page when its test stops being live (`ends`); the
    page saves just before it and finishes just before it by the ordinary Finish, on the site's clock, not the device's.
+8. **A child who did nothing wrong is never stuck, never loses work, and never looks like they left** (the review of the
+   test page, 16 Nov). When the site has ended a test the page ends it too, at once, whatever cover is up (a locked child
+   included); a save, a Finish, a grade step and the seal that fail are tried again by themselves until they get through;
+   Start is the same test again, not a second one, and New test never takes a result off the device until a new test has
+   really started; the screen is kept awake; a reload never loses the rule, the start time or the form link; the find keys
+   and a touch long-press do not count as leaving or as a right-click; the log is never too large to keep.
+
+**Known, and said to Croix** (16 Nov, not built): a wrong and a lapsed start code look the same to a child (the box shakes);
+a reload is a leaving, so "just refresh it" counts and, under Lock after N, can lock; students are not shown a countdown.
 
 Not covered, and said to Croix: a phone, a neighbor, someone else doing the mathematics. And everything the student's
 device reports about itself — the times away, the time on each question, the tool use — is evidence, not proof: it is
@@ -132,8 +143,21 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
 - **`exam.js`** — the test's own behavior on the page: Start (with the start code's one box when the site asks for one, and
   the browser's id; a refused code or a second start from this browser shakes the box, or Start, and says nothing), the end
   of the time (the newest `ends` the site gave, on the site's clock: a save 3 s before it, Finish 1 s before it; a `403
-  closed` mid-test finishes at once), the site's answers (start, resume, save, read, finish,
-  grade, seal), the clock from the site's start, the results panel, Turn in.
+  closed` or `409 finished` on a save, a read, an unlock or the reload's GET goes straight to grading and the seal, whatever
+  cover is up), the site's answers (start, resume, save, read, finish, grade, seal; a save, a Finish refused 429 or 5xx, a
+  grade step and the seal that fail are tried again by themselves — 5 s, 10 s, 20 s, then every 30 s, and at once when the
+  browser is back online — with "Can't reach the site…" and Try again up meanwhile; `409 order` takes the site's `next`, `409
+  grading` on the seal grades again; a Finish refused for good puts the child back in the test with the proctor on), the clock
+  from the site's start (a steady count, `performance.now()`, so a change to the device's clock moves nothing), the results
+  panel (announced, `role="status"`, the focus on the code), Turn in (a real link to the form, `target="_blank"`, so a pop-up
+  blocker cannot stop it; the code copied on the press and `Copied` shown). A reload whose GET is refused for a while (429,
+  5xx, no network) goes on from the device's copy (the rule, the start time and the form link are kept there) and asks again;
+  the test's id, token and the browser's id are in sessionStorage too, so a reload resumes when localStorage is full or
+  refused. New test never takes the result off the device until a new test has started. The not-open screen asks the status
+  again every 20 s while it is shown (never while hidden) and shows Start when the test opens; every "This test isn't open."
+  has Try again under it. A second tab of a finished test shows the results and the code.
+- **The screen stays awake** during a test (`navigator.wakeLock`, asked for in the Start press and again each time the page
+  is shown; released at Finish; where there is no wake lock, nothing) — `proctor.js`.
 - **`ui.js`, exam mode** (`window.KIT_EXAM`, set only by the test page): no mode switch, no What to practice, no set
   number, no Print, no Pause, no Start over, no Hint, no worked solution, no Try a similar one, before or after Finish;
   "can't read this yet" and the preview come from the site (`exam.js`), not from a local judge; Finish hands the answers
@@ -170,11 +194,11 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | Route | Who | Does |
 |---|---|---|
 | `GET /api/test/status?course=&unit=` | anyone | `{open, pin}` (`pin`: a start code is asked for — a boolean, never the code); cached 15 s |
-| `POST /api/test/start` `{course, unit, pin, dev}` | anyone, while open | `dev` the browser's id (32 hex), missing or malformed → `400 {error: 'body'}`; with the start code on, a missing, wrong or lapsed code → `403 {error: 'pin'}` (compared upper-cased, spaces stripped; the code is checked first — a right one is always taken; only wrong ones are counted, and past 60 a minute an address a wrong one is `429 {error: 'wait'}`); a second start from the same `dev` in the same opening → `403 {error: 'again'}`; takes the oldest-drawn unused test from the pool that holds no disapproved kind; makes `exam_test` (with the opening's id, the rule and Tally's key pinned to it); → `{test, token, started, now, ends, rule, show, form, pub}` (`pub` = the public half; `ends` the moment, ms on the site's clock, the test stops being live — the sooner of the opening's `until` and the test's deadline; it moves when the test is extended); starts 120 a minute an address |
+| `POST /api/test/start` `{course, unit, pin, dev}` | anyone, while open | `dev` the browser's id (32 hex), missing or malformed → `400 {error: 'body'}`; with the start code on, a missing, wrong or lapsed code → `403 {error: 'pin'}` (compared upper-cased, spaces stripped; the code is checked first — a right one is always taken; only wrong ones are counted, and past 60 a minute an address a wrong one is `429 {error: 'wait'}`); a Start from the same `dev` while its test in this opening is open and live → that test again with a fresh token (the old one stops working); once that test is finished or sealed → `403 {error: 'again'}`; takes the oldest-drawn unused test from the pool that holds no disapproved kind; makes `exam_test` (with the opening's id, the rule and Tally's key pinned to it); → `{test, token, started, now, ends, rule, show, form, pub}` (`pub` = the public half; `ends` the moment, ms on the site's clock, the test stops being live — the sooner of the opening's `until` and the test's deadline; it moves when the test is extended); starts 120 a minute an address |
 | `GET /api/test/<id>` | token | the same again (`ends` the newest), with the saved answers (a reload; never needs a code); 20 at once, then one every 3 s |
 | `PUT /api/test/<id>/save` `{answers, flags, n}` | token, live (its opening live, its deadline not passed; else `403 {error: 'closed'}`) | → `{ok: true, ends}`; keeps the newest (answers at most 24 KB); notes which parts changed and when (the site's own timeline, at most 1,500 entries) |
 | `POST /api/test/<id>/read` `{part, text}` | token, live | `{ok, pretty}` — never right or wrong; a `text` over 200 characters is not judged (`{ok: false, pretty: ''}`) |
-| `POST /api/test/<id>/unlock` `{code}` | token, live | `{ok}`; 5 tries a minute a test; the code checked first — a right one is always taken, and only wrong ones count toward 30 a minute an address, past which a wrong one is `429 {error: 'wait'}` |
+| `POST /api/test/<id>/unlock` `{code}` | token, live (a test not open → `409 {error: 'finished'}`) | `{ok}`; 5 tries a minute a test; the code checked first — a right one is always taken, and only wrong ones count toward 30 a minute an address, past which a wrong one is `429 {error: 'wait'}` |
 | `POST /api/test/<id>/finish` `{answers, log, ended?}` | token, once | commits (not live: the last saved answers, `ended: 'teacher'`, or `'time'` past the deadline); → `{steps}` |
 | `POST /api/test/<id>/grade` `{step}` | token | judges 2 parts; idempotent; → `{done, steps}` |
 | `POST /api/test/<id>/seal` | token | builds, signs, encrypts and stores the record; → `{code, points, of, parts:[{id, v}], seconds}` (`parts` only if the cockpit says to show them) |
@@ -196,6 +220,9 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
   it), `startCode` (`true` | `false`; default `true`; off, no code is asked for and starts are as before), `minutes` (the time
   allowed: a whole number from 10 to 600, or `null` for no limit; default 120; pinned to a test at Start as its deadline) and
   answers the config (which carries `minutes` too). A key that is not a Tally key → `400 {error: 'tally-key'}`. A different key clears `proven`.
+  **Lock needs a code** (16 Nov): a `PUT` that would leave `rule.leave: 'lock'` with no unlock code (in the store or in the same
+  body), or that clears the code while the rule is `lock`, → `400 {error: 'unlock'}`; `open` with such a config → `409
+  {error: 'unlock'}`. The card asks for the code when Lock after is chosen.
 - `POST /teacher/api/test/trial` → `{code}`: a trial record (`seal.newTrial`) locked to the pasted key and stored as a
   result under its code, so Tally fetches it as it will fetch a real one; `409 {error: 'no key'}` without a key. The cockpit
   does not show the four words. `POST /teacher/api/test/trial/confirm {code, words}`: the site works out
@@ -346,14 +373,16 @@ of one part).
  visits: [["4", at, sec], …],              // in order, at most 300
  parts: {"4a": {vals: [[at, value, how], …], n, pastes}},   // every value the part held (the first 4 and the last 8 kept;
                                            //   n counts them all) · how: "typed" | "keypad" | "tap" (a choice, a number line,
-                                           //   a circle graph) · pastes into its box
+                                           //   a circle graph — chosen, by touch, mouse or keyboard: Tally says "picked") ·
+                                           //   pastes into its box · a value is kept to 80 characters
  calc: [[which, "4", at, sec], …],         // each opening: which calculator (the kit's own id for it), the question
  scratch: {opens: [["notes" | "grid", "4", at, sec], …],
            end: {"4": {n: "the notes", g: {v: [4 | 1, scale], o: [["p",x,y], ["s",x1,y1,x2,y2], ["l",x1,y1,x2,y2]]}}},
            cut: false},                    // end: what was on it at Finish, in scratch.js's own saved form, 4 KB in all
                                            //   (the longest notes cut first; cut: true if anything was shortened)
  away: [[at, sec, kind, "4"], …],          // kind: "tab" (another tab or app) | "window" | "fullscreen" | "reload"
- blocked: [[at, what, "4"], …],            // what: "copy" | "cut" | "menu" | "print" | "selectall" | "drag" | "save"
+ blocked: [[at, what, "4"], …],            // what: "copy" | "cut" | "menu" | "print" | "selectall" | "drag" | "save" |
+                                           //   "find" (Ctrl/⌘+F, Ctrl/⌘+G, F3; added 16 Nov) — a touch long-press is not "menu"
  idle: [[at, sec, "4"], …],                // each pause of more than a minute with nothing typed or tapped
  device: {sw, sh, ww, wh, dpr, touch, os, osv, br, brv, dark, large, zoom, tz, fs},   // screen and window in CSS px · touch
                                            //   true/false · system and browser family and version (strings) · dark · the
@@ -363,6 +392,10 @@ of one part).
  drop: {visits, calc, scratch, away, blocked, idle}}   // entries past each list's cap (300 visits, 100 of each other)
 ```
 
+The page never sends a log over 60 KB (every string in a value kept to 80 characters; if the whole is still too large, the
+middle values of the parts with the most go first — `n` still counts them — then the oldest visits, `drop` counting them;
+never `away`, `blocked` or `device`); every length in it is from a steady count (`performance.now()`), and only `t0` and `t1`
+are the device's clock. Measured: the honest log at every cap at once with every value 200 characters is under 45 KB.
 The site takes the log as it comes (JSON, at most 64 KB — the honest log's caps add up to well under that; a larger or
 broken one, or one nested too deep to be turned to text, is kept as `null` and the test still finishes): it is the device's
 account, not the site's, and Tally shows everything in it as text, never as HTML, never trusted for length or type. The score
@@ -382,7 +415,8 @@ its class's others (with five or more records for that unit and day, a start mor
 start or after its median finish — "taken at 9:12–9:40 am; the rest of this class took it 1:05–1:50 pm"), and a record whose
 `site.opened` is not the class's most common one (and, where Tally knows the class's period, a start or finish outside it);
 leaving more times than the rule allowed with nothing to show for it (`lock` and `log.away` longer than `after` with
-`unlocks: 0`; `end` and `log.away` at least `after` with `ended` not `"left"`); a sitting over twice the class's median
+`unlocks: 0`; `end` and `log.away` at least `after` with `ended` not `"left"`); a record with no log (`log: null`) is a
+note on the test's page, "this device sent no log (or one too large to keep)"; a sitting over twice the class's median
 `seconds`; `ended: "teacher"` (the site closed it with what was saved) and `ended: "time"` ("ran out of time: the site closed
 it with what was saved"); `site.limit` is shown with the rule. A record nobody turned in is shown with its
 opening and its start and finish times, and Croix can give it to a student by hand (and take it back). The student's own
