@@ -38,10 +38,13 @@ courses' test pages, Tally.
    key whose private half never leaves Tally. A student can neither read one, change one nor make one.
 3. **The site's clock.** Start and finish are stamped by the site. A test is finished once.
 4. **A test exists only while Croix has it open, and belongs to the opening it began in.** Each opening has its own id
-   (`exam_open.opened`, ms), copied into a test at Start. A test is live only while that opening still exists and its
-   `until` has not passed; a unit opened again is a new opening, and the old one's tests are not live, whatever the unit's
-   state. A test that is not live takes no save, read or unlock (`403 {error: 'closed'}`); its finish is taken once and
-   commits the last saved answers, `ended: 'teacher'`.
+   (`exam_open.opened`, ms), copied into a test at Start, and each test has a **time allowed** (the config's `minutes`,
+   pinned at Start as its deadline, `started + minutes`), so a test started in 1st period cannot be answered in 6th. A test is
+   live only while that opening still exists and its `until` has not passed, **and** its own deadline has not passed; a unit
+   opened again is a new opening, and the old one's tests are not live, whatever the unit's state. A test that is not live
+   takes no save, read or unlock (`403 {error: 'closed'}`); its finish is taken once and commits the last saved answers,
+   `ended: 'teacher'` (the opening ended) or `'time'` (its deadline passed). The page treats a `403 closed` in the middle of a
+   test as the end of it: it finishes at once, as Finish does.
 5. **A start code.** While a test is open the cockpit shows a four-character code, good for 15 minutes; students type it to
    start. When it lapses nobody can start until Croix presses **New code**; tests already started are untouched. So a
    student at home with the link cannot start one, and a test cannot be started long after the class began.
@@ -160,10 +163,10 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | `GET /api/test/status?course=&unit=` | anyone | `{open, pin}` (`pin`: a start code is asked for — a boolean, never the code); cached 15 s |
 | `POST /api/test/start` `{course, unit, pin}` | anyone, while open | with the start code on, a missing, wrong or lapsed code → `403 {error: 'pin'}` (compared upper-cased, spaces stripped; wrong codes 60 a minute an address, then `429 {error: 'wait'}`); takes the oldest-drawn unused test from the pool that holds no disapproved kind; makes `exam_test` (with the opening's id, the rule and Tally's key pinned to it); → `{test, token, started, now, rule, show, form, pub}` (`pub` = the public half); starts 120 a minute an address |
 | `GET /api/test/<id>` | token | the same again, with the saved answers (a reload; never needs a code); 20 at once, then one every 3 s |
-| `PUT /api/test/<id>/save` `{answers, flags, n}` | token, live | keeps the newest (answers at most 24 KB); notes which parts changed and when (the site's own timeline, at most 1,500 entries) |
+| `PUT /api/test/<id>/save` `{answers, flags, n}` | token, live (its opening live, its deadline not passed; else `403 {error: 'closed'}`) | keeps the newest (answers at most 24 KB); notes which parts changed and when (the site's own timeline, at most 1,500 entries) |
 | `POST /api/test/<id>/read` `{part, text}` | token, live | `{ok, pretty}` — never right or wrong; a `text` over 200 characters is not judged (`{ok: false, pretty: ''}`) |
 | `POST /api/test/<id>/unlock` `{code}` | token, live | `{ok}`; 5 tries a minute a test, 30 a minute an address |
-| `POST /api/test/<id>/finish` `{answers, log, ended?}` | token, once | commits (not live: the last saved answers, `ended: 'teacher'`); → `{steps}` |
+| `POST /api/test/<id>/finish` `{answers, log, ended?}` | token, once | commits (not live: the last saved answers, `ended: 'teacher'`, or `'time'` past the deadline); → `{steps}` |
 | `POST /api/test/<id>/grade` `{step}` | token | judges 2 parts; idempotent; → `{done, steps}` |
 | `POST /api/test/<id>/seal` | token | builds, signs, encrypts and stores the record; → `{code, points, of, parts:[{id, v}], seconds}` (`parts` only if the cockpit says to show them) |
 | `GET /api/test/result/<code>` | anyone, CORS `*` | the locked record (it opens only in Tally) |
@@ -181,8 +184,9 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 - `GET /teacher/api/test/config` → `{rule: {leave: 'count'|'lock'|'end', after: N}, show: 'parts'|'score', form: link|null,
   unlock: bool, tally: {key: 'TALLY1.…'|null, proven: bool, at: ms|null}, site: {key, made}, startCode: bool}`. `PUT` takes
   any of `rule`, `show`, `form`, `unlock` (the code; kept hashed; `''` clears it), `tally` (the key as pasted; `null` clears
-  it), `startCode` (`true` | `false`; default `true`; off, no code is asked for and starts are as before) and answers the
-  config. A key that is not a Tally key → `400 {error: 'tally-key'}`. A different key clears `proven`.
+  it), `startCode` (`true` | `false`; default `true`; off, no code is asked for and starts are as before), `minutes` (the time
+  allowed: a whole number from 10 to 600, or `null` for no limit; default 120; pinned to a test at Start as its deadline) and
+  answers the config (which carries `minutes` too). A key that is not a Tally key → `400 {error: 'tally-key'}`. A different key clears `proven`.
 - `POST /teacher/api/test/trial` → `{code}`: a trial record (`seal.newTrial`) locked to the pasted key and stored as a
   result under its code, so Tally fetches it as it will fetch a real one; `409 {error: 'no key'}` without a key. The cockpit
   does not show the four words. `POST /teacher/api/test/trial/confirm {code, words}`: the site works out
@@ -227,10 +231,14 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
   the locked record, course, unit, finished). A pool goes when its test closes; a test's halves go when it is sealed;
   locked records stay.
 - **No test is lost.** A test still open whose opening has ended is finished by the site (lazily, on the teacher's
-  requests): the last saved answers, `ended: 'teacher'`, finished at the moment the opening ended. A test finished and not
-  sealed three minutes later (the lid shut during Grading…) is graded and sealed by the site, a few steps a request (at most
-  3 grade steps or one seal); the student's own page still finishes the job if it comes back first — the seal is once, so
-  the code is the same either way. A row is deleted 7 days after its start only if it is sealed, or was never finished and
+  requests): the last saved answers, `ended: 'teacher'`, finished at the moment the opening ended; one whose deadline has
+  passed the same, `ended: 'time'`, finished at the deadline. A test finished and not sealed three minutes later (the lid shut
+  during Grading…) is graded and sealed by the site, a few steps a request (at most 3 grade steps or one seal); the student's
+  own page still finishes the job if it comes back first — the seal is once, so the code is the same either way. This
+  sealing must never break the board: each try on a test is counted before it is made, and a test is left alone after two
+  tries that did not end in a seal (its student's page, or a later look, can still seal it). A record built from the largest
+  hostile answers and log is the one request that may not fit 10 ms; it must cost its author a code, never the teacher the
+  board. A row is deleted 7 days after its start only if it is sealed, or was never finished and
   holds no saved answer; a finished test is never deleted unsealed.
 - **The Worker** imports every published unit's bundle statically (start-up: 125 ms for 12 units, measured under Node;
   the limit is 1 s; `tools/build.mjs` measures it and stops the build past 600 ms, and checks the Worker's size).
@@ -244,7 +252,8 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 - **The cockpit's Test card:** each published unit of each course with **Open** (draws 120 in the hidden teacher copy,
   shows the count going up, uploads, opens) and **Close**, started and finished beside an open one; beside an open test
   `Start code  7K4M  · 12:40 left` with **New code** (lapsed: `No start code` and **New code**), its closing time, which he
-  can change, and **Add tests** (60 more) once fewer than 30 are left; the rule (Count only · Lock after N · End after N) and
+  can change, and **Add tests** (60 more) once fewer than 30 are left; **Time allowed** (60 min · 90 min · 120 min · No
+  limit); the rule (Count only · Lock after N · End after N) and
   the unlock code; Start code (On · Off); After Finish (Score and which were right · Score only); the form's pre-filled link
   (he fills the code question with `CODE` in Google Forms' own "Get pre-filled link" and pastes the link); Tally's key, and
   for its trial the code, a box for the four words Tally shows, and **Confirm**.
@@ -258,10 +267,11 @@ At seal the site builds the record, as JSON:
 
 ```
 {v: 1, id, code, course, unit, cv, kit, seed,              // which test: the unit, its version, the drawn test's seed
- site: {opened, started, finished, saves, timeline: [[seconds, part]…]},   // the opening's id; the site's own clock and
-                                                           //   what it saw saved
- rule: {leave, after}, ended: null | "left" | "teacher", unlocks,   // "teacher": the opening ended first (the site finished it
-                                                           //   with the last saved answers)
+ site: {opened, limit, started, finished, saves, timeline: [[seconds, part]…]},   // the opening's id; the time allowed
+                                                           //   (minutes, or null); the site's own clock and what it saw saved
+ rule: {leave, after}, ended: null | "left" | "teacher" | "time", unlocks,   // "teacher": the opening ended first; "time":
+                                                           //   the deadline passed (the site finished it with the last saved
+                                                           //   answers either way)
  parts: [{id, type, typed, v, almost, key}],               // v: right | wrong | blank | unread; almost: the value right, the form not
  points, of,
  log: {…}}                                                 // the device's own account (below)
@@ -358,7 +368,8 @@ start or after its median finish — "taken at 9:12–9:40 am; the rest of this 
 `site.opened` is not the class's most common one (and, where Tally knows the class's period, a start or finish outside it);
 leaving more times than the rule allowed with nothing to show for it (`lock` and `log.away` longer than `after` with
 `unlocks: 0`; `end` and `log.away` at least `after` with `ended` not `"left"`); a sitting over twice the class's median
-`seconds`; and `ended: "teacher"` (the site closed it with what was saved). A record nobody turned in is shown with its
+`seconds`; `ended: "teacher"` (the site closed it with what was saved) and `ended: "time"` ("ran out of time: the site closed
+it with what was saved"); `site.limit` is shown with the rule. A record nobody turned in is shown with its
 opening and its start and finish times, and Croix can give it to a student by hand (and take it back). The student's own
 data in a record (`parts[].typed`, everything in `log`) is shown as text, never as HTML. Synthetic rosters only in its
 tests.
