@@ -239,7 +239,7 @@ def convert(it):
         # stem has already named the form, so the boxes give nothing away. Any other equation is still left out.
         mb = slope_intercept(parts[0]["key"])
         if mb:
-            return {"type": "numeric", "template": ["$y=$", {"blank": 0}, "$x+$", {"blank": 1}],
+            return {"type": "numeric", "template": ["$y=$", {"blank": 0}, "$x+{}$", {"blank": 1}],      # "+{}": the plus set as a sign between two terms, with its spaces
                     "blanks": [{"accept": {"equals": [as_json(mb[0])]}}, {"accept": {"equals": [as_json(mb[1])]}}], "equation": True}
     if not parts or len(parts) > 2 or any(k != "number" for k in kinds):
         raise Out({"expression": "an expression to type", "equation": "an equation to type", "inequality": "an inequality to type",
