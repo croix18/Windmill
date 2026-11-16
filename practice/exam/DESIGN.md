@@ -1,7 +1,11 @@
 # The test: a unit test taken on the website, graded and signed by the site
 
-Design, 15 Nov 2026 (session `session_01W9n2WyAa6qRsqsdQj871ge`). Nothing here is built yet. `HANDOFF.md` (top) has
-Croix's words and choices; this file is the plan the builders work from. Change it here first, then build.
+Design, 15 Nov 2026 (session `session_01W9n2WyAa6qRsqsdQj871ge`). `HANDOFF.md` (top) has Croix's words and choices;
+this file is the plan the builders work from. Change it here first, then build.
+
+**Built so far** (kit, branch `exam`): `pack.js`, `judge.js`, `exam/server.js` with `check/pack.js` and
+`check/exam_server.js` — the page judges through `judge.js` (proved on 16,800 parts, before and after, no difference),
+and the site's verdicts are the page's on every unit that packs. Everything else below is still to build.
 
 ## What Croix asked for
 
@@ -51,7 +55,7 @@ recorded by a page a programmer could tamper with. The answers, the score and th
                                                                  ◀──save───  drawn HTML; answers, flags, the log
                                                                  ◀──read───  "can't read this yet", the preview
                                                                  ◀─finish──  Finish: answers and the log
-                                   judges 3 parts a request      ◀─grade×N─
+                                   judges 2 parts a request      ◀─grade×N─
                                    seals: record → signed →      ◀──seal───
                                    encrypted → exam_result,
                                    answers with the short code ───────────▶  score, time, times away, the code,
@@ -66,7 +70,8 @@ Drawing a test takes 1.4–8.5 ms on average and up to 90 ms cold (measured, all
 at 10 ms. His browser has no such limit and already has the whole unit behind the password, in the teacher copy. So
 *Open test* draws the tests there and hands them to the site. A pool is 120 tests (more than any course's students in a
 day), each given to one student only, never twice in a day. Judging is light enough for the site: a whole test is
-0.3–5 ms on average and up to 17 ms cold, so the site judges **three parts a request**.
+0.3–5 ms on average and up to 17 ms cold, so the site judges **two parts a request**, and warms each unit's judge when the Worker
+starts (a first, cold call of three parts measured up to 9.99 ms on A7 Unit 3; warm, 0.02–0.24 ms).
 
 ### Why the page code is the kit's own
 The test must look and work exactly as "Like the real test" does on the practice page: the keypad, the boxes, the number
@@ -80,10 +85,11 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
 
 ### 1. Kit (`practice/kit/`), all on the practice kit's rules (its own modules, small hooks, checks, README, manifest)
 
-- **`pack.js`** — `pack(part)` / `unpack(text)`: a part as text and back, BigInt kept exact. **Rule (new, checked for
-  every unit by `check/run.py`): a part survives it** — after `unpack(pack(p))` the part judges every answer as before.
-  A7 Unit 11's story part breaks it today (three functions inside the part: `st.say`, `st.ask`, `st.amt`); it is fixed
-  in that unit, not worked around here.
+- **`pack.js`** — `pack(part)` / `unpack(text)`: a part as text and back, BigInt kept exact; it refuses a function
+  rather than dropping it. **Rule (new, `check/pack.js`): a part survives it** — after `unpack(pack(p))` the part judges
+  every answer as before. The check gates a unit's **test page and bundle**, never its practice page. A7 Unit 11's 14(a)
+  breaks it today (three functions inside the part: `st.say`, `st.ask`, `st.amt`; 14(b) fails with it, being its
+  part (b)); it is fixed in that unit, not worked around here.
 - **`judge.js`** — the judging `ui.js` does (`judgeAns`, `equivUp`, `equivBoxes`, `formOf`, `tidy`, `boxAns`,
   `answered`, and what `finish()` does to a part in *Like the real test*), moved out of `ui.js` into one pure module
   that `ui.js` calls and the site calls. One source, so a practice page and a test can never disagree on an answer.
@@ -96,6 +102,11 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
   - the **private half**: `ITEMS` as the page built them — id, type, the part packed, its sibling, position, label —
     and each part's `keyText`;
   - having first proved the test on itself: every key judged right through `unpack(pack())`, and a wrong answer wrong.
+  **How the cockpit asks** (same origin, `postMessage`, the origin checked both ways): the cockpit loads the unit's
+  teacher copy in a hidden frame at `…/practice/#exam-pool`; the copy says `{kit: 'exam-pool', ready: true, course,
+  unit, cv, kitv}`; the cockpit says `{kit: 'exam-pool', draw: n}`; the copy answers in batches of 5,
+  `{kit: 'exam-pool', forms: [{seed, pub, priv, fams}], done, of}` (`priv` an array of packed items, `fams` the kinds
+  of question in the test, for the approvals), or `{kit: 'exam-pool', error}`.
 - **`exam_unit.js`** — the stub unit (above).
 - **`exam.js`** — the test's own behavior on the page: Start, the site's answers (start, resume, save, read, finish,
   grade, seal), the clock from the site's start, the results panel, Turn in.
@@ -110,9 +121,11 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
   cut, context menu, drag, print or save of the sheet (answer boxes and scratch notes still take typing); the cockpit's
   rule — count only, lock after N (a code typed on the device, checked by the site), end after N (Finish as it stands).
 - **`trace.js`** — the log (below).
-- **`exam/server.js`** — pure, no DOM, runs under Node and in the Worker: `read(unit, part, text)` →
-  `{ok, pretty}`; `grade(unit, items, answers, verdicts, from, n)` → the next verdicts (a sibling's verdict feeds its
-  part, as `ctxOf` does); `summary(items, verdicts)` → points.
+- **`exam/server.js`** — pure, no DOM, runs under Node and in the Worker: `read(U, item, text, a)` →
+  `{ok, pretty}` (`a` = the answer in its part (a), which the page's own reading uses; `pretty` one a box; `ok` false
+  only where the page says "Can't read this yet"); `grade(U, items, answers, verdicts, from, n)` → the next verdicts
+  `{v, almost}` (a sibling's answer and verdict feed its part, as `ctxOf` does; "Almost" — the value right, the form not
+  — is `wrong` with `almost: true`); `summary(items, verdicts)` → points.
 - **Builds:** for each unit, beside the page and the teacher copy: the **test page** (kit CSS and code, the unit's own
   CSS, KaTeX, fonts, `calc.js`, `scratch.js`, `exam_unit.js`, `exam.js`, `proctor.js`, `trace.js`; none of the unit's
   scripts) and the **site's bundle** (the unit's scripts and the kit files they require, as they stand in that unit,
@@ -139,7 +152,7 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | `POST /api/test/<id>/read` `{part, text}` | token | `{ok, pretty}` — never right or wrong |
 | `POST /api/test/<id>/unlock` `{code}` | token | `{ok}`; 5 tries a minute |
 | `POST /api/test/<id>/finish` `{answers, log, ended?}` | token, once | commits; → `{steps}` |
-| `POST /api/test/<id>/grade` `{step}` | token | judges 3 parts; idempotent; → `{done, steps}` |
+| `POST /api/test/<id>/grade` `{step}` | token | judges 2 parts; idempotent; → `{done, steps}` |
 | `POST /api/test/<id>/seal` | token | builds, signs, encrypts and stores the record; → `{code, points, of, parts:[{id, v}], seconds}` (`parts` only if the cockpit says to show them) |
 | `GET /api/test/result/<code>` | anyone, CORS `*` | the locked record (it opens only in Tally) |
 | `GET /api/test/key` | anyone, CORS `*` | the site's public signing key |
@@ -159,7 +172,9 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 - **The Worker** imports every published unit's bundle statically (start-up: 125 ms for 12 units, measured under Node;
   the limit is 1 s; `tools/build.mjs` measures it and stops the build past 600 ms). Generating, drawing HTML and
   compressing a pool never happen in the Worker.
-- **Budget, Free plan:** every request above stays under 10 ms by doing one small thing; a grade step is 3 parts. A
+- **Budget, Free plan:** every request above stays under 10 ms by doing one small thing; a grade step is 2 parts, and
+  each unit's bundle carries one drawn test that the Worker judges once at start-up (inside the 1 s start-up allowance), so
+  no student's request pays for the judge's first call. A
   student's test is about 60 requests (a save a minute and on a question change, at most one every 20 s; a read a part;
   a dozen grade steps), so 150 students in a day are about 10,000 of the day's 100,000.
 - **The cockpit's Test card:** each published unit of each course with **Open** (draws 120 in the hidden teacher copy,
@@ -179,7 +194,7 @@ At seal the site builds the record, as JSON:
 {v: 1, id, code, course, unit, cv, kit, seed,              // which test: the unit, its version, the drawn test's seed
  site: {started, finished, saves, timeline: [[seconds, part]…]},   // the site's own clock and what it saw saved
  rule: {leave, after}, ended: null | "left" | "teacher", unlocks,
- parts: [{id, type, typed, v, key}],                       // v: right | wrong | blank | unread
+ parts: [{id, type, typed, v, almost, key}],               // v: right | wrong | blank | unread; almost: the value right, the form not
  points, of,
  log: {…}}                                                 // the device's own account (below)
 ```
