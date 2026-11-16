@@ -153,6 +153,34 @@ unit assessments, the regular practice tests, the deckhand bellwork, everything 
 - **The site** (its README, "The generated FAST tests"): the test starts at Level 3 and goes one level up or down; the
   report's Level column is the state's level; `released/kit/fast.css` lays out pictures as choices (graphs two by two,
   number lines one under another).
+- **Where it stands (15 Nov, 10:10 pm): all three are on 29.28.** Cadence `60f1e7b`. Site `8ef9619`: its copy of Cadence;
+  the FAST bank (K6LCR, made at Windmill `dea30f8`: y = ☐x + ☐ on one line of a phone, the plus sign with its spaces);
+  the practice pages and teacher copies of M7 Units 4 and 10 and A7 Units 3–6 with their lesson banks made again (M7 Unit
+  9's bank gives the same page, byte for byte). M7 `4cf5f2a` (Units 4, 8, 9, 10; **Unit 8's bank and pages are made
+  again in its repository and stay off the site**, hold.json) and A7 `f2af198` (Units 3–6). Only those pages and teacher
+  copies were copied to the site, as `publish_web.py` copies them: its slides and packages were not run.
+- **Two chats built the same pages that evening.** The practice kit's words pass (both courses, 8:56 and 9:07 pm, the
+  site at 9:16) landed while the banks' pages were being checked. The banks were made again and all sixteen checks
+  (eight pages, eight teacher copies) run again on top of it, each ALL CHECKS PASSED; every page then differed from
+  the published one in its inlined bank and nowhere else. **Fetch before a unit's check, not only before the push.**
+- **What changed in the lesson banks** (Cadence 29.16 → 29.28, G and H only): numbers of a thousand or more are written
+  with their comma in keys and solutions ("2,422": the kit's reader takes it with or without — all 3,794 typed keys
+  of the eight banks were put through `Ans.equiv` both ways, 58 of them with a comma); triangles drawn to their
+  angles where a note said "Not drawn to scale", grid lines a little darker; new draws of some generators; M7 Unit
+  10's 28 "which number line?" items read from Cadence's drawn choices and built on a line from −5 to 5.
+- **`cadence_bank.py --check` compares the Cadence commit as well**, so any commit to Cadence, notes included, makes it
+  say a bank differs (`cadence_fast.py --check` leaves the commits out). The tool's own hash is in every bank, so
+  changing it remakes all eight and their sixteen checks: left as it is. For that reason Cadence's notes were not
+  touched after `60f1e7b`; three things for its next session are here instead:
+  1. A four-part choice figure is cut by its bold letters (11 px over a graph, 13 px at x = 14 before a number line) and
+     each part's own drawing, which must be plain shapes (line, circle, rect, polygon, polyline, a path of M and L, text):
+     a group, a transform or a curve command leaves the figure whole with its choices in words.
+  2. In the four small line graphs of L2 MA.8.DP.1.1 [0] and L4 [1] the axis name x stands right after the last number
+     of the axis, raised: "10" and "x" read as a power. Seen on the FAST practice; not changed.
+  3. Its HANDOFF §44 says a check that sets every string with `throwOnError` "belongs in the suite": it is in it
+     (`tools/tex/typesettest.js`, the 61st check; its CHANGELOG says so).
+- **Never made:** M7 Units 5, 7 and 13 and A7 Unit 11 have no lesson bank (`DEFAULT_UNITS` in `tools/cadence_bank.py` is
+  M7 4, 8, 9, 10 and A7 3–6), so their practice pages offer no lesson sets. Not asked for that evening.
 
 ## The practice kit has `cgraph` — a circle graph the student builds (15 Nov 2026, evening; M7 Unit 7 is its first user)
 
