@@ -165,6 +165,27 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | `GET /teacher/api/test/results?course=&unit=&day=` | password | that day's locked records in one file, for Tally without a network; and each code's score, seconds, times away and finish time in the clear |
 | `POST /teacher/api/test/trial` / `…/trial/confirm` | password | a trial record sealed to the key just pasted, and the confirmation that Tally opened it (the key is then proven) |
 
+**The teacher's routes, exactly** (pinned 16 Nov; the student's routes are exactly `check/exam_site.js`'s):
+- `GET /teacher/api/test/config` → `{rule: {leave: 'count'|'lock'|'end', after: N}, show: 'parts'|'score', form: link|null,
+  unlock: bool, tally: {key: 'TALLY1.…'|null, proven: bool, at: ms|null}, site: {key, made}}`. `PUT` takes any of `rule`,
+  `show`, `form`, `unlock` (the code; kept hashed; `''` clears it), `tally` (the key as pasted; `null` clears it) and answers
+  the config. A key that is not a Tally key → `400 {error: 'tally-key'}`. A different key clears `proven`.
+- `POST /teacher/api/test/trial` → `{code, words}`: a trial record (`seal.newTrial`) locked to the pasted key and stored as a
+  result under its code, so Tally fetches it as it will fetch a real one; `409 {error: 'no key'}` without a key.
+  `POST /teacher/api/test/trial/confirm {code}` → `{proven: true}` for the newest trial's code only (`409 {error: 'trial'}`).
+- `PUT /teacher/api/test/pool/<course>/<unit>` `{forms: [{seed, pub, priv, fams}], reset?: true}` → `{n}` (the pool's size
+  now). `reset` on the first chunk empties the unit's pool; `409 {error: 'open'}` while that test is open; `409 {error:
+  'version', cv, kit}` if a test's `pub.cv` or `pub.kit` is not the site's bundle's (a stale teacher copy).
+- `POST /teacher/api/test/open {course, unit, until?, n}` → `{ok, until}`; `409 {error: 'unproven'}` until the pairing is
+  proven, `409 {error: 'pool', n}` unless the site holds exactly the `n` tests the cockpit drew, `404 {error: 'unit'}` for a
+  unit with no bundle. `until` defaults to 4:15 pm school time (America/New_York) that day. `POST …/close {course, unit}`.
+- The kinds a test must not hold are the site's own approvals for that unit (`items.js`): a drawn test with a
+  disapproved kind among its `fams` is never handed out. There is no second place to disapprove.
+- `GET /teacher/api/test/board` → `{tests: [{course, unit, open, until, pool, started, finished}]}`.
+- `GET /teacher/api/test/results?course=&unit=&day=YYYY-MM-DD` → `{site: {key}, results: [{code, course, unit, points, of,
+  seconds, away, awaySeconds, finished, record}]}` (`record` the locked text) — the file Tally opens without a network, and
+  the scores that survive a lost key.
+
 - **Store** (SiteStore, SQLite): `exam_cfg`, `exam_key` (the signing pair, made on first use, as the push key is),
   `exam_open`, `exam_pool` (a row a drawn test; the private half one packed part a row so a grade step reads three),
   `exam_test` (id, token hash, course, unit, the test's two halves copied in at start, answers, verdicts, the site's
@@ -240,6 +261,39 @@ key; the detail does not. Tally says so when it makes the key and offers the Ful
 - each pause of more than a minute with nothing typed or tapped;
 - the device: screen and window size, touch or not, the system and browser family and version, dark or light, Larger
   text, zoom, its clock at start and at Finish, saves that failed.
+
+**The log's shape** (pinned 16 Nov, so `trace.js` and Tally are built to one contract; a field the page cannot fill is
+`null`, never renamed or left out). Every `at` is whole seconds from `t0` on the device's clock; every `sec` whole seconds.
+A question is the number on the sheet (`"4"`); a part is its id in the record's `parts` (`"4a"`, or `"4"` for a question
+of one part).
+
+```
+{v: 1,
+ t0, t1,                                   // the device's clock (ms since 1970) when the test first appeared, and at Finish
+ q: {"4": {sec, visits, first, flag, flagEnd}},        // seconds on screen · times visited · seconds on screen before its
+                                           //   first answer (null: never answered) · flagged at any time · flagged at Finish
+ visits: [["4", at, sec], …],              // in order, at most 300
+ parts: {"4a": {vals: [[at, value, how], …], n, pastes}},   // every value the part held (the first 4 and the last 8 kept;
+                                           //   n counts them all) · how: "typed" | "keypad" | "tap" (a choice, a number line,
+                                           //   a circle graph) · pastes into its box
+ calc: [[which, "4", at, sec], …],         // each opening: which calculator (the kit's own id for it), the question
+ scratch: {opens: [["notes" | "grid", "4", at, sec], …],
+           end: {"4": {n: "the notes", g: {v: [4 | 1, scale], o: [["p",x,y], ["s",x1,y1,x2,y2], ["l",x1,y1,x2,y2]]}}},
+           cut: false},                    // end: what was on it at Finish, in scratch.js's own saved form, 4 KB in all
+                                           //   (the longest notes cut first; cut: true if anything was shortened)
+ away: [[at, sec, kind, "4"], …],          // kind: "tab" (another tab or app) | "window" | "fullscreen" | "reload"
+ blocked: [[at, what, "4"], …],            // what: "copy" | "cut" | "menu" | "print" | "selectall" | "drag" | "save"
+ idle: [[at, sec, "4"], …],                // each pause of more than a minute with nothing typed or tapped
+ device: {sw, sh, ww, wh, dpr, touch, os, osv, br, brv, dark, large, zoom, tz},   // screen and window in CSS px · touch
+                                           //   true/false · system and browser family and version (strings) · dark · the
+                                           //   kit's Larger text · zoom (1 = 100%) · the time zone's name
+ fails,                                    // saves that failed
+ drop: {visits, calc, scratch, away, blocked, idle}}   // entries past each list's cap (300 visits, 100 of each other)
+```
+
+The site takes the log as it comes (JSON, at most 96 KB; a larger or broken one is kept as `null` and the test still
+finishes): it is the device's account, not the site's. The score sheet's `Left the test 2 times · 1 min 5 s` and the
+clear `away` beside a locked record are `log.away`'s length and the sum of its seconds.
 
 ### 4. Tally
 
