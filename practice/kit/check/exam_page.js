@@ -100,7 +100,7 @@ function checkPub(f, WL) {
   const ck = await cp.evaluate(() => ({ ready: window.ready, batches: window.batches, err: window.err }));
   if (ck.err) fail('the pool: ' + ck.err);
   if (!ck.ready || ck.ready.course !== COURSE || ck.ready.unit !== UNIT || ck.ready.cv !== U.contentVersion || !/^[0-9a-f]{12}$/.test(ck.ready.kitv)) fail('the ready message: ' + JSON.stringify(ck.ready));
-  if (ck.batches.some(x => x.n > 5) || ck.batches[ck.batches.length - 1].done !== NDRAW) fail('the batches: ' + JSON.stringify(ck.batches));
+  if (!ck.batches.length || ck.batches.some(x => x.n > 5) || ck.batches[ck.batches.length - 1].done !== NDRAW) fail('the batches: ' + JSON.stringify(ck.batches));
   const pool = site.state.pools[COURSE + '/' + UNIT] || [];
   if (pool.length !== NDRAW) fail('the stand-in holds ' + pool.length + ' tests, not ' + NDRAW);
   if (new Set(pool.map(f => f.seed)).size !== pool.length || pool.some(f => !/^[0-9a-f]{32}$/.test(f.seed))) fail('the seeds are not 128-bit and distinct');
@@ -164,7 +164,7 @@ function checkPub(f, WL) {
   let reads = 0;
   site.log.forEach(L => {
     if (/^\/teacher\//.test(L.path) || /\/seal$/.test(L.path) || /\/result\//.test(L.path)) return;
-    if (/"keyText"|"sibPart"|"priv"|"verdicts"|"(right|wrong)"|"almost"/.test(L.body)) fail('a response of ' + L.method + ' ' + L.path + ' before seal: ' + L.body.slice(0, 120));
+    if (/"keyText"|"sibPart"|"priv"|"verdicts"|"v":"(right|wrong|blank|unread)"|"almost"/.test(L.body)) fail('a response of ' + L.method + ' ' + L.path + ' before seal: ' + L.body.slice(0, 120));
     if (/\/read$/.test(L.path) && L.status === 200) { reads++; const k = Object.keys(JSON.parse(L.body)).sort().join(','); if (k !== 'ok,pretty') fail('read answered ' + k); }
   });
   ok(site.log.length + ' responses of the stand-in searched; ' + reads + ' reads, each {ok, pretty}');
@@ -233,13 +233,13 @@ function checkPub(f, WL) {
       if (items[j].type === 'nline' && shotsOn && !fs.existsSync(path.join(SHOTS, U.id + '-nline-1366-light.png'))) await shot(p, 'nline-1366-light');
       if (j === Math.floor(items.length / 2)) {           /* a reload, mid-test */
         await sleep(300);
-        const before = await p.evaluate(() => ({ html: document.getElementById('paper').innerHTML.length, vals: Array.prototype.map.call(document.querySelectorAll('#paper input[type=text]'), e => e.value), map: Array.prototype.map.call(document.querySelectorAll('#pgGrid button'), b => b.className.split(/\s+/).filter(Boolean).sort().join(' ')) }));
+        const before = await p.evaluate(() => ({ html: (() => { const c = document.getElementById('paper').cloneNode(true); c.querySelectorAll('.pv, .rd').forEach(e => { e.innerHTML = ''; }); return c.innerHTML.replace(/ pg-on/g, ''); })(), vals: Array.prototype.map.call(document.querySelectorAll('#paper input[type=text]'), e => e.value), map: Array.prototype.map.call(document.querySelectorAll('#pgGrid button'), b => b.className.split(/\s+/).filter(Boolean).sort().join(' ')) }));
         await p.reload(); await p.waitForSelector('#pgQ');
-        const after = await p.evaluate(() => ({ html: document.getElementById('paper').innerHTML.length, vals: Array.prototype.map.call(document.querySelectorAll('#paper input[type=text]'), e => e.value), map: Array.prototype.map.call(document.querySelectorAll('#pgGrid button'), b => b.className.split(/\s+/).filter(Boolean).sort().join(' ')) }));
+        const after = await p.evaluate(() => ({ html: (() => { const c = document.getElementById('paper').cloneNode(true); c.querySelectorAll('.pv, .rd').forEach(e => { e.innerHTML = ''; }); return c.innerHTML.replace(/ pg-on/g, ''); })(), vals: Array.prototype.map.call(document.querySelectorAll('#paper input[type=text]'), e => e.value), map: Array.prototype.map.call(document.querySelectorAll('#pgGrid button'), b => b.className.split(/\s+/).filter(Boolean).sort().join(' ')) }));
         if (newest().id !== t.id) fail('the reload started another test');
         if (JSON.stringify(after.vals) !== JSON.stringify(before.vals)) fail('the answers after a reload are not the same');
         if (JSON.stringify(after.map) !== JSON.stringify(before.map)) fail('the map (answered, flagged) after a reload: ' + JSON.stringify(after.map) + ' was ' + JSON.stringify(before.map));
-        if (Math.abs(after.html - before.html) > 200) fail('the questions after a reload are not the same');
+        if (after.html !== before.html) { let k = 0; while (after.html[k] === before.html[k]) k++; fail('the questions after a reload are not the same, at …' + after.html.slice(Math.max(0, k - 60), k + 60)); }
         ok('a reload mid-test: the same test, ' + after.vals.filter(Boolean).length + ' boxes and ' + flagged.length + ' flags back');
       }
     }

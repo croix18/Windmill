@@ -132,14 +132,17 @@ function wrongAns(it){
   if (it.type === 'mc' || it.type === 'multi'){ var n = (x.opts || []).length, C = it.type === 'mc' ? [x.correct] : x.correct, b = 0; while (C.indexOf(b) >= 0 && b < n) b++; return it.type === 'mc' ? b : [b]; }
   var B = J.boxesOf(x); return B ? B.map(function(){ return '987654'; }) : '987654';
 }
+/* every key right; then every part that has a part (a) wrong beside its part (a)'s key, and every other part wrong — a part (b)
+   is judged from its part (a)'s answer (a wrong (a) carried through is right on "Like the real test"), so the two are tried apart */
 function prove(priv){
   var SV = K.ExamServer; if (!SV) throw new Error('exam/server.js is not on this page');
-  var items = priv.map(function(t){ return K.unpack(t); }), right = {}, wrong = {}, vs = [], vw = [];
-  items.forEach(function(it){ right[it.id] = keyAns(it); wrong[it.id] = wrongAns(it); });
-  for (var i = 0; i < items.length; i += 2){ vs = vs.concat(SV.grade(U, items, right, vs, i, 2)); vw = vw.concat(SV.grade(U, items, wrong, vw, i, 2)); }
+  var items = priv.map(function(t){ return K.unpack(t); }), right = {}, wb = {}, wa = {};
+  items.forEach(function(it){ right[it.id] = keyAns(it); wb[it.id] = it.sib ? wrongAns(it) : keyAns(it); wa[it.id] = it.sib ? keyAns(it) : wrongAns(it); });
+  var all = function(ans){ var v = []; for (var i = 0; i < items.length; i += 2) v = v.concat(SV.grade(U, items, ans, v, i, 2)); return v; };
+  var vs = all(right), vb = all(wb), va = all(wa);
   items.forEach(function(it, k){
     if (!vs[k] || vs[k].v !== 'right') throw new Error(it.id + ': its key is ' + (vs[k] && vs[k].v) + ' after unpack');
-    if (!vw[k] || vw[k].v === 'right') throw new Error(it.id + ': a wrong answer is right after unpack');
+    var w = it.sib ? vb[k] : va[k]; if (!w || w.v === 'right') throw new Error(it.id + ': a wrong answer is right after unpack');
   });
   var sm = SV.summary(items, vs); if (sm.points !== items.length) throw new Error('the keys score ' + sm.points + ' / ' + sm.of);
 }
