@@ -5,7 +5,9 @@ this file is the plan the builders work from. Change it here first, then build.
 
 **Built so far** (kit, branch `exam`): `pack.js`, `judge.js`, `exam/server.js` with `check/pack.js` and
 `check/exam_server.js` — the page judges through `judge.js` (proved on 16,800 parts, before and after, no difference),
-and the site's verdicts are the page's on every unit that packs. Everything else below is still to build.
+and the site's verdicts are the page's on every unit that packs; the test page (`exam_pool.js`, `exam_unit.js`,
+`exam.js`, `exam/build_exam.py`, proved against the Node stand-in `check/exam_site.js`); and the lock, `exam/seal.js`
+(16 Nov). Still to build: `proctor.js`, `trace.js`, the site, the courses' test pages, Tally.
 
 ## What Croix asked for
 
@@ -205,6 +207,13 @@ public key, info = `windy-hill-result-v1`); the locked record = `01 ‖ ephemera
 AES-GCM(sig ‖ plain)`. **The code** is 12 Crockford base-32 characters of fresh randomness, shown `K7QF-2M9D-X4TB`; it
 is the record's name on the site and what the student turns in. Tally derives the same key with its private half, opens
 the record, checks `sig` against the site key it holds, inflates, reads.
+
+**Pinned by `exam/seal.js`** (16 Nov; the one file both ends use — the site vendors it, Tally carries a copy): a locked
+record travels as base64url text (`GET /api/test/result/<code>` → `{code, record}`); the site's public key is base64url of
+the 65-byte point (`GET /api/test/key` → `{key, made}`); Tally's public key is `TALLY1.` + the same; a code always holds a
+digit; `open` refuses with a reason (`format`, `key`, `signature`, `code`) and takes a list of site keys, so a site key
+made again keeps old records readable — Tally keeps every site key it has been paired with. The trial record is
+`{v: 1, trial: true, code, nonce, made}` and the four words are `words(nonce, sitePub, tallyPub)`.
 
 **Proving the pairing before it matters** (Croix, 9:03 pm: *"How do I know it'll open on my tally?"*). A test cannot be
 opened until the pairing is proven: when Tally's public key is pasted into the cockpit, the site makes a **trial record**

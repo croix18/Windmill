@@ -794,6 +794,7 @@ teacher's view and print reserving nothing.
 | `judge.js` | the judge, one source for the page and the site (15 Nov 2026, below): a part's boxes, blank, can't read, the unit's judge, equivalent forms, what Finish makes of a part on Like the real test; `Kit.Judge({U, V, K, NL, CG})`, pure, the context passed in |
 | `pack.js` | a part as text and back, BigInt kept exact; refuses what is not data (a function, a class's object), saying where (15 Nov 2026, below) |
 | `exam/server.js` | the site's side of a test: `read`, `grade` (n parts a call), `summary`; Node and the site's Worker, no DOM (15 Nov 2026, below) |
+| `exam/seal.js` | the lock on a test's record, both ends in one file: the site's `seal`, Tally's `open`, the code, the keys, the four-word check; Web Crypto only (16 Nov 2026, below) |
 | `exam_pool.js` | the test's pool, in a teacher copy at `#exam-pool`: n tests drawn for the cockpit, each `{seed, pub, priv, fams}`, proved by `exam/server.js` before it goes (15 Nov 2026, below); teacher builds only, with `pack.js` and `exam/server.js` |
 | `exam_unit.js` | the stub unit the test page runs on: the test's skeleton and the recorded view, no judge, solution, walk or key (15 Nov 2026, below) |
 | `exam.js`, `exam.css` | the test on the student's device: the start, the site's routes, the clock, Grading…, the results, Turn in (15 Nov 2026, below) |
@@ -830,6 +831,7 @@ teacher's view and print reserving nothing.
 | `check/pack.js` | every part judges the same after `unpack(pack())`, over 60 sets; not one of `run.py`'s steps (it will gate the test page) |
 | `check/exam_server.js` | the site's verdicts and score are the page's on Like the real test, 30 sets, through the page in Chromium; `read` against the page's "can't read" and preview; the CPU time of a grade call and a read |
 | `check/exam_site.js` | a stand-in for the site's test routes, in memory, on `exam/server.js`: the reference the site is built from (its routes written at its top); not for production |
+| `check/seal.js` | the lock holds: round trips, every byte of a locked record changed, the wrong keys, a record a student made, the four words, and `check/seal_vector.json` (a record locked on 16 Nov 2026) still opens; no unit, no browser; `tools/check.sh` runs it |
 | `check/exam_page.js` | the test page in Chromium against the stand-in: the pool through a cockpit, the same sheet on 12 tests, nothing to steal, a whole test, a phone in dark, the words; run by `exam/build_exam.py` |
 | `check/exam_link_page.js` | page.js part X: the practice page's Test link on the site; the teacher copy at `#exam-pool` |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
@@ -1271,3 +1273,29 @@ The second stage of the test the site grades (`practice/exam/DESIGN.md`). The fu
   one fixed, blanks, two flags, Back, Next, the map, a reload, the network lost on a save and on Finish, the score the site's
   and the practice page's judge's, the code, Turn in, reopened, New test, a second finish refused, no token refused, closed
   again); 390 × 844 in dark. page.js part X (`check/exam_link_page.js`): the Test link and `#exam-pool`.
+
+## 16 Nov 2026 — the lock on a test's record (`exam/seal.js`, `check/seal.js`)
+The record a test ends in (`practice/exam/DESIGN.md`, "3. The record and the code"; Croix, 15 Nov, 7:40 pm: *"The code also has
+to be something crazy looking that is impossible for the students to figure out or fake."*; 9:03 pm: *"How do I know it'll
+open on my tally?"*). Written once, for both ends: the site's Worker calls `seal`, Tally calls `open`, from this one file — so
+the two cannot drift apart on a byte. Nothing on a practice page or a test page loads it.
+- **A locked record:** the record as JSON, deflated; signed by the site (ECDSA P-256, a key that never leaves the site);
+  then locked to Tally's public key (a fresh ECDH P-256 pair a record, HKDF-SHA-256, AES-256-GCM) — `01 ‖ fresh public key ‖
+  iv ‖ ciphertext`, carried as base64url text. Only Tally's private half opens one; one that opens and passes was signed by
+  the site; the record is inflated and read only after the signature holds.
+- **`open` says why it refuses** (`.why`): `format` (not a locked record), `key` (not locked to this Tally's key, or
+  damaged), `signature` (it opened, and the site did not sign it — the record is not handed back), `code` (another code's
+  record). It takes one site key or a list, so a site key made again never orphans the old records.
+- **The code:** `newCode()` 12 Crockford base-32 characters of fresh randomness, always with a digit (so a twelve-letter word
+  in a pasted sheet is never taken for one); `showCode` `K7QF-2M9D-X4TB`; `readCode` forgives case, spacing, hyphens and
+  I/L/O; `findCodes(text)` for a pasted sheet of form answers.
+- **The keys, as text:** the site's public key is base64url of the 65-byte point; Tally's is `TALLY1.` and the same (what
+  Croix pastes into the cockpit); private halves are JWK and stay where they were made.
+- **Proving a pairing:** `newTrial(code, now)` is the made-up record the site locks when a Tally key is pasted;
+  `words(nonce, sitePub, tallyPub)` gives the four words both ends show — only a Tally that opened the trial knows its nonce,
+  and the words change with either key.
+- **`check/seal.js`** (no unit, no browser; `tools/check.sh` runs it): a record comes back as it went in, small and at the
+  log's largest; every byte of a locked record changed in turn, bytes cut and added, none opens; another Tally's key, another
+  site's key, another code; a record locked by someone holding Tally's public key and not the site's key is not shown; the four
+  words; and `check/seal_vector.json` — a record locked on 16 Nov 2026 with keys made for that file — must open, so the format
+  cannot change under records already turned in. It prints the time to lock and open the largest record (about 3 ms each).

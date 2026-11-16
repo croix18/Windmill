@@ -36,6 +36,8 @@ echo "== the Cadence tools' own reading (tools/cadence_fast.py, tools/cadence_ba
 python3 tools/test_cadence_fast.py
 echo "== practice kit (the practice-test pages both courses vendor)"
 python3 tools/practice_kit.py --check
+echo "== the lock on a test's record (practice/kit/exam/seal.js: no browser, no unit)"
+node practice/kit/check/seal.js
 echo "== drawing kit (draw/: its manifest, the kit on its own specs, Draw Sans on the kit's widths)"
 python3 tools/draw_kit.py --check
 node draw/test.mjs
