@@ -195,3 +195,6 @@ check/exam_page.js part 10.
   `navigator.keyboard.lock` is not proved (headless).
 - `device.zoom` is a ratio, evidence only. On an iPhone there is no full screen (`fs` false): only tab and window count.
 - An unlock or a start that cannot reach the site is treated as a refused code (no words): Croix may want the network line.
+- (§11, L5) Lengths now come from `performance.now()`. On ChromeOS (and Linux) that clock may stop while the device is
+  suspended (the lid shut), so a leaving that spans a closed lid is still counted, but its seconds may be short. Not proven
+  either way (headless); worth watching on the trial Chromebook (the review's checklist item 4).
