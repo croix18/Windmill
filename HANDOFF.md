@@ -251,12 +251,15 @@ graph … instead of just describing them."*
   of M7 Units 10 (its `nline` parts) and 13; `tools/check.sh`: all checks passed. Built by Claude Opus 5.5 from the lead's brief.
 - **A unit with no `cgraph` part** changes only by one more inlined script; its questions and locks do not move. A course
   takes it at its next vendor: M7 vendored it for Unit 7's page (M7 `NOTES.md`); **A7 has not** — nothing of A7's needs it.
-- **M7 Unit 7 is published** (site `67b342c`, 15 Nov, 10:45 pm; M7 `NOTES.md`, first section) on the kit at `87e36e0`.
+- **M7 Unit 7 is published** (site `67b342c`, 15 Nov, 10:45 pm, on the kit at `87e36e0`; its practice page and teacher copy
+  again on 16 Nov, site `42d93ad`, on the kit at `8de00b0` — M7 `NOTES.md`, first section).
 - **In a circle graph's names an arrow key only moves the focus; Space or Enter names the sector** (`8de00b0`, on main
   from `5aa4b93`): an arrow that chose took names off sectors already named, so a graph could not be named in order with
   the keys. A copy of M7 Unit 7's page passes `check/page.js` (part V and the new part W) on main's kit at `5aa4b93`.
-  **Not yet in M7's main:** it is on M7's branch `u7-page-review-fixes` with the page reader's other refinements, which
-  still need the page's two full runs (M7 `NOTES.md`). Whoever next vendors the kit into M7 can take that branch first.
+  **In M7's main since 16 Nov** (M7 `9dcbe6d`): its practice kit copy is `8de00b0` — the `87e36e0` copy and this fix —
+  and Unit 7's page and teacher copy ran ALL CHECKS PASSED on it. `ui.js` moved, so the `CHECKED` stamps of M7's other
+  pages (Units 4, 5, 8, 9, 10, 13) wait on their next run; their built pages are unchanged. **M7 has not vendored main's
+  later kit** (scratch paper, docked panels, part N): whoever does runs every M7 page again.
 
 ## Where things stand (15 Nov 2026: the kit limits fixed — figures wherever a question is, a key's own figure, declared step lines, several answer boxes; matplotlib named once; the Drive script 3.1)
 
