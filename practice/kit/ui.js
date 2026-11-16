@@ -9,6 +9,7 @@
 /* approvals (approvals.js, 8 Nov 2026): on the site the page waits for the list of disapproved questions (at most a moment) before it draws */
 if (window.Kit && window.Kit.Approvals && window.Kit.Approvals.hold(kitPage)) return;
 var U = window.Unit, K = window.Kit, V = U.view, AP = K.Approvals || null;
+var J = K.Judge({U: U, V: V, K: K, NL: K.NL, CG: K.CG});   /* the judge (judge.js, 15 Nov 2026): one source for the page and the site */
 var SCHEMA = 2, PRE = U.id + '.';                       /* [W-6] one prefix per unit; versions live inside each record */
 var $ = function(id){ return document.getElementById(id); };
 var LET = 'ABCDEFGH';
@@ -147,21 +148,10 @@ function flabHtml(p, id){ var fm = formOf(p); return fm.label ? '<div class="fla
    strings in order (S.ans[id] an array), judged together by the unit's judge.text(part, [typed…], ctx) — each box read by the
    unit's own reader — and Unit.keyText(part) gives one string per box. Box k's input is #a<id> for the first, #a<id>_<k> after;
    each has the part's data-part and its own data-box. A blank box is not a try: "Fill in every box" (Not counted yet). */
-var BOXES = typeof WeakMap === 'function' ? new WeakMap() : null;
-function boxesOf(p){
-  if (!p || p.kind === 'mc' || p.kind === 'nline' || p.kind === 'cgraph') return null;
-  if (BOXES && BOXES.has(p)) return BOXES.get(p);
-  var b = null; try { b = V.boxes ? V.boxes(p) : null; } catch(e){ b = null; }
-  if (!b && Array.isArray(p.boxes)) b = p.boxes;
-  b = Array.isArray(b) && b.length >= 2 ? b.map(function(x){ return x || {}; }) : null;
-  if (BOXES) BOXES.set(p, b); return b;
-}
+function boxesOf(p){ return J.boxesOf(p); }
 function boxId(id, k){ return 'a' + id + (k ? '_' + k : ''); }
-function boxAns(p, a){                                     /* a part's answer as one string per box (a string saved before is dropped) */
-  var B = boxesOf(p); if (!B) return a;
-  return B.map(function(x, k){ return Array.isArray(a) && a[k] != null ? String(a[k]) : ''; });
-}
-function boxSay(bx, k){ var s = bx.say || plainText(bx.pre || '').replace(/\s*=\s*$/, '').trim() || plainText(bx.unit || '').trim(); return s || 'box ' + (k + 1); }
+function boxAns(p, a){ return J.boxAns(p, a); }                 /* a part's answer as one string per box (a string saved before is dropped) */
+function boxSay(bx, k){ return J.boxSay(bx, k); }
 function boxesHtml(p, id, lab, B){
   var fl = formOf(p).label, last = B.length - 1;
   var row = B.map(function(bx, k){ var pre = bx.pre || '', unit = bx.unit || '';
@@ -508,8 +498,9 @@ function another(baseId){
 /* ------------------------------------------------ marking and coaching */
 function byIdBase(id){ for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
 function byId(id){ return byIdBase(id) || EX[id] || null; }
-function answered(it){ var a = S.ans[it.id]; if (it.type === 'text' && boxesOf(it.x)) return boxAns(it.x, a).every(function(v){ return v.trim() !== ''; });   /* several boxes: every one filled */
-  return it.type === 'multi' ? !!(a && a.length) : it.type === 'nline' ? !NL.empty(a) : it.type === 'cgraph' ? CG.done(it.x, a) : a != null && String(a).trim() !== ''; }
+/* the set's parts as the page drew them, read only (15 Nov 2026; for the checks, and for the test's pool later) */
+K.items = function(){ return ITEMS.map(function(it){ return {id: it.id, type: it.type, x: it.x, sib: it.sib == null ? null : it.sib, sibPart: it.sibPart == null ? null : it.sibPart, aShown: it.aShown, pos: it.pos, lab: it.lab}; }); };
+function answered(it){ return J.answered(it, S.ans[it.id]); }
 /* the mode rides along (25 Oct 2026): on "Like the real test" a part done right from a wrong part (a) earns its point, as the
    printed test's follow-through line says (ruling 19); in practice the coach says fix part (a) first */
 /* what the coach may know about a part: the student's part (a) and whether it is right yet, whether this is a fresh one
@@ -519,24 +510,7 @@ function ctxOf(it){
   var sib = it.sib ? byId(it.sib) : null, prevOk = sib ? !!(S.res[sib.id] && S.res[sib.id].v === 'right') : null;   /* false until part (a) is checked right — unanswered counts as not right */
   return it.sib ? {prev: S.ans[it.sib], prevPart: it.sibPart, prevOk: prevOk, aShown: it.aShown, extra: !!it.extra, mode: S.mode} : {aShown: it.aShown, extra: !!it.extra, mode: S.mode};
 }
-function judgeAns(it, a, tries){
-  if (it.type === 'nline'){ try { return NL.judge(it.x, a, ctxOf(it), U.judge.nline); } catch(e){ return {v: 'unread', what: ['Place the point, then choose a dot and an arrow.']}; } }
-  if (it.type === 'cgraph'){ try { return CG.judge(it.x, a, ctxOf(it), U.judge.cgraph); } catch(e){ return {v: 'unread', what: ['Draw the lines, then name every sector.']}; } }
-  var B = it.type === 'text' ? boxesOf(it.x) : null;
-  if (B){                                                   /* several boxes: all blank is blank; some blank is not a try yet */
-    var bs = boxAns(it.x, a), empty = bs.map(function(v){ return v.trim() === ''; });
-    if (empty.every(Boolean)) return {v: 'blank', what: []};
-    if (empty.some(Boolean)) return {v: 'unread', partial: true, what: ['Fill in every box: ' + B.map(function(x, k){ return empty[k] ? '<b>' + esc(boxSay(x, k)) + '</b>' : ''; }).filter(Boolean).join(' and ') + (empty.filter(Boolean).length === 1 ? ' is' : ' are') + ' still empty.']};
-    try { bs = bs.map(tidy); return equivUp(it, bs, U.judge.text(it.x, bs, ctxOf(it))); }
-    catch(e){ return {v: 'unread', what: ['I can’t read that yet. Type just your answer in each box.']}; }
-  }
-  if (it.type === 'multi' ? !(a && a.length) : (a == null || String(a).trim() === '')) return {v: 'blank', what: []};
-  try {
-    if (it.type === 'text'){ a = tidy(a); return equivUp(it, a, U.judge.text(it.x, a, ctxOf(it))); }
-    if (it.type === 'mc') return U.judge.mc(it.x, +a);
-    return U.judge.multi(it.x, a, (tries || 0) + 1);
-  } catch(e){ return {v: 'unread', what: ['I can’t read that yet. Type just your answer.']}; }
-}
+function judgeAns(it, a, tries){ return J.judge(it, a, ctxOf(it), tries); }
 function judge(it, tries){ return judgeAns(it, S.ans[it.id], tries); }
 /* ---- equivalent forms (7 Nov 2026, the practice-test deepening, item 3): the unit's coach judges first; when it says "not
    yet" (or "almost", or cannot read it) and the typed answer IS the key written another way — 3 = x for x = 3, 2/4 for 1/2,
@@ -544,44 +518,14 @@ function judge(it, tries){ return judgeAns(it, S.ans[it.id], tries); }
    nudge where the form could be tidier. The normaliser never does the arithmetic the question asks for (3x + 2x is not 5x).
    A unit declares a box's expected form with view.form(part) → {label, expect, precision, simplest, equiv: false, …}; with
    none, the form is read from the key and the box, and its label shows only where it cannot be wrong. */
-var FORMS = typeof WeakMap === 'function' ? new WeakMap() : null;
-function formOf(p){
-  if (FORMS && FORMS.has(p)) return FORMS.get(p);
-  var d = null, key = '', f; try { d = V.form ? V.form(p) : null; } catch(e){}
-  try { key = U.keyText ? String(U.keyText(p)) : ''; } catch(e){}
-  try { f = K.Ans.form(key, {declared: Object.assign({}, p.form || {}, d || {}), placeholder: V.placeholder(p), pre: V.pre(p), unit: V.unit(p)}); } catch(e){ f = {label: '', equiv: false}; }
-  f.key = key; if (FORMS) FORMS.set(p, f); return f;
-}
+function formOf(p){ return J.formOf(p); }
 /* the keypad's fraction template writes ()/(); a unit's reader need not know it: (3)/(4) is 3/4 */
-function tidy(a){
-  if (typeof a !== 'string' || a.indexOf(')/(') < 0) return a;
-  return a.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*\)\s*\/\s*\(\s*(-?\d+(?:\.\d+)?)\s*\)(\s*\^)?/g, function(m, n, d, pow, at, all){
-    var before = all.slice(0, at).replace(/\s+$/, ''), glued = /[\w).π]$/.test(before) && !/\s$/.test(all.slice(0, at));
-    return pow || glued ? '(' + n + '/' + d + ')' + (pow || '') : n + '/' + d; });   /* (4)/(7)^8 is (4/7)^8; 2 (3)/(4) is 2 3/4 */
-}
-function equivUp(it, a, f){
-  if (!f || f.v === 'right' || f.v === 'blank' || !K.Ans) return f;
-  if (Array.isArray(a)) return equivBoxes(it, a, f);
-  var fm = formOf(it.x), r; if (!fm.key) return f;
-  try { r = K.Ans.equiv(a, fm.key, fm); } catch(e){ return f; }
-  if (!r || !r.ok) return f;
-  var nudge = r.nudge ? esc(r.nudge) : f.v === 'form' && f.what && f.what[0] ? f.what[0] : '';   /* a unit's own "almost" words become the nudge */
-  return {v: 'right', what: nudge ? [nudge] : [], equiv: true};
-}
+function tidy(a){ return J.tidy(a); }
+function equivUp(it, a, f){ return J.equivUp(it, a, f); }
 /* several boxes: right when every box is its key written another way (each box's own form: its pre "x =", its unit, its form) */
-function boxForm(p, k){
-  var B = boxesOf(p), bx = B[k] || {}, keys = boxKeys(p), f;
-  try { f = K.Ans.form(keys[k] || '', {declared: Object.assign({}, bx.form || {}), placeholder: bx.placeholder || '', pre: bx.pre || '', unit: bx.unit || ''}); } catch(e){ f = {equiv: false}; }
-  f.key = keys[k] || ''; return f;
-}
-function boxKeys(p){ var t = null; try { t = U.keyText ? U.keyText(p) : null; } catch(e){} return Array.isArray(t) ? t.map(String) : []; }
-function equivBoxes(it, a, f){
-  var B = boxesOf(it.x), d = formOf(it.x); if (!B || d.equiv === false || boxKeys(it.x).length !== B.length) return f;
-  var nudges = [];
-  for (var k = 0; k < B.length; k++){ var fk = boxForm(it.x, k), r; if (!fk.key) return f; try { r = K.Ans.equiv(a[k], fk.key, fk); } catch(e){ return f; } if (!r || !r.ok) return f; if (r.nudge) nudges.push(esc(r.nudge)); }
-  if (!nudges.length && f.v === 'form' && f.what && f.what[0]) nudges.push(f.what[0]);
-  return {v: 'right', what: nudges, equiv: true};
-}
+function boxForm(p, k){ return J.boxForm(p, k); }
+function boxKeys(p){ return J.boxKeys(p); }
+function equivBoxes(it, a, f){ return J.equivBoxes(it, a, f); }
 function res(it){ return S.res[it.id] || (S.res[it.id] = {tries: 0, first: null, v: null, shown: false, hinted: false, steps: 0}); }
 function plainText(h){ var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
 function sameAns(a, b){ return JSON.stringify(a == null ? '' : a) === JSON.stringify(b == null ? '' : b); }
@@ -1119,8 +1063,8 @@ function finish(){
     var R = res(it);
     if (R.v === 'right') return;
     if (S.mode === 'test' || (R.tries === 0 && answered(it))){                           /* [R2-N1] a typed answer never checked is marked now */
-      var f = judge(it, R.tries);
-      if (f.v === 'blank' || f.v === 'unread'){ if (S.mode === 'test'){ R.first = false; R.v = 'wrong'; R.tries = Math.max(1, R.tries); R.lastAns = S.ans[it.id]; R.unreadMsg = f.v === 'blank' ? 'Left blank.' : (f.what[0] || 'Could not read the answer.'); var ms = misses(); ms[it.pos] = famOf(it); store('misses', ms); } else if (R.first === null) R.first = false; }
+      var g = J.atFinish(it, S.ans[it.id], ctxOf(it), R.tries), f = g.f;                 /* what Finish makes of it (judge.js) */
+      if (g.msg != null){ if (S.mode === 'test'){ R.first = false; R.v = 'wrong'; R.tries = Math.max(1, R.tries); R.lastAns = S.ans[it.id]; R.unreadMsg = g.msg; var ms = misses(); ms[it.pos] = famOf(it); store('misses', ms); } else if (R.first === null) R.first = false; }
       else record(it, f, S.mode !== 'test');
     } else if (R.first === null){ R.first = false; R.skipped = true; streakStep(it.pos, famOf(it), false); }   /* skipped in practice: on My misses, like a miss (24 Oct 2026) */
   });

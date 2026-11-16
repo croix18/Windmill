@@ -791,6 +791,9 @@ teacher's view and print reserving nothing.
 | `nline.js` | the number-line graph a student builds (kind `nline`): the line, the widget, judging, paper; pure, so a unit's Node checks use it |
 | `cgraph.js` | the circle graph a student builds (kind `cgraph`, 15 Nov 2026, below): the marked circle, the widget, the edits, judging, the key, paper, the four graphs; pure, so a unit's Node checks use it |
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
+| `judge.js` | the judge, one source for the page and the site (15 Nov 2026, below): a part's boxes, blank, can't read, the unit's judge, equivalent forms, what Finish makes of a part on Like the real test; `Kit.Judge({U, V, K, NL, CG})`, pure, the context passed in |
+| `pack.js` | a part as text and back, BigInt kept exact; refuses what is not data (a function, a class's object), saying where (15 Nov 2026, below) |
+| `exam/server.js` | the site's side of a test: `read`, `grade` (three parts a call), `summary`; Node and the site's Worker, no DOM (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
 | `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
@@ -819,6 +822,8 @@ teacher's view and print reserving nothing.
 | `check/walk.js`, `check/times.js` | a walkthrough's options shuffled by the question; no × for multiplication, the kit's words and the unit's (15 Nov 2026, below). `run.py` runs both on every student page |
 | `check/boxes.js`, `check/boxes_page.js`, `check/order_page.js` | typing into a part's boxes for every page check; page.js part T (several boxes in one part) and part U (a walkthrough's order in the browser, no × on the sheet or any paper), 15 Nov 2026 |
 | `check/cgraph.js`, `check/cgraph_page.js` | answering a circle graph through the page for every page check (the keyboard, as a student without a mouse does); page.js part V (a circle graph the student builds), 15 Nov 2026 |
+| `check/pack.js` | every part judges the same after `unpack(pack())`, over 60 sets; not one of `run.py`'s steps (it will gate the test page) |
+| `check/exam_server.js` | the site's verdicts and score are the page's on Like the real test, 30 sets, through the page in Chromium; `read` against the page's "can't read" and preview; the CPU time of a grade call and a read |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
