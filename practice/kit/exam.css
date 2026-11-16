@@ -15,7 +15,9 @@ body:not(.exam-pre) .exgo{display:none}
 .exgo .expin:disabled{opacity:.55}
 .exgo .expin[hidden]{display:none}
 .exgo:has(.expin:not([hidden])) button{min-width:10rem}   /* the box and Start one width */
-.exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0}
+.exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0 0 10px}
+.exclosedw[hidden]{display:none}
+.exgo button, .exgo .expin{max-width:100%}
 .exchip{margin-right:8px}
 /* the message when a request does not get through: an alarm, with the way to go on */
 .exnet{position:sticky;top:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:46rem;margin:12px auto 0;padding:10px 14px;
@@ -34,6 +36,15 @@ body.exam-grading .watch .btns{visibility:hidden}
   user-select:all;-webkit-user-select:all;overflow-wrap:anywhere}
 .exbtns, .exsure{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .exbtns button, .exsure button{min-height:44px}
+/* Turn in, a real link to the form (a pop-up blocker cannot stop it), dressed as the primary button */
+a.exturn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;font:600 14px/1 var(--ui);background:var(--go);border:1px solid var(--go);color:var(--goInk);
+  border-radius:8px;padding:9px 13px;text-decoration:none}
+a.exturn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.exsure .expin{min-height:44px;width:8rem;max-width:100%;padding:6px 10px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:700 18px/1.2 var(--ui);letter-spacing:.18em;text-transform:uppercase;text-align:center}
+.exsure .expin::placeholder{font-weight:500;font-size:14px;letter-spacing:.02em;text-transform:none;color:var(--mut);opacity:1}
+.exsure .expin[hidden]{display:none}
+.excode:focus{outline:none}
 .excopied{font:600 14px/1 var(--ui);color:var(--ok)}
 .excopied:empty{display:none}
 .exsure[hidden]{display:none}
@@ -56,7 +67,7 @@ body.exam-on input[type=text], body.exam-on input:not([type]), body.exam-on text
 .excover{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ground);color:var(--ink)}
 .excover[hidden]{display:none}
 .excin{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:26rem;width:100%;text-align:center}
-.excin > button{min-height:48px;min-width:200px;font-size:17px}
+.excin > button{min-height:48px;min-width:min(200px, 100%);max-width:100%;font-size:17px}
 .excin [hidden]{display:none !important}
 .exlock{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
 .exlockt{margin:0;font:700 20px/1.3 var(--ui);color:var(--ink)}

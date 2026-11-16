@@ -40,7 +40,7 @@ if (!fs.existsSync(TEACHER) || fs.readFileSync(TEACHER, 'utf8').indexOf('Kit.Exa
 const fails = []; const fail = msg => { if (fails.length < 60) console.log('  FAIL ' + msg); fails.push(msg); };
 const ok = msg => console.log('  ok ' + msg);
 const TPATH = '/' + COURSE + '/test/unit-' + UNIT + '/', CPATH = '/' + COURSE + '/practice/unit-' + UNIT + '/teacher/';
-const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + 6 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
+const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + 6 + 20 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
 const COCKPIT = '<!doctype html><meta charset="utf-8"><title>cockpit</title><iframe id="f" src="' + CPATH + '#exam-pool" style="display:none"></iframe><script>' +
   'window.batches=[];window.ready=null;window.err=null;window.done=false;' +
   'addEventListener("message",function(e){if(e.origin!==location.origin||e.source!==document.getElementById("f").contentWindow||!e.data||e.data.kit!=="exam-pool")return;' +
@@ -90,7 +90,7 @@ function checkPub(f, WL) {
   const port = await site.listen(), base = 'http://127.0.0.1:' + port;
   const b = await chromium.launch(); require('./boxes.js').wireBrowser(b);
   const errs = [];
-  const ctxOf = async (o) => { const c = await b.newContext(Object.assign({ viewport: { width: 1366, height: 657 } }, o || {})); await c.addInitScript(() => { window.KIT_EXAM_GAP = 1500; window.KIT_EXAM_UNLOCK_WAIT = 1500; }); await mockTeacher(c);
+  const ctxOf = async (o) => { const c = await b.newContext(Object.assign({ viewport: { width: 1366, height: 657 } }, o || {})); await c.addInitScript(() => { window.KIT_EXAM_GAP = 1500; window.KIT_EXAM_UNLOCK_WAIT = 1500; window.KIT_EXAM_RETRY = 0.1; window.KIT_EXAM_STATUS_MS = 1000; }); await mockTeacher(c);
     await c.route(/^https:\/\/(desmosforassessment\.cambiumtds\.com|aldenbradford\.com)\//, r => r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>calc</title><input id="ci" style="width:300px;height:80px;font-size:30px">' }));   /* the calculators' stand-ins */
     return c; };
   const watch = p => { p.on('pageerror', e => errs.push(e.message)); return p; };
@@ -494,6 +494,7 @@ function checkPub(f, WL) {
   if (WHOLE) await proctor();
   if (WHOLE) await startCode();
   if (WHOLE) await onceAndEnds();
+  if (WHOLE) await neverStuck();
   if (WHOLE) await whole();
   /* the stand-in's responses before seal: no priv item, keyText or verdict; read is {ok, pretty} */
   let reads = 0;
@@ -625,6 +626,8 @@ function checkPub(f, WL) {
       await pop.waitForLoadState().catch(() => {});
       if (pop.url() !== FORM.replace('CODE', encodeURIComponent(shown.code))) fail('Turn in opened ' + pop.url());
       await pop.close();
+      await p.waitForSelector('#exCopied:has-text("Copied")', { timeout: 5000 }).catch(() => fail('Turn in with a form: no Copied'));
+      if (await p.evaluate(() => { const a = document.getElementById('exTurn'); return a.tagName !== 'A' || a.target !== '_blank'; })) fail('Turn in is not a link to the form');
     } else { await p.click('#exTurn'); await p.waitForSelector('#exCopied:has-text("Copied")'); }
     const clip = await p.evaluate(() => navigator.clipboard.readText()); if (clip !== shown.code) fail('Turn in copied ' + clip);
     /* a second finish; a second device */
@@ -761,6 +764,164 @@ function checkPub(f, WL) {
     await ce.close();
     CLOCK = site.state.now() + 1000; site.state.now = stamp;
     await OPEN();                    /* a new opening with no end, for what follows */
+  }
+
+  /* ---- 10. never stuck, never losing work, never looking like they left (16 Nov 2026; CHANGES-16NOV §11, the review of the test
+     page — the essence of its probes, /home/claude/reviews/test-page/p*.js) ---- */
+  async function neverStuck() {
+    const K10 = COURSE + '/' + UNIT, OPEN = () => fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) });
+    const endTest = id => { const t = site.state.tests[id]; t.status = 'finished'; t.finished = site.state.now(); t.ended = 'teacher'; };   /* the real site's Close: the test set finished */
+    const code = (p, ms) => p.waitForSelector('#exCode', { timeout: ms || 20000 }).then(() => true, () => false);
+    await put({ startCode: false, rule: { leave: 'count', after: 3 }, unlock: '4821' }); await OPEN();
+    /* C1 (the lock with no code) at the stand-in: refused */
+    const r0 = await (await fetch(base + '/teacher/api/test/config', { method: 'PUT', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ rule: { leave: 'lock', after: 1 }, unlock: '' }) })).json();
+    if (r0.error !== 'unlock') fail('the stand-in took Lock with no unlock code: ' + JSON.stringify(r0));
+    /* H1: the site ends the test (its status set finished, as the real site's Close does) — the next save takes the page to its code */
+    { const c = await ctxOf(), A = await begin(c), it = A.t.priv.map(x => P.unpack(x)), ti = textItem(it), tq = await cardOf(A.p, ti.id); await toQ(A.p, tq);
+      await A.p.click('#a' + ti.id); await A.p.keyboard.type('4'); await sleep(1800); endTest(A.t.id); await A.p.keyboard.type('5');
+      const got = await code(A.p);
+      const st = await A.p.evaluate(() => ({ focus: document.activeElement && document.activeElement.id, live: !!(document.getElementById('exCode') && document.getElementById('exCode').closest('[role=status]')) }));
+      if (!got || !site.state.tests[A.t.id].sealed) fail('H1: a test the site ended (409 finished on a save) did not go to its code');
+      else if (st.focus !== 'exCode' || !st.live) fail('L7: the results not announced or the focus not on the code: ' + JSON.stringify(st));
+      else ok('H1: the site ended the test (409 finished on the next save): Grading… and the code at once; L7: the results in a live region, the focus on the code');
+      await c.close(); }
+    /* C1, H1 with the lock up: lock after 1; locked; the site ends the test; a code typed → the lock goes and the results come */
+    { await put({ rule: { leave: 'lock', after: 1 }, unlock: '4821' });
+      const c = await ctxOf(), A = await begin(c); await leave(A.p, 'tab', 700);
+      if (!(await A.p.isVisible('#exLock'))) fail('C1: not locked');
+      endTest(A.t.id); await A.p.fill('#exUn', '0000'); await A.p.click('#exUnGo');
+      const got = await code(A.p), cov = await covered(A.p);
+      if (!got || cov) fail('C1: a locked child whose test ended: code ' + got + ', cover ' + cov); else ok('C1: a locked child whose test the site ended: the lock goes, the results and the code come');
+      await c.close(); await put({ rule: { leave: 'count', after: 3 }, unlock: '4821' }); }
+    /* H2: a save that fails is tried again by itself, and at once when the browser is back online */
+    { const c = await ctxOf(), A = await begin(c), it = A.t.priv.map(x => P.unpack(x)), ti = textItem(it), tq = await cardOf(A.p, ti.id); await toQ(A.p, tq);
+      await A.p.route('**/api/test/*/save', r => r.abort()); await A.p.click('#a' + ti.id); await A.p.keyboard.type('7');
+      await A.p.waitForSelector('#exNet:not([hidden])', { timeout: 8000 }).catch(() => fail('H2: a failed save said nothing'));
+      await A.p.unroute('**/api/test/*/save'); await A.p.waitForSelector('#exNet', { state: 'hidden', timeout: 8000 }).catch(() => fail('H2: the line stayed up after the network came back'));
+      const a1 = site.state.tests[A.t.id].answers[ti.id];
+      await A.p.route('**/api/test/*/save', r => r.abort()); await A.p.keyboard.type('8'); await A.p.waitForSelector('#exNet:not([hidden])', { timeout: 8000 }).catch(() => {});
+      await A.p.evaluate(() => { window.KIT_EXAM_RETRY = 100; }); await A.p.unroute('**/api/test/*/save'); await A.p.evaluate(() => window.dispatchEvent(new Event('online'))); await sleep(800);
+      const a2 = site.state.tests[A.t.id].answers[ti.id];
+      if (a1 !== '7' || a2 !== '78') fail('H2: after the outages the site has ' + a1 + ', ' + a2); else ok('H2: a failed save tried again by itself (the site has “7” with no press), and at once on online (“78”)');
+      await c.close(); }
+    /* H3: one grade step refused (429), one answered 409 order — the code still comes, no reload */
+    { const c = await ctxOf(), A = await begin(c); let n = 0;
+      await A.p.route('**/api/test/*/grade', async r => { n++; if (n === 2) return r.fulfill({ status: 429, contentType: 'application/json', body: '{"error":"wait"}' }); if (n === 4) return r.fulfill({ status: 409, contentType: 'application/json', body: '{"error":"order","next":0}' }); return r.continue(); });
+      await A.p.click('#bFinish'); await A.p.click('#cy');
+      if (!(await code(A.p, 30000))) fail('H3: grading hung after a refused step'); else ok('H3: a grade step refused (429) and one answered 409 order (next 0): tried again, the code came (' + n + ' grade requests)');
+      await c.close(); }
+    /* H4, L1: Start's answer lost after the site made the test: Try again comes back to the same test; the old token dead */
+    { const c = await ctxOf(), p = watch(await c.newPage()); let lost = 0;
+      await p.route('**/api/test/start', async r => { if (lost++ === 0) { const res = await r.fetch(); await res.body(); return r.abort(); } return r.continue(); });
+      await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])'); const n0 = Object.keys(site.state.tests).length;
+      await p.click('#exStart'); await p.waitForSelector('#exNet:not([hidden])'); const t1 = newest(), tok1 = t1.tok;
+      await p.click('#exRetry'); await p.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => fail('L1: Try again did not start'));
+      if (Object.keys(site.state.tests).length !== n0 + 1 || newest().id !== t1.id || site.state.tests[t1.id].tok === tok1) fail('L1: a lost Start made ' + (Object.keys(site.state.tests).length - n0) + ' tests');
+      else ok('L1: Start\'s answer lost: Try again came back to the same test with a fresh token (one test made)');
+      await c.close(); }
+    /* H5: the wake lock asked for in the Start press and released at Finish */
+    { const c = await ctxOf(); await c.addInitScript(() => { window.__wl = 0; window.__wlr = 0; Object.defineProperty(navigator, 'wakeLock', { configurable: true, value: { request: () => { window.__wl++; return Promise.resolve({ release() { window.__wlr++; return Promise.resolve(); }, addEventListener() {} }); } } }); });
+      const A = await begin(c), w1 = await A.p.evaluate(() => window.__wl);
+      await A.p.click('#bFinish'); await A.p.click('#cy'); await code(A.p); const w2 = await A.p.evaluate(() => [window.__wl, window.__wlr]);
+      if (!(w1 >= 1) || !(w2[1] >= 1)) fail('H5: the wake lock: asked ' + w1 + ', released ' + w2[1]); else ok('H5: the screen\'s wake lock asked for at Start (' + w1 + ') and released at Finish');
+      await c.close(); }
+    /* M1: a reload whose GET is refused (429): on from the device, the clock right, the rule kept (lock after 2: one leaving, then the reload locks) */
+    { await put({ rule: { leave: 'lock', after: 2 }, unlock: '4821' });
+      const c = await ctxOf(), A = await begin(c); await sleep(2200); await leave(A.p, 'tab', 600); await back(A.p);
+      await A.p.route('**/api/test/' + A.t.id, r => r.fulfill({ status: 429, contentType: 'application/json', body: '{"error":"wait"}' }));
+      await A.p.reload(); await A.p.waitForSelector('#exCover:not([hidden])', { timeout: 15000 }).catch(() => {});
+      const st = await A.p.evaluate(() => ({ locked: !document.getElementById('exLock').hidden, clock: document.getElementById('time').textContent }));
+      if (!st.locked || st.clock === '0:00') fail('M1: a reload with its GET refused: ' + JSON.stringify(st)); else ok('M1: a reload with its GET refused (429): on from the device, the clock ' + st.clock + ', the rule kept (locked on the reload, the second leaving)');
+      await A.p.unroute('**/api/test/' + A.t.id); await c.close(); }
+    /* M2: End after 1, and a reload: the test ends */
+    { await put({ rule: { leave: 'end', after: 1 }, unlock: '4821' });
+      const c = await ctxOf(), A = await begin(c); await A.p.reload();
+      const got = await code(A.p, 30000), T = site.state.tests[A.t.id];
+      if (!got || T.ended !== 'left') fail('M2: End after 1 and a reload: code ' + got + ', ended ' + T.ended); else ok('M2: End after 1 holds across a reload (ended “left”, the code shown)');
+      await c.close(); await put({ rule: { leave: 'count', after: 3 }, unlock: '4821' }); }
+    /* M3: a page opened before the test is open: Try again under the words; Start comes by itself when it opens */
+    { const was = site.state.open[K10]; delete site.state.open[K10];
+      const c = await ctxOf(), p = watch(await c.newPage()); await p.goto(base + TPATH); await p.waitForSelector('#exClosed:not([hidden])');
+      const tr = await p.isVisible('#exClosedRetry'); await sayOnly(p, 'closed, with Try again');
+      site.state.open[K10] = was; const up = await p.waitForSelector('#exStart:not([hidden])', { timeout: 8000 }).then(() => true, () => false);
+      if (!tr || !up) fail('M3: Try again ' + tr + ', Start by itself ' + up); else ok('M3: before the test opens, “This test isn’t open.” with Try again; Start came by itself when it opened');
+      await c.close(); }
+    /* M4: Finish answered 500 once: tried again, the code; answered 400: back in the test, the proctor on (Start, then a leaving counts) */
+    { const c = await ctxOf(), A = await begin(c); let n = 0;
+      await A.p.route('**/api/test/*/finish', r => (n++ === 0 ? r.fulfill({ status: 500, contentType: 'application/json', body: '{}' }) : r.continue()));
+      await A.p.click('#bFinish'); await A.p.click('#cy');
+      if (!(await code(A.p, 30000))) fail('M4: a Finish refused once (500) never came through'); await c.close();
+      const c2 = await ctxOf(), B = await begin(c2); let m = 0;
+      await B.p.route('**/api/test/*/finish', r => (m++ === 0 ? r.fulfill({ status: 400, contentType: 'application/json', body: '{"error":"body"}' }) : r.continue()));
+      await B.p.click('#bFinish'); await B.p.click('#cy'); await sleep(800);
+      const st = await B.p.evaluate(() => ({ grading: document.body.classList.contains('exam-grading'), start: !document.getElementById('exGoIn').hidden && !document.getElementById('exCover').hidden }));
+      if (st.start) { await B.p.click('#exGoIn'); await sleep(400); }
+      const n0 = await count(B.p); await leave(B.p, 'tab', 600); const n1 = await count(B.p);
+      if (st.grading || n1 !== n0 + 1) fail('M4: a Finish refused for good: ' + JSON.stringify(st) + ', the count ' + n0 + ' → ' + n1);
+      else ok('M4: a Finish answered 500 tried again (the code came); one answered 400: back in the test under Start, the proctor on (a leaving counted)');
+      await c2.close(); }
+    /* M7: localStorage refused (sessionStorage kept): a reload resumes the same test */
+    { const c = await ctxOf(); await c.addInitScript(() => { const L = window.localStorage, s0 = Storage.prototype.setItem, g0 = Storage.prototype.getItem;
+        Storage.prototype.setItem = function (k, v) { if (this === L) throw new Error('quota'); return s0.call(this, k, v); };
+        Storage.prototype.getItem = function (k) { if (this === L) return null; return g0.call(this, k); }; });
+      const A = await begin(c), n0 = Object.keys(site.state.tests).length; await A.p.reload(); await A.p.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => {});
+      const resumed = await A.p.evaluate(() => !document.body.classList.contains('exam-pre'));
+      if (!resumed || Object.keys(site.state.tests).length !== n0) fail('M7: localStorage refused, a reload: resumed ' + resumed); else ok('M7: localStorage refused: a reload resumes the same test (sessionStorage)');
+      await c.close(); }
+    /* M5, L4: Ctrl+F, Ctrl+G, F3 stopped and logged as find; a touch long-press is not a menu */
+    { const c = await ctxOf(), A = await begin(c); await A.p.locator('#pgQ').focus();
+      await A.p.keyboard.press('Control+F'); await A.p.keyboard.press('Control+G'); await A.p.keyboard.press('F3');
+      await A.p.evaluate(() => { const el = document.querySelector('#paper .q.pg-on .stem'); el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' })); el.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true })); });
+      const L = await take(A.p), w = L.blocked.map(x => x[1]).join(' ');
+      if (w !== 'find find find') fail('M5, L4: blocked as ' + w); else ok('M5: Ctrl+F, Ctrl+G and F3 stopped and logged as find; L4: a touch long-press not logged');
+      await c.close(); }
+    /* M6: the honest log at every cap at once, every value 200 characters: never over 60 KB; then more parts than any test has */
+    { const c = await ctxOf(), A = await begin(c);
+      const r = await A.p.evaluate(([set]) => {
+        const R = Kit.Trace.rec(), t = R.t0, s200 = 'x'.repeat(200), qs = Array.prototype.map.call(document.querySelectorAll('#paper .q[data-q]'), q => q.getAttribute('data-q'));
+        for (let i = 0; i < 300; i++) R.visits.push([qs[i % qs.length], t + i * 1000, t + i * 1000 + 900]);
+        for (let i = 0; i < 100; i++) { R.calc.push(['fast', qs[i % qs.length], t + i, t + i + 5000]); R.scratch.push(['notes', qs[i % qs.length], t + i, t + i + 5000]); R.away.push([t + i, t + i + 3000, 'tab', qs[i % qs.length]]); R.blocked.push([t + i, 'copy', qs[i % qs.length]]); R.idle.push([t + i, t + i + 70000, qs[i % qs.length]]); }
+        Kit.Trace.CAP.visits = 300;
+        const ids = Object.keys(R.parts).length ? Object.keys(R.parts) : []; document.querySelectorAll('#paper [id^="a"]').forEach(e => { const id = e.getAttribute('data-part') || e.id.slice(1); if (ids.indexOf(id) < 0 && /^\d/.test(id)) ids.push(id); });
+        ids.forEach(id => { const v = (k) => [t + k, s200, 'typed']; R.parts[id] = { head: [v(1), v(2), v(3), v(4)], tail: [5, 6, 7, 8, 9, 10, 11, 12].map(v), n: 12, pastes: 0, last: null }; });
+        const notes = {}; qs.forEach((q, i) => { notes[q] = { n: i < 3 ? 'n'.repeat(1500) : '', g: { v: [4, 1], o: [] } }; });
+        localStorage.setItem('practice.scratch.v1.' + set, JSON.stringify({ t: Date.now(), q: notes }));
+        const L1 = Kit.Trace.take(), b1 = new TextEncoder().encode(JSON.stringify(L1)).length;
+        const max1 = Math.max.apply(null, [].concat(...Object.values(L1.parts).map(p => p.vals.map(v => String(v[1]).length))));
+        for (let k = 0; k < 120; k++) { const v = (j) => [t + j, s200, 'typed']; R.parts['99' + k] = { head: [v(1), v(2), v(3), v(4)], tail: [5, 6, 7, 8, 9, 10, 11, 12].map(v), n: 30, pastes: 0, last: null }; }
+        const L2 = Kit.Trace.take(), b2 = new TextEncoder().encode(JSON.stringify(L2)).length;
+        return { parts: ids.length, b1, max1, away1: L1.away.length, blocked1: L1.blocked.length, visits1: L1.visits.length, b2, away2: L2.away.length, blocked2: L2.blocked.length, n2: L2.parts['990'].n, kept2: L2.parts['990'].vals.length, dev: !!L2.device };
+      }, ['exam.' + U.id + '.set.' + A.t.id + '.all']);
+      console.log('  the honest log at every cap at once (' + r.parts + ' parts × 12 values of 200 characters, 300 visits, 100 of each list, 4 KB of scratch paper): ' + r.b1 + ' bytes (' + (r.b1 / 1024).toFixed(1) + ' KB); with 120 more parts: ' + r.b2 + ' bytes');
+      if (r.b1 > 61440 || r.max1 > 80 || r.away1 !== 101 && r.away1 !== 100 || r.blocked1 < 100 || r.b2 > 61440 || r.away2 !== r.away1 || r.blocked2 !== r.blocked1 || r.n2 !== 30 || !(r.kept2 < 12) || !r.dev) fail('M6: ' + JSON.stringify(r));
+      else ok('M6: the log never over 60 KB (' + r.b1 + ' bytes at every cap; ' + r.b2 + ' with 120 more parts, their middle values gone first, n kept); values kept to 80 characters; away, blocked and device whole');
+      await c.close(); }
+    /* L5: the device's clock moved an hour in the middle of the test: the bar's clock and the log's lengths do not move */
+    { const c = await ctxOf(), p = watch(await c.newPage()); await p.clock.install();
+      await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])'); await p.click('#exStart'); await p.waitForSelector('#pgQ'); await sleep(1500);
+      await p.clock.setSystemTime(Date.now() + 3600000); await sleep(2500);
+      const st = await p.evaluate(() => ({ clock: document.getElementById('time').textContent, L: Kit.Trace.take() }));
+      const vs = st.L.visits.reduce((a, v) => a + v[2], 0);
+      if (!/^0:0\d$/.test(st.clock) || st.L.idle.length || vs > 30) fail('L5: the device clock moved an hour: the bar ' + st.clock + ', idle ' + JSON.stringify(st.L.idle) + ', visits ' + vs + ' s');
+      else ok('L5: the device\'s clock moved an hour mid-test: the bar ' + st.clock + ', no idle hour, the visits ' + vs + ' s');
+      await c.close(); }
+    /* L8: 390 px at 200% (195 CSS px) with Larger text: nothing off the screen */
+    { const c = await ctxOf({ viewport: { width: 195, height: 422 }, hasTouch: true, isMobile: true }); await c.addInitScript(() => { try { localStorage.setItem('practice.big', '1'); } catch (e) {} });
+      const p = watch(await c.newPage()); await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])'); await p.evaluate(() => document.documentElement.classList.add('lg'));
+      const s1 = await p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      await p.click('#exStart'); await p.waitForSelector('#pgQ'); await sleep(400); await hide(p); await sleep(500); await unhide(p); await sleep(300);
+      const b = await p.evaluate(() => { const r = document.getElementById('exBackIn').getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right), innerWidth]; });
+      if (s1 > 0 || b[0] < 0 || b[1] > b[2]) fail('L8: at 195 px, Larger text: the start scrolls ' + s1 + ' px; Back to the test at ' + b); else ok('L8: 390 px at 200% with Larger text: the start does not scroll sideways, Back to the test inside the screen');
+      await c.close(); }
+    /* L9, H4: two tabs of one test; the first finishes: the second shows the results and the code; New test refused leaves the code */
+    { const c = await ctxOf(), A = await begin(c), pB = watch(await c.newPage()); await pB.goto(base + TPATH); await pB.waitForSelector('#pgQ');
+      await A.p.bringToFront(); await A.p.click('#bFinish'); await A.p.click('#cy'); await code(A.p);
+      const gotB = await code(pB, 15000), cA = await A.p.textContent('#exCode');
+      await A.p.click('#exNew'); await A.p.click('#exNewGo'); await sleep(600); await A.p.reload(); const still = await code(A.p, 15000) && await A.p.textContent('#exCode') === cA;
+      if (!gotB || !still) fail('L9, H4: the second tab\'s code ' + gotB + '; the code still there after a refused New test and a reload ' + still);
+      else ok('L9: the second tab of a finished test shows the results and the code; H4: a refused New test and a reload leave the code on the device');
+      await c.close(); }
+    await OPEN();
   }
   async function phone() {
     const c = await ctxOf({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true }), p = watch(await c.newPage());

@@ -21,9 +21,11 @@
 var K = window.Kit = window.Kit || {};
 var CAP = {visits: 300, calc: 100, scratch: 100, away: 100, blocked: 100, idle: 100};
 var HEAD = 4, TAIL = 8, IDLE = 60000, SCRATCH_BYTES = 4096, POLL = 250, BEAT = 5000;
+var LOG_BYTES = 60 * 1024, VAL_CHARS = 80;                /* the log sent is never over 60 KB (the site keeps 64 KB); a value kept to 80 characters (§11, M6) */
 var PRE = 'exam.log.';
 var R = null, API = null, NAME = '', TIMER = 0, LAST_WRITE = 0, HOW = {}, KP = 0, RESUMED = false, SEEN = 0, HELD = false, ON = false;
-function now(){ return Date.now(); }
+var MONO = Date.now() - performance.now();
+function now(){ return MONO + performance.now(); }        /* a steady count, set by the device's clock once a page load: a change to the clock in the middle of the test moves no length (§11, L5) */
 function get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function put(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 function blank(v){ return v == null || (Array.isArray(v) ? v.every(function(x){ return !String(x == null ? '' : x).trim(); }) : typeof v === 'object' ? false : !String(v).trim()); }
@@ -217,7 +219,7 @@ function take(){
   var parts = {}; Object.keys(R.parts).forEach(function(id){ var p = R.parts[id];
     parts[id] = {vals: p.head.concat(p.tail).map(function(e){ return [at(e[0]), e[1], e[2]]; }), n: p.n, pastes: p.pastes}; });
   var se = scratchEnd();
-  return {v: 1, t0: t0, t1: t1, q: qs,
+  return fit({v: 1, t0: t0, t1: t1, q: qs,
     visits: visits.map(function(e){ return [e[0], at(e[1]), at(e[2]) - at(e[1])]; }),
     parts: parts,
     calc: calc.map(function(e){ return [e[0], e[1], at(e[2]), at(e[3]) - at(e[2])]; }),
@@ -225,7 +227,27 @@ function take(){
     away: R.away.map(function(e){ return [at(e[0]), at(e[1]) - at(e[0]), e[2], e[3]]; }),
     blocked: R.blocked.map(function(e){ return [at(e[0]), e[1], e[2]]; }),
     idle: idle.map(function(e){ return [at(e[0]), at(e[1]) - at(e[0]), e[2]]; }),
-    device: device(), fails: R.fails, drop: drop};
+    device: device(), fails: R.fails, drop: drop});
+}
+/* the log within LOG_BYTES: every string in a value cut to VAL_CHARS; then, while it is still too large, the middle value of the
+   part with the most (n still counts them all), then the oldest visits (drop counts them) — never away, blocked or device */
+function short(v){ if (typeof v === 'string') return v.length > VAL_CHARS ? v.slice(0, VAL_CHARS) : v; if (Array.isArray(v)) return v.map(short);
+  if (v && typeof v === 'object'){ var o = {}; Object.keys(v).forEach(function(k){ o[k] = short(v[k]); }); return o; } return v; }
+function fit(L){
+  Object.keys(L.parts).forEach(function(id){ L.parts[id].vals.forEach(function(e){ e[1] = short(e[1]); }); });
+  var size = bytes(L), guard = 0;
+  while (size > LOG_BYTES && guard++ < 20){
+    var ids = Object.keys(L.parts);
+    while (size > LOG_BYTES){
+      var big = null; ids.forEach(function(id){ var n = L.parts[id].vals.length; if (n > 2 && (!big || n > L.parts[big].vals.length)) big = id; });
+      if (!big) break;
+      var vs = L.parts[big].vals, cut = vs.splice(Math.floor(vs.length / 2), 1)[0]; size -= bytes(cut) + 1;
+    }
+    while (size > LOG_BYTES && L.visits.length){ var g = L.visits.shift(); L.drop.visits++; size -= bytes(g) + 1; }
+    size = bytes(L);
+    if (!L.visits.length && !Object.keys(L.parts).some(function(id){ return L.parts[id].vals.length > 2; })) break;
+  }
+  return L;
 }
 function questions(){ return Array.prototype.map.call(document.querySelectorAll('#paper .q[data-q]:not(.xq)'), function(c){ return c.getAttribute('data-q'); }); }
 
@@ -261,6 +283,7 @@ K.Trace = {
   take: take,
   stop: function(){ if (R){ poll(); write(); } ON = false; },
   clear: function(test){ ON = false; R = null; try { localStorage.removeItem(PRE + test); } catch(e){} },
-  CAP: CAP
+  CAP: CAP,
+  rec: function(){ return R; }                             /* the checks' hook (check/exam_page.js fills the log to every cap through it) */
 };
 })();

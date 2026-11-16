@@ -34,8 +34,16 @@ var WORDS = {back: 'Back to the test', locked: 'Locked. Ask your teacher.', unlo
 var $ = function(id){ return document.getElementById(id); };
 var de = document.documentElement;
 var FSAPI = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled), REFUSED = false, PENDING = false;
-var ON = false, O = null, PR = null, OPEN = null, MODE = null, INERT = [], TICK = 0, WAITING = 0;
-function now(){ return Date.now(); }
+var ON = false, O = null, PR = null, OPEN = null, MODE = null, INERT = [], TICK = 0, WAITING = 0, WAKE = null, TOUCH = 0;
+var MONO = Date.now() - performance.now();
+function now(){ return MONO + performance.now(); }        /* a steady count: a change to the device's clock moves no length (§11, L5) */
+/* the screen stays awake during a test (§11, H5): asked for in the Start press, again each time the page is shown; released at
+   Finish; where there is no wake lock, nothing */
+function wake(){
+  if (!navigator.wakeLock || !navigator.wakeLock.request || WAKE || document.hidden) return;
+  try { navigator.wakeLock.request('screen').then(function(w){ if (!ON && MODE !== 'pending'){ try { w.release(); } catch(e){} return; } WAKE = w; w.addEventListener('release', function(){ if (WAKE === w) WAKE = null; }); }, function(){}); } catch(e){}
+}
+function sleepOk(){ var w = WAKE; WAKE = null; if (w) try { w.release(); } catch(e){} }
 function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
 function fs(){ return FSAPI && !REFUSED; }
 function trace(){ return K.Trace || null; }
@@ -45,6 +53,7 @@ function inBox(el){ return !!(el && el.closest && el.closest('input[type=text], 
 
 /* ---- full screen: asked for inside a press */
 function enter(){
+  if (!ON) MODE = MODE || 'pending'; wake();
   if (!FSAPI || fsEl()) return;
   var f = de.requestFullscreen || de.webkitRequestFullscreen; if (!f) return;
   PENDING = true;
@@ -117,6 +126,7 @@ function check(){
     if (OPEN.hid || OPEN.kind !== 'window' || t - OPEN.t >= GRACE) count();
   }
 }
+function endIfDue(){ var r = O.rule || {}; if (r.leave === 'end' && PR.n >= Math.max(1, +r.after || 0) && O.onEnd){ var f = O.onEnd; setTimeout(function(){ if (ON) f('left'); }, 0); } }
 function count(){
   OPEN.counted = true; PR.n++;
   var T = trace(); if (T && T.hold) T.hold(true);
@@ -153,16 +163,19 @@ function block(e, what){ e.preventDefault(); var T = trace(); if (T && T.blocked
 function guards(){
   document.addEventListener('copy', function(e){ if (ON && !inBox(e.target)) block(e, 'copy'); }, true);
   document.addEventListener('cut', function(e){ if (ON && !inBox(e.target)) block(e, 'cut'); }, true);
-  document.addEventListener('contextmenu', function(e){ if (ON && !inBox(e.target)) block(e, 'menu'); }, true);
+  document.addEventListener('pointerdown', function(e){ if (e.pointerType === 'touch') TOUCH = now(); }, true);
+  document.addEventListener('contextmenu', function(e){ if (!ON || inBox(e.target)) return; if (now() - TOUCH < 2000){ e.preventDefault(); return; } block(e, 'menu'); }, true);   /* a long press on a touch screen is not a right-click (L4) */
   document.addEventListener('dragstart', function(e){ if (ON && !inBox(e.target)) block(e, 'drag'); }, true);
   document.addEventListener('selectstart', function(e){ if (ON && !inBox(e.target)) e.preventDefault(); }, true);
   document.addEventListener('keydown', function(e){
     if (!ON || !(e.ctrlKey || e.metaKey) || e.altKey) return;
     var k = String(e.key || '').toLowerCase();
     if (k === 'p') block(e, 'print'); else if (k === 's') block(e, 'save'); else if (k === 'a' && !inBox(e.target)) block(e, 'selectall');
+    else if (k === 'f' || k === 'g') block(e, 'find');   /* the find bar would take the focus: a leaving the child did not mean (M5) */
   }, true);
+  document.addEventListener('keydown', function(e){ if (ON && e.key === 'F3') block(e, 'find'); }, true);
   window.addEventListener('beforeprint', function(){ if (ON){ var T = trace(); if (T && T.blocked) T.blocked('print'); } });
-  document.addEventListener('visibilitychange', check);
+  document.addEventListener('visibilitychange', function(){ check(); if (ON && !document.hidden) wake(); });
   window.addEventListener('blur', function(){ setTimeout(check, 0); });
   window.addEventListener('focus', check);
   document.addEventListener('fullscreenchange', check); document.addEventListener('webkitfullscreenchange', function(){ PENDING = false; check(); });
@@ -172,7 +185,7 @@ var GUARDED = false;
 K.Proctor = {
   GRACE: GRACE,
   enter: enter,                                            /* exam.js, inside the Start press */
-  leave: leaveFs,                                          /* exam.js: Start was refused (the test is not open) */
+  leave: function(){ leaveFs(); if (!ON){ MODE = null; sleepOk(); } },                                          /* exam.js: Start was refused (the test is not open) */
   /* exam.js, once the test is on the page: {rule, onEnd(why), unlock(code, cb(ok, status))} */
   start: function(o){
     O = o || {}; build();
@@ -182,17 +195,26 @@ K.Proctor = {
     document.body.classList.add('exam-on');
     if (!GUARDED){ GUARDED = true; guards(); }
     if (T && T.resumed && T.resumed()){                    /* the page loaded again in the middle of the test: a leaving */
-      if (was && was.open){ OPEN = was.open; OPEN.kind = 'reload'; if (T.hold) T.hold(true); save(); paint(); }
+      if (was && was.open){ OPEN = was.open; OPEN.kind = 'reload'; if (T.hold) T.hold(true); save(); paint(); endIfDue(); }   /* counted as the page went: End after N still ends (M2) */
       else { OPEN = {t: (T.seen && T.seen()) || now(), kind: 'reload', q: qNow(), counted: false, hid: true}; count(); }
     } else if (fs() && !PENDING && !fsEl()) MODE = 'start';   /* a test begun without a press (New test): Start, then full screen */
-    paint();
+    paint(); wake();
+    clearInterval(TICK); TICK = setInterval(check, POLL);
+  },
+  /* exam.js: a Finish that could not be sent — back to the test, watched again (M4). Full screen went with Finish, so Start
+     (no leaving counted) brings it back. */
+  again: function(o){
+    if (ON) return; O = o || O || {}; build(); ON = true; OPEN = null;
+    document.body.classList.add('exam-on');
+    MODE = fs() ? 'start' : null;   /* full screen was left at Finish (or is on its way out) */
+    paint(); wake();
     clearInterval(TICK); TICK = setInterval(check, POLL);
   },
   stop: function(){
     if (!ON) return;
     close(now()); ON = false; MODE = null; clearInterval(TICK);
     if (WAITING){ clearTimeout(WAITING); WAITING = 0; }
-    paint(); document.body.classList.remove('exam-on'); leaveFs();
+    paint(); document.body.classList.remove('exam-on'); leaveFs(); sleepOk();
   },
   fs: fs,
   count: function(){ return PR ? PR.n : 0; }

@@ -7,7 +7,9 @@
    GET  /api/test/status?course=&unit=   → {open, pin}   pin: a start code is asked for (a boolean, never the code; 16 Nov 2026)
    POST /api/test/start {course, unit, pin, dev} → {test, token, started, now, ends, rule, show, form, pub}
                                            dev: the browser's id (32 hex); missing or malformed → 400 {error: 'body'}; a second start
-                                           from the same dev in the same opening → 403 {error: 'again'} (16 Nov 2026, §10);
+                                           from the same dev in the same opening answers that test again with a fresh token (the old
+                                           one stops working) while it is open and live, and is 403 {error: 'again'} once it is
+                                           finished or sealed (16 Nov 2026, §10, §11);
                                            ends: when this test stops being live (ms, this clock): the opening's until, or null
                                            403 {error: 'closed'} when not open; 409 {error: 'empty'} when no test is left;
                                            with cfg.startCode on: 403 {error: 'pin'} for a missing, wrong or lapsed code (compared
@@ -24,7 +26,8 @@
    PUT  /api/test/<id>/save {answers, flags, n}  → {ok: true, ends}   (the newest n is kept; an older one changes nothing)
    POST /api/test/<id>/read {part, text, a?}     → {ok, pretty}   a: the part's part (a) answer as it now stands on the device
                                                                   (else the last saved); never right or wrong
-   POST /api/test/<id>/unlock {code}             → {ok}   five tries a minute (429 {error: 'wait'} after)
+   POST /api/test/<id>/unlock {code}             → {ok}   five tries a minute (429 {error: 'wait'} after); a test not open → 409
+                                                  {error: 'finished'}
    POST /api/test/<id>/finish {answers, log, ended?} → {steps}   once; again → 409 {error: 'finished', steps}
    POST /api/test/<id>/grade {step}              → {done, steps}  step k judges parts 2k and 2k+1; the same step again is
                                                                   answered again; a step out of order → 409 {error: 'order', next}
@@ -34,7 +37,8 @@
    GET  /api/test/key                            → {key: null}      CORS *; the stand-in signs nothing
    GET  /teacher/api/test/config                 → {rule, show, form, unlock: bool, hidden: [fams]}
    PUT  /teacher/api/test/config {rule?, show?, form?, unlock?, hidden?, startCode?} → the config (unlock: the code, kept hashed;
-                                                   startCode: true | false, a start code asked for at Start; default true)
+                                                   startCode: true | false, a start code asked for at Start; default true);
+                                                   400 {error: 'unlock'} if it would leave the rule lock with no unlock code (§11)
    PUT  /teacher/api/test/pool/<course>/<unit> {forms: [{seed, pub, priv, fams}]} → {n}   (5 a request on the site)
    POST /teacher/api/test/open {course, unit, until?} → {ok, opened}  (a new opening, with its first start code)
    POST /teacher/api/test/close {course, unit} → {ok}
@@ -76,7 +80,9 @@ function create(o) {
         const o = state.open[k], pin = String(q.body.pin == null ? '' : q.body.pin).toUpperCase().replace(/\s+/g, '');
         if (!o.pin || pin !== o.pin || now >= o.pinUntil) { if (w.length >= 60) return [429, { error: 'wait' }]; w.push(now); return [403, { error: 'pin' }]; }
       }
-      const dh = sha(q.body.dev); if (Object.values(state.tests).some(x => x.course === q.body.course && x.unit === +q.body.unit && x.opened === state.open[k].opened && x.dev === dh)) return [403, { error: 'again' }];
+      const dh = sha(q.body.dev), had = Object.values(state.tests).find(x => x.course === q.body.course && x.unit === +q.body.unit && x.opened === state.open[k].opened && x.dev === dh);
+      if (had) { if (had.status !== 'open' || !live(had)) return [403, { error: 'again' }];
+        const tok = rnd(16); had.tok = sha(tok); return Object.assign(pubStart(had), { token: tok }); }   /* the same test again, a fresh token */
       const pool = state.pools[k] || [], i = pool.findIndex(f => !f.used && !(f.fams || []).some(x => state.cfg.hidden.indexOf(x) >= 0));
       if (i < 0) return [409, { error: 'empty' }];
       const f = pool[i]; f.used = true;
@@ -106,6 +112,7 @@ function create(o) {
       return { ok: r.ok, pretty: r.pretty };
     }, 'token'],
     ['POST', /^\/api\/test\/([0-9a-f]{16})\/unlock$/, (q, m, t) => {
+      if (t.status !== 'open') return [409, { error: 'finished' }];
       if (!live(t)) return [403, { error: 'closed' }];
       const now = state.now(); t.tries = t.tries.filter(x => now - x < 60000);
       if (t.tries.length >= 5) return [429, { error: 'wait' }];
@@ -146,9 +153,12 @@ function create(o) {
     }, 'token'],
     ['GET', /^\/teacher\/api\/test\/config$/, () => cfgOut(), 'teacher'],
     ['PUT', /^\/teacher\/api\/test\/config$/, (q) => { const b = q.body;
+      const rule = b.rule !== undefined ? b.rule : state.cfg.rule, code = b.unlock !== undefined ? b.unlock : state.cfg.unlock;
+      if (rule && rule.leave === 'lock' && !code) return [400, { error: 'unlock' }];
       ['rule', 'show', 'form', 'hidden', 'startCode'].forEach(k => { if (b[k] !== undefined) state.cfg[k] = b[k]; }); if (b.unlock !== undefined) state.cfg.unlock = b.unlock ? sha(String(b.unlock)) : null; return cfgOut(); }, 'teacher'],
     ['PUT', /^\/teacher\/api\/test\/pool\/([a-z0-9]+)\/(\d+)$/, (q, m) => { const k = ukey(m[1], m[2]); (state.pools[k] = state.pools[k] || []).push(...(q.body.forms || [])); return { n: state.pools[k].length }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/open$/, (q) => { const k = ukey(q.body.course, q.body.unit); if (!(state.pools[k] || []).length) return [409, { error: 'no pool' }];
+      if (state.cfg.rule && state.cfg.rule.leave === 'lock' && !state.cfg.unlock) return [409, { error: 'unlock' }];
       const now = state.now(); state.open[k] = { until: q.body.until || null, opened: now, pin: pin4(), pinUntil: now + START_WINDOW_MS }; return { ok: true, opened: now }; }, 'teacher'],
     ['POST', /^\/teacher\/api\/test\/extend$/, (q) => { const o = state.open[ukey(q.body.course, q.body.unit)]; if (!o) return [409, { error: 'closed' }];
       if (!(+q.body.until > state.now())) return [400, { error: 'until' }]; o.until = +q.body.until; return { ok: true, until: o.until }; }, 'teacher'],
