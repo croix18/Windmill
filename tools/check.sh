@@ -32,6 +32,8 @@ if [ -d "$A7/.git" ] && [ -d "$M7/.git" ]; then node drive/test_windyhill.js "$A
 echo "== room"
 python3 tools/check_fixtures.py
 node room/test.js
+echo "== the Cadence tools' own reading (tools/cadence_fast.py, tools/cadence_bank.py; no browser)"
+python3 tools/test_cadence_fast.py
 echo "== practice kit (the practice-test pages both courses vendor)"
 python3 tools/practice_kit.py --check
 

@@ -95,6 +95,37 @@ old key the kit's Portuguese table kept for M7 Unit 4's `bi_check.js` is gone: t
 saved." One line was left for Croix to call: the help standard's "Open Hint, then tap Step by step with me." after a
 miss nothing names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit).
 
+## Everything that draws from Cadence (15 Nov 2026, 7–10 pm: Cadence 29.28; the FAST bank on state levels, with pictures as choices)
+
+Croix, 7:02 pm: *"There are a lot of things that utilize cadences generators, most notably the fast practice test. We did all
+this work on cadence, let's put it into practice. Update the fast practice to have the lastest engine of cadence, so I should
+actually see graphs and inequalities on number lines instead of them just being described."* — 7:14 pm: *"Well same with the
+unit assessments, the regular practice tests, the deckhand bellwork, everything that depends on cadence."*
+- **Three things draw from Cadence**, and each has to be remade for a Cadence change to reach a class: the site's copy of
+  Cadence (`mrshaffer-site/public/teacher/cadence/`, which Deckhand's Warm-up opens; `tools/sync.py --cadence` there), the
+  practice FAST tests' bank (`tools/cadence_fast.py` here), and every unit's lesson practice sets (`tools/cadence_bank.py`
+  here, then the unit's `check/run.py` and `publish_web.py`). **The unit tests and the unit practice tests do not draw from
+  Cadence**: each unit has its own engine. The site's copy was 29.17 and both banks were 29.16.
+- **Both tools drew G and H only** (`drawItem`). Cadence's 108 Grade 8 level-bank generators (`L2`…`L5`, written 14–15 Nov
+  for the state's achievement levels: most of its graphs to read) were in neither bank.
+- **`tools/cadence_fast.py`, rewritten** (its own notes are the specification): every generator Cadence has for a benchmark —
+  G, H and the level banks — drawn by itself; every item with its **state achievement level, 2 to 5** (Cadence's `itemLevel`;
+  Croix, 14 Nov: the state's levels replace Cadence's own bands); at most 8 items for each level of a benchmark, **one
+  generator at a time**, so none crowds the others out (MA.8.AR.3.3's bank was 30 copies of "A line has a slope of −2 and a
+  y-intercept of 1"); a "which graph?" and a "which number line?" question's four choices **each their own picture**, cut
+  from Cadence's one figure (`split_choices`); "Write an equation … in slope-intercept form" asked as **y = ☐x + ☐**. The
+  bank is `v: 2` (`lv`, `src`; no `band`). 381 of Cadence's 463 Grade 8 generators are in it; 1,108 items; 308 with a
+  figure, 32 with pictures as choices. `tools/test_cadence_fast.py` (in `tools/check.sh`) holds the tool's own reading.
+- **`tools/cadence_bank.py`**: reads Cadence 29.28's drawn "which number line?" choice (`choice_lines`, from the figure's
+  description) and still turns it into a graph the student builds; the four-line figure does not go into the bank and
+  "That is number line C." leaves the solution. It still draws G and H only: a lesson's focus names G and H generators,
+  and the level banks have no lesson focus in Cadence yet.
+- **Cadence 29.28** (its CHANGELOG): number lines drawn in the choices and in the key (`afig`), four "describe its graph"
+  questions that now say "graph it", and a converter bug ("(√56)²") that the site's build caught.
+- **The site** (its README, "The generated FAST tests"): the test starts at Level 3 and goes one level up or down; the
+  report's Level column is the state's level; `released/kit/fast.css` lays out pictures as choices (graphs two by two,
+  number lines one under another).
+
 ## The practice kit has `cgraph` — a circle graph the student builds (15 Nov 2026, evening; M7 Unit 7 is its first user)
 
 Croix, 3:11 pm, to the M7 build session, of M7 Unit 7's open items (its test had no construct-a-circle-graph item, "because
