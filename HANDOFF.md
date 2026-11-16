@@ -34,15 +34,13 @@ courses: every unit's page and teacher copy builds and holds none of the old lin
 Português) passes `check/run.py` whole; A7 Unit 6's page and teacher copy pass the page checks (`page.js`, `help_page.js`,
 `bank.js`).
 
-**Not on any page yet.** Croix stopped the site session there (*"Finish, push, and stop"*): no course has vendored this
-kit and nothing was published. A unit's page gets the new words at its next build on this kit
-(`tools/practice_kit.py --vendor`, `check/run.py`, then `publish_web.py --site`). On the website that is the published
-pages — M7 4, 5, 9, 10, 13 and A7 3, 4, 5, 6 — and publishing them also publishes whatever else those pages were rebuilt
-with on 15 Nov, which is Croix's word to give. Two things for whoever does it:
-- M7 Unit 4's own `bi_check.js` (line 29) still writes "…? This set stays saved on this device."; the kit's table keeps
-  that one old key so the check passes. Change the line to "This set stays saved." and the key can go.
-- One line was left for Croix to call: the help standard's "Open Hint, then tap Step by step with me." after a miss
-  nothing names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit).
+**The rollout (15 Nov 2026, from 7:20 pm).** Croix stopped the site session after the kit was pushed (*"Finish, push,
+and stop"*), then, at 7:16 pm: *"Go through and rebuild and republish everything that needs it."* The site session is
+vendoring this kit into both courses, re-running every page and teacher copy but M7 Unit 7's (its build session's), and
+putting the published ones on the site; each course's `NOTES.md` (top) and this paragraph say when it is done. The one
+old key the kit's Portuguese table kept for M7 Unit 4's `bi_check.js` is gone: that check now writes "This set stays
+saved." One line was left for Croix to call: the help standard's "Open Hint, then tap Step by step with me." after a
+miss nothing names (`practice/kit/HELP_STANDARD.md`; it is written in the units' `help.js`, not in the kit).
 
 ## The practice kit has `cgraph` — a circle graph the student builds (15 Nov 2026, evening; M7 Unit 7 is its first user)
 

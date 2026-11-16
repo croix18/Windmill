@@ -670,8 +670,8 @@ feedback, hints and help are the units' and were not touched):
 - **Kept on purpose:** the two streak lines, the first-try and effort lines, the skill chips and the table, "One on your own
   earns the point.", the map's three-word legend, and every message a student needs in order to go on.
 
-`lang/pt-BR.js` has the same words as they now are; the keys of the lines that went are gone, but for "This set stays saved
-on this device.", which M7 Unit 4's own `bi_check.js` still carries (take the key out when that check says the new line).
+`lang/pt-BR.js` has the same words as they now are, and the keys of the lines that went are gone (M7 Unit 4's own
+`bi_check.js`, the one unit check that wrote a kit sentence out, says "This set stays saved." since the same evening).
 `check/page.js` part K fails a built page that still holds any of the old lines (its `WORDS` list, read in the page with its
 comments taken out), holds the whole test to no chip and a lesson's line to its count; the "Last time" check reads the new
 line. A unit's page changes when it is next built on this kit; no question, key

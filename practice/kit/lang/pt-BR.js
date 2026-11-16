@@ -157,7 +157,6 @@ var T = {
   'Finish and see your score?': 'Terminar e ver a sua nota?',
   'Switching clears your answers.': 'Trocar apaga as suas respostas.',
   'This set stays saved.': 'Esta lista fica salva.',
-  'This set stays saved on this device.': 'Esta lista fica salva neste aparelho.',   /* the line as it was before 15 Nov 2026: M7 Unit 4's own check (bi_check.js) still carries it */
   'Start a new set? This one stays saved.': 'Começar uma lista nova? Esta fica salva.',
   'Clear your answers and start over?': 'Apagar as suas respostas e recomeçar?',
   'This set was updated, so it starts over.': 'Esta lista foi atualizada, então ela recomeça.',
