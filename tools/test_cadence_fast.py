@@ -30,7 +30,7 @@ pics = cf.split_choices(item)
 ok(pics and len(pics) == 4, "four planes are not cut into four pictures")
 if pics:
     ok(all(p["svg"].startswith('<svg class="fig" width="100%" viewBox="') and p["svg"].endswith("</svg>") for p in pics), "a part is not an SVG of its own")
-    ok([re.search(r'viewBox="([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)"', p["svg"]).groups() for p in pics] == [("7", "23", "136", "136"), ("155", "23", "136", "136"), ("7", "187", "136", "136"), ("155", "187", "136", "136")], "a part's box is not its plane and a margin of 5")
+    ok([re.search(r'viewBox="(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+)"', p["svg"]).groups() for p in pics] == [("8", "24", "134", "134"), ("156", "24", "134", "134"), ("8", "188", "134", "134"), ("156", "188", "134", "134")], "a part's box is not its plane and a margin of 4")
     ok(all(p["svg"].count("<rect") == 1 and "font-weight:700" not in p["svg"] for p in pics), "a part holds another plane, or its letter")
     ok(len({p["svg"] for p in pics}) == 4, "two parts are the same picture")
     ok([p["alt"] for p in pics] == ["Graph A is a line through (0, 4) with slope −3", "Graph B is a line through (0, −4) with slope −3", "Graph C is a line through (0, 4) with slope 3", "Graph D is a line through (0, −3) with slope 4"], "the parts' words are not the figure's own")
@@ -47,14 +47,61 @@ item = {"optsP": [f"Number line {L}" for L in "ABCD"], "fig": nl,
 pics = cf.split_choices(item)
 ok(pics and len(pics) == 4, "four number lines are not cut into four pictures")
 if pics:
-    ok([re.search(r'viewBox="([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)"', p["svg"]).groups() for p in pics] == [("30", "5", "274", "36"), ("30", "61", "274", "36"), ("30", "117", "274", "36"), ("30", "173", "274", "36")], "a number line's box is not its own row")
+    ok([re.search(r'viewBox="(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+)"', p["svg"]).groups() for p in pics] == [("36.42", "7", "262.58", "34.7"), ("36.42", "63", "262.58", "34.7"), ("36.42", "119", "262.58", "34.7"), ("36.42", "175", "262.58", "34.7")], "a number line's box is not its own row, with the four rows' left and right edges the same")
     ok(all(p["svg"].count("<circle") == 1 and "font-weight:700" not in p["svg"] for p in pics), "a part holds another number line, or its letter")
     ok(pics[2]["alt"] == "Number line C has an open circle at −3 and is shaded to the right", "a number line's words are not the figure's own")
+
+# ---- number lines whose rows reach different ways (an arrow at the left of one, at the right of another): the four
+#      pictures still share their left edge and their width, so the tick marks stand under one another
+def row2(i):
+    y = 17 + 56 * i
+    arrow = f'<polygon points="46,{y - 6} 37,{y} 46,{y + 6}" fill="#222"/>' if i % 2 else f'<polygon points="286,{y - 6} 295,{y} 286,{y + 6}" fill="#222"/>'
+    return T(14, y + 4.5, "ABCD"[i], 13, 700) + arrow + f'<line x1="46" y1="{y}" x2="286" y2="{y}" stroke="#222" stroke-width="1.5"/>' + T(46, y + 18, "0", 9, 400) + T(286, y + 18, "10", 9, 400) \
+        + f'<circle cx="{142 + 24 * i}" cy="{y}" r="5" fill="#222"/>'
+nl2 = '<svg class="fig quad nl" width="100%" viewBox="0 0 312 212" preserveAspectRatio="xMidYMid meet">' + "".join(row2(i) for i in range(4)) + "</svg>"
+pics2 = cf.split_choices({"optsP": [f"Number line {L}" for L in "ABCD"], "fig": nl2, "ft": ""})
+ok(pics2 and len({re.search(r'viewBox="([\d.]+) [\d.]+ ([\d.]+) ([\d.]+)"', p["svg"]).groups() for p in pics2}) == 1, "number lines that reach different ways are not cut to one left edge and one size")
+ok(pics2 and re.search(r'viewBox="([\d.]+) ', pics2[0]["svg"]).group(1) == "33", "the shared left edge is not the farthest arrow's, less the margin")
+
+# ---- parts that stand close together (line graphs with their axis numbers outside): a smaller margin, never the neighbor
+def graph(i, gap):
+    ox, oy = 14 + (i % 2) * (130 + gap), 30 + (i // 2) * 160
+    return T(ox + 60, oy - 6, "ABCD"[i], 11, 700) + f'<line x1="{ox}" y1="{oy}" x2="{ox}" y2="{oy + 120}" stroke="#222" stroke-width="1.2"/><line x1="{ox}" y1="{oy + 120}" x2="{ox + 120}" y2="{oy + 120}" stroke="#222" stroke-width="1.2"/>' \
+        + f'<text x="{ox - 3}" y="{oy + 4}" text-anchor="end" style="font-family:Arial;font-size:9px" fill="#222">10</text>' + T(ox + 125, oy + 123, "x", 9, 400) \
+        + f'<polyline points="{ox + 10},{oy + 100 - 10 * i} {ox + 60},{oy + 40} {ox + 110},{oy + 20 + 10 * i}" fill="none" stroke="#222" stroke-width="1.8"/>'
+close = lambda gap: {"optsP": [f"Graph {L}" for L in "ABCD"], "ft": "", "fig": '<svg class="fig quad" width="100%" viewBox="0 0 300 330" preserveAspectRatio="xMidYMid meet">' + "".join(graph(i, gap) for i in range(4)) + "</svg>"}
+near = cf.split_choices(close(16))
+ok(near and len(near) == 4, "four graphs standing close together are not cut")
+if near:
+    vb = [tuple(float(v) for v in re.search(r'viewBox="(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+)"', p["svg"]).groups()) for p in near]
+    ok(len({(v[2], v[3]) for v in vb}) == 1, "close graphs are not one size")
+    ok(vb[0][0] + vb[0][2] <= 14 + 146 - 3 - 0.62 * 18 + 0.01 and vb[1][0] >= 14 + 125 + 0.31 * 9 - 0.01, "a close graph's picture reaches into its neighbor's numbers, or loses its own x")
+    ok(vb[0][0] < 0 and vb[0][0] > -4.2, "a part at the figure's edge does not keep its margin")
+    ok(abs(vb[0][0] + vb[0][2] - vb[1][0]) < 0.011, "close graphs' pictures do not meet half way between them")
+ok(cf.split_choices(close(2)) is None, "graphs whose drawings run into each other were cut")
+# parts of two sizes: the four pictures take the larger size, and a smaller part's picture then reaches its neighbor
+uneven = close(16)["fig"]
+for L in "BD":      # the right-hand graphs carry a long word at their left, so they are wider than the left-hand ones
+    k = uneven.index(f">{L}</text>"); k2 = uneven.index("<line", k)
+    x = float(re.search(r'<line x1="([\d.]+)"', uneven[k2:]).group(1)); y = float(re.search(r'<line x1="[\d.]+" y1="([\d.]+)"', uneven[k2:]).group(1))
+    uneven = uneven[:k2] + f'<text x="{x - 3}" y="{y + 60}" text-anchor="end" style="font-family:Arial;font-size:9px" fill="#222">10</text>' + uneven[k2:]
+ok(cf.split_choices({**close(16), "fig": uneven}) is not None, "graphs with one more number at the left are not cut")
+wide = uneven
+for L in "BD":
+    k = wide.index(f">{L}</text>"); k2 = wide.index("<polyline", k)
+    x = float(re.search(r'<polyline points="([\d.]+),', wide[k2:]).group(1)); y = float(re.search(r'<polyline points="[\d.]+,([\d.]+)', wide[k2:]).group(1))
+    wide = wide[:k2] + f'<line x1="{x + 100}" y1="{y}" x2="{x + 140}" y2="{y}" stroke="#222" stroke-width="1"/>' + wide[k2:]
+wide = wide.replace('viewBox="0 0 300 330"', 'viewBox="0 0 340 330"')
+ok(cf.split_choices({**close(16), "fig": wide}) is None, "pictures of the larger part's size were cut though a smaller part's picture then shows its neighbor")
+ok(cf.split_choices({**close(16), "fig": close(16)["fig"].replace('viewBox="0 0 300 330"', 'viewBox="0 0 280 330"')}) is None, "a part that Cadence's own figure cuts off was shown further")
+ok(cf.split_choices({**close(16), "fig": close(16)["fig"].replace("<polyline", '<g transform="translate(2,0)"></g><polyline', 1)}) is None, "a part with a group or a transform was cut by guesswork")
+ok(cf.split_choices({**close(16), "fig": close(16)["fig"].replace("<polyline", '<path d="M 20 40 C 30 10, 60 10, 70 40" fill="none" stroke="#222"/><polyline', 1)}) is None, "a part with a curve command was cut by guesswork")
+ok(cf.part_box('<line x1="1" y1="2" x2="30" y2="40" stroke="#222"/><circle cx="50" cy="50" r="5" fill="#222"/>') == (1.0, 2.0, 55.0, 55.0) and cf.part_box("") is None and cf.part_box('<line x1="1" y1="2" x2="3" y2="4"/>stray') is None, "part_box does not measure plain shapes, or measures what is not one")
 
 # ---- what must stay whole: other choices, a figure whose letters are not A B C D in order, a figure with a part missing
 ok(cf.split_choices({"optsP": ["4", "5", "6", "7"], "fig": quad, "ft": ""}) is None, "a choice of numbers was cut")
 ok(cf.split_choices({"optsP": [f"Graph {L}" for L in "ABCD"], "fig": quad.replace(">B</text>", ">D</text>", 1), "ft": ""}) is None, "a figure lettered A D C D was cut")
-ok(cf.split_choices({"optsP": [f"Graph {L}" for L in "ABCD"], "fig": quad.replace('<rect x="160"', '<circle x="160"'), "ft": ""}) is None, "a figure with a plane that has no box was cut")
+ok(cf.split_choices({"optsP": [f"Graph {L}" for L in "ABCD"], "fig": quad.replace('<rect x="160"', '<circle x="160"'), "ft": ""}) is None, "a figure with a shape that cannot be measured was cut")
 ok(cf.split_choices({"optsP": [f"Graph {L}" for L in "ABCD"], "fig": nl, "ft": ""}) is None, "number lines were cut as graphs")
 ok(cf.split_choices({"optsP": [f"Number line {L}" for L in "ABCD"], "fig": None, "ft": ""}) is None, "an item with no figure was cut")
 no_words = cf.split_choices({"optsP": [f"Graph {L}" for L in "ABCD"], "fig": quad, "ft": "four graphs"})
@@ -85,4 +132,4 @@ ok(cb.strip_choice_letter([[["x \\le 2", 0], " That is number line B."]]) == [[[
 
 if bad:
     print("test_cadence_fast: FAILED\n  " + "\n  ".join(bad)); sys.exit(1)
-print("test_cadence_fast: the slope-intercept reader (18 keys), pictures as choices (planes, number lines, what stays whole), one generator at a time, a drawn choice built as a graph (cadence_bank): all pass")
+print("test_cadence_fast: the slope-intercept reader (18 keys), pictures as choices (planes, number lines, close graphs, what stays whole), one generator at a time, a drawn choice built as a graph (cadence_bank): all pass")

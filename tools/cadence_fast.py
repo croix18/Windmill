@@ -61,7 +61,8 @@ PICTURES AS CHOICES (the same evening). Cadence draws a "which graph?" question 
 planes lettered A to D with the choices "Graph A" … "Graph D", and (since 29.28) a "which number line?" question as four
 number lines lettered A to D with "Number line A" … "Number line D". On the FAST each choice IS its graph. So when an
 item's four choices are those words and its figure can be cut into its four parts exactly (split_choices: the lettered
-label that opens each part, in order; a part's own box; anything else and the figure stays whole), each choice is its
+label that opens each part, in order; a part's box measured from its own drawing, so the framed planes and the unframed
+line graphs of MA.8.DP.1.1 come apart alike; anything it cannot measure and the figure stays whole), each choice is its
 own picture ({svg, alt}) and the question has no other figure. The words ("Graph B") stay in choicesPlain: they are what
 Cadence's printed answer names, and what the site's check reads the key against.
 
@@ -273,54 +274,119 @@ def convert(it):
 
 
 # ------------------------------------------------------------------------------------------------ pictures as choices
-# Cadence's two four-part choice figures, each part opened by its letter:
-#   figChoicePlanes (four coordinate planes, "Graph A" … "Graph D"): the letter is 11px bold; a part's plane is its
-#     <rect … fill="none">, the first one after the letter;
-#   figNumberLineChoice (29.28; "Number line A" … "Number line D"): the letter is 13px bold at x = 14; a part's axis is
-#     4.5 above the letter's baseline, and the line runs from x = 46 to the figure's width less 26.
+# Cadence's four-part choice figures, each part opened by its letter (A, B, C, D, in bold):
+#   the coordinate planes of a "which graph?" question ("Graph A" … "Graph D"): the letter is 11px, over its plane;
+#   the number lines of a "which number line?" question (Cadence 29.28; "Number line A" … "Number line D"): the letter
+#     is 13px, at the left of its line.
+# A part is everything Cadence drew between its letter and the next one, and its picture is that drawing's own box
+# (part_box: where its lines, circles, shapes and words are), so nothing here knows how Cadence lays a part out.
 PLANE_LETTER = re.compile(r'<text x="[\d.]+" y="[\d.]+" text-anchor="middle" style="[^"]*font-size:11px;font-weight:700" fill="#222">([A-D])</text>')
-LINE_LETTER = re.compile(r'<text x="14" y="([\d.]+)" text-anchor="middle" style="[^"]*font-size:13px;font-weight:700" fill="#222">([A-D])</text>')
+LINE_LETTER = re.compile(r'<text x="14" y="[\d.]+" text-anchor="middle" style="[^"]*font-size:13px;font-weight:700" fill="#222">([A-D])</text>')
 SVG_WHOLE = re.compile(r'^<svg class="fig[^"]*" width="100%" viewBox="0 0 ([\d.]+) ([\d.]+)" preserveAspectRatio="xMidYMid meet">(.*)</svg>$', re.S)
 PART_NAMES = {"Graph": PLANE_LETTER, "Number line": LINE_LETTER}
+_NUM = r"-?\d+(?:\.\d+)?"
 
 
-def _box(x, y, w, h, body):
+def part_box(body):
+    """Where a piece of Cadence's drawing is: (x0, y0, x1, y1) around its lines, circles, rectangles, polygons, polylines,
+    paths (absolute M and L only) and words (a word's width is reckoned at 0.62 of its size for each character, generously);
+    None when it holds anything else (a group, a transform, a curve command), so that a part is never cut by guesswork."""
+    xs, ys, seen = [], [], 0
+    def add(x, y):
+        xs.append(float(x)); ys.append(float(y))
+    for m in re.finditer(r"<(\w+)\b([^>]*?)/?>(?:([^<]*)</\1>)?", body):
+        tag, at, inner = m.group(1), m.group(2), m.group(3)
+        A = dict(re.findall(r'([\w:-]+)="([^"]*)"', at))
+        seen += 1
+        if "transform" in A:
+            return None
+        try:
+            if tag == "line":
+                add(A["x1"], A["y1"]); add(A["x2"], A["y2"])
+            elif tag == "circle":
+                r = float(A["r"]); add(float(A["cx"]) - r, float(A["cy"]) - r); add(float(A["cx"]) + r, float(A["cy"]) + r)
+            elif tag == "rect":
+                add(A["x"], A["y"]); add(float(A["x"]) + float(A["width"]), float(A["y"]) + float(A["height"]))
+            elif tag in ("polygon", "polyline"):
+                pts = re.findall(rf"({_NUM})[ ,]({_NUM})", A["points"])
+                if not pts:
+                    return None
+                for x, y in pts:
+                    add(x, y)
+            elif tag == "path":
+                d = A["d"]
+                if re.search(r"[^MLZ\d\s.,-]", d):
+                    return None
+                for x, y in re.findall(rf"({_NUM})[ ,]({_NUM})", d):
+                    add(x, y)
+            elif tag == "text":
+                size = float(re.search(r"font-size:([\d.]+)px", A.get("style", "")).group(1))
+                x, y, w = float(A["x"]), float(A["y"]), 0.62 * size * len(re.sub(r"&\w+;", "x", inner or ""))
+                x0 = x - w / 2 if A.get("text-anchor") == "middle" else x - w if A.get("text-anchor") == "end" else x
+                add(x0, y - 0.85 * size); add(x0 + w, y + 0.3 * size)
+            else:
+                return None
+        except (KeyError, ValueError, AttributeError):
+            return None
+    if not seen or re.sub(r"<(\w+)\b[^>]*?/?>(?:[^<]*</\1>)?", "", body).strip():
+        return None                                             # something between the elements that is not one of them
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def _box(x0, y0, x1, y1, body):
     g = lambda v: ("%.2f" % v).rstrip("0").rstrip(".")
-    return f'<svg class="fig" width="100%" viewBox="{g(x)} {g(y)} {g(w)} {g(h)}" preserveAspectRatio="xMidYMid meet">{body}</svg>'
+    return f'<svg class="fig" width="100%" viewBox="{g(x0)} {g(y0)} {g(x1 - x0)} {g(y1 - y0)}" preserveAspectRatio="xMidYMid meet">{body}</svg>'
 
 
 def split_choices(it):
-    """A choice item whose options are "Graph A" … "Graph D" or "Number line A" … "Number line D" and whose figure is
-    Cadence's four-part figure → the four parts, each its own picture: [{"svg", "alt"} × 4]; None when the item is not
-    one of those, or its figure does not come apart exactly (then the figure stays whole and the choices stay words)."""
+    """A choice item whose options are "Graph A" … "Graph D" or "Number line A" … "Number line D" and whose figure is one
+    of Cadence's four-part figures → the four parts, each its own picture: [{"svg", "alt"} × 4]. None when the item is not
+    one of those, or its figure does not come apart exactly: the letters A, B, C, D in order, each opening a part; every
+    part's drawing measured (part_box) and clear of the others; the four pictures of one size, each holding its own part
+    whole and nothing of another. Then the figure stays whole and the choices stay words."""
     opts, fig, ft = it.get("optsP") or [], it.get("fig") or "", it.get("ft") or ""
     name = next((n for n in PART_NAMES if opts == [f"{n} {L}" for L in "ABCD"]), None)
     m = SVG_WHOLE.match(fig)
     if not name or not m:
         return None
-    W, body = float(m.group(1)), m.group(3)
+    W, H, body = float(m.group(1)), float(m.group(2)), m.group(3)
     marks = list(PART_NAMES[name].finditer(body))
-    if [x.group(x.lastindex) for x in marks] != list("ABCD") or marks[0].start() != 0:
+    if [x.group(1) for x in marks] != list("ABCD") or marks[0].start() != 0:
         return None
     parts = [body[marks[i].end(): marks[i + 1].start() if i < 3 else len(body)] for i in range(4)]
-    if any(PLANE_LETTER.search(c) or LINE_LETTER.search(c) or not c.strip() for c in parts):
+    if any(PLANE_LETTER.search(c) or LINE_LETTER.search(c) for c in parts):
         return None
-    out = []
-    for i, c in enumerate(parts):
-        if name == "Graph":
-            r = re.search(r'<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)" fill="none"', c)
-            if not r:
-                return None
-            x, y, w, h = (float(v) for v in r.groups())
-            if abs(w - h) > 0.01 or w < 60:
-                return None
-            svg = _box(x - 5, y - 5, w + 10, h + 10, c)
-        else:
-            y = float(marks[i].group(1)) - 4.5
-            if W < 150:
-                return None
-            svg = _box(30, y - 12, W - 38, 36, c)
-        out.append(svg)
+    drawn = [part_box(c) for c in parts]
+    if not all(drawn):
+        return None
+    over = lambda a, b, lo, hi: min(a[hi], b[hi]) - max(a[lo], b[lo])       # how far two boxes share a direction
+    clear = lambda a, b: over(a, b, 0, 2) <= 0.01 or over(a, b, 1, 3) <= 0.01
+    if not all(clear(drawn[i], drawn[j]) for i in range(4) for j in range(i)):
+        return None                                             # two parts' drawings run into each other
+    # parts in one column take that column's left and right, parts in one row that row's top and bottom: four number
+    # lines' tick marks stay under one another, four planes stay one size
+    def with_mates(i, lo, hi):
+        mates = [b for b in drawn if over(b, drawn[i], lo, hi) > 0.5 * min(b[hi] - b[lo], drawn[i][hi] - drawn[i][lo])]
+        return min(b[lo] for b in mates), max(b[hi] for b in mates)
+    held = []
+    for i in range(4):
+        (x0, x1), (y0, y1) = with_mates(i, 0, 2), with_mates(i, 1, 3)
+        held.append((x0, y0, x1, y1))
+    if any(d[0] < -2 or d[1] < -2 or d[2] > W + 2 or d[3] > H + 2 for d in drawn):
+        return None                                             # a part Cadence's own figure cuts off: not to be shown further
+    # a margin of 4 where there is room, never more than half the way to the nearest other part (a picture's box may pass
+    # the figure's own edge by that margin: nothing is drawn there)
+    gaps = [g for i in range(4) for j in range(i) for g in (-over(held[i], held[j], 0, 2), -over(held[i], held[j], 1, 3)) if g > 0.01]
+    pad = max(0.0, min([4.0] + [g / 2 for g in gaps]))
+    w, h = max(b[2] - b[0] for b in held) + 2 * pad, max(b[3] - b[1] for b in held) + 2 * pad
+    if w < 60 or h < 20:
+        return None
+    # one size for the four, each part in the middle of its own
+    boxes = [((b[0] + b[2] - w) / 2, (b[1] + b[3] - h) / 2, (b[0] + b[2] + w) / 2, (b[1] + b[3] + h) / 2) for b in held]
+    for i in range(4):
+        if not all(clear(boxes[i], drawn[j]) for j in range(4) if j != i):
+            return None                                         # a picture that would show some of another part
+    out = [_box(b[0], b[1], b[2], b[3], c) for b, c in zip(boxes, parts)]
     # what each part shows, in the figure's own words: "…: Graph A is …; Graph B is …" (or the choice's name alone)
     said = ft.split(": ", 1)[1].split("; ") if ": " in ft else []
     alts = [said[i] if len(said) == 4 and re.search(r"\b%s %s\b" % (name, L), said[i]) else f"{name} {L}" for i, L in enumerate("ABCD")]
@@ -348,8 +414,16 @@ def build(args):
     bp = BLUEPRINT[args.course]
     codes = [b for c in bp["categories"] for b in c["benchmarks"]]
     cat_of = {b: c["id"] for c in bp["categories"] for b in c["benchmarks"]}
-    C = cb.Cadence(os.path.join(args.cadence, "cadence.html"))
-    meta = C.meta()
+    cad_path = os.path.join(args.cadence, "cadence.html")
+    # Cadence's draws can be kept between runs (--raw-cache: by Cadence's own file, the benchmarks and the walk), so that
+    # work on this tool's reading does not open Cadence again; --check never reads them
+    rc = None
+    if getattr(args, "raw_cache", None) and not args.check:
+        cad_sha = hashlib.sha256(open(cad_path, "rb").read()).hexdigest()[:12]
+        rc = os.path.join(args.raw_cache, f"fast-{cad_sha}-{args.course}-{args.cap}-{args.budget}.json")
+    kept = json.load(open(rc, encoding="utf-8")) if rc and os.path.exists(rc) else None
+    C = None if kept else cb.Cadence(cad_path)
+    meta = kept["meta"] if kept else C.meta()
     # Cadence's percent estimate (the second number): its model, from its own table, which must be the page's build
     dtable = json.load(open(os.path.join(args.cadence, "data", "difficulty_g8.json"), encoding="utf-8"))
     if dtable.get("build") != meta.get("build"):
@@ -358,17 +432,23 @@ def build(args):
     ltable = json.load(open(os.path.join(args.cadence, "data", "ald_levels_g8.json"), encoding="utf-8"))
     if ltable.get("build") != meta.get("build"):
         sys.exit(f"cadence_fast: Cadence's level table is for build {ltable.get('build')}, the page is build {meta.get('build')}: read the new generators in Cadence (tools/ald_levels.py)")
-    if not C.p.evaluate("typeof itemLevel === 'function' && typeof drawLevelItem === 'function' && typeof lvLive === 'function'"):
+    if C and not C.p.evaluate("typeof itemLevel === 'function' && typeof drawLevelItem === 'function' && typeof lvLive === 'function'"):
         sys.exit("cadence_fast: this Cadence has no state levels (itemLevel, drawLevelItem, lvLive): 29.27 or later is needed")
-    C.p.add_script_tag(path=os.path.join(args.cadence, "tools", "difficulty_model.js"))
     DIFF = {c: {"anchor": b["anchor"], "center": b["center"]} for c, b in dtable["benchmarks"].items()}
     missing = [c for c in codes if c not in DIFF]
     if missing:
         sys.exit("cadence_fast: no difficulty anchor for " + ", ".join(missing))
-    raw = C.p.evaluate(EXPORT_JS, [bp["tier"], codes, args.cap, args.budget, DIFF])
-    C.close()
-    if C.errors:
-        sys.exit("cadence_fast: Cadence's page threw: " + C.errors[0])
+    if kept:
+        raw = kept["raw"]
+    else:
+        C.p.add_script_tag(path=os.path.join(args.cadence, "tools", "difficulty_model.js"))
+        raw = C.p.evaluate(EXPORT_JS, [bp["tier"], codes, args.cap, args.budget, DIFF])
+        C.close()
+        if C.errors:
+            sys.exit("cadence_fast: Cadence's page threw: " + C.errors[0])
+        if rc:
+            os.makedirs(args.raw_cache, exist_ok=True)
+            json.dump({"meta": meta, "raw": raw}, open(rc, "w", encoding="utf-8"), ensure_ascii=False)
     items, stats, problems = [], {}, []
     for code in codes:
         R = raw.get(code) or {"items": [], "label": "", "unread": 0}
@@ -460,6 +540,7 @@ def main():
     ap.add_argument("--cap", type=int, default=12, help="distinct items drawn from one generator at one level, at most")
     ap.add_argument("--budget", type=int, default=1500, help="seeds walked for each of G and H of a benchmark")
     ap.add_argument("--check", action="store_true"); ap.add_argument("--report")
+    ap.add_argument("--raw-cache", help="a folder for Cadence's raw draws (reused while Cadence's file and the walk are the same; never by --check)")
     args = ap.parse_args()
     bank, stats, problems = build(args)
     text = json.dumps(bank, ensure_ascii=False, separators=(",", ":")) + "\n"

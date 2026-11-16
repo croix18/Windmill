@@ -114,8 +114,12 @@ unit assessments, the regular practice tests, the deckhand bellwork, everything 
   generator at a time**, so none crowds the others out (MA.8.AR.3.3's bank was 30 copies of "A line has a slope of −2 and a
   y-intercept of 1"); a "which graph?" and a "which number line?" question's four choices **each their own picture**, cut
   from Cadence's one figure (`split_choices`); "Write an equation … in slope-intercept form" asked as **y = ☐x + ☐**. The
-  bank is `v: 2` (`lv`, `src`; no `band`). 381 of Cadence's 463 Grade 8 generators are in it; 1,108 items; 308 with a
-  figure, 32 with pictures as choices. `tools/test_cadence_fast.py` (in `tools/check.sh`) holds the tool's own reading.
+  bank is `v: 2` (`lv`, `src`; no `band`). 389 of Cadence's 463 Grade 8 generators are in it; 1,108 items; 296 with a
+  figure and 44 with pictures as choices. A part of a figure is cut by its own drawing's box (`part_box`: lines, circles,
+  rectangles, polygons, polylines, straight paths, words), so the tool knows nothing of how Cadence lays a part out — the
+  line graphs of MA.8.DP.1.1, which have no frame, come apart as the planes do — and a figure it cannot measure, or
+  whose parts touch, stays whole with its choices in words. `tools/test_cadence_fast.py` (in `tools/check.sh`) holds the
+  tool's own reading, each rule broken once to see the test fail. `--raw-cache` keeps Cadence's draws between runs.
 - **`tools/cadence_bank.py`**: reads Cadence 29.28's drawn "which number line?" choice (`choice_lines`, from the figure's
   description) and still turns it into a graph the student builds; the four-line figure does not go into the bank and
   "That is number line C." leaves the solution. It still draws G and H only: a lesson's focus names G and H generators,
