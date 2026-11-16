@@ -1028,6 +1028,7 @@ function paintProgress(){
   if (i < 0){ var top = document.querySelector('.watch').getBoundingClientRect().bottom + 8, lim = Math.max(top + 40, window.innerHeight * 0.35);
     for (var k = 0; k < N; k++){ var r = qs[k].getBoundingClientRect(); if (r.bottom > lim){ i = k; break; } } if (i < 0) i = N - 1; }
   var n = N ? i + 1 : 0, q = $('qof'); if (q) q.textContent = N ? 'Question ' + n + ' of ' + N : '';
+  SQ = N ? i : -1; if (SCR) SCR.at();                         /* scratch paper (scratch.js) follows the question on the screen */
   $('prog').style.width = (N ? 100 * n / N : 0) + '%';
   return ITEMS.filter(answered).length;
 }
@@ -1152,7 +1153,7 @@ function openSet(n, sc, mode){
   S.more = S.more || {}; S.walk = S.walk || {}; S.walkOpen = S.walkOpen || {}; S.running = false; S.startedAt = null; FLASH = {};
   render(); paintHead();
   NOTICE = '';
-  if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated, so it starts over.'; }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
+  if (loaded && S.hash && S.hash !== HASHV){ var m0 = S.mode, p0 = S.pos; S = fresh(m0); if (p0) S.pos = p0; render(); NOTICE = 'This set was updated, so it starts over.'; if (SCR) SCR.reset(); }   /* [W-2] never old answers on new questions; only for a set this device saved before [B2] */
   S.hash = HASHV;
   try { history.replaceState(null, '', hashOf(seed, scope)); } catch(e){}
   LSEED = 0;
@@ -1185,7 +1186,7 @@ $('bFinish').addEventListener('click', function(){
 Array.prototype.forEach.call(document.querySelectorAll('.mode button'), function(b){
   b.addEventListener('click', function(){
     var m = b.dataset.mode; if (m === S.mode) return;
-    var go = function(){ var pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); };
+    var go = function(){ var pos = S.pos; drop(key()); if (SCR) SCR.reset(); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); };
     if (started()) ask('Switching clears your answers.', 'Switch', go); else go();
   });
 });
@@ -1201,7 +1202,7 @@ $('setin').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.pr
 function newSet(){ var go = function(){ goSet(randomSeed(), scope === 'miss' ? 'all' : scope); }; if (started() && !S.done) ask('Start a new set? This one stays saved.', 'New set', go); else go(); }
 $('bNew').addEventListener('click', function(){ moreClose(); newSet(); });
 document.addEventListener('click', function(e){ if (e.target && e.target.closest && e.target.closest('[data-newset]')) newSet(); });   /* the end panel's "Try a new set" */
-$('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your answers and start over?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
+$('bAgain').addEventListener('click', function(){ moreClose(); ask('Clear your answers and start over?', 'Start over', function(){ var m = S.mode, pos = S.pos; drop(key()); if (SCR) SCR.reset(); S = fresh(m); if (pos) S.pos = pos; render(); S.hash = HASHV; save(); paintAll(); window.scrollTo(0, 0); }); });
 /* Ruling 49 (22 Oct 2026): on a unit whose test is a random set of this page, the teacher bar (teacher.js) prints the
    TEST as n forms — the make-up printing, headed "Test · Form A" instead of "Make-up" (the set number on the key only,
    25 Oct 2026). Teacher copies only. */
@@ -1592,6 +1593,10 @@ $('intro').innerHTML = notesHtml; $('intro').hidden = !notesHtml;
 /* one question at a time, as on the FAST (kit/pager.js, 14 Nov 2026): it is handed what it needs, told when the sheet is painted
    (paintAll) and asked which question is on the screen (paintProgress); none on a page built without it, or with the checks' switch */
 var PG = K.Pager ? K.Pager({S: function(){ return S; }, key: key, items: function(){ return ITEMS; }, answered: answered, byId: byId, hostOf: hostOf, nextOpen: nextOpen, save: save, progress: paintProgress}) : null;
+/* scratch paper (kit/scratch.js, 15 Nov 2026): the question on the screen — none on the start, the summary, a print preview or a
+   teacher's view — and the set's own storage name; paintProgress tells it when the question may have changed, a start over resets it */
+var SQ = -1, SCR = K.Scratch ? K.Scratch({set: function(){ return PRE + key(); }, where: function(){ var b = document.body.classList, c = cards()[SQ];
+  return !c || b.contains('printing') || b.contains('tview') || (PG && !b.contains('pg-q')) ? null : {set: PRE + key(), q: c.getAttribute('data-q'), label: 'Question ' + (SQ + 1)}; }}) : null;
 openSet(seed, scope);
 if (K.Bi && U.second) K.Bi.mount(U, (window.KitLang || {})[U.second.code]);   /* the second-language toggle (kit/bilingual.js), when the unit has one; after the first set is drawn */
 })();

@@ -10,7 +10,7 @@ and writes, in the unit folder:
               Netlify Drop, or opening locally.
 Order: kit/core.js, kit/nline.js and kit/cgraph.js (the graphs a student builds), kit/bilingual.js, kit/explain.js (the help's terms and pictures, 14 Nov 2026), kit/lang/<second>.js (if any), the unit's scripts (their last one sets window.Unit; a teacher copy's
 end with test.js and kit/teacher.js), the lesson bank and kit/bank.js (if any), kit/approvals.js (the disapproved questions, from the
-site, 8 Nov 2026), kit/pager.js (one question at a time, 14 Nov 2026; with kit/pager.css after kit.css), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
+site, 8 Nov 2026), kit/pager.js (one question at a time, 14 Nov 2026; with kit/pager.css after kit.css), kit/ui.js, kit/calc.js (the calculators, 8 Nov 2026), kit/scratch.js (scratch paper, 15 Nov 2026; loaded before kit/ui.js, with kit/scratch.css after kit/explain.css). A teacher copy also gets kit/teacher.css (its bar, Approve questions, Tests A and B). Refuses to build when the unit's
 checks have not passed since its sources last changed (run its check script; it writes CHECKED with the source hash)."""
 import re
 import hashlib, json, os, sys
@@ -21,7 +21,7 @@ cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
 rk = lambda f: open(os.path.join(KIT, f), encoding="utf-8").read()
 ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 
-KITFILES = ["core.js", "nline.js", "cgraph.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
+KITFILES = ["core.js", "nline.js", "cgraph.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css", "scratch.js", "scratch.css"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 
@@ -122,12 +122,12 @@ esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
 THEME_JS = "try{var t=localStorage.getItem('practice.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
 body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <style id="kit-fonts">{fonts_css()}</style>
-<style>{rk('kit.css')}{rk('pager.css')}{rk('explain.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}</style>
+<style>{rk('kit.css')}{rk('pager.css')}{rk('explain.css')}{rk('scratch.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">
   <a class="back" id="back" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="backl">Unit</span></a>
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
   <div class="score" id="score"></div>
-  <div class="btns"><button type="button" class="calcb" id="bCalc" aria-expanded="false" aria-label="Calculator" translate="no"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.75" width="14" height="18.5" rx="2.6"/><rect x="8" y="5.75" width="8" height="3.5" rx=".9"/><circle class="kd" cx="8.9" cy="12.7" r="1.05"/><circle class="kd" cx="12" cy="12.7" r="1.05"/><circle class="kd" cx="15.1" cy="12.7" r="1.05"/><circle class="kd" cx="8.9" cy="16.7" r="1.05"/><circle class="kd" cx="12" cy="16.7" r="1.05"/><circle class="kd" cx="15.1" cy="16.7" r="1.05"/></svg><span class="cw">Calculator</span></button><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
+  <div class="btns"><button type="button" class="calcb" id="bCalc" aria-expanded="false" aria-label="Calculator" translate="no"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.75" width="14" height="18.5" rx="2.6"/><rect x="8" y="5.75" width="8" height="3.5" rx=".9"/><circle class="kd" cx="8.9" cy="12.7" r="1.05"/><circle class="kd" cx="12" cy="12.7" r="1.05"/><circle class="kd" cx="15.1" cy="12.7" r="1.05"/><circle class="kd" cx="8.9" cy="16.7" r="1.05"/><circle class="kd" cx="12" cy="16.7" r="1.05"/><circle class="kd" cx="15.1" cy="16.7" r="1.05"/></svg><span class="cw">Calculator</span></button><button type="button" class="calcb scrb" id="bScratch" aria-expanded="false" aria-label="Scratch paper" translate="no" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4.2L15.8 5a1.9 1.9 0 012.7 0l.5.5a1.9 1.9 0 010 2.7L8.7 18.5z"/><path d="M13.9 6.9l3.2 3.2"/></svg><span class="cw">Scratch paper</span></button><button type="button" id="bPause" hidden>Pause</button><button type="button" class="go" id="bResume" hidden>Resume</button><button type="button" id="bFinish">Finish</button></div>
   <div class="confirm" id="confirm" role="alertdialog" aria-live="assertive" hidden></div>
 </div><div class="qbar"><span class="qof" id="qof"></span><span class="bar" aria-hidden="true"><i id="prog"></i></span></div></div>
 <div class="result" id="result" hidden></div>
@@ -150,7 +150,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <script>{rk('cgraph.js')}</script>
 <script>{rk('bilingual.js')}</script>
 <script>{rk('explain.js')}</script>
-""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
+""" + (f"<script>{rk('lang/' + cfg['second'] + '.js')}</script>\n" if cfg.get("second") else "") + "".join(f"<script>{ru(s)}</script>\n" for s in cfg["scripts"]) + (bank_script() + f"<script>{rk('bank.js')}</script>\n" if BANK else "") + f"<script>{rk('approvals.js')}</script>\n<script>{rk('pager.js')}</script>\n<script>{rk('scratch.js')}</script>\n<script>{rk('ui.js')}</script>\n<script>{rk('calc.js')}</script>\n<style id=\"katex-css\">{katex_css()}</style>\n<script>{rk('vendor/katex/katex.min.js')}</script>\n<script>{rk('tex.js')}</script>\n"
 # the test's own numbers never ship (24 Oct 2026): a unit keeps them in test_forms.js, loaded by its checks alone. A page that
 # holds that file's name, or any line of its data, is refused — on the student page and the teacher copy alike.
 tf = os.path.join(UD, "test_forms.js")

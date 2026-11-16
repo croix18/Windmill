@@ -677,6 +677,64 @@ comments taken out), holds the whole test to no chip and a lesson's line to its 
 line. A unit's page changes when it is next built on this kit; no question, key
 or set number moves, and `contentVersion` stays.
 
+## 15 Nov 2026 — scratch paper (`scratch.js`, `scratch.css`)
+
+Croix, 15 Nov 2026: *"add a scratch notes to the practice and fast practice as well as a scratch grid."* Asked what the grid
+should be, he chose **graph paper to plot on**: a click drops a point, points join into lines, things can be erased, and a
+Chromebook's trackpad is enough. The FAST gives a typed notepad per question, so the notes are typed and kept per question;
+students never handwrite on a computer (his ruling), so nothing here is freehand. The same two files, byte for byte, are on the
+site's FAST pages (`mrshaffer-site` `released/kit/`), so `scratch.css` uses only the tokens both pages define.
+- **The button** (`#bScratch`, written by `build.py` right after the Calculator): the Calculator's look (`class="calcb scrb"`),
+  a pencil and *Scratch paper*, the icon alone at ≤ 480 px, 44 px, `aria-expanded`, `aria-controls`, `translate="no"`. Hidden
+  when no question is on the screen (the start, the score summary, a print preview, a teacher's view). On a question with notes
+  or anything on its grid it carries a small teal dot, and its label is "Scratch paper, used on this question".
+- **The panel:** *Scratch paper*, the question's number as a teal-caps chip ("QUESTION 4"), Close; under them **Notes | Grid**
+  (a radiogroup; the last pick remembered, `practice.scratch.tab`). It always shows the question on the screen: when the
+  question changes it saves and shows the new one's; when no question is on the screen it closes.
+- **Wide screens:** a floating window like the calculator's, docked at the **left** under the bar at first (the calculator docks
+  right), dragged by its header, never over the bar, its place remembered (`practice.scratch.pos`) and kept on the screen when
+  the window changes size; with both open, the one pressed last is on top. **Phones** (≤ 600 px wide or ≤ 460 px tall): a
+  bottom sheet, not modal; the page gets bottom padding as tall as the sheet (screen only), so the question scrolls clear.
+- **Notes:** one textarea (Lexend 16 px, no spellcheck, 2,000 characters), no placeholder. **Clear**, then **Undo** until the next
+  edit or question.
+- **Grid:** 20 × 20 squares, **four quadrants** (−10 to 10) or the **first** (0 to 20); **Scale 1 · 2 · 5 · 10** is what one
+  square is worth (the numbers and the readout change; what is plotted stays on the paper); both kept per question. Gridlines,
+  axes with arrowheads, "x" and "y", numbers every 2 squares — all under what is plotted. **Point · Segment · Line · Erase**,
+  every end on an intersection: a segment by two clicks or a drag (a dashed preview after the first end); a line runs to the
+  paper's edges with an arrowhead at each end and shows its two points; Erase takes the nearest thing within about 10 px (a
+  point before a line), shown dashed first. A turquoise ring marks the intersection under the pointer, and the readout says it,
+  `(3, −2)`. **Undo** (adds, erases, clears; per question, for the visit) and **Clear**. At most 200 things. Nothing on it
+  computes anything: no slope, no equation, no length.
+- **Keyboard:** the graph is one tab stop (`role="application"`); the arrows move a cursor a square (Shift: five), Enter or Space
+  plots with the tool, Backspace or Delete erases at the cursor, Escape first cancels a half-drawn segment or line and then
+  closes. A polite live region says where the cursor is and lists what is on the paper after each change.
+- **Words:** only Scratch paper, Question N, Close, Notes, Grid, Point, Segment, Line, Erase, Scale, Undo, Clear, and labels for
+  a screen reader. No instructions, captions or empty-state text.
+- **Saved on the device:** `practice.scratch.v1.<set>` → `{t, q: {"<q>": {n, g: {v: [4 or 1, scale], o: [["p",x,y],
+  ["s",x1,y1,x2,y2], ["l",x1,y1,x2,y2]]}}}}`, in squares from the paper's lower left. Saved 300 ms after typing, on blur, close,
+  a question change and `pagehide`; each write reads the entry again and replaces only its question (a second tab keeps the
+  other's), and a `storage` event redraws when focus is not in the panel. The 30 sets used last are kept; a full storage
+  prunes and tries once more. Storage refused: it all works for the visit. Never sent anywhere; the module makes no request.
+- **Never printed** (`@media print`), never over a print preview or a teacher's view (`body.printing`, `body.tview`).
+- **Its own module:** `scratch.js` (before `ui.js`) defines `Kit.Scratch(host)`; `scratch.css` comes after `explain.css`. The
+  page hands it `where()` (null, or `{set, q, label}`) and `set()` (the set's storage name, for a reset with no question on the
+  screen), calls `at()` when the question may have changed and `reset()` when the set starts over. `ui.js`: created once at its
+  end (`set` is the set's own record name, `q` the card's `data-q`, the question the bar's line names with the checks' switch);
+  `paintProgress` calls `at()`; Start over, a mode switch that clears and the "this set was updated" restart call `reset()`. A
+  new set number has its own name and starts empty. A body class change (a print preview, a teacher's view) also calls `at()`.
+- **Checked:** `check/page.js` part W (`check/scratch_page.js`), on student pages and teacher copies: the button (after the
+  Calculator, 44 px, the word wide and the icon on a phone, hidden on the start and the summary, the dot); open, docked left
+  under the bar, focus in the notes, Escape back to the button, Tab order; notes per question across Next and Back and a reload,
+  Clear and Undo; the grid by mouse (a point, a segment by two clicks and by a drag, a line to the edges, the ring and readout,
+  erase with its dashed preview, Undo, Clear and Undo, both views, Scale 5's numbers and readout, kept after a reload, another
+  question's own grid) and by keyboard (the arrows, Shift, Enter, Space, Escape cancelling first, Delete, the live region);
+  Start over and a mode switch empty the set, a new set starts empty; the 30-set pruning; a second tab; dragging (never over
+  the bar, remembered, kept inside a smaller window, on top of the calculator when pressed last); the phone's sheet at 390 × 844
+  (focus on the title, 44 px targets, no sideways scroll, the question scrolls clear, Next usable behind it); true dark and
+  forced light; print (none of it, the same pages with the panel open), nothing over a print preview or a teacher's view; the
+  panel's words exactly its list; every question on one screen (the checks' switch) naming the bar's question; storage
+  refused; no request off the page.
+
 ## Files
 | Kit (`practice/kit/`) | |
 |---|---|
@@ -703,6 +761,8 @@ or set number moves, and `contentVersion` stays.
 | `check/help.js`, `check/help_page.js` | the help standard, in Node over 300 sets and in a browser at 390 px, light and dark (a unit with `help.js`) |
 | `pager.js`, `pager.css` | one question at a time, as on the FAST: the number, Flag for review, Back and Next, the map, the summary after Finish (14 Nov 2026, above) |
 | `check/pager_page.js` | page.js part R (one question at a time, 14 Nov 2026, above), on every page, without the checks' switch that parts A–Q use |
+| `scratch.js`, `scratch.css` | scratch paper: Notes and graph paper to plot on, per question, in a panel from the top bar (15 Nov 2026, above); the same two files on the site's FAST pages |
+| `check/scratch_page.js` | page.js part W (scratch paper, 15 Nov 2026, above), on every page |
 | `check/calc_page.js`, `check/keys_page.js` | page.js parts N (the calculators, against stand-ins for both addresses) and O (the keypad: the unit's keys, even rows at five widths, typing through it) |
 | `bank.js` | a lesson's practice from Cadence: the bank's practice choices, sets, items, judging and help (above) |
 | `check/bank.js` | a unit's lesson bank: schema, map against the plan, every item drawn light and dark, 30 answered through the page, the keypad's = < ≤ ≥ > on a touch screen ("c<-16.5" with its sign tapped, ✓) |
