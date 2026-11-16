@@ -268,14 +268,19 @@ async function run(b, url, U, dir, fail) {
   { const { ctx, p } = await context({ viewport: { width: 1024, height: 768 }, isMobile: true, hasTouch: true });   /* a tablet: a coarse pointer, so the unit's keypad shows (ui.js coarse()) */
     await p.goto(url + '#set-4821'); await p.waitForTimeout(250); if (await p.isVisible('#pgStart')) await p.tap('#pgStart');
     if (!(await p.evaluate(() => matchMedia('(pointer: coarse)').matches))) F('a touch screen: the context is not pointer: coarse');
-    const box = async () => { const h = await p.$$('#paper input[type=text], #paper input:not([type])'); for (const e of h) if (await e.isVisible()) { await e.tap(); return true; } return false; };
-    for (let i = 0; i < 40 && !(await p.$$eval('#paper input[type=text], #paper input:not([type])', x => x.some(e => e.offsetParent))) && await p.isVisible('#pgNext'); i++) await p.tap('#pgNext');   /* a question with a box */
     await p.tap('#bCalc'); await p.waitForTimeout(400);
-    const noKeys = Array.isArray(U.keypad) && !U.keypad.length;   /* a unit with no keys of its own (A7 Unit 6: keypad []) shows no keypad anywhere: nothing to hold against the calculator */
-    if (noKeys) { await hits(p, 'a touch screen'); }
-    else if (!(await box())) F('a touch screen: no question with a box to show the keypad for the hit test');
-    else { await p.waitForTimeout(150); const kp = await p.evaluate(() => { const k = Array.from(document.querySelectorAll('.keys')).find(x => x.offsetParent); return !!k; });
-      if (!kp) F('a touch screen: the unit\'s keypad did not show for the hit test'); await hits(p, 'a touch screen with the unit\'s keypad showing'); }
+    /* the keypad shows for a box whose kind has keys (A7 Unit 5: one key, for a fraction's box; A7 Unit 6: none at all).
+       Walk the set's boxes with the calculator open until one brings the keypad up; a set that never does has no keypad
+       to hold against the calculator, unless the unit has a key for every kind of box. */
+    const everyBox = Array.isArray(U.keypad) && U.keypad.some(k => !k.kinds);
+    const shown = () => p.evaluate(() => Array.from(document.querySelectorAll('.keys')).some(x => x.offsetParent));
+    let kp = false, boxes = 0;
+    for (let i = 0; i < 40 && !kp; i++) {
+      for (const e of await p.$$('#paper input[type=text], #paper input:not([type])')) { if (!(await e.isVisible())) continue; boxes++; await e.tap(); await p.waitForTimeout(150); if (await shown()) { kp = true; break; } }
+      if (kp || !(await p.isVisible('#pgNext')) || await p.$eval('#pgNext', x => x.disabled)) break;
+      await p.tap('#pgNext'); await p.waitForTimeout(80); }
+    if (kp) await hits(p, 'a touch screen with the unit\'s keypad showing');
+    else { if (everyBox && boxes) F('a touch screen: the unit\'s keypad did not show for any of ' + boxes + ' boxes'); await hits(p, 'a touch screen'); }
     await ctx.close(); }
   /* a calculator that never answers: the loading state, then the line and Try again, which asks again */
   { const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } }); let hang = true, n = 0;
