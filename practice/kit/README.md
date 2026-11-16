@@ -1002,7 +1002,8 @@ for that graph, built, not chosen.
   at the cursor. **Names:** the sectors are the regions between neighboring lines. A tap inside one, or the second Tab stop (a slider
   "Sector 2 of 4: 160° to 250°, Chips"; ← → Home End; ‹ › beside it for a touch screen, where a thin sector is hard to hit) selects it,
   drawn in the live tint with a turquoise edge; under it a radiogroup of the category names (44 px, a word each; a name already on
-  another sector is underlined dotted, and choosing it moves it there). A name is drawn inside its sector when it fits and beside the
+  another sector is underlined dotted, and choosing it moves it there; in the group an arrow key only moves the focus and Space or
+  Enter names the sector — an arrow that chose would take names off sectors on the way past). A name is drawn inside its sector when it fits and beside the
   circle with a short leader when it does not (labels beside the circle keep off the numbers and each other). **Start over** clears
   the lines and the names. One muted line under the circle says what to do ("Tap a mark to draw a line from the center. Tap it
   again to erase it. Then choose each sector and tap its name."; not printed). A visually hidden live line says the state in words ("4 lines: 0°, 160°, 250°, 320°. The sector from 0° to

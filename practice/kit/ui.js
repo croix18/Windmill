@@ -361,8 +361,9 @@ document.addEventListener('keydown', function(e){
   var rb = t.closest('[data-cgn]'); if (!rb) return;
   var grp = Array.prototype.slice.call(rb.parentNode.querySelectorAll('[role=radio]')), i = grp.indexOf(rb);
   var to = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? (i + 1) % grp.length : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? (i + grp.length - 1) % grp.length : e.key === 'Home' ? 0 : e.key === 'End' ? grp.length - 1 : -1;
-  if (to < 0 || grp[to].disabled) return; e.preventDefault(); var nm = grp[to].getAttribute('data-cgn'); grp[to].click();
-  var nb2 = document.querySelector('[data-cg="' + rb.dataset.cg + '"][data-cgn="' + (window.CSS && CSS.escape ? CSS.escape(nm) : nm) + '"]'); if (nb2) nb2.focus();
+  /* an arrow only moves the focus; Space or Enter (the button's own click) names the sector. Choosing on the way past would
+     take a name off a sector already named — a graph could not be named in order with the keys (15 Nov 2026, M7 Unit 7's review) */
+  if (to < 0 || grp[to].disabled) return; e.preventDefault(); grp[to].focus();
 });
 /* the place a student is sent to in a question: its box, its first choice, or its number line */
 function fieldOf(host, id){ return $('a' + id) || host.querySelector('.ch input') || host.querySelector('.nlpt') || host.querySelector('.cgc'); }

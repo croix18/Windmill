@@ -109,8 +109,11 @@ module.exports = async function partV(b, rawContext, url, U, dir, fail) {
     if (!new RegExp('^Sector 2 of ' + n + ': ' + cum[0] + '° to ' + cum[1] + '°').test(L.pick)) F('→ on the sectors shows "' + L.pick + '"');
     await p.keyboard.press('Tab'); f = await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-cgn')); if (f !== cats[0]) F('Tab from the sectors reaches ' + f + ', not the names');
     await p.keyboard.press('Space'); let a = await ans(p); if (a[1].name !== cats[0]) F('Space on ' + cats[0] + ' named sector 2 ' + a[1].name);
-    await p.keyboard.press('ArrowRight'); a = await ans(p); if (a[1].name !== cats[1]) F('→ in the names named sector 2 ' + a[1].name + ', not ' + cats[1]);
+    /* an arrow only moves the focus (choosing on the way past would take names off sectors already named); Space names */
+    await p.keyboard.press('ArrowRight'); a = await ans(p); if (a[1].name !== cats[0]) F('→ in the names renamed sector 2 ' + a[1].name + ' (an arrow only moves the focus)');
     f = await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-cgn')); if (f !== cats[1]) F('→ in the names left the focus on ' + f);
+    await p.keyboard.press('Space'); a = await ans(p); if (a[1].name !== cats[1]) F('Space on ' + cats[1] + ' named sector 2 ' + a[1].name + ', not ' + cats[1]);
+    f = await p.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-cgn')); if (f !== cats[1]) F('Space in the names left the focus on ' + f);
     /* a tap inside the first sector chooses it; naming it with sector 2's name moves the name */
     const c = await inside(p, key[0].deg / 2, 0.42); await p.mouse.click(c.x, c.y); await p.waitForTimeout(30); L = await look(p);
     if (!/^Sector 1 of /.test(L.pick) || !L.sel) F('a tap inside sector 1 shows "' + L.pick + '"');
@@ -120,6 +123,11 @@ module.exports = async function partV(b, rawContext, url, U, dir, fail) {
     /* not finished: a sector with no name is not a try */
     await check(p); let cd = await card(p), R = await resOf(p);
     if (!/Not counted yet/.test(cd) || !/Name every sector\./.test(cd) || (R.tries || 0) !== 0) F('a sector with no name: "' + cd.slice(0, 100) + '", tries ' + R.tries);
+    /* by the keys alone, in order: the sectors' stop, → to the sector, Tab to the names, Home, → to the name, Space — and no
+       name leaves a sector already named on the way past (an arrow chose it before 15 Nov 2026) */
+    for (let i = 0; i < n; i++) { await p.focus('#cgp' + id); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight');
+      await p.keyboard.press('Tab'); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight'); await p.keyboard.press('Space'); }
+    a = await ans(p); if (CG.keyText(a) !== CG.keyText(key)) F('named in order by the keys alone, the build saved ' + CG.keyText(a));
     /* the rest by the widget, through the sectors' Tab stop and the name buttons */
     for (let i = 0; i < n; i++) { await p.focus('#cgp' + id); await p.keyboard.press('Home'); for (let k = 0; k < i; k++) await p.keyboard.press('ArrowRight'); await p.click('[data-cg="' + id + '"][data-cgn="' + cats[i] + '"]'); }
     a = await ans(p); if (CG.keyText(a) !== CG.keyText(key)) F('the build saved ' + CG.keyText(a));
