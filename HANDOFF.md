@@ -4,10 +4,9 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
-## In progress (15 Nov 2026, from 7:12 pm): scratch paper, the calculators, then a test mode with a result code
+## In progress (15 Nov 2026, from 7:12 pm): scratch paper and the calculators (in the kit, rolling out), then an airtight test with a result code
 
-Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). Nothing below is on Windmill's main or on any page yet; this
-section is rewritten as each part lands.
+Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). This section is rewritten as each part lands.
 
 **What he asked for.** 7:12 pm: *"Would it be possible to build a test mode in my practice tests that full screen and I
 know locked the screen like managed Chromebooks is unrealistic but maybe visually tracking on screen how many times the
@@ -31,18 +30,27 @@ to figure out or fake."*
   that could be loads easier. I make them submit a Google forms. You build me a descrytor inside tally or something like
   that."* So: a result code, turned in through his Google Form, decoded in Tally. No names and no scores on the site.
 
-**Where the work is** (two local branches in this session, not pushed until they pass):
-- `scratch-paper`: `practice/kit/scratch.js` and `scratch.css` — one bar button, Scratch paper, with Notes | Grid, for the
-  question on the screen, saved on the device, never printed; the same two files go into the site's `released/kit/` for the
-  FAST pages. Its own module with small hooks, as `calc.js` and `pager.js` were added.
-- `calc-harden`: no "Open in a new tab"; one header row; the FAST calculator always laid out at its natural 360 × 560 and
-  drawn smaller to fit (in a 1366 × 657 Chromebook window `calc.js` was squeezing it to 454 px and sizing it again on
-  every resize); focus into the frame on open; a drag can never leave the frames without pointer events; a line and Try
-  again when a calculator has not loaded. His Desmos trouble could not be reproduced: neither calculator's site can be
-  reached from a session, and a probe of the published M7 Unit 10 page found nothing over the frame at eight window sizes.
-- Both go to main together **after the words-pass rollout (next section) is recorded as done**; this session then vendors
-  the kit and re-runs every page but M7 Unit 7's, and puts the published ones on the site. A session rolling out the kit
-  now does not need to wait for these branches or pick them up.
+**Scratch paper, the calculators and the docked panels are in the kit** (Windmill `6b612fe`, three commits; each has a
+dated section in `practice/kit/README.md`):
+- **Scratch paper** (`scratch.js`, `scratch.css`, part W): one bar button with Notes | Grid for the question on the
+  screen; notes typed, the grid graph paper to plot on (Point, Segment, Line, Erase; four quadrants or the first; a scale
+  of 1, 2, 5 or 10 a square); kept on the device per set and question; never printed. `ui.js` has one hook
+  (`Kit.Scratch`, called from `paintProgress`, reset where a set starts over); `pager.js` is unchanged.
+- **The calculators hardened** (`calc.js`, part N): no "Open in a new tab" (the TI-30Xa's credit is plain text); one
+  header row; the FAST calculator always laid out at its natural 360 × 560 and drawn smaller whole (in a 1366 × 657
+  window it was being squeezed to 454 px and sized again on every resize); focus into the frame on open; a drag can
+  never leave the frames without pointer events; a line and Try again when a calculator has not loaded. **His Desmos
+  trouble ("it wouldnt respond when I was clicking clear") was not reproduced**: neither calculator's site can be reached
+  from a session, and a probe of the published M7 Unit 10 page found nothing over the frame at eight window sizes. He
+  has been asked which device it was on.
+- **The page makes room for a docked panel** (`window.KitDock` in both scripts, `check/dock.js`): scratch paper docks
+  left, the calculator right, and the bar, the sheet and the map card center in what is left; under 520 px left, or
+  dragged away from an edge, a panel floats as before.
+- **On the site:** the FAST pages have all three (site `00dd33a`: `released/kit/scratch.js`, `scratch.css`, `calc.js`,
+  `calc.css` = `kit.css` lines 698–752; `fast.js` has three hooks). **The unit pages are being rolled out by this session
+  now** (both courses vendored at `6b612fe`, every page and teacher copy but M7 Unit 7's re-run, the ten published ones
+  to the site); this paragraph and each course's `NOTES.md` say when it is done. The Resources page keeps its own
+  calculators and its own "Open in a new tab" for now.
 
 **The test is to be airtight** (Croix, 7:52 pm, told that a code made on the student's own device could be faked by a
 student who can program, and that a page which draws its own questions holds their answers: *"I'm fully on board with a
@@ -54,8 +62,9 @@ told no: it adds headroom, not security) — which is why the tests are drawn in
 the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
 `practice/exam/DESIGN.md`.** Nothing of it is built.
 
-**Where the two branches stand:** `calc-harden` is finished and checked (part N on M7 Unit 10, its teacher copy and A7
-Unit 11; one commit, not pushed). `scratch-paper` is being built. Both wait for the words-pass rollout.
+**The test's first stage is being built** on a local branch (`exam`): `pack.js`, `judge.js` (the judging moved out of
+`ui.js` into one module the page and the site both call) and `exam/server.js`. It changes how every page judges, so it
+is not part of the rollout above; it goes out with the test.
 
 ## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out — the practice kit's pass is rolled out (9:18 pm)
 
