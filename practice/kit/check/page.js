@@ -1025,7 +1025,7 @@ async function fresh(p, seed) { await p.goto(url + '#set-' + seed); await p.eval
   /* W. scratch paper (scratch.js, 15 Nov 2026): notes and graph paper per question, as students have it (and once with the checks' switch) */
   await require('./scratch_page.js')(rawContext, b.newContext, url, U, dir, fail);
   /* X. the test's touches (15 Nov 2026): the practice page's Test link on the site while the test is open; the teacher copy at #exam-pool */
-  await require('./exam_link_page.js')(b, url, U, dir, fail);
+  await require('./exam_link_page.js')(rawContext, url, U, dir, fail);
   await b.close(); server.close();
   console.log('B. flows checked');
   if (fails.length) { console.log('FAILURES (' + fails.length + '):\n' + fails.join('\n')); process.exit(1); }

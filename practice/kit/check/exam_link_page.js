@@ -7,13 +7,13 @@
    message from itself (not its parent) is not obeyed; without #exam-pool it says nothing. */
 'use strict';
 const path = require('path'), fs = require('fs');
-module.exports = async function (b, url, U, dir, fail) {
+module.exports = async function (newContext, url, U, dir, fail) {   /* contexts as students have the page (the pager on) */
   const F = m => fail('X. ' + m), file = path.join(dir, 'preview.html'), teacher = /^teacher$/.test(path.basename(dir));
   const m = /^([a-z]+\d+)u(\d+)$/.exec(U.id || ''); if (!m) return;
   const origin = new URL(url).origin, at = origin + '/' + m[1] + '/practice/unit-' + m[2] + '/';
   if (!teacher) {
     const one = async (answer, onSite) => {
-      const c = await b.newContext({ viewport: { width: 1280, height: 900 } }), asked = [];
+      const c = await newContext({ viewport: { width: 1280, height: 900 } }), asked = [];
       await c.route(at, r => r.fulfill({ path: file, contentType: 'text/html; charset=utf-8' }));
       await c.route('**/api/test/status**', r => { asked.push(r.request().url()); return answer === 'abort' ? r.abort() : r.fulfill({ status: answer === 500 ? 500 : 200, contentType: 'application/json', body: answer === 500 ? '{}' : JSON.stringify({ open: answer }) }); });
       const p = await c.newPage(); await p.goto(onSite ? at : url); await p.waitForSelector('#pgStart');
@@ -29,7 +29,7 @@ module.exports = async function (b, url, U, dir, fail) {
     console.log('X. the practice page: Test while the site says open, nothing otherwise, nothing asked off the site');
     return;
   }
-  const c = await b.newContext({ viewport: { width: 1280, height: 900 } });
+  const c = await newContext({ viewport: { width: 1280, height: 900 } });
   await c.route(origin + '/cockpit.html', r => r.fulfill({ contentType: 'text/html', body: '<!doctype html><title>cockpit</title><iframe id="f" src="' + url + '#exam-pool" style="display:none"></iframe><script>' +
     'window.msgs=[];addEventListener("message",function(e){if(e.origin!==location.origin||e.source!==document.getElementById("f").contentWindow||!e.data||e.data.kit!=="exam-pool")return;msgs.push(e.data);' +
     'if(e.data.ready)e.source.postMessage({kit:"exam-pool",draw:6},location.origin);});</script>' }));
@@ -55,7 +55,7 @@ module.exports = async function (b, url, U, dir, fail) {
   if ((await p.evaluate(() => window.msgs.length)) !== n0) F('the copy obeyed a message that was not its parent\'s');
   await c.close();
   /* without #exam-pool, in a frame: no word */
-  const c2 = await b.newContext(); await c2.route(origin + '/cockpit2.html', r => r.fulfill({ contentType: 'text/html', body: '<!doctype html><iframe id="f" src="' + url + '"></iframe><script>window.msgs=[];addEventListener("message",function(e){msgs.push(e.data)})</script>' }));
+  const c2 = await newContext(); await c2.route(origin + '/cockpit2.html', r => r.fulfill({ contentType: 'text/html', body: '<!doctype html><iframe id="f" src="' + url + '"></iframe><script>window.msgs=[];addEventListener("message",function(e){msgs.push(e.data)})</script>' }));
   const p2 = await c2.newPage(); await p2.goto(origin + '/cockpit2.html'); await p2.waitForTimeout(2500);
   if ((await p2.evaluate(() => window.msgs.length))) F('a teacher copy without #exam-pool spoke to its parent');
   await c2.close();
