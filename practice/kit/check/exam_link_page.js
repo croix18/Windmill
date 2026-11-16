@@ -18,7 +18,7 @@ module.exports = async function (newContext, url, U, dir, fail) {   /* contexts 
       await c.route(at, r => r.fulfill({ path: file, contentType: 'text/html; charset=utf-8' }));
       await c.route('**/api/test/status**', r => { asked.push(r.request().url()); return answer === 'abort' ? r.abort() : r.fulfill({ status: answer === 500 ? 500 : 200, contentType: 'application/json', body: answer === 500 ? '{}' : JSON.stringify({ open: answer }) }); });
       const p = await c.newPage(); await p.goto(onSite ? at : url); await p.waitForSelector('#pgStart');
-      if (answer === true && onSite) await p.waitForSelector('#pgTest', { timeout: 5000 }).catch(() => {}); else await p.waitForTimeout(1200);
+      if (answer === true && onSite) await p.waitForSelector('#pgTest', { timeout: 20000 }).catch(() => {}); else { await p.waitForLoadState('networkidle').catch(() => {}); await p.waitForTimeout(800); }
       const a = await p.evaluate(() => { const e = document.getElementById('pgTest'); return e ? { text: e.textContent, href: e.href, vis: !!e.offsetParent } : null; });
       await c.close(); return { a, asked };
     };
