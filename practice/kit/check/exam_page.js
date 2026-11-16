@@ -19,7 +19,8 @@
       judge's for the same set and answers; the code; Turn in (the form's address with the code, or "Copied"); the page
       reopened on its result; New test draws another; a second finish refused; a second device with no token refused;
       closed again, the start screen says so.
-   5. At 390 × 844 in dark: the start screen, a question and the results with no sideways scroll and 44 px targets.
+   5. At 390 × 844 in dark: the start screen, a question and the results with no sideways scroll and 44 px targets (buttons,
+      links, choices, a graph's controls; a text box is the kit's own height, as on the practice page).
    6. The words: exam.js says only DESIGN.md's list, New test and Copied.
    With --shots DIR: the start, a question, a number-line question, Grading and the results at 1366 × 657 light and dark, and at 390. */
 'use strict';
@@ -222,11 +223,11 @@ function checkPub(f, WL) {
     const vr = items.map((it, j) => VARS[j % 5]);
     await shot(p, 'question-1366-light');
     /* every question, in order with Next (the map for one, Back once) */
-    const flagged = [];
+    const flagged = []; let backed = false;
     for (let j = 0; j < items.length; j++) {
       const i = await cardOf(p, items[j].id);
       await goQ(p, i, j === 7 ? 'map' : 'next');
-      if (j === 3) { await p.click('#pgPrev'); await p.click('#pgNext'); }
+      if (j >= 3 && !backed && await at(p) > 0) { backed = true; await p.click('#pgPrev'); await p.click('#pgNext'); }
       await answer(p, items[j], vr[j]);
       if ((j === 2 || j === 9) && flagged.indexOf(i) < 0) { await p.click('#pgFlag'); flagged.push(i); }
       if (items[j].type === 'nline' && shotsOn && !fs.existsSync(path.join(SHOTS, U.id + '-nline-1366-light.png'))) await shot(p, 'nline-1366-light');
@@ -313,7 +314,7 @@ function checkPub(f, WL) {
     const look = async what => {
       const r = await p.evaluate(() => {
         const sw = document.documentElement.scrollWidth, small = [];
-        document.querySelectorAll('button, a[href], .ch, input[type=text], [role=radio], [role=slider]').forEach(e => { const b = e.getBoundingClientRect(), st = getComputedStyle(e);
+        document.querySelectorAll('button, a[href], .ch, [role=radio], [role=slider]').forEach(e => { const b = e.getBoundingClientRect(), st = getComputedStyle(e);
           if (!b.width || !b.height || st.visibility === 'hidden' || e.closest('[hidden]') || e.closest('.menu') || e.disabled) return;
           if (b.height < 43.5 || b.width < 43.5) small.push((e.id || e.className || e.tagName) + ' ' + Math.round(b.width) + '×' + Math.round(b.height)); });
         return { sw, iw: window.innerWidth, small, dark: getComputedStyle(document.body).backgroundColor };

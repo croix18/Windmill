@@ -1,4 +1,5 @@
-"""Practice-test kit: build one unit's test (15 Nov 2026; practice/exam/DESIGN.md).   python3 <kit>/exam/build_exam.py <unit folder> [--no-check]
+"""Practice-test kit: build one unit's test (15 Nov 2026; practice/exam/DESIGN.md).
+    NODE_PATH=$(npm root -g) python3 <kit>/exam/build_exam.py <unit folder> [--no-check] [--shots DIR] [--form URL|none]
 
 Refuses unless kit/check/pack.js passes for the unit (every part judges the same after it is sent as text). Then writes, beside
 the unit's page (never touching the practice page, the teacher copy or their outputs):
@@ -125,6 +126,8 @@ print("test_bundle/:", len(seen), "files")
 
 # 5. the checks
 if "--no-check" not in sys.argv:
-    r = subprocess.run(["node", os.path.join(KIT, "check", "exam_page.js"), UD], env=dict(os.environ))
+    extra = sys.argv[sys.argv.index("--shots"):sys.argv.index("--shots") + 2] if "--shots" in sys.argv else []   # screenshots, for a look
+    if "--form" in sys.argv: extra += sys.argv[sys.argv.index("--form"):sys.argv.index("--form") + 2]
+    r = subprocess.run(["node", os.path.join(KIT, "check", "exam_page.js"), UD] + extra, env=dict(os.environ))
     if r.returncode: sys.exit("FAILED: check/exam_page.js")
     print("TEST BUILT AND CHECKED — " + FILE)
