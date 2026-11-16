@@ -9,8 +9,13 @@
      question Right, Not right or Blank when the site shows them), kept on the device so the page reopens on it; New test
      while the test is open, after a confirm;
    - a request that fails says so, with Try again, and loses nothing (every answer is saved on the device first).
-   Seams for the next stage, called when present: Kit.Proctor.start({rule, onEnd, unlock}) at the start and .stop() at Finish;
-   Kit.Trace.start({test, items}) at the start and Kit.Trace.take() for the log sent with finish.
+   The proctor and the log (16 Nov 2026; proctor.js, trace.js, both on the test page before this file): Kit.Proctor.enter()
+   inside the Start press (full screen needs the press), .start({rule, onEnd, unlock}) once the test is on the page (not again
+   while it is being finished), .stop() at Finish; Kit.Trace.start({test, api, set}) once the test is on the page, .saw(S) on
+   each of the page's saves, .fail() for a save that failed, .take() for the log sent with finish, .clear(test) after the seal.
+   The end panel's lines on leaving come from that log (its away list), kept with the result.
+   The bar's Finish (and Next on the last question, which presses it) asks here, in the bar, with DESIGN.md's words: Finish, Back.
+   After Finish a question with some of its parts right is Not right in the list (pager.js's "1 of 2 right" is not one of them).
    window.KIT_EXAM_CFG (the build's): {course, unit, title, h1, eyebrow, api}. Its words are DESIGN.md's list, New test and
    Copied; nothing else. */
 (function(){
@@ -19,7 +24,8 @@ var K = window.Kit = window.Kit || {}, CFG = window.KIT_EXAM_CFG || {}, API = CF
 var $ = function(id){ return document.getElementById(id); };
 var NAME = 'exam.' + CFG.course + '.u' + CFG.unit;          /* this unit's test on this device: {test, token, start, result} */
 var WORDS = {net: 'Can’t reach the site. Your answers are saved on this device.', retry: 'Try again', closed: 'This test isn’t open.',
-  start: 'Start', test: 'Test', grading: 'Grading…', turnin: 'Turn in', copied: 'Copied', newtest: 'New test', back: 'Back', unread: 'Can’t read this yet'};
+  start: 'Start', test: 'Test', grading: 'Grading…', turnin: 'Turn in', copied: 'Copied', newtest: 'New test', back: 'Back', unread: 'Can’t read this yet',
+  finish: 'Finish', notright: 'Not right', ended: 'Test ended: left the test ', times: ' times.', time: ' time.', leftN: 'Left the test ', leftT: ' times · ', leftT1: ' time · ', min: ' min', sec: ' s'};
 function load(){ try { return JSON.parse(localStorage.getItem(NAME) || 'null'); } catch(e){ return null; } }
 function keep(){ try { localStorage.setItem(NAME, JSON.stringify(ST)); } catch(e){} }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
@@ -59,10 +65,11 @@ function status(then){
     .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }); });
 }
 function startTest(){
+  if (K.Proctor && K.Proctor.enter) try { K.Proctor.enter(); } catch(e){}   /* full screen needs this press */
   var b = $('exStart'); b.disabled = true;
   call('POST', '/start', {course: CFG.course, unit: CFG.unit}, {anon: true}).then(function(r){
     b.disabled = false; mended();
-    if (!r.ok){ showGo(false); return; }
+    if (!r.ok){ showGo(false); if (K.Proctor && K.Proctor.leave) K.Proctor.leave(); return; }
     ST = {test: r.j.test, token: r.j.token, start: strip(r.j), result: null}; SKEW = r.j.now - Date.now(); ST.skew = SKEW; keep();
     mount(r.j);
   }, function(){ b.disabled = false; fail(startTest); });
@@ -95,14 +102,14 @@ function page(api){
   PHASE = 'test'; S.running = true; api.paint();
   var ps = $('pgStart'); if (ps && document.body.classList.contains('pg-start')) ps.click();
   LAST = {cur: S.pg ? S.pg.cur : 0};
-  if (K.Trace && K.Trace.start) try { K.Trace.start({test: ST.test, items: api.items().map(function(it){ return it.id; })}); } catch(e){}
-  if (K.Proctor && K.Proctor.start) try { K.Proctor.start({rule: ST.start.rule, onEnd: function(why){ ENDED = why || 'left'; finish(); }, unlock: unlock}); } catch(e){}
+  if (K.Trace && K.Trace.start) try { K.Trace.start({test: ST.test, api: api, set: setKey()}); } catch(e){}
+  if (K.Proctor && K.Proctor.start && !ST.finishing) try { K.Proctor.start({rule: ST.start.rule, onEnd: function(why){ ENDED = why || 'left'; finish(); }, unlock: unlock}); } catch(e){}
   if (ST.finishing) finish();
   setInterval(tick, 1000);
   window.addEventListener('pagehide', function(){ if (DIRTY && PHASE === 'test') send(true); });
   document.addEventListener('visibilitychange', function(){ if (document.hidden && DIRTY && PHASE === 'test') send(true); });
 }
-function unlock(code, cb){ call('POST', '/' + ST.test + '/unlock', {code: code}).then(function(r){ cb(!!(r.j && r.j.ok)); }, function(){ cb(false); }); }
+function unlock(code, cb){ call('POST', '/' + ST.test + '/unlock', {code: code}).then(function(r){ cb(!!(r.ok && r.j && r.j.ok), r.status); }, function(){ cb(false, 0); }); }
 function elapsed(){
   if (ST.result) return ST.result.seconds || 0;
   return Math.max(0, (Date.now() + (ST.skew || 0) - (ST.start.started || Date.now())) / 1000);
@@ -110,7 +117,7 @@ function elapsed(){
 
 /* ---- save: the newest answers and flags, at most every 20 s while something changed; at once before the page goes */
 var DIRTY = false, SENT = 0, SEQ = 0, INFLIGHT = false, LAST = null, ENDED = null;
-function saved(S){ if (PHASE !== 'test') return; DIRTY = true; var c = S.pg ? S.pg.cur : 0; if (LAST && c !== LAST.cur){ LAST.cur = c; tick(); } }
+function saved(S){ if (PHASE !== 'test') return; DIRTY = true; if (K.Trace && K.Trace.saw) try { K.Trace.saw(S); } catch(e){} var c = S.pg ? S.pg.cur : 0; if (LAST && c !== LAST.cur){ LAST.cur = c; tick(); } }
 var GAP = window.KIT_EXAM_GAP || 20000;                   /* the checks' switch (check/exam_page.js sets it before the page loads; nothing on a page does) */
 function tick(){ if (DIRTY && !INFLIGHT && !RETRY && PHASE === 'test' && Date.now() - SENT >= GAP) send(false); }
 function send(leaving){
@@ -118,7 +125,7 @@ function send(leaving){
   SEQ = Math.max(SEQ + 1, (ST.n || 0) + 1); ST.n = SEQ; keep();
   var body = {answers: S.ans, flags: (S.pg && S.pg.flag) || {}, n: SEQ};
   DIRTY = false; SENT = Date.now(); INFLIGHT = !leaving;
-  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok) mended(); }, function(){ INFLIGHT = false; DIRTY = true; if (!leaving) fail(function(){ send(false); }); });
+  call('PUT', '/' + ST.test + '/save', body, {keep: leaving}).then(function(r){ INFLIGHT = false; if (r.ok) mended(); }, function(){ INFLIGHT = false; DIRTY = true; if (K.Trace && K.Trace.fail) K.Trace.fail(); if (!leaving) fail(function(){ send(false); }); });
 }
 
 /* ---- read: "can't read this yet" and the preview, from the site */
@@ -157,6 +164,9 @@ function finish(){
   if (K.Proctor && K.Proctor.stop) try { K.Proctor.stop(); } catch(e){}
   PHASE = 'grading'; ST.finishing = true; keep(); document.body.classList.add('exam-grading'); paintResult(); window.scrollTo(0, 0);
   var S = PAGE.S(), log = null; if (K.Trace && K.Trace.take) try { log = K.Trace.take(); } catch(e){}
+  if (ENDED) ST.ended = ENDED; else ENDED = ST.ended || null;
+  if (log && log.away) ST.left = {n: log.away.length + ((log.drop && log.drop.away) || 0), sec: log.away.reduce(function(s, a){ return s + (a[1] || 0); }, 0)};
+  keep();
   var body = {answers: S.ans, log: log}; if (ENDED) body.ended = ENDED;
   var go = function(){
     call('POST', '/' + ST.test + '/finish', body).then(function(r){
@@ -178,7 +188,8 @@ function seal(){
   call('POST', '/' + ST.test + '/seal').then(function(r){
     if (!r.ok){ fail(seal); return; }
     mended(); var j = r.j;
-    ST.result = {code: j.code, points: j.points, of: j.of, parts: j.parts || null, seconds: j.seconds, at: Date.now()}; ST.finishing = false; delete ST.token; keep();
+    ST.result = {code: j.code, points: j.points, of: j.of, parts: j.parts || null, seconds: j.seconds, at: Date.now(), left: ST.left || null, ended: ST.ended || null}; ST.finishing = false; delete ST.token; keep();
+    if (K.Trace && K.Trace.clear) try { K.Trace.clear(ST.test); } catch(e){}   /* sent and sealed: the device's copy of the log goes */
     PHASE = 'done'; document.body.classList.remove('exam-grading');
     PAGE.done(partsOf(ST.result), ST.result.at);
     status(function(){ paintResult(); });
@@ -187,6 +198,7 @@ function seal(){
 function partsOf(R){ if (!R || !R.parts) return null; var o = {}; R.parts.forEach(function(p){ o[p.id] = p.v; }); return o; }
 
 /* ---- the results panel */
+function span(s){ s = Math.max(0, Math.round(s || 0)); var m = Math.floor(s / 60), r = s % 60; return m ? m + WORDS.min + (r ? ' ' + r + WORDS.sec : '') : r + WORDS.sec; }   /* 1 min 5 s */
 function code4(c){ c = String(c || '').replace(/[^0-9A-Z]/gi, '').toUpperCase(); return c.replace(/(.{4})(?=.)/g, '$1-'); }
 function clock(s){ s = Math.max(0, Math.floor(s || 0)); var m = Math.floor(s / 60), r = s % 60; return m + ':' + (r < 10 ? '0' : '') + r; }
 function paintResult(){
@@ -194,9 +206,10 @@ function paintResult(){
   document.body.classList.toggle('exam-noparts', PHASE === 'done' && !(ST.result && ST.result.parts));
   if (PHASE === 'grading'){ box.innerHTML = '<p class="exgrading" role="status">' + WORDS.grading + '</p>'; box.hidden = false; return; }
   if (PHASE !== 'done' || !ST.result){ box.hidden = true; box.innerHTML = ''; return; }
-  var R = ST.result, away = K.Proctor && K.Proctor.summary ? K.Proctor.summary() : '';
+  var R = ST.result, rule = ST.start && ST.start.rule || {}, L = R.left || {n: 0, sec: 0};
   box.innerHTML = '<p class="exscore"><b>' + R.points + ' / ' + R.of + '</b> points</p><p class="extime" translate="no">' + clock(R.seconds) + '</p>' +
-    (away ? '<p class="exaway">' + esc(away) + '</p>' : '') +
+    (R.ended === 'left' ? '<p class="exended">' + esc(WORDS.ended + (rule.after || L.n) + ((rule.after || L.n) === 1 ? WORDS.time : WORDS.times)) + '</p>' : '') +
+    (L.n ? '<p class="exaway">' + esc(WORDS.leftN + L.n + (L.n === 1 ? WORDS.leftT1 : WORDS.leftT) + span(L.sec)) + '</p>' : '') +
     '<p class="excode" translate="no" id="exCode">' + code4(R.code) + '</p>' +
     '<div class="btns exbtns"><button type="button" class="go" id="exTurn">' + WORDS.turnin + '</button><span class="excopied" id="exCopied" role="status"></span>' +
     (OPEN ? '<button type="button" id="exNew">' + WORDS.newtest + '</button>' : '') + '</div>' +
@@ -227,6 +240,23 @@ function newTest(){
   }, function(){ b.disabled = false; fail(newTest); });
 }
 
+/* Finish asks in the bar with the list's words: Finish, Back (ui.js's own question says how many are blank, and Keep working) */
+function asking(on){ document.body.classList.toggle('asking', on); }
+document.addEventListener('click', function(e){
+  var t = e.target && e.target.closest ? e.target.closest('#bFinish') : null; if (!t || PHASE !== 'test') return;
+  e.stopImmediatePropagation(); e.preventDefault();
+  var c = $('confirm'); c.hidden = false; asking(true);
+  c.innerHTML = '<button type="button" class="go" id="cy">' + WORDS.finish + '</button><button type="button" id="cn">' + WORDS.back + '</button>';
+  var shut = function(){ c.hidden = true; c.innerHTML = ''; asking(false); };
+  $('cy').onclick = function(){ shut(); finish(); };
+  $('cn').onclick = function(){ shut(); var bf = $('bFinish'); if (bf) bf.focus(); };
+  $('cy').focus();
+}, true);
+/* a question with some of its parts right is Not right in the list after Finish */
+(function(){ var rows = null, mend = function(){ rows = rows || $('pgRows'); if (!rows) return;
+  Array.prototype.forEach.call(rows.querySelectorAll('.pgrv'), function(v){ if (/^\d+ of \d+ right$/.test(v.textContent)){ v.textContent = WORDS.notright; var b = v.closest('[aria-label]'); if (b) b.setAttribute('aria-label', b.getAttribute('aria-label').replace(/\d+ of \d+ right/, 'not right')); } }); };
+  if (window.MutationObserver) new MutationObserver(function(m, ob){ if ($('pgRows')){ ob.disconnect(); rows = $('pgRows'); new MutationObserver(mend).observe(rows, {childList: true, subtree: true}); mend(); } }).observe(document.body, {childList: true, subtree: true});
+})();
 /* the list of questions after Finish is read, never opened (opening one would bring the review's own words) */
 document.addEventListener('click', function(e){ if (e.target && e.target.closest && e.target.closest('[data-pgr]')){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 /* ---- the first screen */

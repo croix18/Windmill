@@ -33,3 +33,41 @@ body.exam-grading .watch .btns{visibility:hidden}
 /* the list of questions after Finish: read, not opened */
 body.exam .pgrow{pointer-events:none}
 @media print{ .exnet, .exgo{display:none} }
+/* the test's own words only (16 Nov 2026, DESIGN.md's list): the map without its heading and legend, and on a phone the map's
+   buttons themselves (its drawer's line has words of its own); "Question 4 of 16" kept for a screen reader, the number being on
+   the question and on the map */
+body.exam .pgmh, body.exam #intro, body.exam .pgtip{display:none !important}   /* and the unit's typing tip, an instruction */
+body.exam #pgQt{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+body.exam .pgq{min-width:1px;min-height:44px}   /* still the place Back and Next put the focus */
+body.exam .pghead{justify-content:space-between}
+@media (max-width:600px){ body.exam .pgmt{display:none !important} body.exam .pgmap .pgm{display:grid !important;margin:10px 0} }
+
+/* the proctor (proctor.js): the sheet can't be selected; answer boxes and scratch notes can */
+body.exam-on, body.exam-on *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.exam-on input[type=text], body.exam-on input:not([type]), body.exam-on textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* away: the sheet covered, opaque, with the one way back */
+.excover{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--ground);color:var(--ink)}
+.excover[hidden]{display:none}
+.excin{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:26rem;width:100%;text-align:center}
+.excin > button{min-height:48px;min-width:200px;font-size:17px}
+.excin [hidden]{display:none !important}
+.exlock{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.exlockt{margin:0;font:700 20px/1.3 var(--ui);color:var(--ink)}
+.exlockr{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%}
+.exlockr input{min-height:48px;width:12rem;max-width:100%;padding:8px 12px;border:1.5px solid var(--edge);border-radius:10px;background:var(--paper);color:var(--ink);
+  font:600 18px/1.2 var(--ui);text-align:center;letter-spacing:.04em}
+.exlockr input:focus{outline:3px solid var(--focus);outline-offset:2px}
+.exlockr input:disabled{opacity:.55}
+.exlockr button{min-height:48px;min-width:110px}
+@media (prefers-reduced-motion:no-preference){ .exshake{animation:exshake .32s ease-in-out} }
+@keyframes exshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+body.exam-away .exnet{position:fixed;left:12px;right:12px;top:12px;z-index:90;margin:0 auto}
+/* the count in the bar: the kit's alarm, solid coral with its own ink, the only coral on the page */
+.exleft{display:inline-flex;align-items:center;min-height:28px;padding:3px 10px;border-radius:999px;background:var(--alarm);color:var(--alarmInk);
+  font:700 13.5px/1.2 var(--chrome);white-space:nowrap;font-variant-numeric:tabular-nums}
+.exleft[hidden]{display:none}
+.exended{font:700 15px/1.35 var(--ui);color:var(--ink);margin:0 0 6px}
+/* printed, the test page is nothing at all */
+@media print{ body.exam > *{display:none !important} body.exam{background:none} }
+/* on a phone the count shares the answered line, so the clock and the buttons keep one row */
+@media (max-width:480px){ body.exam .exleft{order:6;margin-left:auto} body.exam .watch .in:has(.exleft:not([hidden])) .score{flex:1 1 55%} }

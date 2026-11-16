@@ -5,7 +5,8 @@ Refuses unless kit/check/pack.js passes for the unit (every part judges the same
 the unit's page (never touching the practice page, the teacher copy or their outputs):
   <Course> Unit N Test.html   the test page: one self-contained file like the practice page — the kit's CSS and the unit's own,
               the fonts, KaTeX, tex.js, core.js, nline.js, cgraph.js, judge.js (ui.js makes its judge at load; exam_unit.js takes
-              the judging out of it), pager.js, ui.js, calc.js, scratch.js, exam_unit.js, exam.js, and the keypad's key list.
+              the judging out of it), pager.js, ui.js, calc.js, scratch.js, exam_unit.js, trace.js (the log), proctor.js (full
+              screen, away, the rule, no copying; 16 Nov 2026), exam.js, and the keypad's key list.
               NONE of the unit's scripts. pager.js, scratch.js, ui.js and calc.js are held inert (<script type="text/x-kit-held">)
               until exam.js has the test from the site; then it makes the stub unit and runs them, in their order.
   test_bundle/   the site's bundle, for a bundler that follows static require()s: the unit's scripts and the kit files they
@@ -62,11 +63,11 @@ for f in ("pager.js", "scratch.js", "ui.js", "calc.js"):
 dump = lambda x: json.dumps(x, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 excfg = {"course": COURSE, "unit": UNIT, "title": TITLE, "h1": info["h1"], "eyebrow": re.sub(r"(\s|&nbsp;)*·(\s|&nbsp;)*Practice(\s+Test)?\s*$", "", info["eyebrow"] or ""), "api": "/api/test", "kit": KITV}
 body = body.replace("</style>\n<div class=\"watch\"", rk("exam.css") + "</style>\n<div class=\"watch\"", 1) if "</style>\n<div class=\"watch\"" in body else sys.exit("build_exam: no place for exam.css")
-body += "<script>window.KIT_EXAM_CFG=" + dump(excfg) + ";</script>\n<script>" + rk("exam_unit.js") + "</script>\n<script>" + rk("exam.js") + "</script>\n"
+body += "<script>window.KIT_EXAM_CFG=" + dump(excfg) + ";</script>\n<script>" + rk("exam_unit.js") + "</script>\n<script>" + rk("trace.js") + "</script>\n<script>" + rk("proctor.js") + "</script>\n<script>" + rk("exam.js") + "</script>\n"   # the log and the proctor before exam.js: Start asks for full screen inside its press (16 Nov 2026)
 first, rest = body.split("\n", 1)
 first = re.sub(r"<title>.*?</title>", "<title>" + TITLE.replace("&", "&amp;").replace("<", "&lt;") + "</title>", first, count=1)
 # nothing of the unit: a long distinctive line of each of its scripts (one the kit's own files do not have) must not be on the page
-KITTEXT = "".join(rk(f) for f in ("core.js", "nline.js", "cgraph.js", "judge.js", "pager.js", "scratch.js", "ui.js", "calc.js", "tex.js", "exam_unit.js", "exam.js"))
+KITTEXT = "".join(rk(f) for f in ("core.js", "nline.js", "cgraph.js", "judge.js", "pager.js", "scratch.js", "ui.js", "calc.js", "tex.js", "exam_unit.js", "trace.js", "proctor.js", "exam.js"))
 for s in cfg["scripts"]:
     for line in ru(s).splitlines():
         t = line.strip()
