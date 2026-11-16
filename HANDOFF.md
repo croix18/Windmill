@@ -4,6 +4,58 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## The drawing kit — `draw/` (16 Nov 2026): the state's pictures drawn, not copied; one kit for the site, Cadence and the practice pages
+
+Session `session_01W9n2X1tmgHHzzLGg6M6wpv` (Croix, on his phone). Read `draw/README.md` for how it is used; this is why and what is next.
+
+**What he asked for.** 15 Nov, having the state's Grade 7 FAST and Algebra 1 EOC released tests built on the site
+*"exactly as my grade 8 test is built"*, and asked whether to copy the state's pictures or reproduce them: *"I would rather
+redraw everything so we have the skills to do it. Because I'm going to want to build a bunch of banks and generators. So
+probably better if we learn how to rebuild it exactly."* 16 Nov, asked whether the kit should live here, where Cadence and
+the practice kit could take it: *"Publish and yes move it to windmill"*.
+
+**What exists.**
+- `draw/draw.js` (`window.Draw`): a spec in, SVG out — a coordinate grid (axes, numbers, titles, lines, rays, curves,
+  points, half-planes and their unions and intersections), a number line, a circle graph, segmented bars, a free shape.
+  The weights, arrowheads, ticks, dashes, greys and tints were measured on FLDOE's pages at 288 dpi. A graph's numbers are
+  drawn before its plotted lines (his rule for Cadence, 15 Nov: *"Leave the numbers behind the line"* — and the state's).
+- The text is set on **Verdana's advance widths** (the state's face; the tables in `draw.js` were read off the pages' own
+  text records). A drawing asks for Verdana, then **Draw Sans** (`draw/fonts/`: DejaVu Sans 2.37 set on those widths by
+  `draw/face.py`, under DejaVu's license, which allows a renamed changed font). A page with drawings carries it, so a
+  Chromebook or a phone without Verdana puts every label in the same place.
+- `draw/measure/`: reads a picture off a page of a PDF dump into a spec, sets each string where the state set it, and
+  lays the drawing over the page. `draw/check.mjs`: the same overlay in Chromium from pictures kept beside the specs, for
+  a tool's own tests. `draw/test.mjs`: the kit alone, no browser — twelve examples of our own drawn to the same bytes,
+  and the rules a generator leans on; `tools/check.sh` runs it with the manifest (`tools/draw_kit.py --check`) and
+  `draw/face.py --check`.
+- **In use on the site** (`croix18/mrshaffer-site`): 51 drawings — the Algebra 1 EOC Spring 2024 (35), the Grade 7 FAST
+  2026 (11) and question 23 of the Grade 8 FAST 2025 (5). Over the state's own pictures: at most 0.4% of either's ink more
+  than 0.75 pt from the other's; 687 strings within 0.59 pt. The tests went live at site `e54a64c` with the kit in the
+  site's own tree; the site's next commit takes the kit from here (`released/kit/draw/`, its `DRAW_VERSION` names the
+  Windmill commit).
+
+**Things a session must know.**
+- **Windmill is public; the site is private.** The state's pictures (`state/`, cut from FLDOE's pages) and the specs
+  drawn from them stay in the site. Nothing of the state's is here: `draw/tests/` are examples of our own.
+- **A spec's offsets are from the kit's defaults.** When a default moves (16 Nov: an axis title now clears its numbers
+  however wide they are), a tool's `check.mjs` shows which drawings moved and `measure/make.py` makes those sets again —
+  which needs the dump. The dumps are in no repository: Croix makes them with Cadence's `tools/pdf-dump.html` at
+  **Render scale 4** (2448-pixel pages; a 1.3-scale dump is too coarse to measure) and attaches the zip. Ask him for it.
+- One picture (the EOC's question 28) has its text as outlines on the state's page, so no text record: its strings were
+  placed by their ink, by hand, and `check.mjs` holds them by their ink (within 1 pt) instead.
+- This session pushed here and to the site through the session's own GitHub connection (each repository added to the
+  session with push access), not `.github-token`; the commits are made as the no-reply author, as `tools/push.sh` makes them.
+
+**Not built — what "a bunch of banks and generators" needs next.**
+- **Cadence still draws with its own `fig*` helpers** (`figGrid`, `figNumberLine`, `figCircleGraph`, …). Nothing in
+  Cadence calls `Draw` yet; moving a generator over is: paste `draw.js` at build, hand `Draw.svg` a spec, carry Draw Sans.
+- The kit does not place a circle graph's or a bar chart's names and numbers itself (they are `items` with positions),
+  nor a point's label clear of the lines near it. A generator has to say where; a placement rule is the next piece.
+- The practice kit's `nline.js` and `cgraph.js` are things a student builds on the screen; this draws finished pictures
+  and replaces neither.
+- 22 of the Grade 8 released test's pictures on the site are still screenshots of the test online. Drawing them is a set
+  file for the booklet's pages (they are in the 15 Nov dump) — not asked for.
+
 ## In progress (15 Nov 2026, from 7:12 pm): scratch paper and the calculators (in the kit, rolling out), then an airtight test with a result code
 
 Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). This section is rewritten as each part lands.

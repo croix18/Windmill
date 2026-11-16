@@ -1,0 +1,1 @@
+{"alt":"A coordinate grid from negative 6 to 6. A line rises through the marked points (0, negative 2) and (4, 0).","spec":{"kind":"grid","x":[-6,6],"y":[-6,6],"axes":{"x":{"name":"x"},"y":{"name":"y"}},"plots":[{"line":[[-6.4,-5.2],[6.4,1.2]]},{"dots":[[0,-2],[4,0]]},{"text":"(0, –2)","at":[0,-2],"d":[6,12]},{"text":"(4, 0)","at":[4,0],"d":[-6,-8],"anchor":"end"}]}}

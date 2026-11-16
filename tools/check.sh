@@ -36,6 +36,12 @@ echo "== the Cadence tools' own reading (tools/cadence_fast.py, tools/cadence_ba
 python3 tools/test_cadence_fast.py
 echo "== practice kit (the practice-test pages both courses vendor)"
 python3 tools/practice_kit.py --check
+echo "== drawing kit (draw/: its manifest, the kit on its own specs, Draw Sans on the kit's widths)"
+python3 tools/draw_kit.py --check
+node draw/test.mjs
+python3 -c "import sys; [compile(open(f, encoding='utf-8').read(), f, 'exec') for f in sys.argv[1:]]" draw/face.py draw/measure/*.py tools/draw_kit.py
+if python3 -c "import fontTools, brotli" 2>/dev/null; then python3 draw/face.py --check
+else echo "   Draw Sans not held to the kit's widths: fontTools and brotli are needed (CI installs them)"; fi
 
 echo "== kit (the build kit both courses vendor)"
 python3 tools/kit_manifest.py --check

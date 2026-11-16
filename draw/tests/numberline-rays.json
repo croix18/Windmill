@@ -1,0 +1,1 @@
+{"alt":"A number line from negative 5 to 5. A closed circle at negative 2 with an arrow from it to the left, and an open circle at 3 with an arrow from it to the right.","spec":{"kind":"numberline","from":-5,"to":5,"by":1,"rays":[{"from":-2,"dir":"left","closed":true},{"from":3,"dir":"right","closed":false}]}}

@@ -1,0 +1,1 @@
+{"alt":"A number line from 0 to 10. An open circle at 2 and a closed circle at 7, with the line between them drawn heavy.","spec":{"kind":"numberline","from":0,"to":10,"by":1,"rays":[{"from":2,"to":7,"closed":[false,true]}]}}
