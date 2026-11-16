@@ -162,8 +162,8 @@ function create(o) {
       const body = typeof f === 'string' ? fs.readFileSync(f) : f.body, type = (typeof f === 'string' ? '' : f.type) || 'text/html; charset=utf-8';
       res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' }); return res.end(body);
     }
-    let raw = ''; req.on('data', c => { raw += c; if (raw.length > 8e6) req.destroy(); });
-    req.on('end', () => {
+    const chunks = []; let size = 0; req.on('data', c => { chunks.push(c); size += c.length; if (size > 8e6) req.destroy(); });   /* bytes, decoded once: a chunk may end inside a character (16 Nov 2026: a ° split in a pool's chunk) */
+    req.on('end', () => { const raw = Buffer.concat(chunks).toString('utf8');
       const r = routes.find(x => x[0] === req.method && x[1].test(u.pathname));
       if (!r) return send(404, { error: 'no route' });
       let body = {}; if (raw) { try { body = JSON.parse(raw); } catch (e) { return send(400, { error: 'json' }); } }

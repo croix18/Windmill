@@ -72,6 +72,11 @@ through `exam.js`, the calculator's and scratch paper's panels, input/paste/keyd
   cover). Now a `403 {error: 'closed'}` on a save, a read or an unlock finishes the test at once, as Finish does: Grading…,
   then the results and the code; the site commits its last saved answers (`ended` `'teacher'` or `'time'`). Checked.
 
+- Found on the last run: the stand-in read a request's body as text chunk by chunk, so a character split between two chunks
+  (M7 U7's `°` in a pool's upload) came out as two replacement characters and the test page's sheet differed from the teacher
+  copy's. The stand-in's own bug, not the page's: it now decodes the body once (`check/exam_site.js`). The real site reads
+  `request.json()` and cannot have it.
+
 ## Decisions the design did not make
 - A leaving ends when the student presses Back to the test (or Unlock with a right code), not when the signals clear: time on
   the cover is time away. Its kind is the strongest seen, reload ranked above tab, window, full screen.
