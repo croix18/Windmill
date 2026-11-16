@@ -123,9 +123,9 @@ told no: it adds headroom, not security) — which is why the tests are drawn in
 the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
 `practice/exam/DESIGN.md`** (on the branch `exam`, which is ahead of main's copy).
 
-**Where the test stands (16 Nov, 3:00 pm): built, reviewed, in the kit and both courses, and DEPLOYED on the site
-(mrshaffer-site `294aa6a`, 2:57 pm); Tally is on its last round; no test can be opened until Croix pairs Tally with the site,
-and no class has seen it.**
+**Where the test stands (16 Nov, 5:00 pm): all four pieces are built, reviewed, on main and live — the site deployed 2:57 pm
+(`294aa6a`), Tally's Tests on Tally's main 5:00 pm (`a5334dd`). No test can be opened until Croix pairs Tally with the
+site; nothing has run on Cloudflare itself or on a real Chromebook; no class has seen it. His own trial is the next step.**
 - **The kit — on main** (merged from branch `exam`; the kit is `86dfa38`): `judge.js`, `pack.js`, `exam/server.js`, the
   test page (`exam_pool.js`, `exam_unit.js`, `exam.js`, `proctor.js`, `trace.js`, `exam/build_exam.py`), the Node stand-in
   `check/exam_site.js` and the page's whole-test check `check/exam_page.js` (10 parts), and the lock `exam/seal.js` with
@@ -150,12 +150,37 @@ and no class has seen it.**
   page check passes against the site's handlers on M7 Units 10 and 7 and A7 Units 6 and 3 (`tools/test_exam_page.mjs`), and
   a whole test passes through `wrangler dev`. **Nothing of it has been run on Cloudflare itself by anyone** — the site
   cannot be reached from a session; his trial is the first real run.
-- **Tally** — branch `tests` in `croix18/Tally` (pushed; `NOTES.md` there): Connect, the trial's four words, responses to
-  the class view and each sitting's detail, the flags; matching that never places a test silently unless it is certainly
-  that child's; the locked records kept in IndexedDB and checked each session. Its second review's findings are being
-  closed; then it goes to main (the site's Tally link downloads main).
-- **Then Croix** pairs Tally with the site, sets his form's link, and takes a whole test himself — on a Chromebook and
-  his tablet, with the hand checklist at the end of `review-16nov/TEST-PAGE-REVIEW.md` — before any class does.
+- **Tally — on main** (`croix18/Tally` `a5334dd`; its `NOTES.md` section "Tests" has the whole account; the site's Tally link
+  hands out main's `Tally.html`, SHA-256 `d05c989b…9cf7`, which `build.py --check` holds to its sources): a sixth class tab,
+  **Tests** — Connect (Tally's key pair, kept in its data and the Full save only), the trial's four words, the form's
+  responses pasted or opened (or the cockpit's results file, no network needed), each locked record fetched by its code
+  (`GET /api/test/key` and `GET /api/test/result/<code>` are the only requests Tally ever makes; its CSP allows
+  mrshaffer.org and nothing else), opened, its signature checked, kept locked in IndexedDB and checked again each session;
+  the class view, each sitting's detail and timeline, the flags, Copy scores. Reviewed three times
+  (`review-16nov/TALLY-REVIEW*.md`); what the reviews made of it: a test lands on a student silently only when the typed name
+  is exactly theirs and no other student could have typed it (a nickname table, near last names, same initial) — otherwise
+  Tally asks; every test is in exactly one place (a student's row, Waiting for you, Nobody turned in) and a count line says
+  so (a randomized test walks 2,000 sequences of actions against that); a placement belongs to one child (bound to the
+  Focus Student ID where the roster has one); a site key that arrives in a Full save is trusted only once the site itself
+  serves it. Whole suite: 75 suites · 2,446 passed · 0 failed.
+- **What Croix does** (told to him 16 Nov, 5 pm): (1) the cockpit's Tally link → the new Tally → a class → Tests → Connect →
+  copy the key; (2) the cockpit's Test card → Tally → paste it → the card shows a trial code; (3) Tally: enter the trial
+  code → Tally shows four words → type them into the card → Confirm; (4) a Google Form with a name question and a
+  short-answer code question → Get pre-filled link with `CODE` typed in the code question → paste the link into the card's
+  Google Form row; (5) a whole test himself: Open a unit (the card draws 120 tests in his browser and shows a start code)
+  → on a Chromebook the unit's practice page → Test → the code → the test → Finish → Turn in → Tally: Paste responses;
+  with the hand checklist at the end of `review-16nov/TEST-PAGE-REVIEW.md` (the screen left alone ten minutes, the lid
+  shut a minute, Escape with the calculator open, the overview key, Close pressed in the cockpit mid-test, his tablet).
+- **The defaults he can change on the card:** Start code On · Time allowed 120 min · Leaving the test Count only ·
+  Students see Right and wrong · no unlock code (Lock after N cannot be chosen without one).
+- **Said to him as known:** a phone, a neighbor, a friend texting the start code; a child with the code can still start a
+  second test from another browser (Tally lists tests nobody turned in); a wrong and a lapsed start code look the same
+  (the box shakes); a reload counts as leaving; students see no countdown; Tally now talks to mrshaffer.org (two GETs, no
+  name); his first real class should be checked against the form's responses (the count line).
+- **Open with him:** whether the start code stays on by default (asked 10:31 am, not yet answered); whether Desmos's Clear
+  behaves on his tablet now; whether Tally asks him too many "is this …?" questions a test on his real rosters (the
+  same-initial rule can be loosened); whether Copy scores should leave a receipt as IXL's does; seeing a student's exact
+  questions from Tally (the record holds the test's seed, not its words — a teacher copy opened by seed would do it).
 - **Not proven anywhere but on paper:** CPU on Cloudflare itself (the seal of a large record is the one request near the
   Free plan's 10 ms; if seals fail in his trial, split the seal in two requests or take the $5 plan), and everything a
   real Chromebook does (its keys, a closed lid, the screen sleeping).
