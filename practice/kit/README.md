@@ -433,36 +433,68 @@ who never opens a calculator makes no request at all (`page.js` F still fails an
   time it is picked — `referrerpolicy="no-referrer"`, `title="FAST calculator (Desmos scientific)"` or `"TI-30Xa calculator"`,
   its exact address — and after that closing only hides the panel and switching only hides the other one, so a student's work
   in either stays while the page is open. Each has its own natural size: the FAST one 360 × 560, as on the test; the TI-30Xa
-  389 × 636 (the emulator's 315.6 × 600 picture 28 px into its page, with room for a scrollbar). In a short window the FAST one
-  gets shorter (Desmos lays itself out again) and the TI-30Xa is drawn smaller, whole.
-- **The header** holds the title, Close, the switch and an always-visible **Open in a new tab** (`target="_blank"`,
-  `rel="noopener noreferrer"`) to the calculator shown. Whether either site lets itself be framed could not be checked from the
-  build's sandbox, which cannot reach them: if one refuses, its frame shows the browser's error and the link is the way through.
-  Offline (`navigator.onLine` false) one line beside the link says *The calculator needs the internet.*; a frame first opened
-  offline loads again when the device is back online.
+  389 × 636 (the emulator's 315.6 × 600 picture 28 px into its page, with room for a scrollbar). Each is laid out once at that
+  size and never sized again: in a short or narrow window, and on a phone, it is drawn smaller whole (a transform), so the
+  frame's own window never changes and Desmos never lays itself out again because of the page (15 Nov 2026, below).
+- **The header** is one row: the title, the switch and Close (it wraps, the switch under the title and Close, only when the
+  panel is too narrow for the row). No link and no way out to a new tab (15 Nov 2026). Offline (`navigator.onLine` false) one
+  line under the row says *The calculator needs the internet.*; a frame first opened offline loads again when the device is
+  back online. Until a frame has loaded its place pulses quietly; if it has not loaded 12 seconds after its address was set,
+  *The calculator didn’t load.* and **Try again**, which makes the frame again at the same address.
 - **Wide screens:** a floating window, as the test's own calculator is — dragged by its header, docked at the right side at
   first, never over the top bar, its place remembered on the device (`practice.calc.pos`, from its nearer side) and kept on the
   screen when the window changes size. It floats over the page, as the test's does; a student drags it where it helps.
 - **Phones** (≤ 600 px wide or ≤ 460 px tall): a full-height sheet with Close; the page behind it is inert while it is open.
-- **Keyboard:** opening puts focus on the panel's header; Tab goes Close → the switch → the link → the calculator; Escape (in the
-  panel, or on the button) closes it and gives focus back to the button. The panel and the button are `translate="no"`.
+- **Keyboard:** opening on a wide screen puts focus in the calculator, so typing reaches it without a click first (picking a
+  calculator by a click does too; by the arrows, focus stays on the switch); on a phone's sheet focus goes to the title. Tab
+  goes Close → the switch → the calculator; Escape (in the panel's header, or on the button) closes it and gives focus back to
+  the button. The panel and the button are `translate="no"`.
 - **Never printed:** the button and the panel are hidden in `@media print` and never show over a print preview or the teacher's
   panels; the worksheets, keys and tests print exactly as before.
 - **Embedded, never copied:** each calculator is its author's page in a frame, by its address. No file of either — not the
   emulator's code (GPL-3.0, github.com/AldenMB/calculator_emulator) nor its photo of the calculator, which is Texas Instruments'
-  — is in Windmill or a course repository. Under the TI-30Xa the panel credits it: *TI-30Xa emulator by Alden Bradford*,
-  linking to its page.
+  — is in Windmill or a course repository. Under the TI-30Xa the panel credits it in plain text: *TI-30Xa emulator by Alden
+  Bradford*.
 - **The look:** the ⋯ menu's surface (true dark in dark: a neutral near-black with white words, never navy), the Appearance
-  row's switch, teal ink for the links, DM Sans as the bar. What the calculators draw inside their frames is their own.
+  row's switch, DM Sans as the bar. What the calculators draw inside their frames is their own.
 - **Checked:** `check/page.js` part N (`check/calc_page.js`), both addresses answered by small stand-in pages (`page.route`): no
   iframe and no request to either host before it is picked, and nothing in the built page that could fetch one; the button
   (44 px, the word on a wide screen, the icon alone on a phone); the FAST frame's exact address, attributes and 360 × 560, asked
-  once with no Referer, docked at the right under the bar; focus on the header; Tab order; Escape back to the button; the same
-  frame again with what was typed in it; the TI-30Xa made only when picked, with its credit, both frames kept through switching
-  and neither loaded again, the new-tab link following the calculator shown, the pick after a reload; dragging (never over the
-  bar, remembered across closing and a reload, kept inside a smaller window); the phone's sheet at 390 (whole screen, the page
-  inert, Close 44 px back to the button); the offline line beside the link; print (neither prints, a worksheet's pages the same
-  with the panel open, nothing over a print preview); true dark; a lesson set. On student pages and teacher copies alike.
+  once with no Referer, docked at the right under the bar; the header one row, no link; focus in the calculator and a key typed
+  at once reaching it; Tab order; Escape back to the button; the same frame again with what was typed in it; the TI-30Xa made
+  only when picked, with its plain credit, both frames kept through switching and neither loaded again, the pick after a
+  reload; dragging (never over the bar, remembered across closing and a reload, kept inside a smaller window); the phone's
+  sheet at 390 (whole screen, the page inert, focus on the title, Close 44 px back to the button); the offline line under the
+  row; print (neither prints, a worksheet's pages the same with the panel open, nothing over a print preview); true dark; a
+  lesson set; and the hardening below. On student pages and teacher copies alike.
+
+**15 Nov 2026 — hardened.** Croix: *"Also get rid of open in new tab for the calculators inside of the practice tests and
+tests. Harden the calculators to work. They do now, just harden to make sure they do always. The desmos I was having issues
+with, it wouldn't respond when I was clicking clear and it only reacted when I clicked the number pad."* Desmos's site cannot
+be reached from the build's sandbox, so his report could not be reproduced. Nothing on the page covered the frame; what a
+probe of the published Unit 10 did show is that on a Chromebook-height window (1366 × 657) the FAST frame was resized to 454 px
+tall, and resized again on every window or bar change, so Desmos laid itself out again under the student. The likeliest cause:
+a button that needs a whole click (clear) lost it when the frame was re-laid or had no focus, while the keypad acts on a press.
+So every way the page could disturb the frame is gone:
+- **No way out:** the *Open in a new tab* link is gone; the TI-30Xa's credit is plain text.
+- **One header row** (the title, the switch, Close), about 50 px more for the calculator.
+- **The test's own layout, always:** the FAST frame's own window is 360 × 560 from the moment it is made, at every window size
+  and on the phone's sheet (scaled to fit, centered, never above 1); a window too small draws it smaller whole.
+- **Nothing moves under a click:** `layout()` runs at most once an animation frame and writes a style only when its value
+  changes; called 20 times it writes nothing.
+- **Focus in the calculator** on opening and on a click of the switch (wide screens).
+- **The drag never leaves the frame dead:** the frames lose the pointer (`kcdrag`) only once a drag has moved 3 px, never on a
+  plain press, and get it back at the drag's end, a cancel, a lost capture, the window's blur, a hidden page, closing, and the
+  next press anywhere in the panel.
+- **A calculator that did not load says so:** the loading state, then after 12 seconds *The calculator didn’t load.* and
+  **Try again** (offline keeps its own line). `window.KitCalc` is the checks' hook: `layout()`, and `wait`, the 12 seconds.
+- **Checked** (part N): the FAST frame's own window 360 × 560 with no `resize` in it at six window sizes and on a phone, drawn
+  smaller whole at its own shape (at least 490 px tall at 1366 × 657); a grid of 63 points across the frame all reach it —
+  docked, dragged to each corner, 1366 × 657, 560 px tall, after a press on the header that did not move, the phone's sheet,
+  the sheet with the pager's drawer open, the unit's keypad showing on a touch screen, after a drag left on and a press in the
+  panel; real clicks at its top right and in its lower half reach the stand-in; `layout()` 20 times writes nothing; the stuck
+  drags; a calculator that never answers (a route that never replies, the wait shortened through the hook): the loading
+  state, the line, Try again asking again and then loading.
 
 ## 8 Nov 2026 — the keypad, even and tidy (`ui.js`, `keyset.js`)
 Croix, of an A7 Unit 6 lesson set on his phone: *"Can you fix the symbols across everything so that they are even looking not

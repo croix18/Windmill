@@ -693,7 +693,8 @@ svg.cgg.cg-small{width:min(100%,14rem)}
    a dream come true", then "I would also like this t130xa calculator embedded as well … it should be the same as the desmos") ====
    Calm and small: the button is the bar's own quiet button (sand), the word beside its icon — the icon alone on a phone; open,
    it has the ink's edge (nothing live about it, so never turquoise). The panel is the ⋯ menu's surface (true dark in dark), the
-   switch the Appearance row's, the link teal ink. What the calculators draw inside their frames is their own. */
+   switch the Appearance row's. What the calculators draw inside their frames is their own. Since 15 Nov 2026 the header is one
+   row, there is no way out to a new tab, and each calculator keeps its own size inside and is drawn smaller whole (calc.js). */
 .watch .btns .calcb{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px 9px 11px}
 .calcb svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .calcb svg .kd{fill:currentColor;stroke:none}
@@ -704,34 +705,37 @@ svg.cgg.cg-small{width:min(100%,14rem)}
 .kcalc[hidden]{display:none}
 .kch{padding:6px 6px 0;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
 .kcalc.kcdrag,.kcalc.kcdrag .kch{cursor:grabbing} .kcalc.kcdrag iframe{pointer-events:none}
-.kcbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-left:10px}
-.kct{margin:0;font:700 15px/1.2 var(--chrome);letter-spacing:.005em;color:var(--ink)}
+/* one row: the title, the switch, Close (Close first in the markup, for Tab; last on the screen) */
+.kcbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding-left:10px}
+.kct{margin:0 auto 0 0;font:700 15px/1.2 var(--chrome);letter-spacing:.005em;color:var(--ink);white-space:nowrap}
 .kct:focus{outline:none} .kct:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:4px}
-.kcx{min-height:44px;padding:8px 15px;border-radius:999px;font:600 14px/1 var(--chrome);color:var(--ink);background:var(--field);border:1px solid var(--rule)}
+.kcx{order:2;min-height:44px;padding:8px 14px;border-radius:999px;font:600 14px/1 var(--chrome);color:var(--ink);background:var(--field);border:1px solid var(--rule)}
 .kcx:hover{background:var(--field2)}
-.kcrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;margin-top:6px}
-.kcsw{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--field)}
-.kcsw button{min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mut);font:600 13.5px/1 var(--chrome);padding:8px 12px;white-space:nowrap}
+.kcsw{order:1;display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--field)}
+.kcsw button{min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--mut);font:600 13.5px/1 var(--chrome);padding:8px 11px;white-space:nowrap}
 .kcsw button[aria-checked=true]{color:var(--ink);font-weight:700;background:var(--seg);box-shadow:inset 0 0 0 1.5px var(--navyLine)}
 .kcsw button:not([aria-checked=true]):hover{background:var(--field2)}
-.kcl{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:0 10px;margin-left:auto;max-width:100%}
-.kcnew{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 2px;border-radius:8px;font:600 13px/1.2 var(--chrome);color:var(--link);text-decoration:none;white-space:nowrap}
-.kcnew:hover{text-decoration:underline;text-underline-offset:2px}
-.kcnew svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.kcnew:focus-visible,.kccr a:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.kcoff{font:500 12.5px/1.3 var(--chrome);color:var(--mut)} .kcoff[hidden]{display:none}
-.kcsr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.kcb{display:flex;flex-direction:column;align-items:center;padding:4px 6px 8px}
+.kcalc.kcwrap .kcsw{order:3}   /* too narrow for one row: the title and Close, the switch under them (calc.js) */
+.kcoff{margin:4px 0 0;padding-left:10px;font:500 12.5px/1.3 var(--chrome);color:var(--mut)} .kcoff[hidden]{display:none}
+.kcb{display:flex;flex-direction:column;align-items:center;padding:6px 6px 8px}
 .kcfr{display:flex;flex-direction:column;align-items:center;max-width:100%} .kcfr[hidden]{display:none}
-.kcsc{overflow:hidden;border-radius:10px;background:var(--paper);box-shadow:0 0 0 1px var(--rule)}
+.kcsc{position:relative;overflow:hidden;border-radius:10px;background:var(--paper);box-shadow:0 0 0 1px var(--rule)}
 .kcsc iframe{display:block;border:0;transform-origin:0 0}
-.kccr{margin:8px 0 0;font:500 12px/1.3 var(--chrome);text-align:center}
-.kccr a{color:var(--link);text-decoration:none} .kccr a:hover{text-decoration:underline;text-underline-offset:2px}
+/* not loaded yet: a quiet pulse where the calculator will be; not loaded after 12 seconds: one line and Try again (calc.js) */
+.kcfr.kcload iframe{opacity:0}
+.kcfr.kcload .kcsc{animation:kcwait 1.4s ease-in-out infinite alternate}
+@keyframes kcwait{from{background:var(--paper)}to{background:var(--field)}}
+@media (prefers-reduced-motion:reduce){ .kcfr.kcload .kcsc{animation:none;background:var(--field)} }
+.kcno{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:var(--paper);text-align:center}
+.kcno[hidden]{display:none}
+.kcno p{margin:0;font:600 14px/1.35 var(--chrome);color:var(--ink)}
+.kccr{margin:8px 0 0;font:500 12px/1.3 var(--chrome);color:var(--mut);text-align:center}
 /* a phone: the whole screen, Close at the top right, the page behind it inert (calc.js) and still */
 .kcalc.kcfull{inset:0;width:auto;height:100%;min-width:0;max-width:none;border:0;border-radius:0;box-shadow:none;
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .kcalc.kcfull .kch{cursor:auto;touch-action:auto;padding:8px 10px 0}
 .kcalc.kcfull .kcb{flex:1 1 auto;min-height:0;padding:6px 6px 10px}
+
 html.kcalc-lock,html.kcalc-lock body{overflow:hidden}
 /* never over a print preview or the teacher's panels, and never on paper */
 body.printing>.kcalc,body.tview>.kcalc{display:none!important}
