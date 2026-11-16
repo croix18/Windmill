@@ -793,7 +793,12 @@ teacher's view and print reserving nothing.
 | `ui.js` | the whole page: sets, scopes, the coach card, Hint, Show me how, Try another, scoring, the clock, saved state, focus, keypad |
 | `judge.js` | the judge, one source for the page and the site (15 Nov 2026, below): a part's boxes, blank, can't read, the unit's judge, equivalent forms, what Finish makes of a part on Like the real test; `Kit.Judge({U, V, K, NL, CG})`, pure, the context passed in |
 | `pack.js` | a part as text and back, BigInt kept exact; refuses what is not data (a function, a class's object), saying where (15 Nov 2026, below) |
-| `exam/server.js` | the site's side of a test: `read`, `grade` (three parts a call), `summary`; Node and the site's Worker, no DOM (15 Nov 2026, below) |
+| `exam/server.js` | the site's side of a test: `read`, `grade` (n parts a call), `summary`; Node and the site's Worker, no DOM (15 Nov 2026, below) |
+| `exam_pool.js` | the test's pool, in a teacher copy at `#exam-pool`: n tests drawn for the cockpit, each `{seed, pub, priv, fams}`, proved by `exam/server.js` before it goes (15 Nov 2026, below); teacher builds only, with `pack.js` and `exam/server.js` |
+| `exam_unit.js` | the stub unit the test page runs on: the test's skeleton and the recorded view, no judge, solution, walk or key (15 Nov 2026, below) |
+| `exam.js`, `exam.css` | the test on the student's device: the start, the site's routes, the clock, Grading…, the results, Turn in (15 Nov 2026, below) |
+| `exam_link.js` | a student page on the site: Test on its start screen while the unit's test is open (15 Nov 2026, below) |
+| `exam/build_exam.py` | `python3 kit/exam/build_exam.py <unit>`: the test page and the site's bundle, gated on `check/pack.js`, checked by `check/exam_page.js` (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
 | `vendor/fonts/` | Lexend, DM Sans, DM Serif Display as small woff2 (SIL OFL), inlined by `build.py`; `make_fonts.py` cuts them |
 | `build.py` | `python3 kit/build.py <unit>` writes `<file>` (the claude.ai artifact body) and `preview.html` plus `<download>` (a complete page for Google Sites or Netlify Drop). It refuses to build unless the checks passed on these exact sources. |
@@ -824,6 +829,9 @@ teacher's view and print reserving nothing.
 | `check/cgraph.js`, `check/cgraph_page.js` | answering a circle graph through the page for every page check (the keyboard, as a student without a mouse does); page.js part V (a circle graph the student builds), 15 Nov 2026 |
 | `check/pack.js` | every part judges the same after `unpack(pack())`, over 60 sets; not one of `run.py`'s steps (it will gate the test page) |
 | `check/exam_server.js` | the site's verdicts and score are the page's on Like the real test, 30 sets, through the page in Chromium; `read` against the page's "can't read" and preview; the CPU time of a grade call and a read |
+| `check/exam_site.js` | a stand-in for the site's test routes, in memory, on `exam/server.js`: the reference the site is built from (its routes written at its top); not for production |
+| `check/exam_page.js` | the test page in Chromium against the stand-in: the pool through a cockpit, the same sheet on 12 tests, nothing to steal, a whole test, a phone in dark, the words; run by `exam/build_exam.py` |
+| `check/exam_link_page.js` | page.js part X: the practice page's Test link on the site; the teacher copy at `#exam-pool` |
 | `check/page.js` | **in a real browser** (Playwright): every key typed on 3 sets scores N / N; then the flows: Cancel, re-checking the same answer, focus after Hint / Show me how / Try another / Next / Close, Show this step, Finish marking typed-but-unchecked answers, test mode, tap targets, the keypad not being a tab stop, bad links |
 
 | A unit (`practice/u4/`, …) | |
@@ -1201,3 +1209,65 @@ build. Make it airtight."*). Nothing a student sees changes.
   `check/exam_server.js <unit>`: 30 sets through the built page on Like the real test, every part answered (the five in turn),
   Finish; the site's verdict for every part and its score are the page's, and its `read` the page's readout and preview.
   It prints the CPU time of a grade call of three parts and of a read, cold and warm, against the site's 10 ms a request.
+
+## 15 Nov 2026 — the test page (`exam_pool.js`, `exam_unit.js`, `exam.js`, `exam/build_exam.py`, `check/exam_site.js`)
+The second stage of the test the site grades (`practice/exam/DESIGN.md`). The full-screen rule and the log
+(`proctor.js`, `trace.js`) are the next stage; `exam.js` calls them when they are there.
+- **The pool is drawn in the teacher copy.** A teacher build carries `exam_pool.js` (before `ui.js`), `pack.js` and
+  `exam/server.js` (its `require`s given the page's `Kit`). At `…/practice/#exam-pool`, in a frame of a page on the same
+  origin, it says `{kit: 'exam-pool', ready: true, course, unit, cv, kitv}`; told `{kit: 'exam-pool', draw: n}`, it answers in
+  fives, `{kit: 'exam-pool', forms: [{seed, pub, priv, fams}], done, of}`, or `{kit: 'exam-pool', error}`. A message is read
+  only from its parent, on its origin. Each seed is 128 bits, 32 hex characters: every unit draws through `Kit.draw`, which
+  hashes `unit|seed|slot`, so no `#set-N` opens a test. The set is drawn as *Like the real test* by the page itself
+  (`PracticeKit.draw`, a hook in `ui.js`: `render()` and the paint, as a student page draws — no key under a graph — and every
+  kind kept, since the site leaves out a disapproved kind by `fams`), then the page is put back.
+  - `pub`: every call the page made to the unit's `view` while it drew, its result under `fn|place|args` (`stem|@0.2`,
+    `opt|@1.0|3`; a place is `si.ii` for an item, `si.ii.pi` for a part, `si.ii.-1` for a solo item's part); which view
+    functions the unit has; a skeleton of the set; the unit's title, eyebrow, h1, notes, its keypad as data (each key's
+    typing for each kind of box in the test), `contentVersion` and the kit's version (the manifest's hash). The skeleton's
+    fields are a whitelist written down once, with a reason each, at the top of `exam_pool.js`: an item's `type`, `parts`,
+    `part` and how many choices; a part's `label`, `kind`, `imode`, how many choices, a number line's `line` (`{lo, st, n}`),
+    a circle graph's `circle` and `cats` (its names, no sizes), declared `boxes` and `form`, and `flab`, the form label the
+    page shows over a box (it comes from the key, so the copy works it out). No `fam`: nothing reads it on the test page,
+    and it names the method.
+  - `priv`: the page's `ITEMS` (`Kit.items()`), each packed with its `keyText`, in order.
+  - Before it goes, each test proves itself through `exam/server.js` after `unpack(pack())`: every key right, a wrong answer
+    not, the keys every point; two seeds that drew the same set are an error.
+- **The stub unit** (`exam_unit.js`, the same for every unit): `generate()` gives the skeleton, fresh objects each call;
+  `view.*` gives back what was recorded; a call that was not is `''` and counted (`Kit.ExamUnit.unknown`). No `judge`,
+  `solution`, `walk`, `key`, `keyText`, `rungs` or `choices`. `Kit.ExamUnit.judge(J)` gives `ui.js` a judge whose form label
+  is the recorded one and whose judging refuses.
+- **`ui.js` in exam mode** (`window.KIT_EXAM`, set only by the test page; hooks marked "the test"): the set is the test (its
+  id for the set number, `HASHV` from it, no link read or written, its storage under `exam.<unit>.`); always *Like the real
+  test*; Check, Enter and the coach do nothing; "Can't read this yet" and the preview come from `exam.js`; the clock is the
+  site's; Pause does nothing; Finish (the bar's or the pager's, after the kit's own question) goes to `exam.js`, and
+  `examDone` marks each part right or not as the site says and paints it with no card, no key and no help, every box
+  locked. The mode switch, What to practice, the set number, Print, Pause and Resume are not shown (`exam.css`). Everything
+  else is the page: the pager, flags, the keypad, boxes, the number line, the circle graph, the Calculator, Scratch paper,
+  docking, dark, Larger text.
+- **The test page** (`python3 kit/exam/build_exam.py <unit>` → `M7 Unit 10 Test.html` beside the page): `build.py` makes the
+  page's body (`--body-to`, nothing written there) and the build takes the unit out — its scripts, the lesson bank (its key
+  list stays, for the keypad), `bilingual.js`, `explain.js`, `approvals.js` — and holds `pager.js`, `scratch.js`, `ui.js` and
+  `calc.js` inert (`<script type="text/x-kit-held">`); `exam.js` runs them, in order, once the test has come. It refuses a
+  page that holds a line of the unit's scripts. `judge.js` stays: `ui.js` makes its judge at load (it holds no unit).
+- **`exam.js`:** the start (the unit's title, Test, Start — or "This test isn't open."); the routes as `check/exam_site.js`
+  writes them; a save at most every 20 s while anything changed (a question change is a change) and at once when the page
+  goes; a read on a pause in typing and on leaving a box (a read that fails is dropped; the next asks again); Finish → finish,
+  grade until done, seal; Grading…; the results (`24 / 36 points`, `41:07`, the code `K7QF-2M9D-X4TB`, Turn in, and each
+  question Right, Not right or Blank in the pager's list, read, not opened, when the site shows them), kept on the device
+  so the page reopens on them; New test while the test is open, after a second New test (Back keeps the result). Turn in
+  copies the code and opens the form with `CODE` replaced, or says "Copied". A request that fails says "Can't reach the
+  site. Your answers are saved on this device." with Try again. Its words are DESIGN.md's list, New test, Copied and Back.
+- **The site's bundle** (`test_bundle/` beside the page): the unit's scripts and the kit files they `require`, in the same
+  layout; `judge.js`, `pack.js`, `exam/server.js`; `index.js` → `{course, unit, cv, kit, U, server, pack}`; `sample.json`, a
+  test drawn under Node with its keys as answers, judged every point before the build ends.
+- **The practice page** gets `exam_link.js`: on the site, Test beside Start while `GET /api/test/status` says `{open: true}`.
+- **`check/exam_site.js`**, a stand-in for the site's routes, in memory, on `exam/server.js` — the reference for the site;
+  `exam/server.js`'s `grade` now marks an "Almost" (`{v: 'wrong', almost: true}`).
+- **Checked** (`check/exam_page.js`, run by the build): the pool through a page that plays the cockpit; on 12 tests every
+  question card of the test page is the teacher copy's own HTML for that seed (the pager's `pg-on` aside) and the stub was
+  asked nothing it did not have; nothing to steal (the unit's lines searched, the stub's fields, every `pub` against the
+  whitelist, every response of the stand-in before seal); a whole test (keys, wrong answers, equivalent forms, an unreadable
+  one fixed, blanks, two flags, Back, Next, the map, a reload, the network lost on a save and on Finish, the score the site's
+  and the practice page's judge's, the code, Turn in, reopened, New test, a second finish refused, no token refused, closed
+  again); 390 × 844 in dark. page.js part X (`check/exam_link_page.js`): the Test link and `#exam-pool`.
