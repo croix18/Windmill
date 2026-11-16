@@ -164,7 +164,8 @@ function drawAll(seeds, keepSheet){
     var fams = []; g.sections.forEach(function(s){ s.items.forEach(function(it){ var f = PK.famKey(it); if (f && fams.indexOf(f) < 0) fams.push(f); }); });
     var c = courseOf();
     var pub = {v: 1, course: c.course, unit: c.unit, id: U.id, cv: U.contentVersion, kit: window.KIT_V || '', title: U.title, eyebrow: U.eyebrow, h1: U.h1,
-      notes: (U.notes || []).slice(), keypad: keypadOf(kinds), skel: skel(g), calls: calls};
+      notes: (U.notes || []).slice(), keypad: keypadOf(kinds), skel: skel(g), calls: calls,
+      views: Object.keys(U.view).filter(function(f){ return typeof U.view[f] === 'function' && f !== 'key'; })};   /* which view functions the unit has (the page asks for some only when they exist) */
     if (keepSheet) SHEETS[seed] = Array.prototype.map.call(document.querySelectorAll('#paper .q[data-q]'), function(q){ return q.outerHTML; });
     out.push({seed: seed, pub: pub, priv: priv, fams: fams});
   }, function(){ REC = []; });

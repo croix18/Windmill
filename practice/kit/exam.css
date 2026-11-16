@@ -1,0 +1,35 @@
+/* Practice-test kit: the test page's own few rules (exam.css, 15 Nov 2026; with exam.js). The page is the practice page; these
+   take away what a test does not have (the mode switch, What to practice, the set number, Print, Pause, the end panel's
+   practice) and set out its start, its message and its results. Only the kit's own tokens. */
+body.exam .ctl .mode, body.exam #mMenu .mlab[for=scope], body.exam #scope, body.exam #mMenu .mprint, body.exam #mMenu .setbox,
+body.exam #bPause, body.exam #bResume, body.exam #total, body.exam .pgchev, body.exam #setchk{display:none !important}
+body.exam-pre .watch .btns, body.exam-pre .watch .score, body.exam-pre .watch .time, body.exam-pre .qbar{visibility:hidden}
+body.exam-pre .ctl, body.exam-pre #intro{display:none !important}
+body:not(.exam-pre) .exgo{display:none}
+.exgo{margin:18px 0 6px}
+.exgo button{min-height:44px;min-width:120px}
+.exclosed{font:600 16px/1.4 var(--ui);color:var(--ink);margin:0}
+.exchip{margin-right:8px}
+/* the message when a request does not get through: an alarm, with the way to go on */
+.exnet{position:sticky;top:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:46rem;margin:12px auto 0;padding:10px 14px;
+  color:var(--alarmInk);background:var(--alarm);border-radius:10px;font:600 14.5px/1.35 var(--ui)}
+.exnet[hidden]{display:none}
+.exnet button{min-height:44px}
+/* Grading…, then the results */
+body.exam-grading main.sheet, body.exam-grading .pgmap, body.exam-noparts main.sheet, body.exam-noparts .pgmap{display:none !important}
+body.exam-grading .watch .btns{visibility:hidden}
+.exgrading{font:700 18px/1.3 var(--ui);color:var(--ink);margin:6px 0}
+.exscore{font:400 15px/1.2 var(--ui);color:var(--mut);margin:0 0 6px}
+.exscore b{font:700 clamp(30px,8vw,40px)/1.1 var(--ui);color:var(--ink);margin-right:6px}
+.extime{font:700 20px/1.2 var(--ui);color:var(--ink);margin:0 0 6px;font-variant-numeric:tabular-nums}
+.exaway{font:400 14.5px/1.3 var(--ui);color:var(--mut);margin:0 0 6px}
+.excode{font:700 clamp(22px,6.4vw,30px)/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;color:var(--ink);margin:14px 0 4px;
+  user-select:all;-webkit-user-select:all;overflow-wrap:anywhere}
+.exbtns, .exsure{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.exbtns button, .exsure button{min-height:44px}
+.excopied{font:600 14px/1 var(--ui);color:var(--ok)}
+.excopied:empty{display:none}
+.exsure[hidden]{display:none}
+/* the list of questions after Finish: read, not opened */
+body.exam .pgrow{pointer-events:none}
+@media print{ .exnet, .exgo{display:none} }

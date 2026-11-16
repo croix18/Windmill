@@ -35,7 +35,7 @@ function make(pub){
     return f + '|' + args.map(function(a){ if (a && typeof a === 'object'){ var p = place.get(a); return p == null ? '@?' : '@' + p; } return a === undefined ? 'u' : JSON.stringify(a); }).join('|');
   }
   var view = {};
-  VIEWS.forEach(function(f){ view[f] = function(){
+  VIEWS.filter(function(f){ return !pub.views || pub.views.indexOf(f) >= 0; }).forEach(function(f){ view[f] = function(){   /* only those the unit has: the page asks some only when they exist */
     var k = keyOf(f, Array.prototype.slice.call(arguments));
     if (!has.call(calls, k)){ unknown.push(k); return ''; }
     if (calls[k].t) throw new Error('view.' + f);                 /* the unit's own view threw here; the page catches it as before */

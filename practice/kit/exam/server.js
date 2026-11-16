@@ -3,7 +3,7 @@
    key and no judge: the site reads an answer as it is typed ("can't read this yet", the preview) and judges the test at
    Finish, three parts a request, with the kit's own judge (judge.js) — the one the practice page uses.
      read(U, item, text, sibText?)  → {ok, pretty}      ok false only when the answer cannot be read (never right or wrong)
-     grade(U, items, answers, verdicts, from, n) → [{v: right|wrong|blank|unread}, …] for items from … from+n−1
+     grade(U, items, answers, verdicts, from, n) → [{v: right|wrong|blank|unread, almost?}, …] for items from … from+n−1
      summary(items, verdicts)       → {points, of}      as the page's end panel counts them on "Like the real test"
    items: the page's ITEMS (Kit.items()), unpacked from pack.js text: {id, type, x, sib, sibPart, aShown, pos, lab}.
    answers: the page's S.ans, by item id. U: the unit (its unit.js). */
@@ -45,7 +45,7 @@ function grade(U, items, answers, verdicts, from, n) {
       prevOk = !!(sv && sv.v === 'right');
     }
     const g = J.atFinish(it, answers[it.id], ctxOf(it, answers[it.sib], prevOk), 0);
-    out.push({ v: g.v });
+    out.push(g.f && g.f.v === 'form' ? { v: g.v, almost: true } : { v: g.v });   /* "Almost": the value right, the form not — not right, and recorded */
   }
   return out;
 }
