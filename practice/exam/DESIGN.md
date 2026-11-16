@@ -48,6 +48,12 @@ courses' test pages, Tally.
 5. **A start code.** While a test is open the cockpit shows a four-character code, good for 15 minutes; students type it to
    start. When it lapses nobody can start until Croix presses **New code**; tests already started are untouched. So a
    student at home with the link cannot start one, and a test cannot be started long after the class began.
+6. **One start a browser, an opening.** The page makes a random id once (`exam.dev`, 32 hex) and sends it with Start; the
+   site keeps its hash on the test and refuses a second start from it in the same opening. A second browser or a cleared one
+   still gets a test; this stops New test and the second tab, which is what a child without a script would do. A new opening
+   (a retake day) starts clean.
+7. **Nothing typed is lost at the end of the time.** The site tells the page when its test stops being live (`ends`); the
+   page saves just before it and finishes just before it by the ordinary Finish, on the site's clock, not the device's.
 
 Not covered, and said to Croix: a phone, a neighbor, someone else doing the mathematics. And everything the student's
 device reports about itself — the times away, the time on each question, the tool use — is evidence, not proof: it is
@@ -123,7 +129,10 @@ no `judge`, `solution`, `walk` or key. `ui.js` gains an exam mode (below) and no
   `{kit: 'exam-pool', forms: [{seed, pub, priv, fams}], done, of}` (`priv` an array of packed items, `fams` the kinds
   of question in the test, for the approvals), or `{kit: 'exam-pool', error}`.
 - **`exam_unit.js`** — the stub unit (above).
-- **`exam.js`** — the test's own behavior on the page: Start (with the start code's one box when the site asks for one), the site's answers (start, resume, save, read, finish,
+- **`exam.js`** — the test's own behavior on the page: Start (with the start code's one box when the site asks for one, and
+  the browser's id; a refused code or a second start from this browser shakes the box, or Start, and says nothing), the end
+  of the time (the newest `ends` the site gave, on the site's clock: a save 3 s before it, Finish 1 s before it; a `403
+  closed` mid-test finishes at once), the site's answers (start, resume, save, read, finish,
   grade, seal), the clock from the site's start, the results panel, Turn in.
 - **`ui.js`, exam mode** (`window.KIT_EXAM`, set only by the test page): no mode switch, no What to practice, no set
   number, no Print, no Pause, no Start over, no Hint, no worked solution, no Try a similar one, before or after Finish;
@@ -161,11 +170,11 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 | Route | Who | Does |
 |---|---|---|
 | `GET /api/test/status?course=&unit=` | anyone | `{open, pin}` (`pin`: a start code is asked for — a boolean, never the code); cached 15 s |
-| `POST /api/test/start` `{course, unit, pin}` | anyone, while open | with the start code on, a missing, wrong or lapsed code → `403 {error: 'pin'}` (compared upper-cased, spaces stripped; wrong codes 60 a minute an address, then `429 {error: 'wait'}`); takes the oldest-drawn unused test from the pool that holds no disapproved kind; makes `exam_test` (with the opening's id, the rule and Tally's key pinned to it); → `{test, token, started, now, rule, show, form, pub}` (`pub` = the public half); starts 120 a minute an address |
-| `GET /api/test/<id>` | token | the same again, with the saved answers (a reload; never needs a code); 20 at once, then one every 3 s |
-| `PUT /api/test/<id>/save` `{answers, flags, n}` | token, live (its opening live, its deadline not passed; else `403 {error: 'closed'}`) | keeps the newest (answers at most 24 KB); notes which parts changed and when (the site's own timeline, at most 1,500 entries) |
+| `POST /api/test/start` `{course, unit, pin, dev}` | anyone, while open | `dev` the browser's id (32 hex), missing or malformed → `400 {error: 'body'}`; with the start code on, a missing, wrong or lapsed code → `403 {error: 'pin'}` (compared upper-cased, spaces stripped; the code is checked first — a right one is always taken; only wrong ones are counted, and past 60 a minute an address a wrong one is `429 {error: 'wait'}`); a second start from the same `dev` in the same opening → `403 {error: 'again'}`; takes the oldest-drawn unused test from the pool that holds no disapproved kind; makes `exam_test` (with the opening's id, the rule and Tally's key pinned to it); → `{test, token, started, now, ends, rule, show, form, pub}` (`pub` = the public half; `ends` the moment, ms on the site's clock, the test stops being live — the sooner of the opening's `until` and the test's deadline; it moves when the test is extended); starts 120 a minute an address |
+| `GET /api/test/<id>` | token | the same again (`ends` the newest), with the saved answers (a reload; never needs a code); 20 at once, then one every 3 s |
+| `PUT /api/test/<id>/save` `{answers, flags, n}` | token, live (its opening live, its deadline not passed; else `403 {error: 'closed'}`) | → `{ok: true, ends}`; keeps the newest (answers at most 24 KB); notes which parts changed and when (the site's own timeline, at most 1,500 entries) |
 | `POST /api/test/<id>/read` `{part, text}` | token, live | `{ok, pretty}` — never right or wrong; a `text` over 200 characters is not judged (`{ok: false, pretty: ''}`) |
-| `POST /api/test/<id>/unlock` `{code}` | token, live | `{ok}`; 5 tries a minute a test, 30 a minute an address |
+| `POST /api/test/<id>/unlock` `{code}` | token, live | `{ok}`; 5 tries a minute a test; the code checked first — a right one is always taken, and only wrong ones count toward 30 a minute an address, past which a wrong one is `429 {error: 'wait'}` |
 | `POST /api/test/<id>/finish` `{answers, log, ended?}` | token, once | commits (not live: the last saved answers, `ended: 'teacher'`, or `'time'` past the deadline); → `{steps}` |
 | `POST /api/test/<id>/grade` `{step}` | token | judges 2 parts; idempotent; → `{done, steps}` |
 | `POST /api/test/<id>/seal` | token | builds, signs, encrypts and stores the record; → `{code, points, of, parts:[{id, v}], seconds}` (`parts` only if the cockpit says to show them) |
@@ -198,7 +207,8 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
   `reset` while that test is open → `409 {error: 'open'}`; without `reset` a chunk is taken while the test is open and raises
   the opening's `n` (the card's **Add tests**); `409 {error: 'version', cv, kit}` if a test's `pub.cv` or `pub.kit` is not the
   site's bundle's (a stale teacher copy). Tests go out in the order they were drawn.
-- `POST /teacher/api/test/open {course, unit, until?, n}` → `{ok, until}`: a new opening (`opened`, its id) with its first
+- `POST /teacher/api/test/open {course, unit, until?, n}` → `{ok, until}`: a new opening (`opened`, its id, never the same
+  millisecond twice — the last id + 1 if need be) with its first
   start code; `409 {error: 'unproven'}` until the pairing is proven, `409 {error: 'pool', n}` unless the site holds exactly the
   `n` tests the cockpit drew, `404 {error: 'unit'}` for a unit with no bundle. `until` defaults to 4:15 pm school time
   (America/New_York) that day; an `until` that is not in the future (between 11:59 pm and midnight) → `400 {error: 'until'}`.
@@ -206,11 +216,16 @@ Routes (JSON; this site's Origin only, except the two marked CORS):
 - `POST /teacher/api/test/pin {course, unit}` → `{pin, until}`: a new start code — 4 characters of
   `23456789ABCDEFGHJKMNPQRSTVWXYZ` (no 0 1 I L O U), fresh randomness — good for 15 minutes (`START_WINDOW_MS`).
 - `POST /teacher/api/test/extend {course, unit, until}` → `{ok, until}`: moves an open test's `until` (in the future, at most
-  18 hours ahead).
+  18 hours ahead); each student's `ends` follows on its next answer. A Close after `until` records `until`.
 - The kinds a test must not hold are the site's own approvals for that unit (`items.js`): a drawn test with a
   disapproved kind among its `fams` is never handed out. There is no second place to disapprove.
 - `GET /teacher/api/test/board` → `{tests: [{course, unit, open, until, pool, started, finished, pin, pinUntil, pending}]}`
-  (`pending`: finished and not sealed yet; the card asks again every 5 s while it is not zero).
+  (`pending`: finished and not sealed yet; the card asks again every 5 s while it is not zero; a finished test whose unit has
+  no bundle is `stuck`, not `pending`). The card keeps asking for the board while a test is open, whatever one answer was (a
+  failed answer waits longer before the next: 5 s, 10 s, 20 s, at most 60 s; back to normal on the next good one; nothing
+  while its tab is hidden); its time-out on a draw and upload starts again with every chunk that arrives. A check in
+  `tools/test_site.mjs`: every unit's teacher copy carries the same kit version (`window.KIT_V`) and content version as its
+  bundle.
 - `GET /teacher/api/test/results?course=&unit=&day=YYYY-MM-DD` → `{site: {key}, results: [{code, course, unit, points, of,
   seconds, away, awaySeconds, opened, started, finished, record}]}` (`record` the locked text) — the file Tally opens without
   a network, and the scores that survive a lost key. `away` counts only well-formed `log.away` entries (`[at, sec, kind, q]`,
