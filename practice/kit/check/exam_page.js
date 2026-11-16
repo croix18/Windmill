@@ -328,8 +328,9 @@ function checkPub(f, WL) {
     await put({ rule: { leave: 'lock', after: 3 }, unlock: '4821' });
     const cb = await ctxOf({ viewport: { width: 1024, height: 768 }, hasTouch: true, isMobile: true });
     const B = await begin(cb), pb = B.p, ib = B.t.priv.map(x => P.unpack(x));
-    const ki = textItem(ib), kq = await cardOf(pb, ki.id); await toQ(pb, kq);
-    const keyless = Array.isArray(U.keypad) && !U.keypad.length;   /* a unit may have no keypad at all (M7 Units 7 and 13: plain numbers) */
+    /* a part whose kind of box shows keys (a unit may have none at all, as M7 Units 7 and 13, or keys for one kind only, as A7 Unit 5's fraction bar) */
+    const keyed = it => U.keypad == null || U.keypad.some(k => !k.kinds || k.kinds.indexOf(it.x.kind) >= 0);
+    const ki = textItem(ib, keyed) || textItem(ib), keyless = !keyed(ki), kq = await cardOf(pb, ki.id); await toQ(pb, kq);
     await pb.tap('#a' + ki.id); if (!keyless) await pb.waitForSelector('.keys:not([hidden]) [data-k]', { timeout: 8000 }).catch(() => fail('no keypad on the tablet'));
     const key = await pb.evaluate(() => { const k = Array.prototype.find.call(document.querySelectorAll('.keys [data-k]'), b => !b.hidden && b.offsetParent); return k && k.getAttribute('data-k'); });
     if (key) { await pb.tap('.keys [data-k="' + key + '"]'); await sleep(400); }
