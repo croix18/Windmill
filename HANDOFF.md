@@ -4,6 +4,55 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## In progress (15 Nov 2026, from 7:12 pm): scratch paper, the calculators, then a test mode with a result code
+
+Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). Nothing below is on Windmill's main or on any page yet; this
+section is rewritten as each part lands.
+
+**What he asked for.** 7:12 pm: *"Would it be possible to build a test mode in my practice tests that full screen and I
+know locked the screen like managed Chromebooks is unrealistic but maybe visually tracking on screen how many times the
+student navigated away and make it difficult if not impossible to copy paste the questions. Can you remove the ability to
+copy text on a page? … so I could eventually have the students work off of the website and it would automatically hold
+them accountable. Also, add a scratch notes to the practice and fast practice as well as a scratch grid."* 7:36 pm: *"Also
+get rid of open in new tab for the calculators inside of the practice tests and tests. Harden the calculators to work. …
+The desmos I was having issues with, it wouldnt respond when I was clicking clear and it only reacted when I clicked the
+number pad."* 7:38 pm: *"The result code I want literally all the data that is possible to get, how long on each question,
+did they change answers, did they utilize the calculators o[r] scratch pad, I want this to be as data forward and
+collecting as possible."* 7:40 pm: *"The code also has to be something crazy looking that is impossible for the students
+to figure out or fake."*
+
+**His choices** (asked the same evening):
+- The scratch grid is **graph paper to plot on** (points, segments, lines, erase; a trackpad is enough). The notes are typed
+  and kept per question, as the FAST's notepad is.
+- Test mode: **build it after the scratch tools.**
+- A student who leaves the test: *"Count it and show it. Give me the option in the cockpit to turn on lock or end after x
+  amount of times."*
+- Results: *"They show me. Would the check code record their exact results with all of the details on it? Because if so
+  that could be loads easier. I make them submit a Google forms. You build me a descrytor inside tally or something like
+  that."* So: a result code, turned in through his Google Form, decoded in Tally. No names and no scores on the site.
+
+**Where the work is** (two local branches in this session, not pushed until they pass):
+- `scratch-paper`: `practice/kit/scratch.js` and `scratch.css` — one bar button, Scratch paper, with Notes | Grid, for the
+  question on the screen, saved on the device, never printed; the same two files go into the site's `released/kit/` for the
+  FAST pages. Its own module with small hooks, as `calc.js` and `pager.js` were added.
+- `calc-harden`: no "Open in a new tab"; one header row; the FAST calculator always laid out at its natural 360 × 560 and
+  drawn smaller to fit (in a 1366 × 657 Chromebook window `calc.js` was squeezing it to 454 px and sizing it again on
+  every resize); focus into the frame on open; a drag can never leave the frames without pointer events; a line and Try
+  again when a calculator has not loaded. His Desmos trouble could not be reproduced: neither calculator's site can be
+  reached from a session, and a probe of the published M7 Unit 10 page found nothing over the frame at eight window sizes.
+- Both go to main together **after the words-pass rollout (next section) is recorded as done**; this session then vendors
+  the kit and re-runs every page but M7 Unit 7's, and puts the published ones on the site. A session rolling out the kit
+  now does not need to wait for these branches or pick them up.
+
+**Still to build, in this order:**
+1. **The test mode** — a third way to take the whole practice test: full screen; the questions covered while a student is
+   away; a coral count of the times away in the bar; no selecting, copying, right-click, dragging or printing; a results
+   screen with Turn in. The cockpit's card: count only, lock after N, end after N, the unlock code, the form's link, the key.
+2. **The result code**, as a Windmill contract with tests: everything the page can see (time on each question, every change
+   of answer, calculator and scratch-paper use, the order of visits, each time away), sealed to a public key whose private
+   half stays in Tally, so a student can neither read a code nor edit one.
+3. **Tally's decoder**: the form's responses in, a class list out.
+
 ## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out
 
 Croix, to the site session, after circling notes on the site page by page for three days: *"Can you see the pattern in the
