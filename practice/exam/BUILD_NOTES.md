@@ -77,6 +77,17 @@ through `exam.js`, the calculator's and scratch paper's panels, input/paste/keyd
   copy's. The stand-in's own bug, not the page's: it now decodes the body once (`check/exam_site.js`). The real site reads
   `request.json()` and cannot have it.
 
+## CHANGES-16NOV §10 (K): one start a browser, an opening; the end of the time
+- `exam.dev` (32 hex, `crypto.getRandomValues`, in memory if storage is refused) sent with Start and New test; `403 again`
+  shakes the box, or Start, or New test's button — no word. **Decision:** the page finishes **1 s before** `ends`, not at it,
+  and saves 3 s before: a finish that reached the site after `ends` would find the test not live and commit only the last
+  save, so "finishes at `ends`" is done one second early to make the typed answers the committed ones (in the check it
+  finished 0.9 s before). The newest `ends` received is kept (later or earlier).
+- A second tab in the same browser opens the browser's own test (the device keeps it), as before; a Start from the same
+  browser is refused only when the device's copy of its test is gone — that is what the check does to show it.
+- Not proven: `ends` from the site's deadline (the stand-in has no time allowed; `ends` there is the opening's `until`);
+  the `429` on wrong codes past the address limit is not driven by the check.
+
 ## Decisions the design did not make
 - A leaving ends when the student presses Back to the test (or Unlock with a right code), not when the signals clear: time on
   the cover is time away. Its kind is the strongest seen, reload ranked above tab, window, full screen.

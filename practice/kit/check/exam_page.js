@@ -724,7 +724,7 @@ function checkPub(f, WL) {
     const p2 = watch(await c.newPage());
     await p2.goto(base + TPATH);    /* the same browser: its own test is on the device, so this tab opens that test */
     await p2.waitForSelector('#pgQ', { timeout: 15000 }).catch(() => fail('a second tab did not open the browser\'s own test'));
-    await p2.evaluate(k => localStorage.removeItem(k), 'exam.' + COURSE + '.u' + UNIT); await p2.close();   /* as if its copy of the test were gone: only exam.dev is left */
+    await A.p.close(); await p2.close(); const pc = watch(await c.newPage()); await pc.goto(base + '/no-such-page'); await pc.evaluate(k => localStorage.removeItem(k), 'exam.' + COURSE + '.u' + UNIT); await pc.close();   /* as if its copy of the test were gone: only exam.dev is left */
     const p3 = watch(await c.newPage()); await p3.goto(base + TPATH); await p3.waitForSelector('#exStart:not([hidden])');
     const rq = p3.waitForResponse(x => /\/api\/test\/start$/.test(x.url())); await p3.click('#exStart'); const r3 = await rq, j3 = await r3.json().catch(() => ({})); await sleep(150);
     const s3 = await p3.evaluate(() => ({ anim: getComputedStyle(document.getElementById('exStart')).animationName, start: !document.getElementById('exStart').hidden, q: !!document.querySelector('body:not(.exam-pre)') }));
