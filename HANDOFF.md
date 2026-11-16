@@ -56,7 +56,7 @@ the practice kit could take it: *"Publish and yes move it to windmill"*.
 - 22 of the Grade 8 released test's pictures on the site are still screenshots of the test online. Drawing them is a set
   file for the booklet's pages (they are in the 15 Nov dump) — not asked for.
 
-## In progress (15 Nov 2026, from 7:12 pm): scratch paper and the calculators (in the kit, rolling out), then an airtight test with a result code
+## In progress (15–16 Nov 2026): scratch paper and the calculators are everywhere; the airtight test is being built in four pieces
 
 Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). This section is rewritten as each part lands.
 
@@ -104,11 +104,14 @@ dated section in `practice/kit/README.md`):
 - **The page makes room for a docked panel** (`window.KitDock` in both scripts, `check/dock.js`): scratch paper docks
   left, the calculator right, and the bar, the sheet and the map card center in what is left; under 520 px left, or
   dragged away from an edge, a panel floats as before.
-- **On the site:** the FAST pages have all three (site `00dd33a`: `released/kit/scratch.js`, `scratch.css`, `calc.js`,
-  `calc.css` = `kit.css` lines 698–752; `fast.js` has three hooks). **The unit pages are being rolled out by this session
-  now** (both courses vendored at `6b612fe`, every page and teacher copy but M7 Unit 7's re-run, the ten published ones
-  to the site); this paragraph and each course's `NOTES.md` say when it is done. The Resources page keeps its own
-  calculators and its own "Open in a new tab" for now.
+- **On the site, everywhere (16 Nov, 10:29 am):** the FAST pages have all three (site `00dd33a`: `released/kit/scratch.js`,
+  `scratch.css`, `calc.js`, `calc.css` = `kit.css` lines 698–752; `fast.js` has three hooks), and **every published unit
+  page and teacher copy of both courses is on the kit at `2ff88d0`** — A7 Units 3, 4, 5, 6, 11 (A7 `69329f1`) and M7 Units
+  4, 5, 7, 9, 10, 13 (M7 `27c3a0f`; Unit 8 re-run too and still held), each ALL CHECKS PASSED, no set lock moved; site
+  `7157218` and `d7b7329`. The keypad hit test of part N was rewritten on the way (`2ff88d0`: it walks the set for a box
+  that brings the keypad up — A7 Unit 5 has one key, for a fraction's box). The Resources page's calculators were left as
+  they are: they are plain frames in the page, not the floating window that needed the hardening, and they keep their
+  "Open in a new tab". **Still open with Croix:** whether Desmos's Clear behaves on his tablet now.
 
 **The test is to be airtight** (Croix, 7:52 pm, told that a code made on the student's own device could be faked by a
 student who can program, and that a page which draws its own questions holds their answers: *"I'm fully on board with a
@@ -118,11 +121,33 @@ His other choices that evening: **a short code, the full record kept locked on t
 opens it); and **the Workers Free plan** (*"Id like to stay on free"*; asked whether $5 a month was worth it, he was
 told no: it adds headroom, not security) — which is why the tests are drawn in his own browser when he opens a test and
 the site judges three parts a request. **The whole design, the routes, the record and the order of building are in
-`practice/exam/DESIGN.md`.** Nothing of it is built.
+`practice/exam/DESIGN.md`** (on the branch `exam`, which is ahead of main's copy).
 
-**The test's first stage is being built** on a local branch (`exam`): `pack.js`, `judge.js` (the judging moved out of
-`ui.js` into one module the page and the site both call) and `exam/server.js`. It changes how every page judges, so it
-is not part of the rollout above; it goes out with the test.
+**Where the test stands (16 Nov, 10:30 am) — four pieces, none on main yet, none deployed:**
+- **The kit** — Windmill branch `exam` (pushed; based on main `2cdc2c3`). Built and checked: `judge.js` (the page's judging
+  in one module the site also calls; 16,800 parts, no verdict changed), `pack.js`, `exam/server.js`, the test page
+  (`exam_pool.js`, `exam_unit.js`, `exam.js`, `exam/build_exam.py`, the Node stand-in `check/exam_site.js`), and the lock
+  `exam/seal.js` with `check/seal.js` (the site's `seal`, Tally's `open`, the code, the keys, the four-word check — one file
+  for both ends; every byte of a locked record changed in turn and none opens). **Being built:** `proctor.js` and
+  `trace.js` (full screen, the times away, the cover, the lock and end rules, the log in DESIGN's pinned shape) and the
+  start code's box. Merging `exam` changes every practice page (`ui.js` judges through `judge.js`), so it goes with a full
+  re-run of every unit in both courses, then each unit's test page and bundle (`build_exam.py`).
+- **The site** — `mrshaffer-site` branch `exam` (local worktree `/home/claude/site-exam`, not pushed): `exam.js` (the store
+  and every route on the SiteStore), the bundles in the Worker (`exam_units.js`), the cockpit's Test card, its checks and
+  budget (`EXAM_NOTES.md` has Cloudflare's Free-plan limits as verified that day and what was measured). An independent
+  reviewer then attacked it: the lock, the races and the teacher's routes held; the holes were around the record (a test
+  outliving its opening, as many tests as a student likes, one crafted log breaking a day's results, the pool emptied by a
+  loop). **The review and the changes it led to are in `practice/exam/review-16nov/`** (`REVIEW.md`, `CHANGES.md`: a
+  test belongs to its opening; a four-character start code good for 15 minutes; top-up and extend; the site finishes and
+  seals what students abandon; the pairing proven by typing Tally's four words; input bounded before it is judged). The
+  second pass is being built.
+- **The courses** — nothing published. A7 Unit 11's story part held three functions and could not be sent as text; the
+  three-line fix is ready (`st` as data, `storyAmt` from the part's own unit; 600 parts compared before and after, no
+  word, key or verdict changed) and goes in with that unit's re-run.
+- **Tally** — branch `tests` in `croix18/Tally` (pushed as it goes; `NOTES.md` there has its log): Connect (Tally's key
+  pair, kept in the Full save), the trial and its four words, the form's responses to the class view and each record's
+  detail, the flags.
+- **Then Croix** pairs Tally with the site and takes a whole test himself before any class does.
 
 ## Words on a page (15 Nov 2026, 4:10 pm): what Croix keeps taking out — the practice kit's pass is rolled out (9:18 pm)
 
