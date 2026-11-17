@@ -77,7 +77,13 @@ lesson has none; a two-lesson day 3 + 1 and 3 + 1), a pure function of unit, les
   `scopeName`; a unit test's record has neither. One test of a unit is open at a time.
 - Courses: M7 `b5a88ca`, A7 `739bd9b2` (every teacher copy re-run, every test rebuilt and checked with every lesson choice:
   M7 4, 8, 9, 10 and A7 3, 4, 5, 6; M7 5, 7, 13 and A7 11 have no bank).
-- Site main `0d751c0`, deployed 11:34 pm (Workers Builds success). `EXAM_NOTES.md` decisions 45–46. The store has a scope on
+- Site main `30d91ce`, deployed 1:53 am (17 Nov; Workers Builds success): `0d751c0` (11:34 pm, lesson tests) plus the fixes
+  from an outside review of the lesson path (`/home/claude/reviews/lesson/REVIEW.md` in the session; `EXAM_NOTES.md` 47):
+  the board's pool is what Start can really hand out (a disapproved bank question no longer drains a lesson's pool unseen;
+  Open draws until 120 usable tests are in, or refuses and says why), Close / extend / New code / Add tests name the opening
+  they mean (a stale tab's Close is refused), the cached status is dropped on Open and Close. The review found nothing that
+  weakened the unit test, mixed the two judges, lost rows in the upgrade or let a key out before Finish. `EXAM_NOTES.md`
+  decisions 45–47. The store has a scope on
   the pool, the opening and the test (guarded ALTERs); one pool per unit holds one scope at a time. The Test card: a Lessons
   disclosure under each unit that has them, today's lesson first. Start-up 260–290 ms with all seven lesson bundles (gate
   600); the Worker 1.06 MB gzipped.
@@ -85,9 +91,9 @@ lesson has none; a two-lesson day 3 + 1 and 3 + 1), a pure function of unit, les
   store. Run it for every store change. Tonight: all held. **Rolling back past lesson tests: close every lesson test first**
   (the old code would hand out an open lesson's forms as the unit's test and judge them with the unit's judge).
 - **Not secret, and he has been told:** a lesson's bank is about 60 fixed questions students also practice on.
-- **Not reviewed by an outside reviewer yet** (the unit test had three rounds). The kit's and the site's own checks are wide
-  (every lesson choice drawn and proved; the kit's page check passes against the site's handlers; the upgrade check), but
-  an adversarial pass on the lesson path is the next thing worth doing. Croix should take one himself before a class does.
+- **Reviewed once from outside (the site's lesson path), fixed and deployed.** The kit's lesson draw has only its own
+  checks (every lesson choice drawn and proved; the kit's page check passes against the site's handlers). Croix should take a
+  lesson test himself before a class does.
 
 **School accounts in Tally (built, not shipped).** Tally reads the Email Address column, learns address → student (from a certain name
 whose address agrees, or from his answer), then places by the account and asks whenever the row's own evidence points
@@ -101,9 +107,14 @@ matches it strictly better; a blank name goes to the account; everything else as
 and the random-sequence suite's oracle is to be written from that table, not from the code. **Tally main is still `6444eed`**:
 it reads a lesson test's record as its unit's test, so a lesson test's code must not be pasted into it (Croix was told at
 11:36 pm). Tally's `tests` branch holds, in order: school accounts (`96adce6`…`7183562`), lesson tests (`3068955`: course +
-unit + scope is the test; See the test carries the scope; suite 77 · 2,515 · 0 at that point), the review fixes. Push it to
-main only when a review of the accounts rule comes back clean and the whole suite has passed on the final commit; then tell
-him to make a Full save, download Tally again and open the save.
+unit + scope is the test; See the test carries the scope; suite 77 · 2,515 · 0 at that point), the review fixes. A third review
+(`/home/claude/reviews/tally-accounts3/REVIEW3.md`) found one more way for the account to outvote the name ("Ali K." from
+Alice Khanna's account). **Decision, 2:10 am: in the shipped build an account never places a row by itself; it learns and it
+suggests (one press), behind one switch that the suites can turn on.** The rule to try when placement is turned on is token
+dominance (in Tally's NOTES), with an oracle written from the sentence, not from the code. Push Tally to main only when the
+whole suite has passed on the final commit and the third review's first-paste and second-paste probes show no row placed by an
+account and no row placed where `6444eed` would have asked; then tell him to make a Full save, download Tally again and open
+the save.
 
 **Rules learned tonight (for whoever builds next).**
 - Rebuild queue: a unit's teacher copy before its test. The test's check loads the unit's teacher copy; with an old copy it
