@@ -1,0 +1,66 @@
+/* Practice-test kit: the test as drawn (exam_show.css, 16 Nov 2026; with exam_show.js). A teacher copy only. The practice page
+   steps aside; the student's test is one sheet: the head (the unit, Test as drawn, the score, the code), then every question as
+   the page drew it, each part with its verdict, what was answered and the key. The kit's own tokens: light, true dark, print. */
+html.xshowing body > *:not(#xShow){visibility:hidden}
+body.xshow > *:not(#xShow){display:none !important}
+.xshow{max-width:46rem;margin:0 auto;padding:18px 0 48px;color:var(--ink);font-family:var(--ui)}
+.xsheet{background:var(--paper);border-radius:18px;box-shadow:var(--shadow);padding:26px 28px 30px}
+.xsno{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.xsline{margin:0;font:600 17px/1.45 var(--ui);color:var(--ink);max-width:36rem}
+.xshead{border-bottom:1px solid var(--rule);padding-bottom:18px;margin-bottom:6px}
+.xstop{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px 20px}
+.xseye{margin:0 0 4px;font:700 12.5px/1.2 var(--chrome);letter-spacing:.12em;text-transform:uppercase;color:var(--teal)}
+.xsh1{margin:0;font:400 clamp(24px,5.2vw,32px)/1.15 var(--display);color:var(--ink)}
+.xssub{margin:4px 0 0;font:500 15px/1.35 var(--ui);color:var(--mut)}
+.xsacts{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.xsacts .xsprint{min-height:44px;min-width:96px}
+.xsback{display:inline-flex;align-items:center;min-height:44px;font:600 14px/1.2 var(--ui);color:var(--link);text-decoration:none}
+.xsback:hover{text-decoration:underline}
+.xsback:focus-visible,.xsprint:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.xsfacts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:18px 0 0}
+.xsfact{margin:0}
+.xsfact dt{font:600 12px/1.2 var(--chrome);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0 0 3px}
+.xsfact dd{margin:0;font:700 18px/1.2 var(--ui);color:var(--ink);font-variant-numeric:tabular-nums}
+.xscode dd{font:700 18px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em}
+.xsnote{margin:14px 0 0;font:500 14px/1.4 var(--ui);color:var(--mut)}
+.xssec{margin-top:22px}
+.xssech{margin:0 0 4px;font:700 16px/1.25 var(--chrome);color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.xscards .q{margin:0;padding:18px 0 20px;border-bottom:1px solid var(--rule)}
+.xscards .q:last-child{border-bottom:0}
+/* the card as drawn, made still: nothing in it takes a press; the practice page's buttons and its live readouts are not here */
+.xscards .q input,.xscards .q button,.xscards .q [role=slider],.xscards .q [role=radio]{pointer-events:none}
+/* what the student would have used to answer — the box, a graph's controls, Check — is not here: the answer row says it */
+.xscards .q .ans,.xscards .q .acts,.xscards .q .pv,.xscards .q .rd,.xscards .q .fb,.xscards .q .more,.xscards .q .walk,.xscards .q .steps,.xscards .q .again,
+.xscards .q .hslot,.xscards .q .nseg,.xscards .q .cghow,.xscards .q .cgctl,.xscards .q .cgacts,.xscards .q [data-check],.xscards .q .chk,
+.xscards .q .nltk,.xscards .q .cgtk{display:none !important}
+/* under each part: the verdict, what was answered, the key */
+.xsa{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;margin:12px 0 2px;padding:10px 12px;border-radius:10px;background:var(--field);border-left:4px solid var(--rule)}
+.xsv{grid-row:span 2;align-self:start;display:inline-block;min-width:5.5em;padding:3px 9px;border-radius:999px;font:700 12.5px/1.3 var(--chrome);text-align:center;white-space:nowrap}
+.xs-right{border-left-color:var(--ok)} .xs-right .xsv{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.xs-almost{border-left-color:var(--warn)} .xs-almost .xsv{color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.xs-wrong{border-left-color:var(--no)} .xs-wrong .xsv{color:var(--no);background:var(--noTint)}
+.xs-blank .xsv,.xs-unread .xsv{color:var(--mut);background:color-mix(in srgb,var(--mut) 14%,transparent)}
+.xs-unread{border-left-color:var(--mut)}
+.xsans,.xskey{min-width:0;font:500 15px/1.45 var(--ui);color:var(--ink);overflow-wrap:anywhere}
+.xsl{display:inline-block;min-width:7.2em;margin-right:8px;font:600 12px/1.2 var(--chrome);letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.xst{white-space:pre-wrap;font-weight:600}
+.xst.xsblank{color:var(--mut);font-weight:500}
+.xskv .nlg,.xskv .cgg,.xskv svg{max-width:100%;height:auto;vertical-align:middle}
+.xskv .cgkey{display:inline-flex;flex-direction:column;gap:4px}
+@media (max-width:600px){
+  .xshow{padding:10px 0 32px}
+  .xsheet{padding:18px 16px 22px;border-radius:14px}
+  .xsa{grid-template-columns:1fr}
+  .xsv{grid-row:auto;justify-self:start}
+  .xsl{min-width:0}
+}
+@media print{
+  html.xshowing body > *:not(#xShow){visibility:visible}
+  body.xshow{background:#fff}
+  .xshow{max-width:none;padding:0}
+  .xsheet{box-shadow:none;border-radius:0;padding:0}
+  .xsacts{display:none !important}
+  .xscards .q{break-inside:avoid;page-break-inside:avoid}
+  .xssech{break-after:avoid;page-break-after:avoid}
+  .xsa{break-inside:avoid;background:none;border:1px solid #bbb;border-left-width:4px}
+}

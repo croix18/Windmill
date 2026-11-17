@@ -800,6 +800,8 @@ teacher's view and print reserving nothing.
 | `exam.js`, `exam.css` | the test on the student's device: the start, the site's routes, the clock, Grading…, the results, Turn in (15 Nov 2026, below) |
 | `trace.js` | the test's log: everything the test page can see, in the pinned shape, kept on the device as it grows, sent at Finish, removed after the seal (16 Nov 2026, below); test page only |
 | `proctor.js` | the test's proctor: full screen at Start, each leaving counted and covered, Back to the test, the site's rule (count, lock, end), no copying or printing the sheet (16 Nov 2026, below); test page only |
+| `exam_show.js`, `exam_show.css` | the test as drawn: a teacher copy at `#test=<payload>` shows the questions a student was drawn, proved by the seed, with each part's answer, verdict and key (16 Nov 2026, below); teacher builds only, hashed for a teacher copy only |
+| `check/exam_show_page.js` | the test as drawn, checked: run by `run.py` for a teacher copy |
 | `exam_link.js` | a student page on the site: Test on its start screen while the unit's test is open (15 Nov 2026, below) |
 | `exam/build_exam.py` | `python3 kit/exam/build_exam.py <unit>`: the test page and the site's bundle, gated on `check/pack.js`, checked by `check/exam_page.js` (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
@@ -1413,3 +1415,38 @@ no practice page, teacher copy or FAST page has them, and no shared file has a h
   finished test shows the code. The stand-in: the same test again for a `dev` whose test is open, `409 finished` on unlock,
   Lock refused with no code. Checked (part 10, one claim each, the review's probes in essence) on four units, M7 Unit 7's
   circle graph among them.
+
+## 16 Nov 2026 — see the test (`exam_show.js`, `exam_show.css`, `check/exam_show_page.js`)
+Croix, 16 Nov, 6:34 pm, after his first dummy run: *"That's really excellent! … Is there any way to have it be able to show me
+the exact questions as well?"* The record holds the seed, so the unit's teacher copy can draw the test again.
+- **The address:** Tally opens `…/teacher/<course>/unit-<N>/practice/#test=<payload>` in a new tab; the fragment never reaches
+  the site. The payload is base64url of UTF-8 JSON `{v: 1, course, unit, seed, cv, kit, code, points, of, parts: [[id, answer,
+  result, key], …]}`: the record's own fields, the parts in the record's order, `answer` the text Tally made readable,
+  `result` right | almost | wrong | blank | unread, `key` the record's key exactly (a string or a list). It never holds a name.
+- **Drawn, then proved:** `exam_show.js` reads the fragment before `ui.js` runs, then draws the seed with the page's own pool
+  (`Kit.ExamPool.draw`, the cards `check/exam_page.js` holds the test page to) and shows nothing until the drawn test is that
+  test: the same number of parts, the same ids in order, every key equal to the record's. Otherwise one plain line and a link
+  back: "This link doesn't hold a test." (it cannot be read, or holds no parts or more than 200), "This link is for A7 Unit 6;
+  this is M7 Unit 10.", "This unit has changed since this test was taken, so its questions can't be redrawn here. Tally still
+  has every answer and key." A content version that differs while the proof holds: the test, with one quiet line that the
+  wording may have been edited since. The address is left at `#test=…`, so a reload shows the same.
+- **The view:** the head (Test as drawn, the unit, its title, the score, the code as `XXXX-XXXX-XXXX`, the number of
+  questions, Print, Back to the teacher copy); every question as the page drew it, under its section's name, still (no box,
+  choice, slider or button takes a press or the focus; the box, a graph's controls and Check are not shown); under each part
+  its verdict (Right, Almost, Not right, Blank, Can't read), what was answered (as text — "Blank" when blank) and the key, typeset
+  by the page (`PracticeKit.keyHtml`: a number line or circle graph drawn). The kit's light and true dark, a tablet's width,
+  and print (the head once, a question never split when it fits).
+- **Nothing leaves, nothing stays:** while it shows a test the page makes no request (fetch, XMLHttpRequest and sendBeacon
+  refuse; the approvals' and Tests A and B's requests with them) and localStorage and sessionStorage are kept in memory for
+  the visit, so the practice page's own saved state is exactly as it was. Everything from the payload is text (`textContent`),
+  capped: 200 KB, 200 parts, 400 characters a string. Without `#test=` the file does nothing.
+- **A student page never has it:** `build.py` adds the two files to a teacher copy only (`TEACHER_ONLY`) and hashes them for a
+  teacher copy only, and `check/run.py` does the same, so a student page's sources and its CHECKED stamp are byte for byte what
+  they were (M7 Unit 10 and A7 Unit 3 built with a plain `build.py` before and after: the same bytes).
+- **Checked** (`check/exam_show_page.js`, run by `run.py` for every teacher copy): a seed drawn on the copy made into a payload;
+  the cards shown are that seed's sheet, in order; every part's verdict, answer and key; answers that look like markup (a script
+  tag, an `img` with `onerror`) stay text and run nothing; nothing in a card takes the focus; a reload shows the same; nothing in
+  storage changed and no request but the page; refused, with its line, a link back and no card: a key changed, another unit's,
+  another seed, junk, not JSON, no parts, too many; another content version shows its line; without `#test=` nothing is
+  different (no view, `#set-N` as before); the student page does not hold the file. With `--shots`: light, dark, 400 px, the
+  print as a PDF, a refused line.

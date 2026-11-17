@@ -12,6 +12,7 @@ import json, os, subprocess, sys
 KIT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UD = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else ".")
 cfg = json.load(open(os.path.join(UD, "unit.json"), encoding="utf-8"))
+TEACHER = any(x.endswith("teacher.js") for x in cfg["scripts"])
 env = dict(os.environ)
 if "NODE_PATH" not in env:
     env["NODE_PATH"] = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()
@@ -37,10 +38,14 @@ if os.path.exists(os.path.join(UD, "help.js")) and not any(x.endswith("teacher.j
 # a lesson bank from Cadence (7 Nov 2026): its schema, its map against the plan, every item drawn, 30 answered through the page
 if any(os.path.exists(os.path.join(d, "cadence.json")) for d in (os.path.join(UD, "bank"), os.path.join(os.path.dirname(UD), "bank"))) and not any(x.endswith("teacher.js") for x in cfg["scripts"]):
     run("node " + os.path.join(KIT, "check", "bank.js") + " .", UD)
+# the test as drawn (16 Nov 2026; kit/exam_show.js): a teacher copy shows a student's test at #test=…, proved before it is shown
+if TEACHER:
+    run("node " + os.path.join(KIT, "check", "exam_show_page.js") + " .", UD)
 # the same hash build.py checks
 import hashlib
 h = hashlib.sha256()
 for f in ["core.js", "nline.js", "cgraph.js", "judge.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css", "scratch.js", "scratch.css", "exam_pool.js", "pack.js", "exam/server.js", "exam_link.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else []): h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())   # the same list as build.py
+for f in (["exam_show.js", "exam_show.css"] if TEACHER else []): h.update(open(os.path.join(KIT, f), encoding="utf-8").read().encode())   # the test as drawn (16 Nov 2026): a teacher copy's only, as build.py's TEACHER_ONLY
 for f in cfg["scripts"] + cfg.get("css", []): h.update(open(os.path.join(UD, f), encoding="utf-8").read().encode())
 for f in ["lexend-regular.woff2", "lexend-bold.woff2", "dm-sans.woff2", "dm-serif-display.woff2"]: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())   # the page's fonts (7 Nov 2026), as build.py's FONTS
 BANKD = next((d for d in (os.path.join(UD, "bank"), os.path.join(os.path.dirname(UD), "bank")) if all(os.path.exists(os.path.join(d, f)) for f in ("cadence.json", "map.json", "BANK.sha256"))), None)

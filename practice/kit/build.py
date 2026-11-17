@@ -24,6 +24,9 @@ ru = lambda f: open(os.path.join(UD, f), encoding="utf-8").read()
 KITFILES = ["core.js", "nline.js", "cgraph.js", "judge.js", "bilingual.js", "ui.js", "tex.js", "kit.css", "vendor/katex/katex.min.js", "vendor/katex/katex.min.css", "bank.js", "approvals.js", "teacher.css", "calc.js", "keyset.js", "pager.js", "pager.css", "explain.js", "explain.css", "scratch.js", "scratch.css", "exam_pool.js", "pack.js", "exam/server.js", "exam_link.js"] + (["lang/" + cfg["second"] + ".js"] if cfg.get("second") else [])
 # a teacher copy (its scripts end with kit/teacher.js): the teacher's own styles too — a student page never carries them
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
+# the test as drawn (16 Nov 2026; kit/exam_show.js, exam_show.css): a teacher copy only, and hashed for a teacher copy only, so a
+# student page's sources — and its CHECKED stamp — are exactly what they were
+TEACHER_ONLY = ["exam_show.js", "exam_show.css"]
 
 # a lesson's practice from Cadence (7 Nov 2026): the unit's bank/ (Windmill tools/cadence_bank.py) — the student page's own
 # folder, or for a teacher copy its unit's — is inlined, as everything is: the page loads nothing
@@ -107,6 +110,7 @@ def katex_css():
 def source_hash():
     h = hashlib.sha256()
     for f in KITFILES: h.update(rk(f).encode())
+    for f in (TEACHER_ONLY if TEACHER else []): h.update(rk(f).encode())
     for f in cfg["scripts"] + cfg.get("css", []): h.update(ru(f).encode())
     for _fam, _w, f, _r in FONTS: h.update(open(os.path.join(KIT, "vendor", "fonts", f), "rb").read())
     for f in bank_files(): h.update(open(f, "rb").read())
@@ -129,10 +133,11 @@ esc = lambda s: s.replace("&", "&amp;").replace("<", "&lt;")
 # the Appearance choice (7 Nov 2026, Croix: "I want it to be based on the system, also give me an option"): ui.js keeps it under
 # practice.theme; this runs before any style or content, first in <head> (on the first line, with the title), so a Light or
 # Dark choice is on <html> before the first paint and nothing flashes. Storage refused: nothing is set and the page follows the device.
+SHOW_JS = ("<script>" + rk("exam_show.js") + "</script>\n") if TEACHER else ""   # first of the scripts: it reads #test= and holds every request (a teacher copy only)
 THEME_JS = "try{var t=localStorage.getItem('practice.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}"
 body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
 <style id="kit-fonts">{fonts_css()}</style>
-<style>{rk('kit.css')}{rk('pager.css')}{rk('explain.css')}{rk('scratch.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}</style>
+<style>{rk('kit.css')}{rk('pager.css')}{rk('explain.css')}{rk('scratch.css')}{''.join(ru(c) for c in cfg.get('css', []))}{rk('teacher.css') if TEACHER else ''}{rk('exam_show.css') if TEACHER else ''}</style>
 <div class="watch" role="region" aria-label="Stopwatch and score"><div class="in">
   <a class="back" id="back" href="#" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="backl">Unit</span></a>
   <div class="time" id="time" aria-label="Time on the clock">0:00</div>
@@ -155,7 +160,7 @@ body = f"""<title>{esc(cfg['title'])}</title><script>{THEME_JS}</script>
   <p class="notice" id="notice" role="status" hidden></p>
   <div id="paper"></div>
 </main>
-<script>{rk('core.js')}</script>
+{SHOW_JS}<script>{rk('core.js')}</script>
 <script>{rk('nline.js')}</script>
 <script>{rk('cgraph.js')}</script>
 <script>{rk('judge.js')}</script>

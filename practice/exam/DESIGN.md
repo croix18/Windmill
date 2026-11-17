@@ -8,7 +8,7 @@ the site's side (16 Nov, `/home/claude/reviews/CHANGES-16NOV.md`) are folded in,
 `check/exam_server.js` — the page judges through `judge.js` (proved on 16,800 parts, before and after, no difference),
 and the site's verdicts are the page's on every unit that packs; the test page (`exam_pool.js`, `exam_unit.js`,
 `exam.js`, `exam/build_exam.py`, proved against the Node stand-in `check/exam_site.js`); the lock, `exam/seal.js`
-(16 Nov); and the proctor and the log, `proctor.js` and `trace.js` (16 Nov; `BUILD_NOTES.md`). Still to build: the site, the
+(16 Nov); and the proctor and the log, `proctor.js` and `trace.js` (16 Nov; `BUILD_NOTES.md`); and the test as drawn, `exam_show.js` (16 Nov, 6:34 pm; "See the test"). Still to build: the site, the
 courses' test pages, Tally.
 
 ## What Croix asked for
@@ -423,6 +423,19 @@ it with what was saved"); `site.limit` is shown with the rule. A record nobody t
 opening and its start and finish times, and Croix can give it to a student by hand (and take it back). The student's own
 data in a record (`parts[].typed`, everything in `log`) is shown as text, never as HTML. Synthetic rosters only in its
 tests.
+
+### 5. See the test (16 Nov 2026)
+
+Croix, after his first dummy run: *"Is there any way to have it be able to show me the exact questions as well?"* Tally opens the
+unit's teacher copy at `…/teacher/<course>/unit-<N>/practice/#test=<payload>` (the fragment never reaches the site);
+`payload` = base64url(UTF-8 JSON) `{v: 1, course, unit, seed, cv, kit, code, points, of, parts: [[id, answer, result, key], …]}`
+— the record's fields, `answer` the text Tally made readable, `result` right | almost | wrong | blank | unread, `key` the record's
+own key exactly; never a name. The copy (`kit/exam_show.js`, teacher builds only) draws the seed with its own pool and **proves
+it is that test before it shows anything**: the same parts, the same ids in order, every key equal. Refused, with one plain line
+and a link back, never a question: a payload it cannot read, another unit's, a unit that has changed since. A different content
+version with the proof holding: the test, with a line that its wording may have been edited. Under each part: the verdict, the
+answer as text, the key. No request, nothing written to the device, everything from the payload as text, capped (200 KB, 200
+parts, 400 characters a string). A student page never carries it, and its CHECKED stamp is unchanged.
 
 ## The words on the test page (all of them)
 
