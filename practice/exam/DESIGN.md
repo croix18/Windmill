@@ -437,6 +437,42 @@ version with the proof holding: the test, with a line that its wording may have 
 answer as text, the key. No request, nothing written to the device, everything from the payload as text, capped (200 KB, 200
 parts, 400 characters a string). A student page never carries it, and its CHECKED stamp is unchanged.
 
+### 6. Lesson tests (16 Nov 2026)
+
+Croix, 16 Nov, 8:12 pm: *"Once that's completely done, I want you to apply that across all of the practice tests, so I can
+test on a specific unit or lesson to test on."* Its size: *"8, like a practice set."* A **lesson test** is the same locked test
+— Test card, start code, the one test page with its proctor and log, judged and sealed by the site, the code, Tally, See the
+test — on one lesson's 8 bank questions in place of the unit's. Units with a lesson bank: M7 4, 8, 9, 10 and A7 3, 4, 5, 6.
+
+- **What is drawn.** A lesson choice is bank.js's own (`lesson-10.03`, and a two-lesson day `lesson-10.09+10`): the 8 items a
+  practice set of it holds — 6 regular and 2 high rigor (a two-lesson day 3 + 1 and 3 + 1; a lesson with no high-rigor item, 8
+  regular), one of each of Cadence's question templates before any template comes twice — as a **pure function** of the unit,
+  the scope and a 128-bit seed (salted `test`): nothing of a device's "used" memory, every item whatever the approvals, and no
+  practice link can open one (a practice seed is a number). `kit/exam_lesson.js` (teacher builds only, hashed for a teacher
+  copy only): for the seeds being drawn, `Unit.generate` gives the lesson's items as one section (bank.js's own kit items), and
+  the pool (`Kit.ExamPool.draw`, untouched) records, packs and **proves** each form exactly as it does a unit's. Any other seed is
+  the unit's own, so the copy puts itself back as before.
+- **The cockpit.** After `ready`, the copy says `{kit: 'exam-pool', lessons: [{scope, code, title, name, day}]}` (every choice,
+  in the plan's order; `[]` without a bank). Asked `{kit: 'exam-pool', lessonDraw: n, scope}` it answers
+  `{kit: 'exam-pool', scope, forms, done, of}` in fives, or `{kit: 'exam-pool', scope, error}`. A form:
+  `{seed, scope, pub, priv, fams, bank}` — `bank` the Cadence ids it holds, so the site leaves out a form holding an item
+  Croix has hidden. Its pub adds `scope`, `lesson {scope, code, title, name}`, `qids` (each question's ID, `U10·L3·7`, shown as
+  on the practice page), the lesson's head (`title` "M7 Unit 10 Lesson 10.03 Test", `h1` the lesson's title, `eyebrow` "… ·
+  UNIT 10 · LESSON 10.03") and the keypad a lesson set has; nothing else of the bank (no key, accepted form or solution).
+- **The site.** The unit's pool and each lesson's pool are apart (a form's `scope`). One test of a unit is open at a time:
+  `open {course, unit, scope?, until?}`, and opening another while one is open is refused. `status` says `{open, pin, scope,
+  name}`; the test page shows the lesson's head on its start screen and the lesson's title on the test. The Worker judges a
+  lesson test with the bundle's `UL` — the unit as bank.js makes it on the practice page (bank.js as a module,
+  `kit/bank_node.js`, on a copy of the unit with no bank loaded: the items carry their keys): `server.read(b.UL, …)`,
+  `server.grade(b.UL, …)`. The bundle's `index.js` exports `{course, unit, cv, kit, U, server, pack, UL, lessons}` (`UL` null
+  and `lessons` [] without a bank) and `lesson_sample.json` `{seed, scope, priv, answers}` beside `sample.json`.
+- **The record** adds `scope` and `scopeName` ("Lesson 10.03 · Solving Equations"); a unit's record is as it was. Tally's
+  payload to See the test adds `scope`; the copy draws the seed and the scope again (`Kit.ExamLesson`) and proves it as it does
+  a unit's, its head naming the lesson.
+- **Not secret.** A lesson's bank is about 60 fixed questions that students also practice on. A lesson test draws 8 of them, so
+  a student who has practiced the lesson has likely seen most of its questions, and keys are not hidden from practice. Its
+  numbers are not new as a unit test's are; it is a check on a lesson, not a sealed unit test.
+
 ## The words on the test page (all of them)
 
 Start code · Start · Test · Calculator · Scratch paper · Finish · Flag for review · Back · Next · `3 of 18 answered` ·

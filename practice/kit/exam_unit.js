@@ -24,11 +24,13 @@ function make(pub){
     place.set(o, at); return o;
   }
   function generate(){
+    var k = 0;
     return {sections: pub.skel.sections.map(function(s, si){ return {title: s.title, items: s.items.map(function(it, ii){
       var o = {type: it.type}, at = si + '.' + ii;
       if (it.type === 'parts') o.parts = it.parts.map(function(p, pi){ return part(p, at + '.' + pi); });
       else if (it.type === 'solo') o.part = part(it.part, at + '.-1');
       else o.opts = (it.opts || []).slice();
+      if (pub.qids) o.bank = {qid: pub.qids[k++]};          /* a lesson test (16 Nov 2026): the item's ID, "U10·L3·7", which ui.js asks Kit.Bank for */
       place.set(o, at); return o; }) }; })};
   }
   function keyOf(f, args){

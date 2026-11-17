@@ -22,12 +22,20 @@
    5. At 390 × 844 in dark: the start screen, a question and the results with no sideways scroll and 44 px targets (buttons,
       links, choices, a graph's controls; a text box is the kit's own height, as on the practice page).
    6. The words: exam.js says only DESIGN.md's list, New test and Copied.
+   11. Lesson tests (16 Nov 2026; DESIGN.md "Lesson tests"), where the unit has a lesson bank: the teacher copy's lessons are the
+      bundle's; every lesson choice drawn (3 forms each, through the cockpit's lessonDraw), each form 8 items, its Cadence ids
+      the pure pick's (Kit.ExamLesson.items), proved in the page (the pool's own proof) and under Node by the bundle's UL (every
+      key right, a wrong answer not); every pub on the list and nothing of the bank in it (no key, accepted form or solution);
+      the test page holds no bank; for one form of every lesson the test page's cards are the teacher copy's sheet and its head
+      the lesson's; a whole lesson test through the stand-in (the score the site's, the bundle's and the practice page's judge's;
+      the record's scope); one test of a unit open at a time; a form holding a hidden item left out; each lesson's first form
+      drawn again on a fresh page from its seed and scope, the same. --lshots DIR: its screenshots.
    With --shots DIR: the start, a question, a number-line question, Grading and the results at 1366 × 657 light and dark, and at 390. */
 'use strict';
 const path = require('path'), fs = require('fs');
 const KIT = path.join(__dirname, '..'), dir = path.resolve(process.argv[2] || '.');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const SHEETS = +arg('--sheets', 12), WHOLE = process.argv.indexOf('--no-whole') < 0, SHOTS = arg('--shots', ''), FORM = arg('--form', 'https://forms.example/viewform?entry.1=CODE');
+const LSHOTS = arg('--lshots', ''), SHEETS = +arg('--sheets', 12), WHOLE = process.argv.indexOf('--no-whole') < 0, SHOTS = arg('--shots', ''), FORM = arg('--form', 'https://forms.example/viewform?entry.1=CODE');
 const U = require(path.join(dir, 'unit.js')), cfg = JSON.parse(fs.readFileSync(path.join(dir, 'unit.json'), 'utf8'));
 const P = require(path.join(KIT, 'pack.js')), SV = require(path.join(KIT, 'exam', 'server.js')), NLK = require(path.join(KIT, 'nline.js'));
 const CGF = require('./cgraph.js'), CG = CGF.CG, { Judge } = require(path.join(KIT, 'judge.js'));
@@ -43,12 +51,18 @@ const TPATH = '/' + COURSE + '/test/unit-' + UNIT + '/', CPATH = '/' + COURSE + 
 const NDRAW = SHEETS + (WHOLE ? 4 + 14 + 2 + 6 + 20 + (SHOTS ? 4 : 0) : 0);   /* the whole test's four, the proctor's and the log's (7), the screenshots' */
 const COCKPIT = '<!doctype html><meta charset="utf-8"><title>cockpit</title><iframe id="f" src="' + CPATH + '#exam-pool" style="display:none"></iframe><script>' +
   'window.batches=[];window.ready=null;window.err=null;window.done=false;' +
+  'window.lessons=null;window.lb={};' +
   'addEventListener("message",function(e){if(e.origin!==location.origin||e.source!==document.getElementById("f").contentWindow||!e.data||e.data.kit!=="exam-pool")return;' +
+  /* a lesson test's (16 Nov 2026; DESIGN.md "Lesson tests"): the lessons, then each lesson's forms, sent to that lesson's pool */
+  'if(e.data.lessons){window.lessons=e.data.lessons;return;}' +
+  'if(e.data.scope!=null){var L=lb[e.data.scope]=lb[e.data.scope]||{forms:[],done:0,of:0,sent:0,err:null,batches:0};if(e.data.error){L.err=e.data.error;return;}L.forms=L.forms.concat(e.data.forms);L.done=e.data.done;L.of=e.data.of;L.batches++;' +
+  'fetch("/teacher/api/test/pool/' + COURSE + '/' + UNIT + '",{method:"PUT",headers:{"X-Teacher":"pw","Content-Type":"application/json"},body:JSON.stringify({forms:e.data.forms})}).then(function(){L.sent+=e.data.forms.length;});return;}' +
   'if(e.data.ready){window.ready=e.data;e.source.postMessage({kit:"exam-pool",draw:' + NDRAW + '},location.origin);}' +
   'else if(e.data.forms){batches.push({n:e.data.forms.length,done:e.data.done,of:e.data.of});' +
   'fetch("/teacher/api/test/pool/' + COURSE + '/' + UNIT + '",{method:"PUT",headers:{"X-Teacher":"pw","Content-Type":"application/json"},body:JSON.stringify({forms:e.data.forms})}).then(function(){if(e.data.done>=e.data.of)window.done=true;});}' +
   'else if(e.data.error)window.err=e.data.error;});</script>';
-const site = require('./exam_site.js').create({ units: { [COURSE + '/' + UNIT]: U }, password: 'pw',
+const BX = fs.existsSync(path.join(dir, 'test_bundle', 'index.js')) ? require(path.join(dir, 'test_bundle', 'index.js')) : null;   /* the site's bundle: its UL judges a lesson test */
+const site = require('./exam_site.js').create({ units: { [COURSE + '/' + UNIT]: U }, lessonUnits: BX && BX.UL ? { [COURSE + '/' + UNIT]: BX.UL } : {}, password: 'pw',
   files: { [TPATH]: path.join(dir, TESTFILE), [CPATH]: TEACHER, '/cockpit.html': { body: COCKPIT } } });
 const VARS = ['key', 'wrong', 'equiv', 'unread', 'blank'], REL = { '=': '=', '<': '>', '>': '<', '<=': '>=', '>=': '<=', '≤': '≥', '≥': '≤' };
 function eqForm(k) {                    /* the key written another way (as check/exam_server.js) */
@@ -72,16 +86,17 @@ site.state.now = stamp;                    /* the site's clock, a second a reque
 
 /* the whitelist, from the teacher copy, and the fields a pub may have */
 const PUBK = ['v', 'course', 'unit', 'id', 'cv', 'kit', 'title', 'eyebrow', 'h1', 'notes', 'keypad', 'skel', 'calls', 'views'];
+const PUBL = PUBK.concat(['scope', 'lesson', 'qids']), BADL = ['bp', 'bank', 'alts', 'keyS', 'also', 'stem', 'answer'];   /* a lesson test's pub (16 Nov 2026) */
 const BAD = ['ans', 'graph', 'correct', 'key', 'keyText', 'prm', 'vals', 'fam', 'judge', 'solution', 'walk', 'rungs', 'choices', 'ids', 'rels', 'optRel'];
 function checkPub(f, WL) {
   const pub = f.pub, where = 'pub ' + f.seed.slice(0, 6);
-  Object.keys(pub).forEach(k => { if (PUBK.indexOf(k) < 0) fail(where + ': a field not on the list: ' + k); });
+  Object.keys(pub).forEach(k => { if ((pub.scope ? PUBL : PUBK).indexOf(k) < 0) fail(where + ': a field not on the list: ' + k); });
   const part = (p, at) => Object.keys(p).forEach(k => { if (!(k in WL.part)) fail(where + ' ' + at + ': a part field not on the whitelist: ' + k); });
   pub.skel.sections.forEach((s, si) => { Object.keys(s).forEach(k => { if (k !== 'title' && k !== 'items') fail(where + ': a section field ' + k); });
     s.items.forEach((it, ii) => { Object.keys(it).forEach(k => { if (!(k in WL.item)) fail(where + ' ' + si + '.' + ii + ': an item field not on the whitelist: ' + k); });
       (it.parts || []).forEach((p, pi) => part(p, si + '.' + ii + '.' + pi)); if (it.part) part(it.part, si + '.' + ii);
       if (it.opts && it.opts.some(o => o !== '')) fail(where + ': a choice\'s words in the skeleton'); }); });
-  (function deep(o, at) { if (!o || typeof o !== 'object') return; Object.keys(o).forEach(k => { if (BAD.indexOf(k) >= 0 && at.indexOf('.calls.') < 0) fail(where + ': a field named ' + k + ' at ' + at); deep(o[k], at + '.' + k); }); })(Object.assign({}, pub, { calls: undefined }), '');
+  (function deep(o, at) { if (!o || typeof o !== 'object') return; Object.keys(o).forEach(k => { if ((BAD.indexOf(k) >= 0 || (pub.scope && BADL.indexOf(k) >= 0 && /^\.skel/.test(at))) && at.indexOf('.calls.') < 0) fail(where + ': a field named ' + k + ' at ' + at); deep(o[k], at + '.' + k); }); })(Object.assign({}, pub, { calls: undefined }), '');
   Object.keys(pub.calls).forEach(k => { const fn = k.split('|')[0]; if (fn === 'key' || pub.views.indexOf(fn) < 0) fail(where + ': a recorded call of ' + fn); });
 }
 
@@ -497,6 +512,8 @@ function checkPub(f, WL) {
   if (WHOLE) await onceAndEnds();
   if (WHOLE) await neverStuck();
   if (WHOLE) await whole();
+  /* 11. lesson tests (16 Nov 2026) */
+  await lessonTests();
   /* the stand-in's responses before seal: no priv item, keyText or verdict; read is {ok, pretty} */
   let reads = 0;
   site.log.forEach(L => {
@@ -520,11 +537,11 @@ function checkPub(f, WL) {
   console.log('exam page: ' + (fails.length ? fails.length + ' FAILED' : 'every check passed') + ' (' + U.id + ')');
   process.exit(fails.length ? 1 : 0);
 
-  async function answer(p, it, vr) {
+  async function answer(p, it, vr, UU, JJ) {     /* UU, JJ: a lesson test's unit and judge (the bundle's UL) */
     if (vr === 'blank') return;
-    const x = it.x, id = it.id;
+    const x = it.x, id = it.id; UU = UU || U; JJ = JJ || J;
     if (it.type === 'text') {
-      const B = J.boxesOf(x), k = U.keyText(x), keys = B ? (Array.isArray(k) ? k : [k]).map(String) : [String(k)];
+      const B = JJ.boxesOf(x), k = UU.keyText(x), keys = B ? (Array.isArray(k) ? k : [k]).map(String) : [String(k)];
       const put = async vals => { for (let i = 0; i < vals.length; i++) { const sel = '#a' + id + (i ? '_' + i : ''); await p.fill(sel, vals[i]); await p.dispatchEvent(sel, 'change'); } };
       if (vr === 'unread') {
         await put(keys.map(() => '((3'));
@@ -923,6 +940,156 @@ function checkPub(f, WL) {
       else ok('L9: the second tab of a finished test shows the results and the code; H4: a refused New test and a reload leave the code on the device');
       await c.close(); }
     await OPEN();
+  }
+  /* ---- 11. lesson tests (16 Nov 2026; DESIGN.md "Lesson tests") ---- */
+  async function lessonTests() {
+    const LS = await cp.evaluate(() => window.lessons);
+    if (!BX) return fail('lesson tests: no test_bundle/index.js');
+    if (!LS) return fail('lesson tests: the teacher copy never said its lessons');
+    if (JSON.stringify(LS) !== JSON.stringify(BX.lessons)) fail('lesson tests: the bundle\'s lessons ' + JSON.stringify(BX.lessons).slice(0, 200) + ' are not the teacher copy\'s ' + JSON.stringify(LS).slice(0, 200));
+    if (!LS.length) { if (BX.UL !== null) fail('lesson tests: no lessons, but the bundle has a UL'); return ok('lesson tests: this unit has no lesson bank (the copy says lessons [], the bundle UL null)'); }
+    const JL = Judge({ U: BX.UL, V: BX.UL.view, K: require(path.join(KIT, 'core.js')), NL: NLK, CG });
+    ok('lesson tests: ' + LS.length + ' lessons, the copy\'s and the bundle\'s the same, in the plan\'s order: ' + LS.map(l => l.code).join(', '));
+    /* the forms of every lesson, drawn in the hidden teacher copy and sent to the stand-in */
+    const PER = 3, t0 = Date.now(), F = {};
+    for (const L of LS) {
+      await cp.evaluate(([sc, n]) => document.getElementById('f').contentWindow.postMessage({ kit: 'exam-pool', lessonDraw: n, scope: sc }, location.origin), [L.scope, PER]);
+      await cp.waitForFunction(sc => { const x = window.lb[sc]; return x && (x.err || (x.of && x.done >= x.of && x.sent >= x.of)); }, L.scope, { timeout: 120000 }).catch(() => fail(L.scope + ': no forms in 120 s'));
+      const x = await cp.evaluate(sc => window.lb[sc], L.scope); if (x.err) { fail(L.scope + ': ' + x.err); continue; }
+      F[L.scope] = x.forms;
+      if (x.forms.length !== PER || (site.state.pools[COURSE + '/' + UNIT + '#' + L.scope] || []).length !== PER) fail(L.scope + ': ' + x.forms.length + ' forms, the stand-in\'s pool ' + (site.state.pools[COURSE + '/' + UNIT + '#' + L.scope] || []).length);
+    }
+    const all = [].concat(...Object.values(F));
+    if (new Set(all.map(f => f.seed)).size !== all.length || all.some(f => !/^[0-9a-f]{32}$/.test(f.seed))) fail('lesson tests: the seeds are not 128-bit and distinct');
+    if ((site.state.pools[COURSE + '/' + UNIT] || []).some(f => f.scope)) fail('lesson tests: a lesson form in the unit\'s pool');
+    /* each form: 8 items, its scope and head, the pure pick's ids, proved under Node by the bundle */
+    const WL = await fr.evaluate(() => Kit.ExamPool.whitelist);
+    const picks = await fr.evaluate(F => { const o = {}; Object.keys(F).forEach(sc => F[sc].forEach(f => { o[f.seed] = { ids: Kit.ExamLesson.items(sc, f.seed), rig: Kit.ExamLesson.items(sc, f.seed).filter(id => Kit.Bank._byId[id].rigor).length, lessons: Kit.ExamLesson.items(sc, f.seed).map(id => Kit.Bank._byId[id].lesson) }; })); return o; },
+      Object.fromEntries(Object.entries(F).map(([k, v]) => [k, v.map(f => ({ seed: f.seed }))])));
+    const whereIn = (o, t, at) => { at = at || ''; if (typeof o === 'string') return o.indexOf(t) >= 0 ? at + ' “' + o.slice(Math.max(0, o.indexOf(t) - 60), o.indexOf(t) + t.length + 20) + '”' : null;
+      if (!o || typeof o !== 'object') return null; for (const k of Object.keys(o)) { const r = whereIn(o[k], t, at + '.' + k); if (r) return r; } return null; };
+    const LET = 'ABCDEFGH', wrongOf = it => { const x = it.x;
+      if (it.type === 'nline') { const g = NLK.graphOf(x), Sp = NLK.spec(x), i = NLK.idx(Sp, g.c); return { c: NLK.kstr(NLK.val(Sp, i < Sp.n ? i + 1 : i - 1)), closed: g.closed, dir: g.dir }; }
+      if (it.type === 'mc' || it.type === 'multi') { const n = (x.opts || []).length, C = it.type === 'mc' ? [x.correct] : x.correct; let b = 0; while (C.indexOf(b) >= 0 && b < n) b++; return it.type === 'mc' ? b : [b]; }
+      const B = JL.boxesOf(x); return B ? B.map(() => '987654') : '987654'; };
+    const keyOf = it => it.type === 'nline' ? NLK.graphOf(it.x) : it.type === 'mc' ? it.x.correct : it.type === 'multi' ? it.x.correct.slice() : BX.UL.keyText(it.x);
+    let proved = 0, parts = 0, rigs = {};
+    for (const L of LS) for (const f of F[L.scope] || []) {
+      const where = L.scope + ' ' + f.seed.slice(0, 6), pk = picks[f.seed];
+      checkPub(f, WL);
+      if (f.scope !== L.scope || f.pub.scope !== L.scope || !f.pub.lesson || f.pub.lesson.name !== L.name || f.pub.lesson.code !== L.code) fail(where + ': the scope or the lesson in the form: ' + JSON.stringify(f.pub.lesson));
+      const items = f.priv.map(t => BX.pack.unpack(t)), qs = new Set(items.map(it => it.pos.split('.').slice(0, 2).join('.')));
+      if (qs.size !== 8 || f.pub.skel.sections.length !== 1 || f.pub.skel.sections[0].items.length !== 8 || (f.pub.qids || []).length !== 8) fail(where + ': ' + qs.size + ' questions, ' + (f.pub.qids || []).length + ' IDs');
+      if (JSON.stringify(f.bank) !== JSON.stringify(pk.ids)) fail(where + ': the form\'s Cadence ids are not the pure pick\'s');
+      rigs[pk.rig] = (rigs[pk.rig] || 0) + 1;
+      /* the pub holds nothing of the bank's answers: no key, accepted form or worked solution of its items as text */
+      const pubText = JSON.stringify(f.pub);
+      /* where a key would be hidden: every field of the pub but what the page shows as text (the recorded view's words and its
+         typeset math, data-tex: a key the question itself shows, "… (-9)^10 ÷ (-9)^5 …", is the student's to see); a key that is
+         an expression or a relation (a bare number is in every figure's coordinates and in the unit's notes) */
+      const hideText = h => String(h).replace(/>[^<]*</g, '><').replace(/^[^<]*</, '<').replace(/>[^>]*$/, '>').replace(/\s(data-tex|aria-label|alt|title)="[^"]*"/g, '');
+      const quiet = JSON.stringify(Object.assign({}, f.pub, { calls: Object.fromEntries(Object.entries(f.pub.calls).map(([k, v]) => [k, v && typeof v.r === 'string' ? { r: hideText(v.r) } : v])) }));
+      const token = (hay, t) => { const e = JSON.stringify(t).slice(1, -1); let i = hay.indexOf(e); while (i >= 0) { const a = hay[i - 1] || ' ', z = hay[i + e.length] || ' '; if (!/[0-9A-Za-z.]/.test(a) && !/[0-9A-Za-z.]/.test(z)) return true; i = hay.indexOf(e, i + 1); } return false; };
+      items.forEach(it => { const b = it.x.bank; if (!b) return fail(where + ' ' + it.id + ': not a bank item');
+        (b.solution || []).forEach(sg => { const t = (Array.isArray(sg) ? sg : [sg]).map(z => typeof z === 'string' ? z : z[0]).join('').replace(/\s+/g, ' ').trim(); if (t.length >= 24 && pubText.indexOf(JSON.stringify(t).slice(1, -1)) >= 0) fail(where + ': a worked solution in the pub: ' + t.slice(0, 40)); });
+        const shownToo = JSON.stringify([b.stem, b.inst, b.choices, b.rows, b.cols, b.fig, b.figText, it.x.bp && it.x.bp.labelS, it.x.bp && it.x.bp.label]);   /* a key the question itself shows (“…, 1.75m − 5 = 12.5 or …”) is the student's to see */
+        const bp = it.x.bp; if (bp && bp.type !== 'select') [bp.key].concat(bp.alts || []).forEach(k => { const t = String(k); if (t.length >= 5 && /[A-Za-z=<>≤≥^√π]/.test(t) && shownToo.indexOf(JSON.stringify(t).slice(1, -1)) < 0 && token(quiet, t)) fail(where + ': a key or an accepted form in the pub: ' + t + ' at ' + whereIn(f.pub, t)); }); });
+      /* proved by the bundle, under Node: every key right, then a wrong answer for each part not right */
+      const ka = {}, wa = {}; items.forEach(it => { ka[it.id] = keyOf(it); wa[it.id] = wrongOf(it); });
+      const run = ans => { let v = []; for (let i = 0; i < items.length; i += 2) v = v.concat(BX.server.grade(BX.UL, items, ans, v, i, 2)); return v; };
+      const vk = run(ka), vw = run(wa);
+      if (vk.some(x => x.v !== 'right')) fail(where + ': the bundle judges a key not right: ' + items.filter((it, i) => vk[i].v !== 'right').map(it => it.id + ' ' + JSON.stringify(ka[it.id])).slice(0, 3).join('; '));
+      if (vw.some(x => x.v === 'right')) fail(where + ': the bundle judges a wrong answer right: ' + items.filter((it, i) => vw[i].v === 'right').map(it => it.id + ' ' + JSON.stringify(wa[it.id])).slice(0, 3).join('; '));
+      if (BX.server.read(BX.UL, items.find(it => it.type === 'text') || items[0], '((3').ok && items.some(it => it.type === 'text')) fail(where + ': the bundle reads “((3”');
+      proved++; parts += items.length;
+    }
+    ok('lesson tests: ' + proved + ' forms (' + PER + ' a lesson) drawn in ' + ((Date.now() - t0) / 1000).toFixed(1) + ' s, ' + parts + ' parts; each 8 questions, the pure pick\'s Cadence ids (high rigor: ' + Object.keys(rigs).map(k => k + ' in ' + rigs[k]).join(', ') + '); proved in the page and under Node by the bundle\'s UL (every key right, no wrong answer right); every pub on the list, no key, accepted form or worked solution in it');
+    const tpage = fs.readFileSync(path.join(dir, TESTFILE), 'utf8');
+    if (/CADENCE_BANK|CADENCE_MAP/.test(tpage) || tpage.indexOf(fs.readFileSync(path.join(KIT, 'bank.js'), 'utf8').split('\n').find(l => /judgePart/.test(l) && l.length > 40) || '\u0000') >= 0 || tpage.indexOf('exam_lesson.js') >= 0) fail('the test page holds the bank, bank.js or exam_lesson.js');
+    else ok('the test page holds no bank, no bank.js, no exam_lesson.js');
+    /* the stand-in: one test of a unit open at a time */
+    const OPEN = o => fetch(base + '/teacher/api/test/open', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ course: COURSE, unit: UNIT }, o)) });
+    const pools = Object.assign({}, site.state.pools);                   /* close takes the open test's pool (as the site's does): here each is put back, its used forms used */
+    const CLOSE = () => fetch(base + '/teacher/api/test/close', { method: 'POST', headers: { 'X-Teacher': 'pw', 'Content-Type': 'application/json' }, body: JSON.stringify({ course: COURSE, unit: UNIT }) }).then(r => { Object.assign(site.state.pools, pools); return r; });
+    await CLOSE();
+    await put({ startCode: false, rule: { leave: 'count', after: 3 }, show: 'parts', form: FORM === 'none' ? null : FORM });
+    /* the sheet: for every lesson, its first form on the test page is the teacher copy's sheet, under the lesson's head */
+    const LF = Object.fromEntries(LS.map(L => [L.scope, (F[L.scope] || [])[0]]).filter(x => x[1]));
+    const lsheets = await fr.evaluate(LF => { const o = {}; Object.keys(LF).forEach(sc => { Kit.ExamLesson.draw(1, sc, [LF[sc]]); o[LF[sc]] = Kit.ExamPool.sheet(LF[sc]); }); return o; }, Object.fromEntries(Object.entries(LF).map(([k, f]) => [k, f.seed])));
+    const norm = h => h.replace(/ class="([^"]*)"/g, (x, c) => { const k = c.split(/\s+/).filter(z => z && z !== 'pg-on').join(' '); return k ? ' class="' + k + '"' : ''; });
+    let same = 0, heads = 0, one = 0;
+    const plain = h => { const d = h.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim(); return d; };
+    for (const L of LS) {
+      const f = LF[L.scope]; if (!f) continue;
+      const r0 = await OPEN({ scope: L.scope }); if (r0.status !== 200) { fail(L.scope + ': open ' + r0.status); continue; }
+      if (!one) { const r1 = await OPEN({}), j1 = await r1.json().catch(() => ({})), st = await (await fetch(base + '/api/test/status?course=' + COURSE + '&unit=' + UNIT)).json();
+        if (r1.status !== 409 || j1.error !== 'open' || st.scope !== L.scope || st.name !== L.name) fail('one test open at a time: the unit\'s opened beside ' + L.scope + ' ' + r1.status + ' ' + JSON.stringify(j1) + '; status ' + JSON.stringify(st));
+        else ok('one test of a unit open at a time: the unit\'s test refused beside ' + L.scope + ' (409 open); status says {open, pin, scope: ' + st.scope + ', name: ' + st.name + '}'); one = 1; }
+      const c = await ctxOf(), p = watch(await c.newPage());
+      await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])');
+      const h0 = await p.evaluate(() => ({ eb: document.getElementById('eyebrow').textContent.replace(/\s+/g, ' ').trim(), h1: document.getElementById('h1').textContent.trim() }));
+      if (LSHOTS && !heads) { fs.mkdirSync(LSHOTS, { recursive: true }); await p.screenshot({ path: path.join(LSHOTS, U.id + '-' + L.scope + '-start-1366-light.png') }); }
+      await p.click('#exStart'); await p.waitForSelector('#pgQ');
+      const t = newest(); if (t.seed !== f.seed || t.scope !== L.scope) fail(L.scope + ': the stand-in gave ' + t.seed.slice(0, 6) + ' ' + t.scope + ', not ' + f.seed.slice(0, 6));
+      const got = await p.evaluate(() => ({ cards: Array.prototype.map.call(document.querySelectorAll('#paper .q[data-q]'), q => q.outerHTML), unknown: Kit.ExamUnit.unknown.slice(),
+        eb: document.getElementById('eyebrow').textContent.replace(/\s+/g, ' ').trim(), h1: document.getElementById('h1').textContent.trim() }));
+      const want = lsheets[f.seed] || [];
+      if (got.unknown.length) fail(L.scope + ': the stub was asked ' + got.unknown.length + ' calls it does not have, first ' + got.unknown[0]);
+      let bad = 0;
+      if (got.cards.length !== want.length || !want.length) { bad++; fail(L.scope + ': ' + got.cards.length + ' cards, the teacher copy ' + want.length); }
+      got.cards.forEach((h, i) => { if (norm(h) !== norm(want[i] || '')) { bad++; if (bad === 1) { const a = norm(h), w = norm(want[i] || ''); let k = 0; while (k < a.length && a[k] === w[k]) k++; fail(L.scope + ' question ' + (i + 1) + ' differs at ' + k + ': page …' + a.slice(Math.max(0, k - 40), k + 60) + '… teacher copy …' + w.slice(Math.max(0, k - 40), k + 60) + '…'); } } });
+      if (!bad) same++;
+      const what = L.name.split(' · ')[0], ttl = plain(f.pub.h1);
+      if (h0.eb.indexOf(what) < 0 || h0.h1 !== ttl || got.eb.indexOf(what) < 0 || got.h1 !== ttl) fail(L.scope + ': the head before Start ' + JSON.stringify(h0) + ', after ' + JSON.stringify({ eb: got.eb, h1: got.h1 }) + '; the lesson ' + what + ' · ' + ttl);
+      else heads++;
+      if (LSHOTS && heads === 1) await p.screenshot({ path: path.join(LSHOTS, U.id + '-' + L.scope + '-question-1366-light.png') });
+      await c.close(); await CLOSE();
+    }
+    ok('the same sheet: ' + same + ' of ' + Object.keys(LF).length + ' lessons, every question card the teacher copy\'s HTML; the lesson\'s head (its eyebrow and title) before Start and on the test: ' + heads);
+    /* a form holding a hidden item is left out */
+    const LW = LS.filter(l => (F[l.scope] || []).length === PER)[Math.floor(LS.length / 2)] || LS[0], FW = F[LW.scope];
+    const hid = FW[1].bank.find(id => FW[2].bank.indexOf(id) < 0);
+    await put({ hiddenBank: [hid] }); const ro = await OPEN({ scope: LW.scope }); if (ro.status !== 200) fail('open ' + LW.scope + ': ' + ro.status + ' ' + await ro.text());
+    /* a whole lesson test, through the page: the third form (the first is used; the second holds a hidden item now) */
+    const c = await ctxOf({ colorScheme: 'light' }); await c.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+    await c.route(/^https:\/\/forms\.example\//, r => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>form</title>' }));
+    const p = watch(await c.newPage());
+    await p.goto(base + TPATH); await p.waitForSelector('#exStart:not([hidden])'); await p.click('#exStart'); await p.waitForSelector('#pgQ');
+    const t = newest(), items = t.priv.map(x => P.unpack(x));
+    if (!hid || t.seed !== FW[2].seed) fail('a form holding a hidden item was not left out (' + t.seed.slice(0, 6) + ')'); else ok('a form holding a hidden Cadence item left out (hiddenBank): the next form given');
+    await put({ hiddenBank: [] });
+    const vr = items.map((it, j) => VARS[j % 5]);
+    for (let j = 0; j < items.length; j++) { const i = await cardOf(p, items[j].id); await goQ(p, i, 'next'); await answer(p, items[j], vr[j], BX.UL, JL); if (j === 1 && LSHOTS) await p.screenshot({ path: path.join(LSHOTS, U.id + '-' + LW.scope + '-answering-1366-light.png') }); }
+    await sleep(1600);
+    await p.click('#bFinish'); await p.click('#cy'); await p.waitForSelector('#exCode', { timeout: 30000 });
+    const T = site.state.tests[t.id], sm = BX.server.summary(items, T.verdicts);
+    const shownR = await p.evaluate(() => ({ score: document.querySelector('.exscore').textContent, code: document.getElementById('exCode').textContent, eb: document.getElementById('eyebrow').textContent.replace(/\s+/g, ' ').trim(), h1: document.getElementById('h1').textContent.trim() }));
+    let mine = []; for (let i = 0; i < items.length; i += 2) mine = mine.concat(BX.server.grade(BX.UL, items, T.answers, mine, i, 2));
+    const ps = await pageScore(items.map(x => P.pack(x)), T.answers), bs = mine.filter(x => x.v === 'right').length;
+    if (shownR.score !== sm.points + ' / ' + sm.of + ' points' || ps !== sm.points || bs !== sm.points) fail('a whole lesson test: the page says ' + shownR.score + '; the site ' + sm.points + ', the bundle ' + bs + ', the practice page\'s judge ' + ps);
+    const rec = site.state.results[T.sealed.code].record;
+    if (rec.scope !== LW.scope || rec.scopeName !== LW.name || rec.seed !== t.seed) fail('the record\'s scope: ' + JSON.stringify({ scope: rec.scope, scopeName: rec.scopeName }));
+    const res = await (await fetch(base + '/teacher/api/test/results?course=' + COURSE + '&unit=' + UNIT, { headers: { 'X-Teacher': 'pw' } })).json(), rr = res.results.find(x => x.code === T.sealed.code);
+    if (!rr || rr.scope !== LW.scope || rr.name !== LW.name) fail('the results list: ' + JSON.stringify(rr));
+    ok('a whole lesson test (' + LW.scope + ', ' + items.length + ' parts, key, wrong, another form, unreadable then fixed, blank in turn): ' + shownR.score + ' — the site\'s, the bundle\'s UL\'s and the practice page\'s judge\'s; ' + shownR.code + '; the record and the results list carry scope ' + rec.scope + ' and “' + rec.scopeName + '”');
+    if (LSHOTS) { await p.screenshot({ path: path.join(LSHOTS, U.id + '-' + LW.scope + '-result-1366-light.png'), fullPage: true }); await p.emulateMedia({ colorScheme: 'dark' }); await p.screenshot({ path: path.join(LSHOTS, U.id + '-' + LW.scope + '-result-1366-dark.png'), fullPage: true }); }
+    await c.close();
+    /* at 390 × 844 dark: the start, a question, the results (a new opening: one test a browser an opening) */
+    await OPEN({ scope: LW.scope });
+    { const c2 = await ctxOf({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true }), p2 = watch(await c2.newPage());
+      const look = async what => { const r = await p2.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth })); if (r.sw > r.iw) fail('390, lesson ' + what + ': sideways scroll'); if (LSHOTS) await p2.screenshot({ path: path.join(LSHOTS, U.id + '-' + LW.scope + '-' + what + '-390-dark.png') }); };
+      await p2.goto(base + TPATH); await p2.waitForSelector('#exStart:not([hidden])'); await look('start');
+      await p2.click('#exStart'); await p2.waitForSelector('#pgQ'); await look('question');
+      await p2.click('#bFinish'); await p2.click('#cy'); await p2.waitForSelector('#exCode', { timeout: 30000 }); await look('results');
+      ok('390 × 844, dark: a lesson test\'s start, a question and the results with no sideways scroll'); await c2.close(); }
+    await CLOSE();
+    /* drawn again on a fresh page from the seed and the scope: the same forms */
+    const cf = await ctxOf(), pf = watch(await cf.newPage());
+    await pf.goto(base + CPATH); await pf.waitForFunction(() => window.Kit && Kit.ExamLesson, null, { timeout: 60000 });
+    const again = await pf.evaluate(LF => { const o = {}; Object.keys(LF).forEach(sc => { const f = Kit.ExamLesson.draw(1, sc, [LF[sc]])[0]; o[sc] = JSON.stringify([f.seed, f.scope, f.pub, f.priv, f.fams, f.bank]); }); return o; }, Object.fromEntries(Object.entries(LF).map(([k, f]) => [k, f.seed])));
+    const diff = Object.keys(LF).filter(sc => again[sc] !== JSON.stringify([LF[sc].seed, LF[sc].scope, LF[sc].pub, LF[sc].priv, LF[sc].fams, LF[sc].bank]));
+    if (diff.length) fail('drawn again on a fresh page, not the same: ' + diff.join(', ')); else ok('drawn again on a fresh teacher copy from the seed and the scope: ' + Object.keys(LF).length + ' lesson forms the same, pub, priv, fams and Cadence ids');
+    await cf.close();
   }
   async function phone() {
     const c = await ctxOf({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', hasTouch: true, isMobile: true }), p = watch(await c.newPage());

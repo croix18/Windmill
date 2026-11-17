@@ -202,3 +202,32 @@ check/exam_page.js part 10.
   change to the clock with the page in view still moves nothing (the L5 claim). Not proven on a Chromebook: whether its
   page is marked hidden when the lid shuts — the trial's lid step settles it (if the count stood still and the page was
   never hidden, the leaving is still counted on waking, with a short length).
+## Lesson tests (16 Nov 2026, evening)
+Croix, 8:12 pm: "apply that across all of the practice tests, so I can test on a specific unit or lesson"; 8 questions, like a
+practice set. Design and contract: `DESIGN.md`, "6. Lesson tests"; the kit's side: `kit/README.md`, "16 Nov 2026 — lesson tests".
+- **No common file changed.** Everything is in teacher-only `exam_lesson.js` (in `TEACHER_ONLY`) and the test-page files
+  (`exam.js`, `exam_unit.js`, `exam_show.js` — teacher-only —, `exam/build_exam.py`, the checks). The pool (`exam_pool.js`),
+  `bank.js` and `ui.js` are untouched: a lesson form is the pool's own draw with `Unit.generate` giving the lesson's set for
+  the seeds being drawn; ui.js's lesson-item ID (`Kit.Bank.qid`) is answered on the test page by a one-function `Kit.Bank` from
+  `pub.qids`; the site judges with bank.js itself, wrapped as a module (`kit/bank_node.js`, generated).
+- **Student pages:** M7 4, 7, 8, 9, 10 and A7 3, 4, 5, 6 built with a plain `build.py` on their old stamps, with the kit at
+  144732b and with this one: the same bytes (and for the five copied from the courses, the same as the courses' own pages).
+- **Bundle growth** (bytes; before measured on the kit at 144732b for four units, worked out from the files for the rest):
+  M7 U10 355,529 → 411,134; M7 U4 ~322,660 → 368,890; M7 U8 ~244,138 → 292,382; M7 U9 ~289,042 → 338,374; A7 U3 342,328 →
+  385,087; A7 U4 ~222,945 → 266,029; A7 U5 211,381 → 260,594; A7 U6 ~265,622 → 313,361: 42–56 KB more (bank_node.js 32,156;
+  lesson_sample.json 7.8–20.7 KB, its size the sample lesson's; index.js ~2.5 KB). M7 U7 (no bank) +25 bytes (index.js says
+  `UL: null, lessons: []`). Start-up: the lesson sample loaded and judged in 13–22 ms.
+- **The unit test did not move:** every unit check of `check/exam_page.js` runs as it did, the pool's NDRAW the same; a lesson
+  pool is apart from the unit's; a unit's record, status and seeds as they were (status adds `scope: ''`, `name: ''`).
+- **A check's false alarm, fixed in the check:** "a key in the pub" first matched keys inside what the question itself shows
+  (`2.5x ≤ -5` holds `x ≤ -5`; `1/100000` holds `1/1000`; a quotient's stem shows `(-9)^5`). Now a key counts only as a whole
+  token outside the page's shown text and typeset math, and only a key that is an expression or a relation (five characters
+  or more, with a letter, a sign or a power): a bare number such as `186` is in every figure's coordinates and `3/4` in the
+  unit's typing note.
+- **For the site's adapter:** part 11 uploads every lesson's forms before opening any, and keeps each pool across a close (the
+  stand-in keeps a pool a scope; the check puts a closed scope's pool back). A site with one pool a unit would re-upload a
+  scope's forms before its opening.
+- **Checked** (in a build tree outside the courses, one unit at a time): `build_exam.py` with its check and
+  `check/exam_show_page.js` on M7 4, 7, 8, 9, 10 and A7 3, 4, 5, 6 — every check passed; 83 lesson choices, 249 lesson forms
+  drawn, proved in the page and by the bundle, a whole lesson test through the stand-in for each bank unit. M7 U7 (no bank):
+  the copy says `lessons: []`, the bundle `UL: null`. Screenshots: `/home/claude/shots/lesson/`.

@@ -801,7 +801,8 @@ teacher's view and print reserving nothing.
 | `trace.js` | the test's log: everything the test page can see, in the pinned shape, kept on the device as it grows, sent at Finish, removed after the seal (16 Nov 2026, below); test page only |
 | `proctor.js` | the test's proctor: full screen at Start, each leaving counted and covered, Back to the test, the site's rule (count, lock, end), no copying or printing the sheet (16 Nov 2026, below); test page only |
 | `exam_show.js`, `exam_show.css` | the test as drawn: a teacher copy at `#test=<payload>` shows the questions a student was drawn, proved by the seed, with each part's answer, verdict and key (16 Nov 2026, below); teacher builds only, hashed for a teacher copy only |
-| `check/exam_show_page.js` | the test as drawn, checked: run by `run.py` for a teacher copy |
+| `exam_lesson.js` | a test on one lesson: the 8 items of a lesson's practice set as a pure function of the scope and a seed, drawn and proved by the pool for the cockpit (`lessonDraw`), `Kit.ExamLesson` (16 Nov 2026, below); teacher builds only, hashed for a teacher copy only; under Node for `build_exam.py` |
+| `check/exam_show_page.js` | the test as drawn, checked: run by `run.py` for a teacher copy | and a lesson test's |
 | `exam_link.js` | a student page on the site: Test on its start screen while the unit's test is open (15 Nov 2026, below) |
 | `exam/build_exam.py` | `python3 kit/exam/build_exam.py <unit>`: the test page and the site's bundle, gated on `check/pack.js`, checked by `check/exam_page.js` (15 Nov 2026, below) |
 | `kit.css` | the sheet: light and dark mode (the site's palette), 44px tap targets, print |
@@ -1450,3 +1451,33 @@ the exact questions as well?"* The record holds the seed, so the unit's teacher 
   another seed, junk, not JSON, no parts, too many; another content version shows its line; without `#test=` nothing is
   different (no view, `#set-N` as before); the student page does not hold the file. With `--shots`: light, dark, 400 px, the
   print as a PDF, a refused line.
+
+## 16 Nov 2026 — lesson tests (`exam_lesson.js`; `exam.js`, `exam_unit.js`, `exam_show.js`, `exam/build_exam.py`, `check/exam_site.js`, `check/exam_page.js`)
+Croix, 16 Nov, 8:12 pm: *"apply that across all of the practice tests, so I can test on a specific unit or lesson to test on"*;
+its size, *"8, like a practice set"*. The design and the contract: `practice/exam/DESIGN.md`, "6. Lesson tests".
+- **Drawn in the teacher copy** (`exam_lesson.js`, teacher builds only): a lesson choice's 8 items (bank.js's quotas: 6 + 2
+  high rigor, a two-lesson day 3 + 1 and 3 + 1; one of each Cadence template before a repeat) as a pure function of the unit,
+  the scope and a 128-bit seed — no "used" memory, no approvals, salted `test`. For the seeds being drawn `Unit.generate` gives
+  the set as one section (bank.js's kit items); `Kit.ExamPool.draw` does the rest as for a unit's form, proof included. The
+  form adds `scope` and `bank` (Cadence ids); its pub `scope`, `lesson`, `qids`, the lesson's head and keypad.
+  `Kit.ExamLesson`: `lessons()`, `draw(n, scope, seeds)`, `sheet(seed)`, `items(scope, seed)`, `withSet(scope, seeds, fn)`.
+- **The test page** (same file, same address): `exam.js` shows the lesson's head on the start screen (from `status`) and the
+  pub's title on the test; a lesson item's ID comes from `pub.qids` through the stub (`exam_unit.js`: `item.bank = {qid}`) and a
+  `Kit.Bank` of one function (`qid`); no bank, no bank.js on the page.
+- **The bundle** (`build_exam.py`): `kit/bank_node.js` (bank.js's text, unchanged, in a function of a window), `index.js`
+  `UL` (the unit as bank.js makes it, with no bank loaded) and `lessons`, `lesson_sample.json`; refused unless `UL` judges the
+  lesson sample every part right. About 42–56 KB more for a unit with a bank (bank_node.js 32 KB, the lesson sample 8–21 KB, index.js about 2.5 KB); 25 bytes for a unit without one.
+- **See the test:** the payload's `scope`; drawn again with `Kit.ExamLesson` and proved as a unit's; the head names the lesson.
+- **The stand-in** (`check/exam_site.js`): a pool a scope, `open {scope}`, one test of a unit open at a time (409 `open`),
+  `status {open, pin, scope, name}`, `hiddenBank`, the record's `scope` and `scopeName` (a unit's record as it was).
+- **Checked** (`check/exam_page.js` part 11, every lesson choice of the unit: 3 forms each): the copy's lessons are the
+  bundle's; every form 8 questions, the pure pick's ids, proved in the page and under Node by `UL`; every pub on the list with
+  no key, accepted form or worked solution in it; the test page holds no bank; for every lesson its first form's cards on the
+  test page are the copy's sheet, under the lesson's head; a whole lesson test through the stand-in (the site's, the bundle's
+  and the practice page's judge agree; the record's scope); one test open at a time; a hidden item's form left out; 390 px
+  dark; each lesson's form drawn again on a fresh copy, the same. `check/exam_show_page.js`: a lesson test shown and proved,
+  the head naming the lesson; refused without its scope or with a lesson the unit has not.
+- **Not secret:** a lesson's bank (~60 questions) is what its students practice on; a lesson test is a check on a lesson, not a
+  sealed unit test.
+- **A student page never changes:** `exam_lesson.js` is in `TEACHER_ONLY`; nothing a practice page is built from changed (M7
+  4, 7, 8, 9, 10 and A7 3, 4, 5, 6 built with a plain `build.py` on their old stamps: the same bytes, the same as published).

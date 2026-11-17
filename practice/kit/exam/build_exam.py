@@ -1,5 +1,5 @@
 """Practice-test kit: build one unit's test (15 Nov 2026; practice/exam/DESIGN.md).
-    NODE_PATH=$(npm root -g) python3 <kit>/exam/build_exam.py <unit folder> [--no-check] [--shots DIR] [--form URL|none]
+    NODE_PATH=$(npm root -g) python3 <kit>/exam/build_exam.py <unit folder> [--no-check] [--shots DIR] [--lshots DIR] [--form URL|none]
 
 Refuses unless kit/check/pack.js passes for the unit (every part judges the same after it is sent as text). Then writes, beside
 the unit's page (never touching the practice page, the teacher copy or their outputs):
@@ -51,9 +51,10 @@ if cfg.get("second"): cut("lang/" + cfg["second"], "<script>" + rk("lang/" + cfg
 for f in ("bilingual.js", "explain.js", "approvals.js", "exam_link.js"): cut(f, "<script>" + rk(f) + "</script>\n")
 body = body_ref[0]
 # the lesson bank goes; its key list (what the keypad may show) stays
-bank = re.search(r"<script>window\.CADENCE_BANK=.*?;window\.CADENCE_MAP=.*?;window\.KIT_KEYSET=(.*?);</script>\n", body, re.S)
+bank = re.search(r"<script>window\.CADENCE_BANK=(.*?);window\.CADENCE_MAP=(.*?);window\.KIT_KEYSET=(.*?);</script>\n", body, re.S)
 if bank:
-    body = body.replace(bank.group(0), "<script>window.KIT_KEYSET=" + bank.group(1) + ";</script>\n")
+    BANKDATA = {"bank": json.loads(bank.group(1)), "map": json.loads(bank.group(2)), "keyset": json.loads(bank.group(3))}   # for the lesson tests (step 4)
+    body = body.replace(bank.group(0), "<script>window.KIT_KEYSET=" + bank.group(3) + ";</script>\n")
     body = body.replace("<script>" + rk("bank.js") + "</script>\n", "", 1)
 # the page's own scripts wait for the test
 for f in ("pager.js", "scratch.js", "ui.js", "calc.js"):
@@ -97,10 +98,32 @@ while todo:
         todo.append(t)
 for f in sorted(seen):
     d = os.path.join(B, rel(f)); os.makedirs(os.path.dirname(d), exist_ok=True); shutil.copyfile(f, d)
+# the lesson tests (16 Nov 2026; DESIGN.md "Lesson tests"): a lesson form's items are bank.js's, so the site judges them with the
+# unit as bank.js makes it on the practice page (UL: the unit's judge and view wrapped, a bank item answered by bank.js) — bank.js
+# itself, as a module (kit/bank_node.js: its text in a function of a window), run on a copy of the unit with no bank at all (the
+# items carry their own keys). lessons: every lesson test the unit has, in the plan's order.
+LESSONS = []
+if bank:
+    fn = os.path.join(UD, ".exam_bank.json"); json.dump(BANKDATA, open(fn, "w", encoding="utf-8"), ensure_ascii=False)
+    r = subprocess.run(["node", "-e", "const L=require(process.argv[1]),b=require(process.argv[2]),w={Unit:Object.assign({},require(process.argv[3])),CADENCE_BANK:b.bank,CADENCE_MAP:b.map,KIT_KEYSET:b.keyset,Kit:Object.assign({},require(process.argv[4]))};w.Unit.view=Object.assign({},w.Unit.view);w.Unit.judge=Object.assign({},w.Unit.judge);new Function('window','localStorage',require('fs').readFileSync(process.argv[5],'utf8'))(w,undefined);process.stdout.write(JSON.stringify(w.Kit.Bank?L.lessonsOf(w.Kit.Bank):[]))",
+                        os.path.join(KIT, "exam_lesson.js"), fn, os.path.join(UD, "unit.js"), os.path.join(KIT, "core.js"), os.path.join(KIT, "bank.js")], capture_output=True, text=True)
+    if r.returncode: os.remove(fn); sys.exit("build_exam: the lessons could not be listed: " + r.stderr[-400:])
+    LESSONS = json.loads(r.stdout)
+if LESSONS:
+    open(os.path.join(B, "kit", "bank_node.js"), "w", encoding="utf-8").write(
+        "/* bank.js as a module, for the site's bundle (practice/kit/exam/build_exam.py; do not edit — build it again): its text, unchanged, in a\n"
+        "   function of the window it reads (window.Unit, window.Kit, window.CADENCE_BANK, window.CADENCE_MAP, window.KIT_KEYSET). */\n"
+        "module.exports = function (window, localStorage) {\n" + rk("bank.js") + "\n};\n")
+UL = ("" if not LESSONS else
+    "/* the unit as bank.js makes it on the practice page, to judge a lesson test's items (they carry their keys: no bank is loaded) */\n"
+    "function lessonUnit() {\n  const U = require('./" + UNAME + "/unit.js'), w = { Unit: Object.assign({}, U, { view: Object.assign({}, U.view), judge: Object.assign({}, U.judge) }),\n"
+    "    CADENCE_BANK: { lessons: {} }, CADENCE_MAP: { order: [], lessons: {} }, Kit: Object.assign({}, require('./kit/core.js')) };\n"
+    "  require('./kit/bank_node.js')(w, undefined);\n  return w.Unit;\n}\n")
 open(os.path.join(B, "index.js"), "w", encoding="utf-8").write(
-    "/* " + TITLE + ": the site's bundle (practice/kit/exam/build_exam.py; do not edit — build it again). */\n'use strict';\n"
+    "/* " + TITLE + ": the site's bundle (practice/kit/exam/build_exam.py; do not edit — build it again). */\n'use strict';\n" + UL +
     "module.exports = { course: " + json.dumps(COURSE) + ", unit: " + str(UNIT) + ", cv: " + json.dumps(info["cv"]) + ", kit: " + json.dumps(KITV) + ",\n"
-    "  U: require('./" + UNAME + "/unit.js'), server: require('./kit/exam/server.js'), pack: require('./kit/pack.js') };\n")
+    "  U: require('./" + UNAME + "/unit.js'), server: require('./kit/exam/server.js'), pack: require('./kit/pack.js'),\n"
+    "  UL: " + ("lessonUnit()" if LESSONS else "null") + ", lessons: " + json.dumps(LESSONS, ensure_ascii=False) + " };\n")
 # one drawn test, as the page draws its ITEMS (ui.js render: the whole test), packed, with its keys as the answers
 SAMPLE = r"""
 const path = require('path'), B = process.argv[1], U = require(path.join(B, process.argv[2], 'unit.js')), P = require(path.join(B, 'kit', 'pack.js'));
@@ -123,12 +146,39 @@ open(os.path.join(B, "sample.json"), "w", encoding="utf-8").write(r.stdout)
 r = subprocess.run(["node", "-e", "const b=require(process.argv[1]),s=require(process.argv[1]+'/sample.json'),it=s.priv.map(t=>b.pack.unpack(t));let v=[];for(let i=0;i<it.length;i+=2)v=v.concat(b.server.grade(b.U,it,s.answers,v,i,2));const m=b.server.summary(it,v);if(m.points!==m.of){console.error(m);process.exit(1)}console.log('bundle: '+Object.keys(require.cache).length+' modules, the sample '+m.points+' / '+m.of)", B], capture_output=True, text=True)
 print(r.stdout.strip() or r.stderr.strip()[-400:])
 if r.returncode: sys.exit("REFUSED: the bundle does not judge its own sample right")
-print("test_bundle/:", len(seen), "files")
+# a lesson test too: one drawn on one lesson, as the teacher copy draws it (exam_lesson.js), judged by UL every part right
+if LESSONS:
+    LSAMPLE = r"""
+const path = require('path'), fs = require('fs'), [B, UN, KITD, BJ] = process.argv.slice(1), U = require(path.join(B, UN, 'unit.js'));
+const P = require(path.join(B, 'kit', 'pack.js')), NL = require(path.join(B, 'kit', 'nline.js')), CG = require(path.join(B, 'kit', 'cgraph.js')), L = require(path.join(KITD, 'exam_lesson.js')), LET = 'ABCDEFGH';
+const bd = JSON.parse(fs.readFileSync(BJ, 'utf8')), w = { Unit: Object.assign({}, U, { view: Object.assign({}, U.view), judge: Object.assign({}, U.judge) }), CADENCE_BANK: bd.bank, CADENCE_MAP: bd.map, KIT_KEYSET: bd.keyset, Kit: Object.assign({}, require(path.join(B, 'kit', 'core.js'))) };
+require(path.join(B, 'kit', 'bank_node.js'))(w, undefined);
+const KB = w.Kit.Bank, UB = w.Unit, ls = L.lessonsOf(KB), scope = ls[require('crypto').randomInt(ls.length)].scope, seed = require('crypto').randomBytes(16).toString('hex');
+const g = L.setOf(w.Kit, U.id, KB, scope, seed), out = [], ans = {}; let qn = 0;
+const tt = p => p.kind === 'mc' ? 'mc' : p.kind === 'nline' ? 'nline' : p.kind === 'cgraph' ? 'cgraph' : 'text';
+const kt = it => it.type === 'nline' ? NL.keyText(NL.graphOf(it.x)) : it.type === 'cgraph' ? CG.keyText(CG.graphOf(it.x)) : it.type === 'mc' ? LET[it.x.correct] : it.type === 'multi' ? it.x.correct.map(k => LET[k]).join(',') : UB.keyText(it.x);
+const ka = it => it.type === 'nline' ? NL.graphOf(it.x) : it.type === 'cgraph' ? CG.graphOf(it.x) : it.type === 'mc' ? it.x.correct : it.type === 'multi' ? it.x.correct.slice() : UB.keyText(it.x);
+g.sections.forEach((sec, si) => sec.items.forEach((it, ii) => { qn++;
+  if (it.type === 'parts') it.parts.forEach((p, pi) => out.push({ id: qn + p.label, type: tt(p), x: p, sib: pi > 0 ? qn + it.parts[0].label : null, sibPart: pi > 0 ? it.parts[0] : null, aShown: true, pos: si + '.' + ii + '.' + pi, lab: qn + p.label }));
+  else if (it.type === 'solo') out.push({ id: String(qn), type: tt(it.part), x: it.part, sib: null, sibPart: null, aShown: true, pos: si + '.' + ii + '.-1', lab: String(qn) });
+  else out.push({ id: String(qn), type: it.type === 'multi' ? 'multi' : 'mc', x: it, sib: null, sibPart: null, aShown: true, pos: si + '.' + ii + '.-1', lab: String(qn) }); }));
+out.forEach(it => { ans[it.id] = ka(it); it.keyText = kt(it); });
+process.stdout.write(JSON.stringify({ seed, scope, priv: out.map(it => P.pack(it)), answers: ans }));
+"""
+    r = subprocess.run(["node", "-e", LSAMPLE, B, UNAME, KIT, fn], capture_output=True, text=True); os.remove(fn)
+    if r.returncode: sys.exit("build_exam: the lesson sample could not be drawn: " + r.stderr[-400:])
+    open(os.path.join(B, "lesson_sample.json"), "w", encoding="utf-8").write(r.stdout)
+    r = subprocess.run(["node", "-e", "const t0=Date.now(),b=require(process.argv[1]),s=require(process.argv[1]+'/lesson_sample.json'),it=s.priv.map(t=>b.pack.unpack(t));let v=[];for(let i=0;i<it.length;i+=2)v=v.concat(b.server.grade(b.UL,it,s.answers,v,i,2));const m=b.server.summary(it,v);if(m.points!==m.of||!b.lessons.some(l=>l.scope===s.scope)){console.error(m);process.exit(1)}console.log('bundle: '+b.lessons.length+' lesson tests; the lesson sample ('+s.scope+') '+m.points+' / '+m.of+', loaded and judged in '+(Date.now()-t0)+' ms')", B], capture_output=True, text=True)
+    print(r.stdout.strip() or r.stderr.strip()[-400:])
+    if r.returncode: sys.exit("REFUSED: the bundle does not judge its lesson sample right")
+elif bank: os.remove(fn)
+print("test_bundle/:", len(seen) + (1 if LESSONS else 0), "files,", sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(B) for f in fs), "bytes")
 
 # 5. the checks
 if "--no-check" not in sys.argv:
     extra = sys.argv[sys.argv.index("--shots"):sys.argv.index("--shots") + 2] if "--shots" in sys.argv else []   # screenshots, for a look
     if "--form" in sys.argv: extra += sys.argv[sys.argv.index("--form"):sys.argv.index("--form") + 2]
+    if "--lshots" in sys.argv: extra += sys.argv[sys.argv.index("--lshots"):sys.argv.index("--lshots") + 2]   # a lesson test's screenshots
     r = subprocess.run(["node", os.path.join(KIT, "check", "exam_page.js"), UD] + extra, env=dict(os.environ))
     if r.returncode: sys.exit("FAILED: check/exam_page.js")
     print("TEST BUILT AND CHECKED — " + FILE)

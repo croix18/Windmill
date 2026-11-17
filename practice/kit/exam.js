@@ -139,7 +139,17 @@ function showGo(open){
 function shake(el){ if (el.tagName === 'INPUT') el.value = ''; el.classList.remove('exshake'); void el.offsetWidth; el.classList.add('exshake'); try { el.focus(); } catch(e){} }
 function status(then){
   call('GET', '/status?course=' + encodeURIComponent(CFG.course) + '&unit=' + encodeURIComponent(CFG.unit), undefined, {anon: true})
-    .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); PIN = OPEN && !!(r.j && r.j.pin); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }, true); });
+    .then(function(r){ mended(); OPEN = !!(r.j && r.j.open); PIN = OPEN && !!(r.j && r.j.pin); lessonHead(OPEN && r.j && r.j.scope ? r.j : null); if (then) then(OPEN); }, function(){ fail(function(){ status(then); }, true); });
+}
+/* a lesson test (16 Nov 2026; DESIGN.md "Lesson tests"): the site says which test of the unit is open; before Start the head is the
+   lesson's ("GRADE 7 MATH · UNIT 10 · LESSON 10.03", its title, "LESSON&nbsp;10.03" on one line), as the test itself will show it */
+function esc2(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); }
+function lessonHead(j){
+  if (PHASE !== 'pre') return;
+  var eb = $('eyebrow'), h1 = $('h1'); if (!eb || !h1) return;
+  if (!j){ eb.innerHTML = CFG.eyebrow || ''; h1.innerHTML = CFG.h1 || ''; return; }
+  var nm = String(j.name || ''), cut = nm.indexOf(' · '), what = cut > 0 ? nm.slice(0, cut) : nm, title = cut > 0 ? nm.slice(cut + 3) : '';
+  eb.innerHTML = (CFG.eyebrow || '') + (what ? ' &nbsp;·&nbsp; ' + esc2(what).replace(/ /g, '&nbsp;') : ''); h1.innerHTML = title ? esc2(title) : (CFG.h1 || '');
 }
 function strip(j){ var o = {}; ['test', 'started', 'rule', 'show', 'form', 'pub', 'n'].forEach(function(k){ if (j && j[k] !== undefined) o[k] = j[k]; }); return o; }
 /* Start (and New test): one press, one request. A refused code, or a test this browser already finished in this opening, shakes
@@ -181,7 +191,11 @@ function mount(j){
   var pub = ST.start.pub;
   seedSet(j);
   var eb = String(pub.eyebrow || '').replace(/(\s|&nbsp;)*·(\s|&nbsp;)*Practice(\s+Test)?\s*$/i, '');
-  window.Unit = K.ExamUnit.make(Object.assign({}, pub, {eyebrow: eb, title: CFG.title || pub.title}));
+  window.Unit = K.ExamUnit.make(Object.assign({}, pub, {eyebrow: eb, title: pub.scope ? pub.title : CFG.title || pub.title}));
+  /* a lesson test: ui.js asks Kit.Bank for a lesson item's ID ("U10·L3·7"); the stub's items carry it (exam_unit.js), and nothing
+     else of bank.js is on this page (the keypad's lesson keys are in the pub's keypad) */
+  if (pub.scope) window.Kit.Bank = {scopes: function(){}, isLesson: function(){ return false; }, shown: function(){ return false; }, keys: function(){ return []; },
+    qid: function(item){ return {id: String(item && item.bank && item.bank.qid || '')}; }, keypad: []};
   window.KIT_EXAM = {id: ST.test, page: page, saved: saved, read: read, preview: preview, elapsed: elapsed, finish: finish, result: function(){ paintResult(); }};
   document.body.classList.remove('exam-pre');
   Array.prototype.forEach.call(document.querySelectorAll('script[type="text/x-kit-held"]'), function(s){

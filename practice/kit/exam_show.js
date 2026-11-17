@@ -3,7 +3,9 @@
    Tally opens the unit's teacher copy at …/practice/#test=<payload> in a new tab; this page then shows, in place of the practice
    page, every question of that student's test exactly as the page drew it for the record's seed, with what the student
    answered, the verdict and the key under each part.
-     payload = base64url(UTF-8 JSON) {v: 1, course, unit, seed, cv, kit, code, points, of, parts: [[id, answer, result, key], …]}
+     payload = base64url(UTF-8 JSON) {v: 1, course, unit, seed, cv, kit, code, points, of, parts: [[id, answer, result, key], …],
+               scope?}   scope: a lesson test's ("lesson-10.03"; DESIGN.md "Lesson tests", 16 Nov 2026), drawn again from the seed
+               and the scope (Kit.ExamLesson, exam_lesson.js), and the head says the lesson; none or '' for the unit's test
    - Read before ui.js runs (openSet writes #set-N); the address is put back to #test=… once the page is drawn, so a reload shows
      the same thing. Without #test= this file does nothing at all.
    - The seed is drawn again with the page's own machinery (Kit.ExamPool.draw, as the cockpit's pool was drawn: the same cards
@@ -54,7 +56,8 @@ function readPayload(raw){
       var key = p[3]; if (!(typeof key === 'string' || (Array.isArray(key) && key.length <= 50 && key.every(function(k){ return typeof k === 'string'; })))) return null;
       parts.push({id: p[0], answer: p[1] == null ? '' : txt(p[1]), result: ['right', 'almost', 'wrong', 'blank', 'unread'].indexOf(p[2]) >= 0 ? p[2] : 'unread', key: key});
     }
-    return {course: o.course, unit: o.unit, seed: o.seed, cv: o.cv, kit: txt(o.kit), code: txt(o.code).replace(/[^0-9A-Za-z]/g, '').toUpperCase().slice(0, 12),
+    if (o.scope != null && o.scope !== '' && (typeof o.scope !== 'string' || !/^lesson-[0-9A-Za-z.+-]{1,40}$/.test(o.scope))) return null;
+    return {scope: o.scope || '', course: o.course, unit: o.unit, seed: o.seed, cv: o.cv, kit: txt(o.kit), code: txt(o.code).replace(/[^0-9A-Za-z]/g, '').toUpperCase().slice(0, 12),
       points: typeof o.points === 'number' && isFinite(o.points) ? o.points : null, of: typeof o.of === 'number' && isFinite(o.of) ? o.of : null, parts: parts};
   } catch(e){ return null; }
 }
@@ -87,10 +90,13 @@ function show(){
   if (!P) return refuse(U, 'This link doesn’t hold a test.');
   var mu = /^([a-z]+\d+)u(\d+)$/.exec(U.id || ''), here = mu ? mu[1].toUpperCase() + ' Unit ' + mu[2] : 'this unit';
   if (!mu || mu[1] !== P.course || +mu[2] !== P.unit) return refuse(U, 'This link is for ' + P.course.toUpperCase() + ' Unit ' + P.unit + '; this is ' + here + '.');
-  var form, items, sheet, keys = {};
+  var form, items, sheet, keys = {}, EL = window.Kit.ExamLesson;
+  if (P.scope && !(EL && EL.lessons().some(function(l){ return l.scope === P.scope; }))) return refuse(U, 'This unit has changed since this test was taken, so its questions can’t be redrawn here. Tally still has every answer and key.');
   try {
-    form = window.Kit.ExamPool.draw(1, [P.seed])[0]; items = form.priv.map(function(t){ return window.Kit.unpack(t); }); sheet = window.Kit.ExamPool.sheet(P.seed);
-    window.PracticeKit.draw([P.seed], function(seed, ITEMS){ ITEMS.forEach(function(it){ try { keys[it.id] = window.PracticeKit.keyHtml(it); } catch(e){} }); });
+    var keysOf = function(){ window.PracticeKit.draw([P.seed], function(seed, ITEMS){ ITEMS.forEach(function(it){ try { keys[it.id] = window.PracticeKit.keyHtml(it); } catch(e){} }); }); };
+    if (P.scope){ form = EL.draw(1, P.scope, [P.seed])[0]; EL.withSet(P.scope, [P.seed], keysOf); }
+    else { form = window.Kit.ExamPool.draw(1, [P.seed])[0]; keysOf(); }
+    items = form.priv.map(function(t){ return window.Kit.unpack(t); }); sheet = window.Kit.ExamPool.sheet(P.seed);
   } catch(e){ return refuse(U, 'This unit has changed since this test was taken, so its questions can’t be redrawn here. Tally still has every answer and key.'); }
   var proved = sheet && items.length === P.parts.length && items.every(function(it, i){ return it.id === P.parts[i].id && sameKey(it.keyText, P.parts[i].key); });
   if (!proved) return refuse(U, 'This unit has changed since this test was taken, so its questions can’t be redrawn here. Tally still has every answer and key.');
@@ -101,8 +107,10 @@ function draw(U, P, form, items, sheet, keys){
   var head = el('header', 'xshead'), top = el('div', 'xstop');
   var titles = el('div', 'xstitles');
   titles.appendChild(el('p', 'xseye', 'Test as drawn'));
-  titles.appendChild(el('h1', 'xsh1', unitName(U) || (P.course.toUpperCase() + ' Unit ' + P.unit)));
-  var h1 = document.createElement('div'); h1.innerHTML = U.h1 || ''; var sub = (h1.textContent || '').trim(); if (sub) titles.appendChild(el('p', 'xssub', sub));
+  var L = P.scope && form.pub && form.pub.lesson, nm = L ? String(L.name || '') : '', cut = nm.indexOf(' · ');   /* a lesson test: "M7 Unit 10 · Lesson 10.03", its title */
+  var what = L ? (cut > 0 ? nm.slice(0, cut) : nm) : '', name = (unitName(U) || (P.course.toUpperCase() + ' Unit ' + P.unit)) + (what ? ' · ' + what : '');
+  titles.appendChild(el('h1', 'xsh1', name));
+  var h1 = document.createElement('div'); h1.innerHTML = L ? form.pub.h1 || '' : U.h1 || ''; var sub = (h1.textContent || '').trim(); if (sub) titles.appendChild(el('p', 'xssub', sub));
   top.appendChild(titles);
   var acts = el('div', 'xsacts'), pr = el('button', 'go xsprint', 'Print'); pr.type = 'button'; pr.addEventListener('click', function(){ window.print(); });
   acts.appendChild(pr); acts.appendChild(back()); top.appendChild(acts); head.appendChild(top);
@@ -143,13 +151,14 @@ function draw(U, P, form, items, sheet, keys){
     kk.appendChild(kv); row.appendChild(kk);
     host.appendChild(row);
   });
-  document.title = 'Test as drawn · ' + (unitName(U) || '') + (P.code ? ' · ' + code4(P.code) : '');
+  document.title = 'Test as drawn · ' + name + (P.code ? ' · ' + code4(P.code) : '');
   document.documentElement.classList.remove('xshowing'); keepAddress(); window.scrollTo(0, 0);
-  window.Kit.ExamShow = {state: 'shown', cards: cards, seed: P.seed};
+  window.Kit.ExamShow = {state: 'shown', cards: cards, seed: P.seed, scope: P.scope};
 }
 /* once the page and its pool are up (ui.js may wait for the approvals first, which here refuse at once) */
 (function wait(n){
-  if (window.PracticeKit && window.PracticeKit.draw && window.Kit.ExamPool && window.Unit) return setTimeout(function(){ try { show(); } catch(e){ refuse(window.Unit, 'This test can’t be shown here. Tally still has every answer and key.'); } }, 0);
+  var P0 = readPayload(RAW), lesson = !!(P0 && P0.scope);   /* a lesson test waits for exam_lesson.js too (it starts once the pool is up) */
+  if (window.PracticeKit && window.PracticeKit.draw && window.Kit.ExamPool && window.Unit && (!lesson || window.Kit.ExamLesson || (n > 40 && !window.Kit.Bank))) return setTimeout(function(){ try { show(); } catch(e){ refuse(window.Unit, 'This test can’t be shown here. Tally still has every answer and key.'); } }, 0);
   if (n < 600) setTimeout(function(){ wait(n + 1); }, 50);
   else refuse(window.Unit, 'This test can’t be shown here. Tally still has every answer and key.');
 })(0);

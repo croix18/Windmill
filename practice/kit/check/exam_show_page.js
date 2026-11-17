@@ -8,6 +8,9 @@
    - nothing in localStorage or sessionStorage changed, and no request left the page;
    - refused, with its one line and no card: a key changed, another unit's payload, junk; a content version that differs: the
      test with its one quiet line;
+   - a lesson test (16 Nov 2026; DESIGN.md "Lesson tests"), where the unit has a lesson bank: a seed drawn on one lesson
+     (Kit.ExamLesson.draw) and its payload with scope: the cards are that lesson test's sheet, every part with its key, the head
+     names the lesson; the same payload without its scope, or with a lesson the unit has not, refused;
    - without #test= nothing is different: no view, #set-N as before;
    - the student page (the folder above) does not hold exam_show.js.
    With --shots: light, dark, 400 px, the print as a PDF, and a refused line. */
@@ -100,6 +103,36 @@ if (!m) { console.log('exam show: not a unit id'); process.exit(1); }
     await pn.screenshot({ path: path.join(SHOTS, U.id + '-show-400-dark.png'), fullPage: true });
     const cl = await ctxOf({ viewport: { width: 400, height: 860 }, hasTouch: true, isMobile: true }), pl = watch(await cl.newPage()); await pl.goto(base + '#test=' + payload()); await shown(pl); await pl.screenshot({ path: path.join(SHOTS, U.id + '-show-400-light.png'), fullPage: false });
     await cn.close(); await cl.close(); }
+  /* a lesson test (16 Nov 2026): the seed and the scope */
+  const LS = await (async () => { const q = watch(await c.newPage()); await q.goto(base); await q.waitForFunction(() => window.Kit && Kit.ExamPool && window.PracticeKit, null, { timeout: 60000 });
+    await q.waitForFunction(() => Kit.ExamLesson || !Kit.Bank, null, { timeout: 30000 }).catch(() => {});
+    const r = await q.evaluate(() => { if (!Kit.ExamLesson) return null; const ls = Kit.ExamLesson.lessons(), L = ls.filter(l => l.day)[0] || ls[Math.floor(ls.length / 2)];
+      const f = Kit.ExamLesson.draw(1, L.scope)[0], items = f.priv.map(t => Kit.unpack(t));
+      return { L, seed: f.seed, cv: f.pub.cv, kit: f.pub.kit, h1: f.pub.h1, items: items.map(it => ({ id: it.id, key: it.keyText })), sheet: Kit.ExamLesson.sheet(f.seed), n: ls.length }; });
+    await q.close(); return r; })();
+  if (!LS) ok('no lesson bank here: no lesson test to show');
+  else {
+    const lparts = LS.items.map((it, i) => [it.id, RES[i % 5] === 'blank' ? '' : (Array.isArray(it.key) ? it.key.join(', ') : String(it.key)), RES[i % 5], it.key]);
+    const lpay = o => b64u(JSON.stringify(Object.assign({ v: 1, course: m[1], unit: +m[2], seed: LS.seed, scope: LS.L.scope, cv: LS.cv, kit: LS.kit, code: 'M3PX7RQ2HV8C', points: 5, of: LS.items.length, parts: lparts }, o || {})));
+    const pl = watch(await c.newPage()); await pl.goto(base + '#test=' + lpay()); const sl = await shown(pl);
+    const rl = await pl.evaluate(([sheet, items]) => {
+      const strip = h => { const t = document.createElement('template'); t.innerHTML = h; const e = t.content.firstElementChild; [e].concat(Array.from(e.querySelectorAll('*'))).forEach(x => ['tabindex', 'disabled', 'aria-disabled'].forEach(a => x.removeAttribute(a))); return e.outerHTML; };
+      const cards = Array.from(document.querySelectorAll('#xShow .q[data-q]')).map(q => { const cl = q.cloneNode(true); cl.querySelectorAll('.xsa').forEach(x => x.remove()); return strip(cl.outerHTML); });
+      return { same: cards.length === sheet.length && cards.every((h, i) => h === strip(sheet[i])), n: cards.length, keys: items.filter(it => { const r = document.querySelector('#xShow [data-xs="' + it.id + '"] .xskv'); return r && r.textContent.trim(); }).length,
+        h1: document.querySelector('#xShow .xsh1').textContent, sub: (document.querySelector('#xShow .xssub') || {}).textContent || '', title: document.title, scope: Kit.ExamShow.scope };
+    }, [LS.sheet, LS.items]);
+    const what = LS.L.name.split(' · ')[0];
+    if (sl.state !== 'shown' || !rl.same || rl.keys !== LS.items.length || rl.scope !== LS.L.scope || rl.h1.indexOf(' · ' + what) < 0 || rl.sub !== LS.L.title.replace(/<[^>]*>/g, '') && rl.sub.indexOf(LS.L.title) < 0)
+      fail('a lesson test (' + LS.L.scope + '): ' + JSON.stringify(Object.assign({ state: sl.state }, rl, { want: LS.L })));
+    else ok('a lesson test (' + LS.L.scope + ', of ' + LS.n + '): ' + rl.n + ' cards, its sheet exactly; ' + rl.keys + ' parts with their keys; the head “' + rl.h1 + '” over “' + rl.sub + '”');
+    if (SHOTS) { await pl.screenshot({ path: path.join(SHOTS, U.id + '-show-lesson-light.png'), fullPage: true }); await pl.emulateMedia({ colorScheme: 'dark' }); await pl.screenshot({ path: path.join(SHOTS, U.id + '-show-lesson-dark.png'), fullPage: false }); }
+    await pl.close();
+    for (const [what2, pay] of [['the lesson test\'s payload without its scope', lpay({ scope: undefined })], ['a lesson the unit has not', lpay({ scope: 'lesson-99.01' })], ['a scope that is not one', lpay({ scope: '<b>x</b>' })]]) {
+      const pr = watch(await c.newPage()); await pr.goto(base + '#test=' + pay); const x = await shown(pr);
+      if (x.state !== 'refused' || x.cards) fail(what2 + ': ' + JSON.stringify(x)); await pr.close();
+    }
+    ok('refused: the lesson test\'s payload without its scope, a lesson the unit has not, a scope that is not one');
+  }
   /* refused, with its line, and never a card */
   const k1 = parts.map((x, i) => i === Math.min(5, parts.length - 1) ? [x[0], x[1], x[2], Array.isArray(x[3]) ? x[3].concat('1') : x[3] + '1'] : x);
   const cases = [

@@ -26,7 +26,7 @@ KITFILES = ["core.js", "nline.js", "cgraph.js", "judge.js", "bilingual.js", "ui.
 TEACHER = any(s.replace("\\", "/").endswith("kit/teacher.js") for s in cfg["scripts"])
 # the test as drawn (16 Nov 2026; kit/exam_show.js, exam_show.css): a teacher copy only, and hashed for a teacher copy only, so a
 # student page's sources — and its CHECKED stamp — are exactly what they were
-TEACHER_ONLY = ["exam_show.js", "exam_show.css"]
+TEACHER_ONLY = ["exam_show.js", "exam_show.css", "exam_lesson.js"]   # and a test on one lesson (16 Nov 2026, 8:12 pm)
 
 # a lesson's practice from Cadence (7 Nov 2026): the unit's bank/ (Windmill tools/cadence_bank.py) — the student page's own
 # folder, or for a teacher copy its unit's — is inlined, as everything is: the page loads nothing
@@ -124,7 +124,7 @@ def kit_version():
 def exam_pool_scripts():
     req = "var module={exports:{}},Kit=window.Kit,R={'../core.js':Kit,'../nline.js':Kit.NL,'../cgraph.js':Kit.CG,'../judge.js':{Judge:Kit.Judge}};var require=function(p){if(!(p in R))throw new Error('exam/server.js: '+p);return R[p];};"
     return (f"<script>window.KIT_V={json.dumps(kit_version())};</script>\n<script>{rk('pack.js')}</script>\n"
-            f"<script>(function(){{{req}\n{rk('exam/server.js')}\nKit.ExamServer=module.exports;}})();</script>\n<script>{rk('exam_pool.js')}</script>\n")
+            f"<script>(function(){{{req}\n{rk('exam/server.js')}\nKit.ExamServer=module.exports;}})();</script>\n<script>{rk('exam_pool.js')}</script>\n<script>{rk('exam_lesson.js')}</script>\n")
 if "--force" not in sys.argv:
     ok = os.path.exists(os.path.join(UD, "CHECKED")) and open(os.path.join(UD, "CHECKED")).read().split()[0] == source_hash()
     if not ok: sys.exit("build: the checks have not passed for these sources — run the unit's checks first (or --force for a look only)")
