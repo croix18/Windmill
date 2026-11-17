@@ -56,7 +56,7 @@ the practice kit could take it: *"Publish and yes move it to windmill"*.
 - 22 of the Grade 8 released test's pictures on the site are still screenshots of the test online. Drawing them is a set
   file for the booklet's pages (they are in the 15 Nov dump) — not asked for.
 
-## Lesson tests and school accounts (16–17 Nov 2026, 9 pm–1 am): lesson tests are live on the site; Tally's build with them is NOT pushed yet (third review round)
+## Lesson tests and school accounts (16–17 Nov 2026, 9 pm–3:15 am): lesson tests live on the site; Tally with them on main; accounts learn and suggest, they do not place
 
 Session `session_01W9n2WyAa6qRsqsdQj871ge`, after "After his first dummy run" below.
 
@@ -95,7 +95,7 @@ lesson has none; a two-lesson day 3 + 1 and 3 + 1), a pure function of unit, les
   checks (every lesson choice drawn and proved; the kit's page check passes against the site's handlers). Croix should take a
   lesson test himself before a class does.
 
-**School accounts in Tally (built, not shipped).** Tally reads the Email Address column, learns address → student (from a certain name
+**School accounts in Tally (shipped 3:14 am as suggestions only: Tally main `f9b3f19`, Tally.html SHA-256 `48d8a41e…abeeb56`, suite 78 · 2,557 · 0).** Tally reads the Email Address column, learns address → student (from a certain name
 whose address agrees, or from his answer), then places by the account and asks whenever the row's own evidence points
 elsewhere. The first build failed an adversarial review (`/home/claude/reviews/tally-accounts/REVIEW.md` in the session; the
 findings and the rules are in Tally's NOTES): a learned account outranked a typed name that pointed at someone else, and an
@@ -104,17 +104,17 @@ account could be learned for the wrong student. Fixed in `96eff4b` and `9384f70`
 first fix (a classmate's exact name typed on a look-alike's learned account was placed with no question), and N2–N8. The rule
 is now a table (when a learned account may place a row: only when the account's student matches the typed name and nobody
 matches it strictly better; a blank name goes to the account; everything else asks; a row whose basis moved is judged again),
-and the random-sequence suite's oracle is to be written from that table, not from the code. **Tally main is still `6444eed`**:
-it reads a lesson test's record as its unit's test, so a lesson test's code must not be pasted into it (Croix was told at
-11:36 pm). Tally's `tests` branch holds, in order: school accounts (`96adce6`…`7183562`), lesson tests (`3068955`: course +
+and the random-sequence suite's oracle is to be written from that table, not from the code. Until 3:14 am Tally main was `6444eed`, which reads a lesson test's record as its unit's test (Croix was told at 11:36 pm
+not to paste lesson codes into it; the new build re-reads every record each session and files it by its scope). Tally's `tests` branch holds, in order: school accounts (`96adce6`…`7183562`), lesson tests (`3068955`: course +
 unit + scope is the test; See the test carries the scope; suite 77 · 2,515 · 0 at that point), the review fixes. A third review
 (`/home/claude/reviews/tally-accounts3/REVIEW3.md`) found one more way for the account to outvote the name ("Ali K." from
 Alice Khanna's account). **Decision, 2:10 am: in the shipped build an account never places a row by itself; it learns and it
 suggests (one press), behind one switch that the suites can turn on.** The rule to try when placement is turned on is token
-dominance (in Tally's NOTES), with an oracle written from the sentence, not from the code. Push Tally to main only when the
-whole suite has passed on the final commit and the third review's first-paste and second-paste probes show no row placed by an
-account and no row placed where `6444eed` would have asked; then tell him to make a Full save, download Tally again and open
-the save.
+dominance (in Tally's NOTES), with an oracle written from the sentence, not from the code. That was done: on `99841e8` the whole suite passed and the third review's probes
+(run by the coordinator on a copy) showed, for a first paste of 69 rows against `6444eed`, 59 the same, 10 where the new build
+asks, 0 placed by an account and 0 placed where the old build asked; the second paste, every line held. **Next for accounts:**
+build token dominance behind the switch, write its oracle from the sentence, have it reviewed from outside, and only then turn
+`ACCOUNT_PLACES` on. He has been told that for now Tally suggests the student from the account and he confirms with one press.
 
 **Rules learned tonight (for whoever builds next).**
 - Rebuild queue: a unit's teacher copy before its test. The test's check loads the unit's teacher copy; with an old copy it
