@@ -56,6 +56,64 @@ the practice kit could take it: *"Publish and yes move it to windmill"*.
 - 22 of the Grade 8 released test's pictures on the site are still screenshots of the test online. Drawing them is a set
   file for the booklet's pages (they are in the 15 Nov dump) — not asked for.
 
+## Lesson tests and school accounts (16–17 Nov 2026, 9 pm–1 am): lesson tests are live on the site; Tally's build with them is NOT pushed yet (third review round)
+
+Session `session_01W9n2WyAa6qRsqsdQj871ge`, after "After his first dummy run" below.
+
+**What he asked.** 8:12 pm: *"Once that's completely done, I want you to apply that across all of the practice tests, so I can
+test on a specific unit or lesson to test on."* Asked what a lesson's test should hold: *"8, like a practice set."* 8:22 pm:
+*"the Google form I can force them to use a managed account ie their school account so I should be able to easily id who
+submits the form"*; asked what an address looks like: *"It's their name but also sometimes abbreviated and mixed. So also
+learn. I can help assign the first time."*
+
+**Lesson tests (live).** The same locked test on one lesson's 8 bank questions (6 regular + 2 high rigor; 8 regular where a
+lesson has none; a two-lesson day 3 + 1 and 3 + 1), a pure function of unit, lesson and a 128-bit seed.
+- Kit `f322aa1` (version `3f3540b015d8`), `practice/exam/DESIGN.md` "6. Lesson tests": `exam_lesson.js` (teacher copies only)
+  draws them for the cockpit (`{lessonDraw: n, scope}`; the copy says `{lessons: [...]}` after `ready`); the test page shows a
+  lesson from the site's answer and holds nothing of the bank; the bundle judges with `UL` (bank.js's judging as a module, no
+  bank data), lists `lessons`, and carries `lesson_sample.json`. A unit test and its record are exactly as they were. No file
+  a student page is built from changed (18 pages proved byte-identical; every unit rebuilt on its old stamp).
+- Scope ids are bank.js's own: `lesson-10.03`, `lesson-10.09+10`, `lesson-t-a1`. A lesson test's record ends with `scope` and
+  `scopeName`; a unit test's record has neither. One test of a unit is open at a time.
+- Courses: M7 `b5a88ca`, A7 `739bd9b2` (every teacher copy re-run, every test rebuilt and checked with every lesson choice:
+  M7 4, 8, 9, 10 and A7 3, 4, 5, 6; M7 5, 7, 13 and A7 11 have no bank).
+- Site main `0d751c0`, deployed 11:34 pm (Workers Builds success). `EXAM_NOTES.md` decisions 45–46. The store has a scope on
+  the pool, the opening and the test (guarded ALTERs); one pool per unit holds one scope at a time. The Test card: a Lessons
+  disclosure under each unit that has them, today's lesson first. Start-up 260–290 ms with all seven lesson bundles (gate
+  600); the Worker 1.06 MB gzipped.
+- `tools/test_upgrade.mjs` (the site): the deployed code, then the new code, then the deployed code again on ONE wrangler dev
+  store. Run it for every store change. Tonight: all held. **Rolling back past lesson tests: close every lesson test first**
+  (the old code would hand out an open lesson's forms as the unit's test and judge them with the unit's judge).
+- **Not secret, and he has been told:** a lesson's bank is about 60 fixed questions students also practice on.
+- **Not reviewed by an outside reviewer yet** (the unit test had three rounds). The kit's and the site's own checks are wide
+  (every lesson choice drawn and proved; the kit's page check passes against the site's handlers; the upgrade check), but
+  an adversarial pass on the lesson path is the next thing worth doing. Croix should take one himself before a class does.
+
+**School accounts in Tally (built, not shipped).** Tally reads the Email Address column, learns address → student (from a certain name
+whose address agrees, or from his answer), then places by the account and asks whenever the row's own evidence points
+elsewhere. The first build failed an adversarial review (`/home/claude/reviews/tally-accounts/REVIEW.md` in the session; the
+findings and the rules are in Tally's NOTES): a learned account outranked a typed name that pointed at someone else, and an
+account could be learned for the wrong student. Fixed in `96eff4b` and `9384f70`; a second review
+(`/home/claude/reviews/tally-accounts2/REVIEW2.md`) closed seven of nine and found one new Critical, a regression from the
+first fix (a classmate's exact name typed on a look-alike's learned account was placed with no question), and N2–N8. The rule
+is now a table (when a learned account may place a row: only when the account's student matches the typed name and nobody
+matches it strictly better; a blank name goes to the account; everything else asks; a row whose basis moved is judged again),
+and the random-sequence suite's oracle is to be written from that table, not from the code. **Tally main is still `6444eed`**:
+it reads a lesson test's record as its unit's test, so a lesson test's code must not be pasted into it (Croix was told at
+11:36 pm). Tally's `tests` branch holds, in order: school accounts (`96adce6`…`7183562`), lesson tests (`3068955`: course +
+unit + scope is the test; See the test carries the scope; suite 77 · 2,515 · 0 at that point), the review fixes. Push it to
+main only when a review of the accounts rule comes back clean and the whole suite has passed on the final commit; then tell
+him to make a Full save, download Tally again and open the save.
+
+**Rules learned tonight (for whoever builds next).**
+- Rebuild queue: a unit's teacher copy before its test. The test's check loads the unit's teacher copy; with an old copy it
+  fails ("the teacher copy never said its lessons"), and with See the test it would have passed on the wrong build.
+- Other sessions push to the site too (tonight: the videos `70e204f`, Deckhand `79d18f6`). Fetch, rebase, rebuild and rerun
+  the site's suites before every push; push `main` only (a pushed `exam` branch is built as a preview and fails).
+- In the kit a question card is `.q[data-q]`; A7's figures are `svg.fig.q`.
+- This machine has 2 cores: timing checks (`test_exam` M2's 6 ms; a page check's live region) fail under load. Rerun alone.
+- The session's server restarts every hour or two and stops the agents: have them commit as they go; resume them by id.
+
 ## After his first dummy run (16 Nov 2026, 6–9 pm): See the test, the Google Form's steps, Tally's Tests fixed — all live; two things asked for next
 
 Session `session_01W9n2WyAa6qRsqsdQj871ge`. Croix took A7 Unit 6 on his Android tablet (Brave; Tally from a `content://` file),
