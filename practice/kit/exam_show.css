@@ -25,14 +25,14 @@ body.xshow > *:not(#xShow){display:none !important}
 .xsnote{margin:14px 0 0;font:500 14px/1.4 var(--ui);color:var(--mut)}
 .xssec{margin-top:22px}
 .xssech{margin:0 0 4px;font:700 16px/1.25 var(--chrome);color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--ink)}
-.xscards .q{margin:0;padding:18px 0 20px;border-bottom:1px solid var(--rule)}
-.xscards .q:last-child{border-bottom:0}
+.xscards .q[data-q]{margin:0;padding:18px 0 20px;border-bottom:1px solid var(--rule)}
+.xscards .q[data-q]:last-child{border-bottom:0}
 /* the card as drawn, made still: nothing in it takes a press; the practice page's buttons and its live readouts are not here */
-.xscards .q input,.xscards .q button,.xscards .q [role=slider],.xscards .q [role=radio]{pointer-events:none}
+.xscards .q[data-q] input,.xscards .q[data-q] button,.xscards .q[data-q] [role=slider],.xscards .q[data-q] [role=radio]{pointer-events:none}
 /* what the student would have used to answer — the box, a graph's controls, Check — is not here: the answer row says it */
-.xscards .q .ans,.xscards .q .acts,.xscards .q .pv,.xscards .q .rd,.xscards .q .fb,.xscards .q .more,.xscards .q .walk,.xscards .q .steps,.xscards .q .again,
-.xscards .q .hslot,.xscards .q .nseg,.xscards .q .cghow,.xscards .q .cgctl,.xscards .q .cgacts,.xscards .q [data-check],.xscards .q .chk,
-.xscards .q .nltk,.xscards .q .cgtk{display:none !important}
+.xscards .q[data-q] .ans,.xscards .q[data-q] .acts,.xscards .q[data-q] .pv,.xscards .q[data-q] .rd,.xscards .q[data-q] .fb,.xscards .q[data-q] .more,.xscards .q[data-q] .walk,.xscards .q[data-q] .steps,.xscards .q[data-q] .again,
+.xscards .q[data-q] .hslot,.xscards .q[data-q] .nseg,.xscards .q[data-q] .cghow,.xscards .q[data-q] .cgctl,.xscards .q[data-q] .cgacts,.xscards .q[data-q] [data-check],.xscards .q[data-q] .chk,
+.xscards .q[data-q] .nltk,.xscards .q[data-q] .cgtk{display:none !important}
 /* under each part: the verdict, what was answered, the key */
 .xsa{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline;margin:12px 0 2px;padding:10px 12px;border-radius:10px;background:var(--field);border-left:4px solid var(--rule)}
 .xsv{grid-row:span 2;align-self:start;display:inline-block;min-width:5.5em;padding:3px 9px;border-radius:999px;font:700 12.5px/1.3 var(--chrome);text-align:center;white-space:nowrap}
@@ -60,7 +60,7 @@ body.xshow > *:not(#xShow){display:none !important}
   .xshow{max-width:none;padding:0}
   .xsheet{box-shadow:none;border-radius:0;padding:0}
   .xsacts{display:none !important}
-  .xscards .q{break-inside:avoid;page-break-inside:avoid}
+  .xscards .q[data-q]{break-inside:avoid;page-break-inside:avoid}
   .xssech{break-after:avoid;page-break-after:avoid}
   .xsa{break-inside:avoid;background:none;border:1px solid #bbb;border-left-width:4px}
 }

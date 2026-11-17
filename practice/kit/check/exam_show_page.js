@@ -33,7 +33,7 @@ if (!m) { console.log('exam show: not a unit id'); process.exit(1); }
   const ctxOf = async o => { const c = await b.newContext(Object.assign({ viewport: { width: 1280, height: 900 } }, o || {})); return c; };
   const watch = p => { p.on('pageerror', e => errs.push(e.message)); return p; };
   const storage = p => p.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); o['L:' + k] = localStorage.getItem(k); } for (let i = 0; i < sessionStorage.length; i++) { const k = sessionStorage.key(i); o['S:' + k] = sessionStorage.getItem(k); } return JSON.stringify(Object.keys(o).sort().map(k => [k, o[k]])); });
-  const shown = p => p.waitForFunction(() => window.Kit && Kit.ExamShow, null, { timeout: 60000 }).then(() => p.evaluate(() => ({ state: Kit.ExamShow.state, line: Kit.ExamShow.line || null, cards: document.querySelectorAll('#xShow .q').length, hash: location.hash })));
+  const shown = p => p.waitForFunction(() => window.Kit && Kit.ExamShow, null, { timeout: 60000 }).then(() => p.evaluate(() => ({ state: Kit.ExamShow.state, line: Kit.ExamShow.line || null, cards: document.querySelectorAll('#xShow .q[data-q]').length, hash: location.hash })));
 
   /* the page as it always is, and a test drawn on it */
   const c = await ctxOf(), p0 = watch(await c.newPage());
@@ -59,13 +59,17 @@ if (!m) { console.log('exam show: not a unit id'); process.exit(1); }
   if (s.state !== 'shown') fail('a payload drawn on this page was not shown: ' + JSON.stringify(s));
   const r = await p.evaluate(([sheet, items, MARK]) => {
     const strip = h => { const t = document.createElement('template'); t.innerHTML = h; const e = t.content.firstElementChild; [e].concat(Array.from(e.querySelectorAll('*'))).forEach(x => ['tabindex', 'disabled', 'aria-disabled'].forEach(a => x.removeAttribute(a))); return e.outerHTML; };
-    const cards = Array.from(document.querySelectorAll('#xShow .q')).map(q => { const cl = q.cloneNode(true); cl.querySelectorAll('.xsa').forEach(x => x.remove()); return strip(cl.outerHTML); });
+    const cards = Array.from(document.querySelectorAll('#xShow .q[data-q]')).map(q => { const cl = q.cloneNode(true); cl.querySelectorAll('.xsa').forEach(x => x.remove()); return strip(cl.outerHTML); });
     const same = cards.length === sheet.length && cards.every((h, i) => h === strip(sheet[i])) && JSON.stringify(Kit.ExamShow.cards) === JSON.stringify(sheet);
     const rows = items.map(it => { const row = document.querySelector('#xShow [data-xs="' + it.id + '"]'); if (!row) return null; return { v: row.querySelector('.xsv').textContent, a: row.querySelector('.xst').textContent, aEls: row.querySelector('.xst').children.length, k: row.querySelector('.xskv').textContent.trim().length }; });
     const focus = Array.from(document.querySelectorAll('#xShow .q *')).filter(e => e.tabIndex >= 0 && !e.disabled && e.getClientRects().length);
-    return { same, n: cards.length, rows, pwn: window.__pwn || null, focus: focus.map(e => e.tagName + '.' + e.className).slice(0, 3), hash: location.hash.slice(0, 6), head: document.querySelector('#xShow .xshead').textContent };
+    /* a unit's own figure may carry the class q (A7's svg.fig.q): the sheet's rules are for the question cards (.q[data-q]) only, so
+       nothing else in the view takes a card's rule line */
+    const lined = Array.from(document.querySelectorAll('#xShow .q:not([data-q])')).filter(e => getComputedStyle(e).borderBottomStyle !== 'none').length;
+    return { same, lined, n: cards.length, rows, pwn: window.__pwn || null, focus: focus.map(e => e.tagName + '.' + e.className).slice(0, 3), hash: location.hash.slice(0, 6), head: document.querySelector('#xShow .xshead').textContent };
   }, [T.sheet, T.items, MARK]);
   if (!r.same) fail('the cards shown are not the seed\'s sheet (' + r.n + ' of ' + T.sheet.length + ')');
+  if (r.lined) fail(r.lined + ' element(s) inside a card take the card\'s rule line (a figure classed q is not a card)');
   const WORD = { right: 'Right', almost: 'Almost', wrong: 'Not right', blank: 'Blank', unread: 'Can’t read' };
   r.rows.forEach((row, i) => { const want = parts[i]; if (!row) return fail(want[0] + ': no row');
     if (row.v !== WORD[want[2]] || row.a !== (want[1] === '' ? 'Blank' : want[1]) || row.aEls || !row.k) fail(want[0] + ': ' + JSON.stringify(row)); });
