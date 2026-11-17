@@ -56,6 +56,53 @@ the practice kit could take it: *"Publish and yes move it to windmill"*.
 - 22 of the Grade 8 released test's pictures on the site are still screenshots of the test online. Drawing them is a set
   file for the booklet's pages (they are in the 15 Nov dump) — not asked for.
 
+## After his first dummy run (16 Nov 2026, 6–9 pm): See the test, the Google Form's steps, Tally's Tests fixed — all live; two things asked for next
+
+Session `session_01W9n2WyAa6qRsqsdQj871ge`. Croix took A7 Unit 6 on his Android tablet (Brave; Tally from a `content://` file),
+pasted the bare code into Tally, and it all worked on Cloudflare's Free plan: *"That's really excellent! I did a dummy run. It
+seems to work really well."* What he then asked for, and what was done:
+
+1. *"Is there any way to have it be able to show me the exact questions as well?"* **See the test.** Kit `a69191c` +
+   `41c736e` (kit version `2e2c5655dbf6`): `exam_show.js`, `exam_show.css`, `check/exam_show_page.js`, in a teacher copy only
+   and hashed for a teacher copy only (`build.py` `TEACHER_ONLY`, `check/run.py`), so no student page or stamp changed (all 12
+   rebuilt with plain `build.py` to the same bytes). A teacher copy at `…/teacher/<course>/unit-<N>/practice/#test=<payload>`
+   redraws the record's seed, proves it is that test (ids in order, every key equal) and shows each question with the answer,
+   the verdict and the key; anything unproven shows one line and no question (DESIGN "See the test"). Tally builds the link
+   (`examcore.js` `teacherLink` / `teacherPayload`; no name in it; the fragment is never sent). The site's sign-in keeps the
+   fragment. **Found on the way:** A7's figures carry the class `q` (`svg.fig.q`); the view's first CSS styled them as cards.
+   Fixed in `41c736e`; in the kit, a question card is `.q[data-q]`, never bare `.q`.
+2. *"Can you have the website give me exact instructions that are easy to copy and paste? … step by step for the Google form
+   attachment."* The cockpit's Google Form row carries eight steps in Google Forms' current words (Pre-fill form; Publish;
+   Link to Sheets), a Copy button on every pasted string, refusals that name the step, Try it. After *"I can force them to
+   use a managed account ie their school account"*: a school-accounts step (Collect email addresses, Verified; only his
+   district responds). Site `EXAM_NOTES.md` decisions 41–44.
+3. *"if I'm running a test in one class, why are all the other classes getting scored on it"* and *"a way to delete a test"*:
+   Tally `b50233c`…`6444eed`: a class lists a test only when one of its own students has one (an unmatched code sits in Nobody
+   turned in and touches no class); Delete a test (tombstone, Bring back, Undo); a pointer to the site's Test card (he had
+   looked in Tally for how to start a new test). Tally NOTES, the section of this date.
+
+**Where it is.** Windmill main `41c736e`+ (this file). M7 `0ac6a50`, A7 `797844ff` (every teacher copy re-run, every test
+rebuilt, one kit version). Site main `b6e4779`, deployed 8:38 pm (Workers Builds build `dda6604e`, success). Tally main
+`6444eed` (Tally.html SHA-256 `7a1ab3497754c916c38dbc7c75dabb8a9b1ca84068737ddb0dbc85e6b96159ce`; suite 75 · 2,462 · 0).
+- **A red mark on site commit `b6e4779` is not the deploy.** I pushed the same commit to a branch `exam` on the site's remote
+  by mistake; Workers Builds built it as a preview and that build failed (`6b92b1c4`). The token here cannot delete a
+  branch, so `exam` is still there, equal to main. Push the site to `main` only.
+- **A deploy that changes only the kit's version string needs nothing from him:** tests going, tests started after it from
+  the old pool, and Add tests all work (the site builder ran it through wrangler dev across two builds; `EXAM_NOTES` 43).
+- Checked across the pieces: a record made with the site's own judge (a unit's bundle and its sample) → Tally's
+  `teacherLink` → the rebuilt teacher copy: shown, every card and row, on A7 3, 6, 11 and M7 7 (circle graph), 10 (number
+  line). Timing checks flake when this 2-core machine is busy (`test_exam` M2's 6 ms; M7 Unit 8's scratch-paper live
+  region): run them again alone before believing them.
+
+**Asked for next, not started.**
+- 8:12 pm: *"Once that's completely done, I want you to apply that across all of the practice tests, so I can test on a
+  specific unit or lesson to test on."* A test on a single lesson as well as on a unit. Lesson banks (Cadence) exist for M7
+  4, 8, 9, 10 and A7 3, 4, 5, 6; M7 5, 7, 13 and A7 11 have none. `exam_pool.js`, `exam/server.js` and `bank.js` are in
+  every student page's stamp list: a lesson test built by changing them means re-running every student page (about three
+  hours); new teacher-only and test-only files do not.
+- 8:22 pm: the school account as the student's identity in Tally (today an address is only used when there is no name
+  column, and only as a suggestion). Needs the district's address format from him (student number or name before the @).
+
 ## In progress (15–16 Nov 2026): scratch paper and the calculators are everywhere; the airtight test is being built in four pieces
 
 Session `session_01W9n2WyAa6qRsqsdQj871ge` (Croix, on his phone). This section is rewritten as each part lands.
