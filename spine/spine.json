@@ -1,6 +1,6 @@
 {
  "v": 1,
- "generatedAt": "2026-11-18T22:03:59-05:00",
+ "generatedAt": "2026-11-18T22:10:39-05:00",
  "sources": {
   "a7": "739bd9b",
   "m7": "51b2afe",
@@ -7557,7 +7557,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "FAST PM2 (ELA) — class meets, condensed periods"
+   ],
    "acc": {
     "kind": "off",
     "code": "off",
@@ -7800,7 +7802,9 @@
      "end": "4:00"
     }
    ],
-   "events": [],
+   "events": [
+    "FAST PM2 — class meets, condensed periods"
+   ],
    "acc": {
     "kind": "off",
     "code": "off",

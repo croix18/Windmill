@@ -4,6 +4,18 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 18 November, night — ruling 57: M7 re-laid to Thanksgiving and the winter break (session_01W9n2X1DGdhkjT92EJfNN3K)
+
+Croix: Unit 10 is not tested this week (*"They are way behind on algebra"*). Wed 18 Nov review; Thu–Fri 19–20 Nov re-teach;
+Mon 30 Nov review; **Unit 10 test Tue–Wed 1–2 Dec** (Q2, IXL due 1 Dec). Both PM2 days (Thu 3, Tue 8 Dec) are **class days,
+condensed** — no longer `off` in the as-run log; `PM2_DAYS` in `tools/mkscope.py` puts them in `EVENTS`, the spine carries
+them, and the site marks the day `testing` so its FAST dates and FAST Math countdown still work. Unit 13: 13.01 Thu 3 · 13.02+03
+Fri 4 · 13.04 Mon 7 · 13.05+06 Tue 8 · 13.07 Wed 9 · 13.08+09 Thu 10 · **buffer Fri 11** · **review Mon 14** (practice page
+and whiteboards; no review deck) · **test Tue–Wed 15–16 Dec, grade and IXL in Q3**; catch-up Thu–Fri 17–18. Unit 8 stays last.
+Ruling 57 in HOUSE STYLE. Regenerated: scope, IXL due dates, master sheet; Windmill spine; site calendars.
+**Not regenerated:** Unit 13 and Unit 10 package START HERE / lesson-plan dates (they still name the old days; they refresh at
+the next install). A7 still logs both PM2 days as no class — ask Croix whether that holds for A7.
+
 ## The drawing kit — `draw/` (16 Nov 2026): the state's pictures drawn, not copied; one kit for the site, Cadence and the practice pages
 
 Session `session_01W9n2X1tmgHHzzLGg6M6wpv` (Croix, on his phone). Read `draw/README.md` for how it is used; this is why and what is next.
