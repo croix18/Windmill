@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-11-18T22:10:39-05:00",
+ "generatedAt": "2026-11-18T22:42:52-05:00",
  "sources": {
-  "a7": "739bd9b",
-  "m7": "51b2afe",
+  "a7": "4891285",
+  "m7": "291fcd5",
   "deckhand": "ce8625d"
  },
  "year": {
@@ -7561,9 +7561,9 @@
     "FAST PM2 (ELA) — class meets, condensed periods"
    ],
    "acc": {
-    "kind": "off",
-    "code": "off",
-    "title": "FAST PM2 (ELA) — no class",
+    "kind": "extra",
+    "code": "extra",
+    "title": "FAST PM2 (ELA) — short periods; spiral review",
     "unit": 11,
     "benchmarks": [],
     "ixl": []
@@ -7806,9 +7806,9 @@
     "FAST PM2 — class meets, condensed periods"
    ],
    "acc": {
-    "kind": "off",
-    "code": "off",
-    "title": "FAST PM2 — no class",
+    "kind": "extra",
+    "code": "extra",
+    "title": "FAST PM2 — short periods; spiral review",
     "unit": 11,
     "benchmarks": [],
     "ixl": []
@@ -15777,18 +15777,18 @@
      "meets": true
     },
     "2026-12-03": {
-     "kind": "off",
-     "code": "off",
-     "title": "FAST PM2 (ELA) — no class",
+     "kind": "extra",
+     "code": "extra",
+     "title": "FAST PM2 (ELA) — short periods; spiral review",
      "unit": null,
-     "meets": false
+     "meets": true
     },
     "2026-12-08": {
-     "kind": "off",
-     "code": "off",
-     "title": "FAST PM2 — no class",
+     "kind": "extra",
+     "code": "extra",
+     "title": "FAST PM2 — short periods; spiral review",
      "unit": null,
-     "meets": false
+     "meets": true
     },
     "2026-12-17": {
      "kind": "extra",
