@@ -4,6 +4,20 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 18 November, late night — ruling 57 everywhere: A7's PM2 days, Units 10 and 13 reinstalled, the doc, the phone page, the site (session_01W9n2X1DGdhkjT92EJfNN3K)
+
+- **A7** (`4891285`): Croix chose "Spiral days, nothing moves" — Thu 3 and Tue 8 Dec are class days with short periods, run
+  as spiral review; Unit 11 and every other A7 date are unchanged. The spine marks both days as FAST days through M7's
+  `PM2_DAYS` events (day-level), so the site's FAST dates and countdown hold for both courses.
+- **M7** (`b0f7d13`): Units 13 and 10 rebuilt and reinstalled with their slides, Teacher Editions and START HERE following
+  the new days (M7 NOTES has the detail); the kit needs matplotlib 3.10.
+- **The spine** regenerated and vendored into both courses; **the phone page** republished (its `log` was empty);
+  **the M7 Schedule doc** (rev 45) brought back to the plan — it had still had the order of 25 October.
+- **The site**: the course calendars show a class day that is also a FAST day ("FAST PM2 · ELA — short periods" on the
+  list, a FAST chip in the day, week and month views); Units 10 and 13 republished from the new packages.
+- **Tally's default test dates** (`quarters.js` TEST_DATES, for a new Tally only) carry M7's new dates; Croix's own Tally
+  keeps the list he edits in Settings → Course → Test dates — he was told to change M7 Unit 10 and Unit 13 there.
+
 ## 18 November, night — ruling 57: M7 re-laid to Thanksgiving and the winter break (session_01W9n2X1DGdhkjT92EJfNN3K)
 
 Croix: Unit 10 is not tested this week (*"They are way behind on algebra"*). Wed 18 Nov review; Thu–Fri 19–20 Nov re-teach;

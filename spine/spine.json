@@ -1,9 +1,9 @@
 {
  "v": 1,
- "generatedAt": "2026-11-18T22:42:52-05:00",
+ "generatedAt": "2026-11-18T23:21:26-05:00",
  "sources": {
   "a7": "4891285",
-  "m7": "291fcd5",
+  "m7": "b0f7d13",
   "deckhand": "ce8625d"
  },
  "year": {
@@ -8048,7 +8048,7 @@
    "on": {
     "kind": "extra",
     "code": null,
-    "title": "Buffer — finish what a short PM2 day didn't reach",
+    "title": "Buffer day — finish the week's lessons; spiral review",
     "unit": 13,
     "benchmarks": [],
     "ixl": []
@@ -8289,7 +8289,7 @@
    "on": {
     "kind": "extra",
     "code": null,
-    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+    "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -8345,7 +8345,7 @@
    "on": {
     "kind": "extra",
     "code": null,
-    "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+    "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
     "unit": 5,
     "benchmarks": [],
     "ixl": []
@@ -16837,7 +16837,7 @@
     "2026-12-11": {
      "kind": "extra",
      "code": null,
-     "title": "Buffer — finish what a short PM2 day didn't reach",
+     "title": "Buffer day — finish the week's lessons; spiral review",
      "unit": null,
      "meets": true
     },
@@ -16851,14 +16851,14 @@
     "2026-12-17": {
      "kind": "extra",
      "code": null,
-     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
      "unit": null,
      "meets": true
     },
     "2026-12-18": {
      "kind": "extra",
      "code": null,
-     "title": "Catch-up week — make-up tests and missing work; nothing new and nothing graded",
+     "title": "Catch-up day — make-up tests and missing work; nothing new and nothing graded",
      "unit": null,
      "meets": true
     }
