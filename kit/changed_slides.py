@@ -3,14 +3,16 @@
     python3 changed_slides.py OLD.pdf NEW.pdf            → the changed pages, and pages added or removed
     python3 changed_slides.py OLD.pdf NEW.pdf --sheet    → and a contact sheet of the changed pages in /tmp/sheets/
 
-Both files are rendered with pdftoppm at 30 dpi and compared pixel by pixel: a page has changed when more than
-0.05% of its pixels differ by more than 40 (of 255) in any channel — anti-aliasing noise is under that, a changed
-digit is over it. Pages are lined up first (the fewest edits), so a slide inserted near the
+Both files are rendered with pdftoppm at 60 dpi and compared pixel by pixel, and each page's words (pdftotext) are
+compared too: a page has changed when its words differ, or when 4 or more of its pixels differ by more than 40 (of
+255) in any channel. Two builds of an unchanged slide render alike to the pixel, so the floor is low on purpose: at
+30 dpi and 0.05% of the page, the first rule, a warm-up's 3/8 that became 7/8 moved 20 pixels and was reported as
+"changed: none" (A7 Unit 7, 21 Nov 2026). Pages are lined up first (the fewest edits), so a slide inserted near the
 front is reported as one page added, not as every later page changed. Page numbers are NEW's, except a removed
 page, which is OLD's. --sheet draws the changed and added pages of NEW at 60 dpi, 3 across, numbered, and prints the
 sheet's path (several sheets for many pages). Exit 0 either way: a change is information, not a failure.
 
-What it cannot see: a change smaller than a 30-dpi pixel (a thin rule moved a hair, a colour a shade off), and
+What it cannot see: a change smaller than a 60-dpi pixel (a thin rule moved a hair, a colour a shade off), and
 anything a PDF does not draw (speaker notes, the side-car, timings). Read-only: writes only to a scratch folder and
 /tmp/sheets/.
 """
@@ -20,8 +22,8 @@ import subprocess
 import sys
 import tempfile
 
-DPI, SHEET_DPI, COLS = 30, 60, 3
-LEVEL, SHARE = 40, 0.0005
+DPI, SHEET_DPI, COLS = 60, 60, 3
+LEVEL, MINPX = 40, 4
 
 
 def render(pdf, out, dpi=DPI, first=None, last=None):
@@ -48,7 +50,16 @@ def differs(a, b):
     if a.size != b.size:
         return True
     d = ImageChops.difference(a, b).convert("L").point(lambda v: 255 if v > LEVEL else 0)
-    return d.histogram()[255] > SHARE * a.size[0] * a.size[1]
+    return d.histogram()[255] >= MINPX
+
+
+def words(pdf):
+    """Each page's words, in order, white space squeezed — [] when pdftotext is not there or the file has no text."""
+    try:
+        got = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    return [" ".join(page.split()) for page in got.split("\f")]
 
 
 def compare(old_pdf, new_pdf):
@@ -59,11 +70,14 @@ def compare(old_pdf, new_pdf):
         po, pn = render(old_pdf, os.path.join(tmp, "old")), render(new_pdf, os.path.join(tmp, "new"))
         bo, bn = [open(p, "rb").read() for p in po], [open(p, "rb").read() for p in pn]
         io_, in_ = [_rgb(p) for p in po], [_rgb(p) for p in pn]
+    wo, wn = words(old_pdf), words(new_pdf)
+    wo, wn = wo + [""] * (len(io_) - len(wo)), wn + [""] * (len(in_) - len(wn))
     memo = {}
 
     def cost(i, j):
         if (i, j) not in memo:
-            memo[i, j] = 0 if bo[i] == bn[j] else (1 if differs(io_[i], in_[j]) else 0)
+            same = wo[i] == wn[j] and (bo[i] == bn[j] or not differs(io_[i], in_[j]))
+            memo[i, j] = 0 if same else 1
         return memo[i, j]
     no, nn = len(io_), len(in_)
     band = abs(no - nn) + 8                     # a deck is edited in place: pages move a few places at most

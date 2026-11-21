@@ -10,7 +10,7 @@
     is a Your Turn, board or set question of the lesson (rules P and Q, the paper question read after the lesson's
     practice). A student who sat the lesson has seen the test question answered.
 (b) The same warm-up question in two lessons; the same practice expression (P), or the same givens and answer (Q),
-    in two lessons' Your Turns, boards and sets.
+    in two lessons' Your Turns, boards, sets and question banks (ids 7.01/K3, 7.01/A3). (a) reads the banks too.
 
 `repeat_ok=True` on an item (a paper question, a part, a board…) silences it, as in a lesson — with a comment beside
 it saying why the repeat is the point. Ids are reader_copy.py's (11.01/B4, P/Q5b, R/Q7).
@@ -59,9 +59,21 @@ def _paper_questions(U):
 
 
 def _practice_only(L):
-    """A lesson's practice items, and nothing it showed: its Your Turns (in their Examples' places), boards, set."""
+    """A lesson's practice items, and nothing it showed: its Your Turns (in their Examples' places), boards, set —
+    and its two question banks, read as more set questions under their own ids (7.01/K3, 7.01/A3). The banks were
+    not read at first: A7 7.07's bank question 5 was the Unit 7 Review's question 14 word for word, and 7.01's bank
+    question 2 was the practice test's first table (21 Nov 2026)."""
+    banks = []
+    for tag, key in (("K", "bank"), ("A", "additional")):
+        k = 0
+        for it in L.get(key) or []:
+            if it.get("heading"):
+                continue
+            k += 1
+            banks.append(dict(_head(it), _id=f"{L.get('code', '?')}/{tag}{k}"))
     return dict(examples=[dict(your_turn=_head(e["your_turn"])) if e.get("your_turn") else {} for e in L.get("examples") or []],
-                whiteboard=[_head(b) for b in L.get("whiteboard") or []], independent=[_head(s) for s in L.get("independent") or []])
+                whiteboard=[_head(b) for b in L.get("whiteboard") or []],
+                independent=[_head(s) for s in L.get("independent") or []] + banks)
 
 
 def _labeler(parts):
@@ -204,6 +216,9 @@ def _item(L, iid):
         return (L["examples"][int(kind[2:]) - 1].get("your_turn") or {})
     if kind.startswith("B"):
         return L["whiteboard"][int(kind[1:]) - 1]
+    if kind[0] in "KA":
+        bank = [s for s in L.get("bank" if kind[0] == "K" else "additional") or [] if not s.get("heading")]
+        return bank[int(kind[1:]) - 1]
     six = [s for s in L.get("independent") or [] if not s.get("heading")]
     return six[int(kind[1:]) - 1]
 

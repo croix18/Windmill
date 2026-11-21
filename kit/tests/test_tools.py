@@ -224,6 +224,15 @@ open(os.path.join(Q, "u90", "unit.py"), "w").write(UNIT.replace("PAPER_EXPR", "$
                                                   .replace("PAPER_ANSWER", "x = 7"))
 rc, said = run(unit_repeats.main, ["u90", "--build", Q])
 ok("unit_repeats: FINDS a paper question a lesson asked on a board", rc == 1 and any(l.startswith("P/Q1  ·  90.01/B1") for l in said.splitlines()), said)
+BK = os.path.join(tmp, "bankrepeat")
+make_unit(BK)
+src = open(os.path.join(BK, "u90", "l01.py")).read()
+open(os.path.join(BK, "u90", "l01.py"), "w").write(src.replace("Solve:  $4z = 44$", "Solve:  $14t - 5t = 81$").replace("ADDITIONAL-ANSWER", "t = 9"))
+open(os.path.join(BK, "u90", "unit.py"), "w").write(UNIT.replace("PAPER_EXPR", "$14t - 5t = 81$").replace("PAPER_ANSWER", "t = 9"))
+rc, said = run(unit_repeats.main, ["u90", "--build", BK])
+ok("unit_repeats: FINDS a paper question that is in a lesson's question bank (A7 7.07's bank 5 was the Review's 14)",
+   "Solve:  $14t - 5t = 81$" in open(os.path.join(BK, "u90", "l01.py")).read() and rc == 1
+   and any(l.startswith("P/Q1  ·  90.01/A1") for l in said.splitlines()), said)
 X = os.path.join(tmp, "cross")
 make_unit(X)
 open(os.path.join(X, "u90", "l02.py"), "w").write(lesson("90.02", "Solve:  $5x - 1 = 24$", "x = 5", base=0).replace("What is 12 plus 5?", "What is 30 plus 6?")
@@ -260,6 +269,18 @@ c = changed_slides.compare(old, new)
 ok("changed_slides: a changed page, and an inserted page reported as added (not every page after it changed)", c[:3] == ([2], [4], []), c)
 ok("changed_slides: a removed page is OLD's number", changed_slides.compare(old, rem)[:3] == ([], [], [3]))
 ok("changed_slides: the same file has no changes", changed_slides.compare(old, old)[:3] == ([], [], []))
+def pdf_small(path, frac):
+    im = Image.new("RGB", (1333, 750), "white")
+    d = ImageDraw.Draw(im)
+    d.rectangle([40, 40, 1290, 120], fill=(30, 90, 168))
+    d.text((60, 200), "Write the fraction as a decimal.", fill="black", font_size=40)
+    d.text((900, 205), frac, fill="black", font_size=22)
+    im.save(path, resolution=100)
+
+
+s1, s2 = os.path.join(tmp, "small1.pdf"), os.path.join(tmp, "small2.pdf")
+pdf_small(s1, "3/8"); pdf_small(s2, "7/8")
+ok("changed_slides: one digit of small type changed is a changed page (A7 7.02's warm-up, 21 Nov 2026)", changed_slides.compare(s1, s2)[:3] == ([1], [], []), changed_slides.compare(s1, s2))
 rc, said = run(changed_slides.main, [old, new, "--sheet"])
 sheet = [l.split("sheet: ", 1)[1] for l in said.splitlines() if l.startswith("sheet: ")]
 ok("changed_slides --sheet: a contact sheet of the changed pages in /tmp/sheets/", rc == 0 and sheet and sheet[0].startswith("/tmp/sheets/") and os.path.exists(sheet[0]), said)
