@@ -1605,10 +1605,35 @@ def arrowcheck(obj, where, code):
     return out
 
 
+_BARE_DOLLAR = re.compile(r"(?<!\\)\$\d[\d,]*(?:\.\d+)?\s+(?:(?:a|an)\s+)?[a-z]{2,}[^$]*?(?<!\\)\$")
+
+
+def baredollar(obj, code, where=""):
+    """Money written with a bare dollar sign. "2 pounds cost $7.00 and 4 pounds cost $14.00" is read as the
+    mathematics "7.00 and 4 pounds cost" between two dollar signs and drawn as one picture. Three boards' `qtext` in
+    A7 7.07 did it (21 Nov 2026): in Times the picture fitted its cell of the Lesson Plan and nothing refused it; in
+    Lexend it was wider than the cell and the build stopped. Money is written \\$."""
+    out = []
+    if isinstance(obj, str):
+        m = _BARE_DOLLAR.search(obj)
+        if m:
+            out.append(f"{code} {where}: money written with a bare $ — {m.group(0)[:44]!r} is read as mathematics "
+                       f"between two dollar signs; write \\$ for a dollar sign")
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            if k != "check":
+                out += baredollar(v, code, f"{where}.{k}" if where else str(k))
+    elif isinstance(obj, (list, tuple)):
+        for i, v in enumerate(obj):
+            out += baredollar(v, code, f"{where}[{i}]")
+    return out
+
+
 def rulingcheck_lesson(L):
     """Rulings 21, 22, 25, 26, 28, 42, 43 and 44 as facts about the spec, refused at build time like a math error."""
     out = []
     code = L["code"]
+    out += baredollar(L, code)
     for g in STUDENT_PAGES:
         out += arrowcheck(L.get(g), g, code)
     from . import repeatcheck

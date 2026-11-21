@@ -102,6 +102,8 @@ def planted(name, mutate, needle):
 planted("a wrong answer", lambda M: M["whiteboard"][0].update(check=("eq", "1+1", "3")), "keyed")
 planted("an item with no check", lambda M: M["whiteboard"][1].pop("check"), "no check and no ack")
 planted("a wrong option with no named error", lambda M: M["whiteboard"][6]["errors"].pop("A"), "no named error")
+planted("money written with a bare dollar sign (A7 7.07's qtext, 21 Nov 2026)",
+        lambda M: M["whiteboard"][0].__setitem__("qtext", "2 pounds cost $7.00 and 4 pounds cost $14.00. Which costs less?"), "bare $")
 planted("two wrong options that are the same number", lambda M: M["whiteboard"][6].update(choices=["70 cm", "35 × 2 cm", "9 cm", "73 cm"], correct=3, answer="D — 73 cm", note_a="Reveal D.", errors={"A": "x [N]", "B": "x [N]", "C": "x [N]"}), "same number")
 M2 = copy.deepcopy(L); M2["whiteboard"][6].update(choices=["36 cm", "36 cm²", "9 cm", "73 cm"], correct=1, answer="B — 36 cm²", note_a="Reveal B.", errors={"A": "x [N]", "C": "x [N]", "D": "x [N]"})
 ok("the unit is part of the answer: 36 cm and 36 cm² are different options", not [x for x in gates(M2) if "same" in x or "equals the keyed" in x], str(gates(M2)[:2]))
