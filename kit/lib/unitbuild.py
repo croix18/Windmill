@@ -217,6 +217,11 @@ def build_review(U, outdir, key):
 
 
 # ---------------------------------------------------------------- unit assessment
+def _pts(n):
+    """A section's points as printed: "1 point", "4 points"."""
+    return f"{n} point" if n == 1 else f"{n} points"
+
+
 def _points(it):
     if it.get("parts"):
         return [1] * len(it["parts"])
@@ -298,7 +303,7 @@ def build_paper(U, outdir, key):
     si = 0; n = 0
     for sec in A["sections"]:
         si += 1
-        doc.section(sec["title"], f"{per_sec[si - 1][1]} points")    # ruling 54: named, not "1." (question 1 sits under it)
+        doc.section(sec["title"], _pts(per_sec[si - 1][1]))    # ruling 54: named, not "1." (question 1 sits under it)
         for it in sec["items"]:
             if it.get("heading"):
                 doc.heading(it["heading"]); continue
@@ -467,7 +472,7 @@ def build_form(U, outdir, key, form="test", student=False):
     doc.instruction(SHOW_WORK + (("  " + A["pi_line"]) if A.get("pi_line") else ""))
     n = 0
     for si, sec in enumerate(sections):
-        right = f"{per_sec[si][1]} points" + (f"   {sec['benchmark']}" if key and not student else "")
+        right = _pts(per_sec[si][1]) + (f"   {sec['benchmark']}" if key and not student else "")
         doc.section(sec["title"], right)                       # ruling 54: named, not "Part 1." (question 1 sits under it)
         for it in sec["items"]:
             if it.get("heading"):

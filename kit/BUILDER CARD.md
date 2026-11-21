@@ -115,7 +115,8 @@ grid). Every number on a picture is in the words or explained; every length the 
 
 **Look once**, after the last change: `python3 contact_sheet.py "out/uN/<the Slides.pdf>" 45 4 --pages 1-12`, then
 `13-24`, then `25-36` — three sheets in `/tmp/sheets/`, each read once. With figures: `python3 figure_sheets.py uN
---grid 4`, every picture beside its words. Look for: a line wrapped where it should not, an answer on three lines, a
+--grid 4 --out $HOME/figsheets` (a folder of your own: builders share `/tmp`), every picture beside its words. After a
+fix, `python3 changed_slides.py OLD.pdf NEW.pdf --sheet` names the pages to look at again. Look for: a line wrapped where it should not, an answer on three lines, a
 crowded or near-empty slide, a figure too small to read from the back row, a label on the wrong thing, an answer that
 cannot be reached from the picture and the words, a question split across a page.
 
