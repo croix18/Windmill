@@ -16,7 +16,9 @@ Question Bank and the Additional Question Bank with their keys. No Teacher Editi
 
 - `code` "11.03" (two digits; a thread day "3.T1", with `plan_code` the plan's code) · `unit` · `lesson_no` (`label` only if not "Lesson N").
 - `align="="` — an equations lesson: rows that solve stand on their equals signs (a block may say `align=False`).
-- `title` — in every file name. `unit_title` — the unit's title, as `course.py UNITS` has it.
+- `title` — in every file name, so keep it short: the package's longest path, `<course> Unit N - <unit title>/Lessons/<code>/Keys/<course> <code>
+  <title> - Additional Question Bank - Key.pdf`, may not pass 180 characters (the install refuses it — A7 7.05's first title was 4 too long).
+  `unit_title` — the unit's title, as `course.py UNITS` has it.
 - `benchmark` — the ONE code on the title slide. `benchmark_text` — its exact wording, from the Source of Truth. A lesson that teaches two
   benchmarks adds `benchmarks=[(code, text), (code, text)]`: the Lesson Plan prints both in full; the title slide still names the one.
 - `target` — "I can …", ≤ ~170 characters. `essential` — the essential question.
