@@ -34,6 +34,18 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   Units 3–6 and 11 of A7 still carry the old wording ("against" in over a hundred places, "the other way round" in
   Units 4 and 5): his word decides whether they are reworded before they are next rebuilt. A7 Unit 7 carries the
   new wording on A7's branch `claude/lean-workflow` (`0f50877`), not yet on `main` or the site.
+- **Ruling 59, a printed page is written for a reader who did not build it** (Croix, 21 Nov, afternoon, on a third
+  outside audit of A7 Unit 7: the Lesson Plans are read by "John or admin: write it out"; of the Independent Set's
+  opening line, "Just get rid of it completely"). In the kit (`7344e7e`): `plankit` prints whole sentences in both
+  plan styles ("Required by the benchmark." and "Not part of this lesson." for "Must." and "Must not."; the sequence
+  rows; the gradual release; "Peer discussion (MTR.4.1)"; the practice line; a checks table headed "Likely wrong
+  answers and their causes"); an Independent Set prints no instruction line; the Review says "Show your work for
+  problems that require calculations."; no ruling number prints on a key or an edition. Card 20 tells a builder to
+  write a plan's fields as sentences. **Each unit's own plan sentences live in its specs**: Unit 7's were rewritten
+  (A7 NOTES); Units 3–6 and 11 of A7 and every M7 unit keep theirs, and a rebuild alone changes only the template's
+  lines. **M7's `course.py` carries its own `REVOTE` sentence**, still in the old shorthand. The key's follow-through
+  note is still printed, without its number: on 7 Nov he asked for that line gone "across everything", so whether a
+  key keeps it is his to say.
 - **The Drive script's test waited twelve hours for a deleted file to come back; it now waits one round of the hourly
   check.** Found by `tools/check.sh` beside A7's branch on 21 Nov: with Unit 7's package the mirror holds 1,769 files,
   the script looks at 120 an hour (`AUDIT`), so a round is 15 hours and three waits in `drive/test_windyhill.js` ran

@@ -128,6 +128,17 @@ left in on purpose (ruling 22).
 
 What a wording pass must not do: change a number, a picture or a key. The gates and the blind solve are what say so.
 
+**A second pass the same day (ruling 59), with no agent at all.** It changed 23 questions by a word or two ("steady"
+to "constant", "Give the reason." to "Explain.") and rewrote the five Lesson Plans. `student_view.py` on the old tree
+and on the new one showed that no key and no check had moved and that nothing asked had changed, so step 5 had
+nothing to solve: run that comparison first, and send solvers only what it shows to be a new question. Steps 3, 4 and
+6 still earned their keep. The test build refused an answer line that had grown to two lines. `markup` (checks.py)
+refused a literal dollar sign: a vocabulary line had wrapped at the space inside `$(0, 0)$`, so write mathematics that
+may fall at a line's end without a space, or in words. The look found one word alone on a second line where
+"steady" had become "constant": a one-word swap can still move a line break. A Lesson Plan's fields were given to
+`reword.py` by field, not by retyped text: a short script read each old value from the loaded spec, found its
+literal in the source and wrote the edit list.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.
