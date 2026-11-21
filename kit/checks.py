@@ -14,7 +14,8 @@ finding and exits 0 is worse than no check.
   telength   ruling 26: no teacher's edition runs past four printed pages (a course that builds none: none is built)
   markup     no slide or page shows markup a renderer failed to consume (**, $, LaTeX, a slot mark)
   footer     nothing but the footer itself renders below a slide's footer rule
-  plancheck  every deck side-car totals the period with a whiteboard remainder inside its range
+  plancheck  every deck side-car totals the period with a whiteboard remainder inside its range (and, where the
+             course builds a Teacher Edition, gives every slide its teaching note)
   slidefit   no text box or picture in a deck crosses the footer rule or the slide edge; the rows a deck
              lined up on their signs (align="=") stand on one column, measured again from the deck
   overlap    on a rendered slide, no two lines of text collide and no figure sits on any words
@@ -433,7 +434,9 @@ def check_plan(files):
         if not (lo <= wb <= hi):
             findings.append(f"plancheck: whiteboard remainder {wb} outside {lo}–{hi} — {os.path.basename(f)}")
         for s in side:
-            if s["kind"] != "wb" and s["kind"] != "title" and not s["note"]:
+            # the teaching note on every slide is the Teacher Edition's line for it; a course that builds no edition
+            # (TEACHER_EDITION = False) prints the side-car's notes nowhere, so a slide without one is no finding there
+            if C.TEACHER_EDITION and s["kind"] != "wb" and s["kind"] != "title" and not s["note"]:
                 findings.append(f"plancheck: slide {s['n']} has no teaching note — {os.path.basename(f)}")
     print(f"plancheck: {n} decks, {len(findings)} findings")
     return findings

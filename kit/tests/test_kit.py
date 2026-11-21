@@ -1457,7 +1457,20 @@ E_["notes"][0]["math"] = ["$2^{3} \\cdot 2^{4} = 2^{7}$"]          # a coloured 
 _root0 = tempfile.mkdtemp(prefix="kitte_root")
 _tA, _tB = tempfile.mkdtemp(prefix="kitte_on"), os.path.join(_root0, "out", "u90")
 os.makedirs(_tB); os.makedirs(os.path.join(_root0, "u90"))
-open(os.path.join(_root0, "u90", "l01.py"), "w", encoding="utf-8").write("L = " + repr(E_) + "\n")
+# the lesson as a course that builds no edition may write it: every field that only the edition or the side-car's notes
+# read taken out (FIELDS.md "written today: no") — the notes, the say lines, the warm-up's retrieval lines, the hints
+_NOTE_KEYS = ("note", "note_q", "note_a", "sub", "hint", "gloss", "source", "band")
+def _strip_no(X):
+    if isinstance(X, dict):
+        return {k: _strip_no(v) for k, v in X.items() if k not in _NOTE_KEYS}
+    if isinstance(X, list):
+        return [_strip_no(v) for v in X]
+    return X
+EN_ = _strip_no(E_)
+for _k in ("yesterday", "today", "title_note", "warmup_note", "vocab_note", "handout"):
+    EN_.pop(_k, None)
+EN_["te"] = {k: v for k, v in E_["te"].items() if k not in ("say", "watch", "lives", "read_first", "set_note", "close_note", "sits")}
+open(os.path.join(_root0, "u90", "l01.py"), "w", encoding="utf-8").write("L = " + repr(EN_) + "\n")
 import slotaudit as _sa0
 try:
     with _cl0.redirect_stdout(_io0.StringIO()):
@@ -1475,13 +1488,14 @@ try:
     C.TEACHER_EDITION = False
     try:
         with _cl0.redirect_stdout(_io0.StringIO()) as _o0:
-            _bB = lb.build_lesson(E_, _tB)
+            _gEN = gates(EN_)
+            _bB = lb.build_lesson(EN_, _tB)
         _left0 = sorted(f for f in os.listdir(_tB) if names.is_edition(f) or "All Documents" in f)
         _plans0 = os.path.exists(os.path.join(_tB, f"{C.PREFIX} Unit 90 Area and Circles - All Lesson Plans.pdf"))
         os.remove(os.path.join(_tB, f"{C.PREFIX} Unit 90 Area and Circles - All Lesson Plans.pdf"))    # a stand-in, not a merge
         with _cl0.redirect_stdout(_io0.StringIO()):
             _uB = _ub0.build_unit(_U0, _tB)
-            _uB["unit_deck"] = lb.build_unit_deck([E_], [(E_["code"], E_["title"])], _U0, _tB)
+            _uB["unit_deck"] = lb.build_unit_deck([EN_], [(E_["code"], E_["title"])], _U0, _tB)
         _srcs = [p for p in list(_bB.values()) + list(_uB.values()) if p.endswith((".docx", ".pptx"))]
         _cv = _sub.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", _tB] + _srcs, stdout=_sub.DEVNULL, stderr=_sub.DEVNULL)
         with _cl0.redirect_stdout(_io0.StringIO()) as _om:
@@ -1514,10 +1528,34 @@ try:
     ok("no edition: the unit merges no All Teacher Editions, and its All Documents holds the lesson plan and the papers only",
        "All Teacher Editions" not in _merged and "All Documents" in _merged and _cv.returncode == 0
        and [o.title for o in __import__("pypdf").PdfReader(_merged["All Documents"]).outline][:1] == ["Lesson Plan"], str(_merged))
-    _same = {k: _parts0(_bA[k]) == _parts0(_bB[k]) for k in _bB}
-    ok("no edition: the slides and their side-car, the Lesson Plan, the set, the banks and every key are exactly as under the profile",
-       set(_bB) == set(_bA) - {"te"} and all(_same.values()) and _parts0(_bA["deck"][:-5] + ".notes.json") == _parts0(_bB["deck"][:-5] + ".notes.json"),
-       str([k for k, v in _same.items() if not v]))
+    from lib import plankit as _plk0
+    _drop0 = [(_plk0.TITLE_MOVE, _plk0.TITLE_MOVE_NO_TE), ("Teach from the front; say the off-slide sentence out loud.", "Teach from the front."),
+              (", and the off-slide sentence is said out loud rather than printed.", "."),
+              ("Teach from the front; the off-slide sentence is said, not shown.", "Teach from the front.")]
+    def _words0(p):
+        with zipfile.ZipFile(p) as z:
+            return "".join(t for nm in sorted(z.namelist()) if re.fullmatch(r"word/document\.xml|ppt/slides/slide\d+\.xml", nm)
+                           for t in re.findall(r"<[aw]:t(?: [^>]*)?>([^<]*)</[aw]:t>", z.read(nm).decode("utf-8")))
+    _planA = _words0(_bA["plan"])
+    _dropped0 = [a for a, b in _drop0 if a in _planA]
+    for a, b in _drop0:
+        _planA = _planA.replace(a, b)
+    _same = {k: _parts0(_bA[k]) == _parts0(_bB[k]) for k in _bB if k != "plan"}
+    _side = lambda p: [(x["n"], x["title"], x["min"], x["kind"]) for x in json.load(open(p[:-5] + ".notes.json"))["slides"]]
+    ok("no edition, every teaching note left out: the slides, the set, the banks and every key are exactly as under the profile, and so are the side-car's minutes",
+       _gEN == [] and set(_bB) == set(_bA) - {"te"} and all(_same.values()) and _side(_bA["deck"]) == _side(_bB["deck"]),
+       str((_gEN[:3], [k for k, v in _same.items() if not v])))
+    ok("no edition: the Lesson Plan is as under the profile but for the sentences that sent the teacher to the edition or to a line printed nowhere",
+       _dropped0 and _words0(_bB["plan"]) == _planA, str(_dropped0))
+    _printed0 = {os.path.basename(p): _words0(p) for p in _srcs}
+    ok("no edition: nothing printed names the Teacher's Edition or an off-slide sentence",
+       not [f for f, t in _printed0.items() if re.search(r"Teacher.?s Edition|Teacher Edition|teacher.s edition|off-slide", t)],
+       str([f for f, t in _printed0.items() if re.search(r"Teacher.?s Edition|Teacher Edition|teacher.s edition|off-slide", t)]))
+    _nn = os.path.join(_tA, "n.notes.json"); json.dump({"slides": [{"n": 1, "title": "Notes", "sub": "", "min": 43, "note": "", "kind": "notes"}]}, open(_nn, "w"))
+    with _cl0.redirect_stdout(_io0.StringIO()):
+        _pn1 = _ck0.check_plan([_nn]); C.TEACHER_EDITION = False; _pn0 = _ck0.check_plan([_nn]); C.TEACHER_EDITION = _te0
+    ok("plancheck: a slide with no teaching note is a finding where the edition is built, and none where it is not",
+       any("no teaching note" in x for x in _pn1) and not any("no teaching note" in x for x in _pn0), str((_pn1, _pn0)))
     ok("no edition: every check over the built lesson and unit is at 0 findings, and telength says it measured none",
        _fB == [] and "the course builds no Teacher Edition, so none is measured; 0 found" in _oc.getvalue()
        and "checks: 0 findings" in _oc.getvalue(), str(_fB)[:600])

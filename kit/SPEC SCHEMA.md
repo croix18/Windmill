@@ -277,9 +277,16 @@ Read by the edition and by something that stays, so still read — and still req
 Plan), `te.variation` (the unit's BANK file; required under `BANK = "md"`), `te.close` (the Before You Go slide; required
 under `CLOSE`), `te.closure` (the labels-style plan), and a board's `unneeded` (ruling 22's gate, `rulingcheck`).
 `te.read_first` was the lines-style edition's fallback for `te.say`; the kit reads it nowhere else, and A7's own
-`bank_file.py` prints it in the unit's BANK file. Every teaching note — `today`, `title_note`, `warmup_note`,
-`vocab_note`, a slide's `sub` and `note`, `note_q`, `note_a`, `te.set_note`, `te.close_note` — still goes to the deck's
-side-car (`plancheck` still wants one on every slide), but no printed document shows the side-car's notes any more.
+`bank_file.py` prints it in the unit's BANK file.
+
+The teaching notes went to the deck's side-car, and only the edition printed them, so they too are read by nothing
+and may be left out: `yesterday`, `today`, `title_note`, `warmup_note`, `vocab_note`, a slide's `sub` and `note`,
+`note_q`, a board's `note` and `note_a`, `te.set_note`, `te.close_note`, and the never-shown `hint` and `gloss`.
+`plancheck` asks for a note on every slide only where the edition is built; the side-car keeps every slide's title,
+kind and minutes, which the Lesson Plan's Sequence, START HERE and `plancheck` read. What a gate needs for the
+mathematics and the diagnostics is required exactly as before: every `check`, `errors` with their cites, `steps`,
+`unneeded`. The Lesson Plan drops the two sentences that sent the teacher to the edition or to the off-slide line
+(the title slide's move reads "Post the target and read it once; nothing else yet.", the notes' "Teach from the front.").
 
 ### `mtr` and `hoq` — ruling 25
 - **`mtr=[("MTR.4.1", "evidence line"), …]`** — the two or three MA.K12.MTR.x.1 the lesson

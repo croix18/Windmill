@@ -60,9 +60,10 @@ True, so M7 is untouched until it says so). `build_lesson` and `merge_pdfs` then
 (and an All Documents with one inside), as `build_all.py` takes out a stale HTML deck; `names` refuses both kinds and
 `packkit.place` refuses a stale one. `telength` measures nothing and says so (an edition among the built files is its
 finding); `rulingcheck` stops asking for `te.say` and `te.watch`, and `capcheck` ignores what only the edition printed.
-`publish_web.py` publishes none, an older unit's included. Everything else is built byte for byte as before — the kit
-tests build a lesson and a unit both ways and compare. Which spec fields stop being read: SPEC SCHEMA, "A course that
-builds no Teacher Edition". The side-car's per-slide notes are still written; no printed page shows them now.
+The teaching notes are optional there (`plancheck` wants one per slide only where the edition is built), and the
+Lesson Plan stops sending the teacher to the edition or the off-slide line. `publish_web.py` publishes what a package
+holds. Everything else is built as before — the kit tests build a lesson both ways, the second with every note left
+out, and compare. Which fields stop being read: SPEC SCHEMA, "A course that builds no Teacher Edition".
 
 ## 15 November 2026 — the kit limits the Unit 11 and Unit 13 builders hit
 

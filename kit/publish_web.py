@@ -13,10 +13,11 @@ every unit's documents. The site's own build (tools/build.mjs there) makes the p
                                                                           and unit.json (number, title). The site makes
                                                                           the student page and the teacher page from it
                                                                           (Croix, 24 Oct 2026: "Fill in the latest
-                                                                          versions of all my made content").
-                                                                          A course that builds no Teacher Edition
-                                                                          (TEACHER_EDITION = False) publishes none, an
-                                                                          older unit's included: the site drops them.
+                                                                          versions of all my made content"). What
+                                                                          the package holds is what is published: a
+                                                                          unit with Teacher Editions keeps them on the
+                                                                          site, one built without (TEACHER_EDITION =
+                                                                          False) has none to publish.
 
 A unit is "built" when build/uN/ has lesson specs and the package folder exists. Files the site already holds are
 compared byte for byte and rewritten only when they differ, so a git status in the site repository shows what moved.
@@ -72,8 +73,6 @@ def publish_package(site, n, counts):
         for f in sorted(files):
             stem, ext = os.path.splitext(f)
             src = os.path.join(root, f)
-            if not C.TEACHER_EDITION and names.is_edition(f):
-                continue                            # a course that builds no Teacher Edition publishes none (20 Nov 2026)
             if ext.lower() in KEEP:
                 want[os.path.normpath(os.path.join(rel, f))] = src
             elif ext.lower() == ".docx" and not os.path.exists(os.path.join(root, stem + ".pdf")):
