@@ -11,10 +11,11 @@ finding and exits 0 is worse than no check.
   pagecheck  no shipped PDF page is blank
   offpage    every word of every PDF lies inside its page box
   pdftwin    every .docx/.pptx has a .pdf twin newer than it whose text contains the source text
-  telength   ruling 26: no teacher's edition runs past four printed pages
+  telength   ruling 26: no teacher's edition runs past four printed pages (a course that builds none: none is built)
   markup     no slide or page shows markup a renderer failed to consume (**, $, LaTeX, a slot mark)
   footer     nothing but the footer itself renders below a slide's footer rule
-  plancheck  every deck side-car totals the period with a whiteboard remainder inside its range
+  plancheck  every deck side-car totals the period with a whiteboard remainder inside its range (and, where the
+             course builds a Teacher Edition, gives every slide its teaching note)
   slidefit   no text box or picture in a deck crosses the footer rule or the slide edge; the rows a deck
              lined up on their signs (align="=") stand on one column, measured again from the deck
   overlap    on a rendered slide, no two lines of text collide and no figure sits on any words
@@ -401,6 +402,13 @@ def check_telength(files):
     """Ruling 26: the teacher's edition is four pages or fewer, printed. A longer one is cut,
     not shrunk — so this is a content finding, never a reason to change the font."""
     findings = []; n = 0
+    if not C.TEACHER_EDITION:
+        # a course that builds no Teacher Edition (course.py TEACHER_EDITION = False, Croix 20 Nov 2026): there is
+        # nothing to measure, and an edition among the built files is a stale one, installed as if it were current
+        stale = [f for f in files if names.is_edition(os.path.basename(f))]
+        findings = [f"telength: a Teacher Edition is among the built files, and this course builds none (TEACHER_EDITION = False) — {os.path.basename(f)}" for f in stale]
+        print(f"telength: the course builds no Teacher Edition, so none is measured; {len(stale)} found among the built files, {len(findings)} findings")
+        return findings
     for f in files:
         base = os.path.basename(f)
         if not (base.endswith(".pdf") and names.is_kind(base, "Teacher Edition")):
@@ -426,7 +434,9 @@ def check_plan(files):
         if not (lo <= wb <= hi):
             findings.append(f"plancheck: whiteboard remainder {wb} outside {lo}–{hi} — {os.path.basename(f)}")
         for s in side:
-            if s["kind"] != "wb" and s["kind"] != "title" and not s["note"]:
+            # the teaching note on every slide is the Teacher Edition's line for it; a course that builds no edition
+            # (TEACHER_EDITION = False) prints the side-car's notes nowhere, so a slide without one is no finding there
+            if C.TEACHER_EDITION and s["kind"] != "wb" and s["kind"] != "title" and not s["note"]:
                 findings.append(f"plancheck: slide {s['n']} has no teaching note — {os.path.basename(f)}")
     print(f"plancheck: {n} decks, {len(findings)} findings")
     return findings

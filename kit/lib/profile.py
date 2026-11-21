@@ -22,6 +22,10 @@ DEFAULTS = dict(
     WB_COUNT=9,                # nine boards, the ninth written
     WB_RANGE=(10, 20),         # the whiteboard round is the remainder and must land here
     TE_MAX_PAGES=4,            # ruling 26 — a longer teacher's edition is cut, not shrunk
+    TEACHER_EDITION=True,      # False (Croix, 20 Nov 2026, of A7: "You can get rid of the 4 page teacher edition"): no
+                               # "- Teacher Edition" file and no "All Teacher Editions" merge; one left in out/ is removed,
+                               # and no gate asks for a field only the edition printed (SPEC SCHEMA: "A course that builds
+                               # no Teacher Edition")
     # ---- the shape of a lesson's deliverables
     SET="handout",             # "handout": the six questions are a printed page and its key
                                # "slide":   the six questions are on a slide; no handout

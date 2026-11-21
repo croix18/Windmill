@@ -539,8 +539,8 @@ def build_unit(U, outdir):
 
 def merge_pdfs(outdir, lessons, U):
     """Croix, 17 October ("a similar all-files-in-one thing for the rest of the stuff"): the unit's
-    documents merged into one PDF per kind, in teaching order — every teacher's edition, every
-    lesson plan, the assessment papers (each form's paper, then its key, then its worked answers),
+    documents merged into one PDF per kind, in teaching order — every teacher's edition (where the
+    course builds them: TEACHER_EDITION), every lesson plan, the assessment papers (each form's paper, then its key, then its worked answers),
     and the keys alone (lesson keys in order, then the papers' keys). Each starts from the built
     per-document PDFs, so nothing is laid out twice. Returns {kind: path}."""
     from pypdf import PdfWriter, PdfReader
@@ -552,8 +552,13 @@ def merge_pdfs(outdir, lessons, U):
     forms = list(unit_forms(A)) if has_forms(A) else ["test"] + (["practice"] if A.get("practice") else [])
     form_kind = lambda f: "Practice Test" if f == "practice" else (f"Test Form {f}" if f != "test" else "Test")
     review = ["Review"] if U.get("review") else []          # a review that is a paper (A7) sits with the assessments
+    # a course that builds no Teacher Edition (TEACHER_EDITION = False, 20 Nov 2026) merges none, and a merge or an
+    # edition an earlier build left in out/ goes (lessonbuild.clear_editions)
+    from .lessonbuild import clear_editions
+    clear_editions(outdir)
+    te = (lambda L: pdf(names.lesson(L, "Teacher Edition", "pdf"))) if C.TEACHER_EDITION else (lambda L: None)
     sets = {
-        "All Teacher Editions": [pdf(names.lesson(L, "Teacher Edition", "pdf")) for L in lessons],
+        **({"All Teacher Editions": [te(L) for L in lessons]} if C.TEACHER_EDITION else {}),
         "All Lesson Plans": [pdf(names.lesson(L, "Lesson Plan", "pdf")) for L in lessons],
         "All Assessments": [pdf(names.unit(unit, kind, "pdf", key=k, worked=w))
                             for kind in review + [form_kind(f) for f in forms]
@@ -563,7 +568,7 @@ def merge_pdfs(outdir, lessons, U):
                     + [pdf(names.unit(unit, kind, "pdf", key=True)) for kind in review + [form_kind(f) for f in forms]],
     }
     # and everything in one: lesson by lesson (teacher's edition, then plan), then the papers and keys
-    sets["All Documents"] = [f for L in lessons for f in (pdf(names.lesson(L, "Teacher Edition", "pdf")), pdf(names.lesson(L, "Lesson Plan", "pdf")))] \
+    sets["All Documents"] = [f for L in lessons for f in (te(L), pdf(names.lesson(L, "Lesson Plan", "pdf")))] \
                             + sets["All Assessments"] + [f for f in sets["All Keys"] if f and f not in sets["All Assessments"]]
     out = {}
     for kind, files in sets.items():

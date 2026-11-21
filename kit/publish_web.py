@@ -13,7 +13,11 @@ every unit's documents. The site's own build (tools/build.mjs there) makes the p
                                                                           and unit.json (number, title). The site makes
                                                                           the student page and the teacher page from it
                                                                           (Croix, 24 Oct 2026: "Fill in the latest
-                                                                          versions of all my made content").
+                                                                          versions of all my made content"). What
+                                                                          the package holds is what is published: a
+                                                                          unit with Teacher Editions keeps them on the
+                                                                          site, one built without (TEACHER_EDITION =
+                                                                          False) has none to publish.
 
 A unit is "built" when build/uN/ has lesson specs and the package folder exists. Files the site already holds are
 compared byte for byte and rewritten only when they differ, so a git status in the site repository shows what moved.

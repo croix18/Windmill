@@ -357,6 +357,12 @@ def _rad_ok(v, deg):
 # wrong, so the boundary scans do not run inside them. Everything a student is asked to work —
 # stem, text, latex, choices, answer, why, prompt, math, items2, rows, gloss, hint — is scanned.
 TEACHER_PROSE = {"note", "note_q", "wrong", "errors", "source", "warmup_note"}
+# What the Teacher Edition printed and no other output reads (SPEC SCHEMA: "A course that builds no Teacher Edition";
+# the table is FIELDS.md): a lesson's `handout`, and in `te` the three things to say, the misconceptions to watch and
+# the say-line fallback `lives`. `read_first` is the edition's other fallback, but a course's own BANK file prints it.
+TE_ONLY = ("handout",)
+TE_ONLY_TE = ("say", "watch", "lives")
+TE_ONLY_WARMUP = ("source", "band")          # the "1 retrieves 3.02 (yesterday)" lines
 
 
 def boundcheck_str(s, where, code, caps=("gap", "radicand")):
@@ -401,6 +407,12 @@ def capcheck_lesson(L):
     [1,10) — because it is ABOUT the constraint — carries not_sci=True."""
     out = []
     caps = C.CAPS
+    if not C.TEACHER_EDITION:           # what only the Teacher Edition printed is printed nowhere: not refused for anything
+        L = {k: v for k, v in L.items() if k not in TE_ONLY}
+        if isinstance(L.get("te"), dict):
+            L["te"] = {k: v for k, v in L["te"].items() if k not in TE_ONLY_TE}
+        if isinstance(L.get("warmup"), list):
+            L["warmup"] = [{k: v for k, v in w.items() if k not in TE_ONLY_WARMUP} if isinstance(w, dict) else w for w in L["warmup"]]
     blob = json.dumps(L, ensure_ascii=False, default=str)
     if "fracexp" in caps and (re.search(r"\^\{\s*\\frac", blob) or re.search(r"\^\{\s*\d+/\d+", blob)):
         out.append(f"{L['code']}: fractional exponent found")
@@ -544,7 +556,8 @@ def build_unit_deck(lessons, rows, U, outdir):
     for cls, ext in ((Deck, "pptx"),) + (((HtmlDeck, "html"),) if C.HTML else ()):
         D = cls(COURSE, unit, f"Unit {unit}", U["title"], f"{COURSE} · Unit {unit} — {U['title']}")
         D.unit_cover(U["title"], [f"{what}  ·  the next slide jumps to each one"])
-        contents = D.section("Contents", "Click a lesson to jump to it. Each lesson numbers its slides from 1, as its Teacher Edition does.", 0, "", "contents")
+        contents = D.section("Contents", "Click a lesson to jump to it. Each lesson numbers its slides from 1"
+                             + (", as its Teacher Edition does." if C.TEACHER_EDITION else ", as its own deck does."), 0, "", "contents")
         starts = []
         for L in lessons:
             starts.append(D.count())                  # the lesson's title slide, 0-based
@@ -673,8 +686,10 @@ def _fill_deck(D, L):
     surfaces where the teacher shows — Notes, worked examples, and every reveal — and is withheld
     wherever the student still has to decide: warm-up, example and Your Turn prompts, whiteboard
     questions (rules 4 and 6)."""
-    D.title_slide(L["benchmark"], L["target"], L["yesterday"], L["today"], minutes=1,
-                  note=L.get("title_note", f"Post the learning target. Say one line and nothing else yet: \u201c{L['today']}\u201d"))
+    # every teaching note below is read with .get: the side-car is the only place a note goes, and a course that builds
+    # no Teacher Edition (TEACHER_EDITION = False) prints it nowhere, so its specs need not carry one (20 Nov 2026)
+    D.title_slide(L["benchmark"], L["target"], L.get("yesterday", ""), L.get("today", ""), minutes=1,
+                  note=L.get("title_note", f"Post the learning target. Say one line and nothing else yet: \u201c{L['today']}\u201d" if L.get("today") else ""))
     # ---- warm-up: four retrieval questions, one slide; reveal slide after
     wu = L["warmup"]
     # (the second argument of section() is the slide's label in the Teacher's Edition; it is not drawn —
@@ -746,7 +761,7 @@ def _fill_deck(D, L):
             D.items(note["items2"], size=note.get("size", 23), letters=note.get("letters", True), start=len(note.get("items", [])), slots=True)
 
     for ni, note in enumerate(L["notes"]):
-        D.section("Notes", note.get("sub", ""), note["min"], note["note"], "notes")
+        D.section("Notes", note.get("sub", ""), note["min"], note.get("note", ""), "notes")
         D.no_band(); D.cursor = TOP - 0.08
         if note.get("fig") and isinstance(D, Deck):
             # the figure is the flexible block: a picture trimmed to its ink (15 Nov 2026) fills the room its
@@ -772,7 +787,7 @@ def _fill_deck(D, L):
     # problem is in [the grey line], it should be pulled out into the main text"). The question
     # slide starts under the rules, so a prompt that carries its story has the room.
     for ex in L["examples"]:
-        D.section(ex["title"], ex.get("sub", ""), ex["min_q"], ex["note_q"], "example")
+        D.section(ex["title"], ex.get("sub", ""), ex["min_q"], ex.get("note_q", ""), "example")
         D.no_band()
         fig = ex.get("fig")
         if fig and ex.get("ask"):           # the figure gives up what the bold line under it needs (one line, or two)
@@ -787,7 +802,7 @@ def _fill_deck(D, L):
             D.cursor += 0.2
             D.text(ex["ask"], 24, bold=True, align="center")
         for wi, w in enumerate(ex["worked"]):
-            D.section(ex["title"], w.get("sub", "Worked."), w.get("min", 2), w["note"], "example")
+            D.section(ex["title"], w.get("sub", "Worked."), w.get("min", 2), w.get("note", ""), "example")
             if w.get("lead"):               # a question this worked slide puts to the room: main text, one bold line
                 D.lead(w["lead"])
             D.cursor = 2.1
@@ -821,7 +836,7 @@ def _fill_deck(D, L):
             # bold instruction ("Which law? Then find the value."), or its own `ask` when it has one.
             yt_ask = yt.get("ask", ex.get("ask") if all(_bare_math(r) for r in yt["prompt"]) else None)
             top, surf = _yt_fit(yt, yt_ask)
-            D.section("Your Turn", "Same steps, your numbers. Boards up when done.", yt.get("min", 2), yt["note"], "yourturn")
+            D.section("Your Turn", "Same steps, your numbers. Boards up when done.", yt.get("min", 2), yt.get("note", ""), "yourturn")
             _yt_body(D, yt, yt_ask, False, top, surf)
             D.section("Your Turn", "Answer.", 1, "Reveal; name what a wrong board most likely did (see the note above).", "yourturn")
             _yt_body(D, yt, yt_ask, True, top, surf)
@@ -837,7 +852,7 @@ def _fill_deck(D, L):
         subq = "Take your time. Boards up when you have written it." if last else "Boards up on three."
         meta = _board_meta(L, qi, q)
         top, surf = _wb_fit(q)             # where both of its slides start, and how large its expression is set
-        D.section(title, subq, 0, q["note"], "wb")
+        D.section(title, subq, 0, q.get("note", ""), "wb")
         D.tag(wb=dict(meta, reveal=False))
         D.cursor = 2.4 if top is None else top
         _wb_body(D, q, reveal=False, surface=surf)
@@ -846,7 +861,7 @@ def _fill_deck(D, L):
         D.cursor = 2.3 if top is None else top
         _wb_body(D, q, reveal=True, surface=surf)
     # ---- the independent set (ruling 21), the close where the course has one, then IXL last
-    T = L["te"]
+    T = L.get("te") or {}
     if not L.get("no_set"):           # Croix, 27 September: the M7 Unit 4 lessons carry no six-question set
         # the six questions are ON the slide in both courses (Croix, 4 October: "the individual
         # review portion of the slides needs to put the problems on the board"). Where the course
@@ -1623,10 +1638,13 @@ def rulingcheck_lesson(L):
     if len(unneeded) != 1:
         out.append(f"{code}: ruling 22 — {len(unneeded)} boards carry a figure the question does not need, needs exactly 1"
                    + (f" (boards {[u + 1 for u in unneeded]})" if unneeded else ""))
-    T = L["te"]
-    if not (T.get("say") and len(T["say"]) == 3):
+    T = L.get("te") or {}
+    # te.say and te.watch are printed by the Teacher Edition and by nothing else: a course that builds none
+    # (TEACHER_EDITION = False) asks for neither, and a spec that still carries them is not refused. must /
+    # must_not (the Lesson Plan prints them), close (the slide) and variation (the unit's BANK file) stay.
+    if C.TEACHER_EDITION and not (T.get("say") and len(T["say"]) == 3):
         out.append(f"{code}: ruling 26 — te.say must be the three sentences to say out loud today")
-    need = (("must", "must_not", "watch") if C.TE_STYLE == "table" else ()) \
+    need = (("must", "must_not") + (("watch",) if C.TEACHER_EDITION else ()) if C.TE_STYLE == "table" else ()) \
         + (("close",) if C.CLOSE else ()) + (("variation",) if C.BANK == "md" else ())
     for f in need:
         if not T.get(f):
@@ -1891,11 +1909,42 @@ def build_lesson(L, outdir):
     out["deck"] = build_deck(L, outdir)
     if C.HTML:                          # ruling 41: a deck is its Slides file; no HTML unless the course asks
         out["html"] = build_html_deck(L, outdir)
-    out["te"] = build_te(L, out["deck"], outdir)
+    if C.TEACHER_EDITION:
+        out["te"] = build_te(L, out["deck"], outdir)
+    else:                               # Croix, 20 Nov 2026: the course builds no Teacher Edition, and keeps none in out/
+        clear_editions(outdir)
     out["plan"] = plankit.build_plan(P, out["deck"], outdir)
     if C.BANK == "md" and not L.get("review"):
         write_bank(P, outdir)
     return out
+
+
+def clear_editions(outdir):
+    """A course whose profile sets TEACHER_EDITION = False (Croix, 20 Nov 2026, of A7: "You can get rid of the 4 page
+    teacher edition") keeps no edition in out/, as a course that builds no HTML keeps no HTML deck (ruling 41): what is
+    in out/ is what is installed. Removes every lesson's Teacher Edition (.docx and .pdf), the All Teacher Editions
+    merge, and an All Documents merge made while editions were in it (build_unit.py makes it again, without them).
+    Returns the names removed; does nothing where the course builds editions."""
+    if C.TEACHER_EDITION or not os.path.isdir(outdir):
+        return []
+    gone = []
+    for f in sorted(os.listdir(outdir)):
+        p = os.path.join(outdir, f)
+        if not os.path.isfile(p):
+            continue
+        stale = names.is_edition(f)
+        if not stale and f.endswith(".pdf") and names.parts(f)[:1] == ["All Documents"]:
+            try:
+                from pypdf import PdfReader
+                stale = any(names.TEACHER_EDITION in getattr(o, "title", "") for o in PdfReader(p).outline if not isinstance(o, list))
+            except Exception:
+                stale = True                # unreadable: made again by build_unit.py either way
+        if stale:
+            os.remove(p); gone.append(f)
+    if gone:
+        print(f"   {len(gone)} Teacher Edition file(s) from an earlier build removed from {os.path.basename(outdir)} "
+              f"(the course builds none: TEACHER_EDITION = False)")
+    return gone
 
 
 def write_bank(L, outdir):

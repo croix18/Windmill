@@ -20,6 +20,13 @@ from .lessonbuild import MTR_TEXT, REVOTE, board_text, differentiation_rows, _pl
 COURSE, PREFIX = C.COURSE, C.PREFIX
 
 
+# The plan's line for the title slide. A course that builds no Teacher Edition (TEACHER_EDITION = False, 20 Nov 2026)
+# has no line to send the teacher to — the edition printed the slide's note and nothing else does — and no off-slide
+# sentence printed anywhere, so the plan names neither.
+TITLE_MOVE = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet."
+TITLE_MOVE_NO_TE = "Post the target and read it once; nothing else yet."
+
+
 def build_plan(L, deck_path, outdir):
     return (_plan_labels if C.PLAN_STYLE == "labels" else _plan_sections)(L, deck_path, outdir)
 
@@ -47,7 +54,7 @@ def _plan_sections(L, deck_path, outdir):
     blk = doc.block()
     doc.section("2.  Standards", container=blk)
     doc.para(f"**{L['benchmark']}**  {L['benchmark_text']}", size=10.5, before=2, after=4, container=blk)
-    T = L["te"]
+    T = L.get("te") or {}
     notes = dict(T.get("standard_notes", []))
     must = T.get("must") or notes.get("Clarification") or notes.get("Benchmark")
     if must:
@@ -80,7 +87,7 @@ def _plan_sections(L, deck_path, outdir):
         seg = b["seg"]
         mins = wb_min if b["kind"] == "wb" else b["min"]
         if b["kind"] == "title":
-            t, s_ = "Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Copy the target."
+            t, s_ = (TITLE_MOVE if C.TEACHER_EDITION else TITLE_MOVE_NO_TE), "Copy the target."
         elif b["kind"] == "warmup":
             # silent for the minutes the row gives (the Teacher's Edition says how many); a plan that said "two minutes"
             # beside a Teacher's Edition that said four (the A7 Unit 6 second review, 25 Oct 2026)
@@ -91,7 +98,7 @@ def _plan_sections(L, deck_path, outdir):
             t, s_ = "Read each new word and its meaning once; the notes use them next.", "Copy the words."
         elif b["kind"] == "notes":
             # "Expand once per law" was the exponents unit's move, printed in every unit's plan (A7 Unit 6, 25 Oct 2026)
-            t, s_ = "Teach from the front; say the off-slide sentence out loud.", "Copy the notes; answer the checks aloud."
+            t, s_ = ("Teach from the front; say the off-slide sentence out loud." if C.TEACHER_EDITION else "Teach from the front."), "Copy the notes; answer the checks aloud."
         elif b["kind"] == "example":
             t, s_ = "Work the example; name the wrong boards before they appear.", "Watch, then work the Your Turn alone."
         elif b["kind"] == "yourturn":
@@ -110,7 +117,8 @@ def _plan_sections(L, deck_path, outdir):
     # 6 -------------------------------------------------- gradual release
     blk = doc.block()
     doc.section("6.  Gradual Release", container=blk)
-    doc.para("**I do.**  The Notes slides and the worked half of each Example: the teacher writes, the class copies, and the off-slide sentence is said out loud rather than printed.", size=10.5, before=2, after=3, container=blk)
+    doc.para("**I do.**  The Notes slides and the worked half of each Example: the teacher writes, the class copies"
+             + (", and the off-slide sentence is said out loud rather than printed." if C.TEACHER_EDITION else "."), size=10.5, before=2, after=3, container=blk)
     doc.para("**We do.**  Each Example's Your Turn: the same steps on the student's own numbers, revealed and named a minute later.", size=10.5, before=0, after=3, container=blk)
     doc.para(f"**You do.**  The nine-question whiteboard round ({wb_min} minutes) and then the six-question independent set, silent and written.", size=10.5, before=0, after=4, container=blk)
     doc.spacer(1)
@@ -201,7 +209,7 @@ def _plan_labels(L, deck_path, outdir):
     rows, wb_min, side, blocks = tekit.plan_from_sidecar(side_path)
     eyebrow = f"{COURSE}  ·  Unit {L['unit']}"
     P = Plan(eyebrow, L["title"])
-    T = L["te"]
+    T = L.get("te") or {}
 
     P.table([2100, 2600, 2200, 2460], [
         [{"text": "Teacher", "bold": True}, "Croix Shaffer", {"text": "Course", "bold": True}, f"{COURSE} ({C.COURSE_CODE})"],
@@ -295,11 +303,11 @@ def _moves(b):
     """What the teacher does and what students do, per segment kind."""
     k = b["kind"]
     return {
-        "title": ("Post the target; say the one line the Teacher's Edition gives for it, and nothing else yet.", "Settle, copy the target."),
+        "title": (TITLE_MOVE if C.TEACHER_EDITION else TITLE_MOVE_NO_TE, "Settle, copy the target."),
         "warmup": ("Silent, then reveal; one sentence of reteach per question at most.",
                    "Four retrieval questions from memory, on their own, no notes."),
         "vocab": ("Read each new word and its meaning once; the notes use them next.", "Copy the words."),
-        "notes": ("Teach from the front; the off-slide sentence is said, not shown.",
+        "notes": ("Teach from the front; the off-slide sentence is said, not shown." if C.TEACHER_EDITION else "Teach from the front.",
                   "Copy the notes; answer the questioning prompts on a count."),
         "example": ("Work the example aloud, naming the step before doing it.",
                     "Watch, then write the same steps."),
