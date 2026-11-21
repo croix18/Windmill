@@ -148,7 +148,7 @@ def findings(build, unit):
                 for xi, wx in enumerate(X.get("warmup") or []):
                     why = same_warmup(wx, wy)
                     if why and not (wx.get("repeat_ok") or wy.get("repeat_ok")):
-                        out.append((f"{Y['code']}/W{wi + 1}", f"{X['code']}/W{xi + 1}", "W", why))
+                        out.append((f"{Y['code']}/W{wi + 1}", f"{X['code']}/W{xi + 1}", "W", "is " + why))
             comb, owner = _labeler([(X["code"], _practice_only(X)), (Y["code"], _practice_only(Y))])
             posed = {p["label"]: p["posed"] for p in rc.practice(comb)}
             seen = set()
