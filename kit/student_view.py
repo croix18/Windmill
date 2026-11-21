@@ -4,6 +4,9 @@ solver; and the key, for blind_diff.py.
     python3 student_view.py u11                   → /tmp/student/u11/student.md and key.json
     python3 student_view.py u11 --out DIR         → somewhere else
     python3 student_view.py u11 --figs            → and the question pictures (never the answer's) in OUT/figures/
+    python3 student_view.py u11 --bank            → and every lesson's Question Bank and Additional Question Bank
+                                                    (ids 11.01/K3, 11.01/A3, a part K3b), after its set
+    python3 student_view.py u11 --only bank       → those two banks of every lesson and nothing else
     (--build DIR reads the unit folders of another build folder, as figure_sheets.py does)
 
 student.md covers the warm-up, the Your Turns, the whiteboards, the independent set of every lesson and every part
@@ -56,16 +59,47 @@ def _plain(r, parent=None):
     return " ".join(s.replace("**", "").split())
 
 
-def build(build_dir, unit):
-    model, figmap = rcopy.unit_model(build_dir, unit)
+def build(build_dir, unit, bank=False, only_bank=False):
+    """(student.md, key, the question pictures' numbers). bank adds each lesson's Question Bank and Additional
+    Question Bank after its set; only_bank writes those two and nothing else."""
+    model, figmap = rcopy.unit_model(build_dir, unit, bank=bank or only_bank)
     md, key, figs = [f"# Unit {unit[1:]} — the questions", "",
                      "Answer every question below. Give each answer with its id. A choice question: give the letter "
                      "(□ means select every one that applies). A picture named [figure: NNN.png] is in the pictures you were given.", ""], {}, set()
+
+    def parent_fig(r):
+        if r["figs"].get("fig", "").endswith(".png"):
+            figs.add(int(r["figs"]["fig"][:3]))     # a stem's picture shared by its parts is a question picture too
     for fname, kind, top, items in model:
         if kind == "lesson":
+            if only_bank:
+                items = [r for r in items if r.get("group") in ("bank", "additional") or r.get("kind", "").startswith(("bank", "additional"))]
+                if not items:
+                    continue
             md += ["", f"## {top.get('code')} {top.get('title', '')}", ""]
-            group = None
+            group, parent = None, None
             for r in items:
+                if "bank" in r:
+                    md += ["", f"### {r['bank']}", ""]
+                    group = r["bank"]
+                    continue
+                if r.get("group") in ("bank", "additional") or r.get("kind", "").startswith(("bank", "additional")):
+                    if "heading" in r:
+                        md.append(f"_{r['heading']}_")
+                    elif "table" in r:
+                        md += r["table"]
+                    elif r.get("parts_of"):
+                        parent = r
+                        parent_fig(r)
+                        md += _q_md(r)
+                    elif r["kind"].endswith("-part"):
+                        md += _q_md(r, "    ")
+                        r["_parent"] = _plain(parent) if parent else None
+                        key[r["id"]] = r
+                    else:
+                        md += _q_md(r)
+                        key[r["id"]] = r
+                    continue
                 g = GROUPS.get(r.get("kind") or r.get("group"), "Whiteboards")
                 if g != group:
                     md += ["", f"### {g}", ""]
@@ -75,7 +109,7 @@ def build(build_dir, unit):
                     continue
                 md += _q_md(r)
                 key[r["id"]] = r
-        else:
+        elif not only_bank:
             parent = None
             for r in items:
                 if "paper" in r:
@@ -86,6 +120,7 @@ def build(build_dir, unit):
                     md.append(f"_{r['heading']}_")
                 elif r.get("parts_of"):
                     parent = r
+                    parent_fig(r)
                     md += _q_md(r)
                 elif r["kind"] == "paper-part":
                     md += _q_md(r, "    ")
@@ -101,11 +136,6 @@ def build(build_dir, unit):
             figs.add(int(r["figs"]["fig"][:3]))
         out[i] = dict(kind=r["kind"], question=_plain(r, r.get("_parent")), answer=r["answer"],
                       **({"correct": r["correct"], "multi": r["multi"], "choices": r["choices"]} if r["choices"] else {}), check=r["check"])
-    # a parent stem with its own picture (a matching grid shared by its parts) is a question picture too
-    for fname, kind, top, items in model:
-        for r in items:
-            if r.get("parts_of") and r["figs"].get("fig", "").endswith(".png"):
-                figs.add(int(r["figs"]["fig"][:3]))
     return "\n".join(md) + "\n", out, figs
 
 
@@ -114,18 +144,20 @@ def main(argv):
     for a in it:
         if a in ("--out", "--build"):
             opts[a] = next(it, None)
-        elif a == "--figs":
+        elif a in ("--figs", "--bank"):
             opts[a] = True
+        elif a == "--only":
+            opts[a] = next(it, None)
         else:
             args.append(a)
-    if len(args) != 1 or args[0].startswith("--"):
+    if len(args) != 1 or args[0].startswith("--") or opts.get("--only") not in (None, "bank"):
         print(__doc__)
         return 2
     unit = args[0]
     b = rcopy.setup(opts.get("--build"))
     out = os.path.abspath(opts.get("--out") or os.path.join("/tmp/student", unit))
     os.makedirs(out, exist_ok=True)
-    md, key, figs = build(b, unit)
+    md, key, figs = build(b, unit, bank=bool(opts.get("--bank")), only_bank=opts.get("--only") == "bank")
     p1, p2 = os.path.join(out, "student.md"), os.path.join(out, "key.json")
     open(p1, "w", encoding="utf-8").write(md)
     open(p2, "w", encoding="utf-8").write(json.dumps(key, ensure_ascii=False, indent=1, default=str))
