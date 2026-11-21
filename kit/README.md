@@ -52,6 +52,18 @@ named from it); its unit folders (`uN/lNN.py`, `unit.py`, `review.py`, `manifest
 `install_unit.py` (where its packages live and what START HERE says — the layout itself is the kit's);
 its rulebook, whose suite tables `suitecheck` reads.
 
+## 20 November 2026 — a course may build no Teacher Edition (`TEACHER_EDITION`)
+
+Croix, of A7: "You can get rid of the 4 page teacher edition." `course.py TEACHER_EDITION = False` (the family default is
+True, so M7 is untouched until it says so). `build_lesson` and `merge_pdfs` then write no "- Teacher Edition" file and no
+"All Teacher Editions" merge, and `lessonbuild.clear_editions` takes out of `out/` any edition an earlier build left there
+(and an All Documents with one inside), as `build_all.py` takes out a stale HTML deck; `names` refuses both kinds and
+`packkit.place` refuses a stale one. `telength` measures nothing and says so (an edition among the built files is its
+finding); `rulingcheck` stops asking for `te.say` and `te.watch`, and `capcheck` ignores what only the edition printed.
+`publish_web.py` publishes none, an older unit's included. Everything else is built byte for byte as before — the kit
+tests build a lesson and a unit both ways and compare. Which spec fields stop being read: SPEC SCHEMA, "A course that
+builds no Teacher Edition". The side-car's per-slide notes are still written; no printed page shows them now.
+
 ## 15 November 2026 — the kit limits the Unit 11 and Unit 13 builders hit
 
 Croix, 15 Nov, 8:40 am, told what the kit could not do for A7 Unit 11 and M7 Unit 13: *"Fix windmill. Fix the

@@ -261,6 +261,26 @@ move with them); **`close=[…]`** — the "Before You Go" slide's lines (profil
 `variation` (profile `BANK = "md"`). Optional: `set_note` and `close_note` replace the standing
 teacher's-edition notes for the independent set and the close.
 
+### A course that builds no Teacher Edition (`TEACHER_EDITION = False`, 20 November 2026)
+
+Croix, of A7: "You can get rid of the 4 page teacher edition." Where `course.py` sets `TEACHER_EDITION = False` no
+edition is built, and these fields, which only the edition printed, are read by nothing; a spec may keep them (older
+units do) and is never refused for them, or for leaving them out:
+
+- `te.say` (no longer required — ruling 26's three sentences), `te.watch` (no longer required under `TE_STYLE = "table"`),
+  `te.lives`;
+- a lesson's `handout` (the table-style edition's Materials line);
+- a warm-up question's `source` and `band` (the edition's "1 retrieves 3.02 (yesterday)" lines).
+
+Read by the edition and by something that stays, so still read — and still required where they were: `te.must` and
+`te.must_not` (the Lesson Plan; required under `TE_STYLE = "table"`), `te.standard_notes` and `te.materials` (the Lesson
+Plan), `te.variation` (the unit's BANK file; required under `BANK = "md"`), `te.close` (the Before You Go slide; required
+under `CLOSE`), `te.closure` (the labels-style plan), and a board's `unneeded` (ruling 22's gate, `rulingcheck`).
+`te.read_first` was the lines-style edition's fallback for `te.say`; the kit reads it nowhere else, and A7's own
+`bank_file.py` prints it in the unit's BANK file. Every teaching note — `today`, `title_note`, `warmup_note`,
+`vocab_note`, a slide's `sub` and `note`, `note_q`, `note_a`, `te.set_note`, `te.close_note` — still goes to the deck's
+side-car (`plancheck` still wants one on every slide), but no printed document shows the side-car's notes any more.
+
 ### `mtr` and `hoq` — ruling 25
 - **`mtr=[("MTR.4.1", "evidence line"), …]`** — the two or three MA.K12.MTR.x.1 the lesson
   actually exercises, each with one line of evidence from the period ("the re-vote on board 5").
@@ -710,6 +730,7 @@ read from the deck side-cars, never typed.
 | `CLOSE` | no | yes | a "Before You Go" slide before IXL (`te.close`) |
 | `BANK` | `"docx"` | `"md"` | Question Bank and Additional as documents with keys per lesson, or one `BANK - Unit N.md` per unit |
 | `TE_STYLE` | `"lines"` | `"table"` | the teacher's edition's boards inline, or as a table (`te.watch` required) |
+| `TEACHER_EDITION` | no (20 Nov 2026) | yes | a Teacher Edition per lesson and the All Teacher Editions merge — see "A course that builds no Teacher Edition" |
 | `PLAN_STYLE` | `"sections"` | `"labels"` | the Florida lesson plan as ten numbered sections, or headed paragraphs |
 | `UNITS` | units 1–4 | units 2–13 | each unit's title — every unit-wide file and folder is named from it, and `unit.py`'s title must agree |
 | `REVIEW_IN_DECK` | no | yes | `uN/review.py` is built like a lesson and closes the unit deck |
