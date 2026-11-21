@@ -100,7 +100,7 @@ def build(build_dir, unit):
         if r["figs"].get("fig", "").endswith(".png"):
             figs.add(int(r["figs"]["fig"][:3]))
         out[i] = dict(kind=r["kind"], question=_plain(r, r.get("_parent")), answer=r["answer"],
-                      **({"correct": r["correct"], "multi": r["multi"]} if r["choices"] else {}), check=r["check"])
+                      **({"correct": r["correct"], "multi": r["multi"], "choices": r["choices"]} if r["choices"] else {}), check=r["check"])
     # a parent stem with its own picture (a matching grid shared by its parts) is a question picture too
     for fname, kind, top, items in model:
         for r in items:

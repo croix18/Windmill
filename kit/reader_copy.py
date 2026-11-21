@@ -75,8 +75,13 @@ def figure_numbers(build, unit):
     from lib import figkit, mathimg
     keep = (figkit.draw, figkit.FIGS, figkit.INDEX, mathimg.FIGS, mathimg.INDEX)
 
+    real = figkit.draw
+
     def no_draw(*a, **k):
-        raise RuntimeError("not drawn")
+        # only figure_sheets.py's own call is skipped: a unit's figs.py may draw while it loads, to measure (A7 u6)
+        if sys._getframe(1).f_code is figure_sheets.main.__code__:
+            raise RuntimeError("not drawn")
+        return real(*a, **k)
     out = {}
     with tempfile.TemporaryDirectory() as tmp:
         figkit.draw = no_draw
