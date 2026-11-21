@@ -57,7 +57,7 @@ look at the result directly instead of asking him.**
 | | |
 |---|---|
 | `WindyHill.gs` | The script, **version 3.1** (15 Nov 2026: with the Mirror tab lost and the record rebuilt over more than one run, version 3 stopped after the first run — the commit was already marked done — and left the rest off the record and the Drive tab until the next commit; 3.1 finishes the job. He pastes 3.1 over 3.). It lives in the spreadsheet **"Windy Hill Drive Index"** (id `1JMjbk7-wjv0MozXuJKJIZ_vOomcztJgAPu5Tr-Z7Uts`, owned by mrshaffermath@…, in the master folder's `Apps`) — he pastes it into Extensions › Apps Script once. It runs every hour as that account. |
-| `test_windyhill.js` | The script run end to end against stand-ins for Drive, Sheets, the Drive service, mail, triggers, the clock and GitHub (which serves what the two course repositories really publish). `tools/check.sh` runs it. `WINDYHILL_GS=<file>` runs it on another copy of the script (how its sensitivity is measured: break the script, see the test notice). Since ruling 41 the courses publish no consoles, so every run of the test (15 Nov 2026) is given the consoles the kept list names beside the real paths — before that, with the checkouts beside it, it crashed in section I (`con[0]` undefined) because there was no published console to take his deleted one's place. |
+| `test_windyhill.js` | The script run end to end against stand-ins for Drive, Sheets, the Drive service, mail, triggers, the clock and GitHub (which serves what the two course repositories really publish). `tools/check.sh` runs it. `WINDYHILL_GS=<file>` runs it on another copy of the script (how its sensitivity is measured: break the script, see the test notice). Since ruling 41 the courses publish no consoles, so every run of the test (15 Nov 2026) is given the consoles the kept list names beside the real paths — before that, with the checkouts beside it, it crashed in section I (`con[0]` undefined) because there was no published console to take his deleted one's place. Since 21 Nov 2026 its three waits for a deleted file to come back are one round of the hourly check (the mirror's files ÷ `AUDIT`, and an hour to fetch), not twelve hours: twelve covered 1,440 files, the two courses held 1,666 and passed only by where the check happened to stand, and A7's Unit 7 (1,769) failed them. It fails when a round passes a day. |
 | `mutations.py` | Breaks the script one line at a time, in every way listed there, and requires the test to notice each. Slow (ten minutes); run it after changing the script or the test. |
 | `codes.py` | Reads the codes a master sheet looks up out of its Links tab — the test uses it to hold the script to the workbooks. |
 | `hub.py` | A session's way to read the script's Status tab (and `key()`, the code a name is filed under). |
@@ -99,7 +99,9 @@ look at the result directly instead of asking him.**
    whether the links use it.
 7. **Looks after itself.**
    - 120 files an hour are checked for still being there (all of them at once: menu *Check
-     everything*); one he deleted comes back.
+     everything*); one he deleted comes back. A round of every file takes the number of files
+     ÷ 120 hours: 15 hours for the 1,769 files of 21 Nov 2026 (A7's Unit 7 counted). The test
+     holds a round under a day, which is 2,760 files; raise `AUDIT` in the script before then.
    - Every file carries, in its Drive description, the repository, git name and MD5 it was made
      from. **If the record is lost, or a run is stopped half way, the next run reads those and
      takes the files on** — nothing is downloaded twice, nothing exists twice.

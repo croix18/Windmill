@@ -21,6 +21,8 @@ lesson. Keep them short: a brief names what to read, what to write, how to prove
 | `FIELDS.md` | — | which outputs read each spec field, and which fields are still written with no Teacher Edition |
 | `mkcopy.sh` | 4, 8 | `bash mkcopy.sh NAME` → an isolated copy of a course's build folder and a HOME for LibreOffice |
 | `build_papers.py` | 4, 8 | a unit's papers alone, from a build folder, without the unit deck |
+| `10 WORDING PASS SOLVER.md` | a wording pass | two solvers of the reworded questions, who also report what they had to guess (`../LEAN WORKFLOW.md`, "A wording pass") |
+| `try_build.py` | a wording pass | `python3 try_build.py u7` from a build folder → each lesson built with no PDFs; the first thing the kit refuses in each |
 
 The lead's own two documents for a unit are not briefs and live with the course: the plan
 (`aN/reference/… - Lesson Outlines.md`) and the rulings on the review of the built unit

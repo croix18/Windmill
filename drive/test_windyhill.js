@@ -398,6 +398,13 @@ const line = label => status().filter(r => r[0] === label);
 const said = () => line('State')[0][1];
 const activity = () => tab('Activity').map(r => r[1]).join('\n');
 const stateOf = () => Object.fromEntries(tab('Mirror').slice(1).map(r => [r[0], { sha: r[1], id: r[2], kind: r[3], state: r[6], md5: r[8] }]));
+// The hourly check looks at AUDIT files a run (README: "120 files an hour are checked for still being there"), so a file
+// he deleted comes back within one round of every file the mirror holds, and one hour more to fetch it — not within a
+// fixed number of hours. (The waits below were twelve hours: enough for 1,440 files. The two courses held 1,666 on
+// 21 Nov 2026 and passed by where the check happened to stand; A7's Unit 7 made it 1,769 and they failed.)
+const AUDIT_N = Number((/^var AUDIT = (\d+);/m.exec(src) || [])[1]);
+const mirrored = () => Object.values(stateOf()).filter(s => s.kind === 'file').length;
+const round = () => Math.min(48, Math.ceil(mirrored() / AUDIT_N) + 1);       // in hours; never an endless wait
 function run(fn) {                                  // one execution, as Google would allow it
   const t0 = NOW; const out = (fn || G.sync)(); const took = NOW - t0;
   SVC.pending.splice(0).forEach(f => f());
@@ -707,7 +714,8 @@ hour(); run();
 ok(line('A NEWER VERSION IS PUBLISHED').some(r => r[1] === 'M7/' + te), 'the note about his edited file should not vanish an hour later');
 // he deletes it: the published version comes back by itself (the audit finds it gone)
 teFile.trashed = true;
-for (let n = 0; n < 12 && !M('M7/' + te); n++) { hour(); settle(); }
+ok(AUDIT_N > 0 && round() <= 24, 'the hourly check should get round every file within a day: ' + mirrored() + ' files at ' + AUDIT_N + ' an hour is ' + round() + ' hours — raise AUDIT in WindyHill.gs');
+for (let n = 0, r = round(); n < r && !M('M7/' + te); n++) { hour(); settle(); }
 ok(M('M7/' + te) && M('M7/' + te).bytes.equals(BODY[m7.blobs[te].sha]), 'after he deleted his edited file the published one should return');
 ok(!line('A NEWER VERSION IS PUBLISHED').length, 'the note should go once the published file is back');
 mirrorIsRight('edited file deleted');
@@ -730,9 +738,9 @@ mirrorIsRight('a file he moved (his)');
 // ================================================================ H. a published file he deletes by accident; a withdrawn file he had edited
 const lp = Object.keys(m7.blobs).find(p => /Lessons\/4\.03\/.* - Lesson Plan\.pdf$/.test(p));
 M('M7/' + lp).trashed = true;
-let back = 0; for (; back < 12 && !M('M7/' + lp); back++) { hour(); settle(); }
+let back = 0; for (const r = round(); back < r && !M('M7/' + lp); back++) { hour(); settle(); }
 ok(M('M7/' + lp), 'a published file he deleted should come back within a day');
-ok(driveTab()[pyKey(base(lp))] === M('M7/' + lp).id, 'the Drive tab should give the restored file');
+ok(M('M7/' + lp) && driveTab()[pyKey(base(lp))] === M('M7/' + lp).id, 'the Drive tab should give the restored file');   // (not a crash when it did not come back: the line above must be read)
 const wd = Object.keys(m7.blobs).find(p => /Lessons\/4\.02\/.* - Lesson Plan\.pdf$/.test(p)), wdFile = M('M7/' + wd);
 hour(); wdFile.bytes = Buffer.from('his notes'); wdFile.updated = NOW;
 publish('windy-hill-m7', R => { delete R.blobs[wd]; });
@@ -816,7 +824,7 @@ publish('croix18-windy-hill-a7', R => { R.blobs[te2] = mk('a7 te v2', 1000); R.b
 hour(); settle();
 ok(!te2File.trashed && line('A NEWER VERSION IS PUBLISHED').some(r => r[1] === 'A7/' + te2) && same2File.trashed && M('A7/' + same2).bytes.equals(BODY[a7.blobs[same2].sha]), 'without the Drive service, an edited file should still be told from a touched one');
 te2File.trashed = true;
-G = load(DriveV3); for (let n = 0; n < 12 && !M('A7/' + te2); n++) { hour(); settle(); }
+G = load(DriveV3); for (let n = 0, r = round(); n < r && !M('A7/' + te2); n++) { hour(); settle(); }
 ok(!line('PROBLEM').length && liveId('A7') === a7Live && ALL[a7Live].bytes.toString() === 'google sheet of ' + BODY[a7.sheet.sha], 'with the service back the new sheet should be converted: ' + JSON.stringify(line('PROBLEM')));
 
 // ================================================================ M. a run that Google stops half way

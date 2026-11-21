@@ -36,6 +36,8 @@ M = [
  ("folders binned with his file in them", "while (empty && it.hasNext()) if (!it.next().isTrashed()) empty = false;", ""),
  ("forgotten folders stay on record", "    } catch (e) { /* gone already, or not this account's to bin */ }\n    delete state[d];", "    } catch (e) { /* gone already, or not this account's to bin */ }"),
  ("check everything checks only some", "var limit = cx.full ? paths.length - at : Math.min(AUDIT, paths.length), n = 0;", "var limit = Math.min(AUDIT, paths.length), n = 0;"),
+ ("the hourly check never finds a deleted file", "    if (!file_(state[p].id)) { state[p].state = 'gone'; note.restored++; }\n", ""),
+ ("the hourly check looks at too few files to get round them in a day", "var AUDIT = 120;", "var AUDIT = 12;"),
  ("full check never ends", "if (n >= limit) { props.deleteProperty('full'); props.deleteProperty('full-at');", "if (false) { props.deleteProperty('full'); props.deleteProperty('full-at');"),
  ("never replaced in place", "if (cur && safe && props.getProperty('inplace') !== 'no') {", "if (false) {"),
  ("in-place failure not remembered", "else { cur.sha = ''; cur.state = 'ok'; props.setProperty('inplace', 'no');", "else { cur.sha = ''; cur.state = 'ok';"),

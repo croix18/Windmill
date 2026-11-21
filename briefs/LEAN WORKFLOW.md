@@ -93,6 +93,41 @@ of what it spent was its standing instructions and tool list, read again on ever
 output of its commands). So the lead works in few, large steps: one command that does five things, not five
 commands; a unit's chat starts fresh; and nothing is attached to it that the build does not use.
 
+## A wording pass (ruling 58; first run, A7 Unit 7, 21 November 2026)
+
+When a review changes the words and no number, picture or answer — an outside audit of the slides, the teacher's own
+read — the fix pass above is the wrong size for it. Six fixers each read a brief, a spec and the rulings to change
+strings the lead had already decided. So:
+
+1. **The lead writes every change as an exact old string and its new one**, a file of edits for each spec, and
+   `kit/reword.py EDITS.py` applies them (`--dry` first). The whole list is refused if a string is not in its file as
+   often as the edit says. Unit 7: about 470 strings in five lessons, `unit.py` and the manifest.
+2. **`gates.py` and `unit_repeats.py`**, as after any change.
+3. **A test build of each lesson with no PDFs** (`briefs/lean/try_build.py`: `lessonbuild.build_lesson` into a scratch
+   folder; the first refusal of each lesson comes back in seconds). This is where a longer sentence meets the slide:
+   a warm-up stem is one line at 23 pt (about 60 characters when it carries mathematics); so is a bold line of a notes
+   slide and an answer line under a full set of steps; a board whose words grow a line takes that line from its
+   figure. Shorten the sentence; do not shrink the slide. An example's prompt is not one of these rows: the slide
+   wraps it, so a whole question fits there (the first run cut Example 2's questions to "Is cost proportional to
+   miles?" for no reason, and put them back).
+4. **The clean build, and `checks.py out/uN`.**
+5. **The reworded questions solved blind.** `student_view.py uN --bank` on the old tree (`git archive`) and on the
+   new one names the ids whose words changed; two Opus solvers work those, pictures and all, without the keys
+   (`briefs/lean/10 WORDING PASS SOLVER.md`), and `blind_diff.py` reads their answers against the keys. A solver also
+   reports every question it could answer only by guessing what was meant. When the student view is cut down to the
+   changed ids, a bank's heading must stay above the items it heads: in the first run the cut left each heading under
+   the item before it, and both solvers reported headings that did not fit their questions.
+6. **The lead looks at every changed slide and every paper** (`changed_slides.py OLD.pdf NEW.pdf --sheet`, and contact
+   sheets of the papers). What only the look found: a last word left alone on a second line, an answer slide's graph
+   drawn at 60% because the step beside it had grown, an answer that wrapped into two lines.
+
+What it cost: two agent runs, 216,000 tokens, against 847,000 for the fix pass and 176,000 for its re-solve. What they
+found: 151 answers against the keys and no wrong key; 27 doubts, of which two were real (a letter in a table that the
+words never named; an equation that read as already given) and the rest were the cut's misplaced headings or numbers
+left in on purpose (ruling 22).
+
+What a wording pass must not do: change a number, a picture or a key. The gates and the blind solve are what say so.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.

@@ -20,6 +20,30 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   a one-point section prints "1 point"; a paper's title keeps clear of the name lines; `DOC_FONT` in a course's profile
   sets every document in one face (Croix, 21 Nov: "It should be the lexend font throughout every document" — A7's is
   Lexend; ruling 46 had set the assessment papers alone); `rulingcheck` refuses money written with a bare dollar sign.
+- **Ruling 58, classroom wording** (Croix, 21 Nov, 11:58 am: "Go", on the defaults put to him after two outside audits
+  of A7 Unit 7's slides). In the kit: a board prints no instruction under its question ("Answer it." stood on forty
+  slides of a unit), and a written board alone says "Write your answer in complete sentences."; the IXL slide reads
+  "Open IXL and work on the skills listed below." / "Show your work on paper. IXL's answer box does not record it." /
+  "Complete every listed skill to a SmartScore of at least N." and the due line, under "Required IXL skills"; the unit
+  cover says "the next slide links to each one"; a Review section of one question says "1 question"; a Lesson Plan with
+  no new word says "No new terms."; `BUILDER CARD.md` rule 19 carries the wording rules for a builder ("versus", "per"
+  and "for every 1 unit of x", whole questions, "explain", pairs and columns of a table drawn left to right, no "way
+  round", no "subject"). **These lines change every unit of both courses at its next rebuild, and not before.**
+  `kit/reword.py` applies a wording pass as a list of exact old-to-new strings; `figwords` no longer reads the "in" of
+  "\$160 in 4 hours" as inches. `briefs/LEAN WORKFLOW.md`, "A wording pass": how it is run and what the first one cost.
+  Units 3–6 and 11 of A7 still carry the old wording ("against" in over a hundred places, "the other way round" in
+  Units 4 and 5): his word decides whether they are reworded before they are next rebuilt. A7 Unit 7 carries the
+  new wording on A7's branch `claude/lean-workflow` (`0f50877`), not yet on `main` or the site.
+- **The Drive script's test waited twelve hours for a deleted file to come back; it now waits one round of the hourly
+  check.** Found by `tools/check.sh` beside A7's branch on 21 Nov: with Unit 7's package the mirror holds 1,769 files,
+  the script looks at 120 an hour (`AUDIT`), so a round is 15 hours and three waits in `drive/test_windyhill.js` ran
+  out. On `main` (1,666 files, a 14-hour round) the same waits passed only by where the check happened to stand. The
+  test now reads `AUDIT` from the script and the file count from the Mirror tab, waits that round and an hour, and
+  fails when a round passes a day (2,760 files — about ten more units across the two courses). **The script is
+  unchanged**, so nothing is re-installed; raising `AUDIT` when that day comes is a script change and his to install.
+  `drive/mutations.py` after the change: 81 of 81 ways of breaking the script noticed, two of them new (the hourly
+  check never finds a deleted file; it looks at too few to get round them in a day). The test no longer crashes at
+  the line after a file fails to come back, so the message that says why is printed.
 - **First run:** A7 Unit 7, built, reviewed, fixed and installed on A7's branch of the same name (A7 NOTES, 20–21 Nov).
 - **Next:** on Croix's word, merge both branches and publish Unit 7; M7 vendors this kit and sets `TEACHER_EDITION = False`
   before its Unit 11 (taught from 11 Feb); A7 Unit 7's practice page.
