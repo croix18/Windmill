@@ -17,7 +17,9 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   `RULINGS LEDGER.md`; five tools — `reader_copy.py` (a unit as text, `--bank` with its banks), `student_view.py` (what a
   student sees, for a blind solver), `blind_diff.py`, `unit_repeats.py` (ruling 43 across a unit, banks included),
   `changed_slides.py` (which pages changed between two builds) — with `kit/tests/test_tools.py` (50 tests);
-  a one-point section prints "1 point"; a paper's title keeps clear of the name lines.
+  a one-point section prints "1 point"; a paper's title keeps clear of the name lines; `DOC_FONT` in a course's profile
+  sets every document in one face (Croix, 21 Nov: "It should be the lexend font throughout every document" — A7's is
+  Lexend; ruling 46 had set the assessment papers alone); `rulingcheck` refuses money written with a bare dollar sign.
 - **First run:** A7 Unit 7, built, reviewed, fixed and installed on A7's branch of the same name (A7 NOTES, 20–21 Nov).
 - **Next:** on Croix's word, merge both branches and publish Unit 7; M7 vendors this kit and sets `TEACHER_EDITION = False`
   before its Unit 11 (taught from 11 Feb); A7 Unit 7's practice page.
