@@ -47,7 +47,7 @@ def _plan_sections(L, deck_path, outdir):
     blk = doc.block()
     doc.section("2.  Standards", container=blk)
     doc.para(f"**{L['benchmark']}**  {L['benchmark_text']}", size=10.5, before=2, after=4, container=blk)
-    T = L["te"]
+    T = L.get("te") or {}
     notes = dict(T.get("standard_notes", []))
     must = T.get("must") or notes.get("Clarification") or notes.get("Benchmark")
     if must:
@@ -201,7 +201,7 @@ def _plan_labels(L, deck_path, outdir):
     rows, wb_min, side, blocks = tekit.plan_from_sidecar(side_path)
     eyebrow = f"{COURSE}  ·  Unit {L['unit']}"
     P = Plan(eyebrow, L["title"])
-    T = L["te"]
+    T = L.get("te") or {}
 
     P.table([2100, 2600, 2200, 2460], [
         [{"text": "Teacher", "bold": True}, "Croix Shaffer", {"text": "Course", "bold": True}, f"{COURSE} ({C.COURSE_CODE})"],

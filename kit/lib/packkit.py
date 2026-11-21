@@ -6,10 +6,10 @@ the same in both courses. So a unit's package is
     <COURSE> Unit N - <Unit Title>/
         00 - START HERE.md                          written by the course's own install_unit.py
         All Slides/                                 the whole unit in one deck (and, where a course builds HTML, its console)
-        All in One/                                 merged PDFs: every teacher's edition, every lesson plan, the papers, the keys
+        All in One/                                 merged PDFs: every teacher's edition (where built), every lesson plan, the papers, the keys
         Lessons/<N.NN>/                             everything for that day; docx/pptx and pdf together
         Lessons/<N.NN>/Keys/                        that lesson's answer keys — never beside a student page
-        Review Day/                                 a review day built as a lesson (deck, TE, plan)
+        Review Day/                                 a review day built as a lesson (deck, TE where built, plan)
         Review/                                     a review that is a paper, with its key
         Assessment/                                 one paper and its key; or
         Assessment/Form A | Form B | Practice Test/ each form's paper, key and worked answers
@@ -46,6 +46,9 @@ def place(name, specs):
     stem, p = names.stem(name), names.parts(name)
     if not p:
         return None
+    if not C.TEACHER_EDITION and names.is_edition(name):
+        raise SystemExit(f"{name}: this course builds no Teacher Edition (TEACHER_EDITION = False) — a stale file; "
+                         f"build_all.py takes it out of out/")
     m = re.match(rf"{re.escape(C.PREFIX)} (\d+\.\w+) ", stem + " ")
     if m:
         L = next((s for s in specs if s["code"] == m.group(1)), None)

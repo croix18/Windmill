@@ -8,7 +8,7 @@ title in every name, one pattern for both courses, and unit folders organised by
     <COURSE> Unit <N> <Unit Title> - <What it is>[ - Key | - Worked Answers].<ext>
 
     M7 4.06 Finding Circumference - Slides.pptx
-    M7 4.06 Finding Circumference - Teacher Edition.pdf
+    M7 4.06 Finding Circumference - Teacher Edition.pdf   (only where the course builds one: TEACHER_EDITION)
     A7 3.08 Writing Large Numbers in Scientific Notation - Question Bank - Key.docx
     M7 Unit 4 Area - All Slides.html                      (the console — only where a course builds HTML; none does since ruling 41)
     M7 Unit 4 Area - Test Form A - Worked Answers.pdf
@@ -30,11 +30,14 @@ from .profile import C
 SEP = " - "
 
 # ---- what a file can be: the only words that may follow the stem
-LESSON_KINDS = ("Slides", "Teacher Edition", "Lesson Plan", "Question Bank", "Additional Question Bank",
+TEACHER_EDITION, ALL_TEACHER_EDITIONS = "Teacher Edition", "All Teacher Editions"
+LESSON_KINDS = ("Slides", TEACHER_EDITION, "Lesson Plan", "Question Bank", "Additional Question Bank",
                 "Independent Set", "Handout")
-UNIT_KINDS = ("All Slides", "All Documents", "All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys",
+UNIT_KINDS = ("All Slides", "All Documents", ALL_TEACHER_EDITIONS, "All Lesson Plans", "All Assessments", "All Keys",
               "Reference Sheet", "Review", "Test", "Test Form A", "Test Form B", "Practice Test", "Question Bank")
-ALL_IN_ONE = ("All Documents", "All Teacher Editions", "All Lesson Plans", "All Assessments", "All Keys")   # merged PDFs (Croix, 17 Oct)
+ALL_IN_ONE = ("All Documents", ALL_TEACHER_EDITIONS, "All Lesson Plans", "All Assessments", "All Keys")   # merged PDFs (Croix, 17 Oct)
+# A course that builds no Teacher Edition (C.TEACHER_EDITION False, 20 Nov 2026) has no name for one: lesson() and
+# unit() refuse both edition kinds, so nothing can write one, and packkit.place refuses one left in out/.
 REVIEW_DAY = "Review Day"                 # "<unit stem> - Review Day - Slides"
 KEY, WORKED = "Key", "Worked Answers"
 
@@ -77,12 +80,16 @@ def lesson_stem(L):
 def lesson(L, kind, ext, key=False):
     if kind not in LESSON_KINDS:
         raise ValueError(f"not a lesson document: {kind!r}")
+    if kind == TEACHER_EDITION and not C.TEACHER_EDITION:
+        raise ValueError("this course builds no Teacher Edition (course.py TEACHER_EDITION = False)")
     return lesson_stem(L) + SEP + kind + (SEP + KEY if key else "") + "." + ext
 
 
 def unit(unit_no, kind, ext, key=False, worked=False):
     if kind not in UNIT_KINDS and not re.fullmatch(r"Test Form [A-Z]", kind):
         raise ValueError(f"not a unit document: {kind!r}")
+    if kind == ALL_TEACHER_EDITIONS and not C.TEACHER_EDITION:
+        raise ValueError("this course builds no Teacher Edition (course.py TEACHER_EDITION = False)")
     return unit_stem(unit_no) + SEP + kind + (SEP + KEY if key else "") + (SEP + WORKED if worked else "") + "." + ext
 
 
@@ -145,4 +152,10 @@ def is_teacher_page(name):
     """Pages a student never holds: keys, worked answers are for the class but carry answers — see
     is_key / is_worked; teacher's editions and lesson plans are teacher pages."""
     p = parts(name)
-    return "Teacher Edition" in p or "Lesson Plan" in p
+    return TEACHER_EDITION in p or "Lesson Plan" in p
+
+
+def is_edition(name):
+    """A Teacher Edition or the unit's merge of them — what a course with TEACHER_EDITION = False keeps none of."""
+    p = parts(name)
+    return TEACHER_EDITION in p or p[:1] == [ALL_TEACHER_EDITIONS]

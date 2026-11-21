@@ -1412,6 +1412,127 @@ _rb = lb.rulingcheck_lesson(slotmark.strip_deep(_bad))
 ok("align: a lesson's or a block's align that is neither \"=\" nor False is refused", len([x for x in _rb if "align=" in x]) == 2, str([x for x in _rb if "align" in x]))
 ok("align: a board may carry align (it is a field a builder reads)", "align" in lb.WB_FIELDS)
 
+# ---- a course that builds no Teacher Edition (Croix, 20 Nov 2026, of A7: "You can get rid of the 4 page teacher edition").
+# course.py TEACHER_EDITION = False: no edition and no merge of them, one left in out/ removed, every gate and check clean
+# without it, a spec that still carries what only the edition printed never refused for it, and everything else built
+# exactly as under this profile. Run here under each test profile with the one name switched off.
+import shutil as _sh, subprocess as _sub, io as _io0, contextlib as _cl0
+from lib import unitbuild as _ub0, packkit as _pk0
+import checks as _ck0
+_te0 = C.TEACHER_EDITION
+ok("no edition: the family default builds the Teacher Edition, so every course that does not say otherwise is untouched", _te0 is True)
+NT = copy.deepcopy(L); NT["te"] = {k: v for k, v in NT["te"].items() if k not in ("say", "watch")}
+NT["te"]["say"] = ["The exponent $x^{1/2}$ is a fraction."]          # what only the edition printed: fracexp would refuse it
+NT["handout"] = "A sheet with $2^{1/2}$ on it."
+_gate_te = [x for x in gates(NT) if "te.say" in x or "te.watch" in x or "fractional exponent" in x]
+C.TEACHER_EDITION = False
+try:
+    _gate_no = gates(NT)
+    _bare = copy.deepcopy(L); _bare.pop("te")
+    if C.TE_STYLE == "table" or C.CLOSE or C.BANK == "md":
+        _bare["te"] = {k: v for k, v in L["te"].items() if k in ("must", "must_not", "close", "variation")}
+    _gate_bare = gates(_bare)
+    _kept = [x for x in gates(dict(copy.deepcopy(L), te={})) if "te." in x]
+finally:
+    C.TEACHER_EDITION = _te0
+ok("no edition: the gates ask for te.say and te.watch only where the edition is built, and its prose is not refused where it is not",
+   _gate_te and _gate_no == [] and _gate_bare == [], str((_gate_te, _gate_no, _gate_bare))[:400])
+_want_kept = (["must", "must_not"] if C.TE_STYLE == "table" else []) + (["close"] if C.CLOSE else []) + (["variation"] if C.BANK == "md" else [])
+ok("no edition: what the Lesson Plan, the slides or the bank read from te is still required (" + (", ".join(_want_kept) or "none under this profile") + ")",
+   sorted(x.split("te.")[1].split(" ")[0] for x in _kept) == sorted(_want_kept), str(_kept))
+
+E_ = copy.deepcopy(S_); E_.pop("no_set", None); E_["independent"] = copy.deepcopy(L["independent"]); E_["hoq"] = [("Why is it 3 m?", "2")]
+E_["notes"] = [dict(numeral=nm, head=f"Rope fact {nm}", min=3, sub="Copy it.", note="OFF: say it twice.", items=[f"A rope has a length ({nm})."], letters=False)
+               for nm in ("I", "II", "III")]
+_U0 = {"unit": 90, "title": "Area and Circles", "assessment": {"forms": {"practice": _s51()}, "total": 1,
+       "tracker": {"MA.7.GR.1.1": 1}, "tracker_order": ["MA.7.GR.1.1"]}}
+def _parts0(p):
+    """What a built file says: its document or its slides and side-car — not its zip's dates."""
+    if p.endswith((".md", ".json")):
+        return open(p, encoding="utf-8").read()
+    with zipfile.ZipFile(p) as z:
+        return [(nm, z.read(nm)) for nm in sorted(z.namelist()) if re.fullmatch(r"word/document\.xml|ppt/slides/slide\d+\.xml|word/media/.*|ppt/media/.*", nm)]
+E_["notes"][0]["math"] = ["$2^{3} \\cdot 2^{4} = 2^{7}$"]          # a coloured expression, for slotgeometry
+# the build of the course that builds none sits where checks.py finds its unit's specs (slotgeometry reads them): <root>/u90, <root>/out/u90
+_root0 = tempfile.mkdtemp(prefix="kitte_root")
+_tA, _tB = tempfile.mkdtemp(prefix="kitte_on"), os.path.join(_root0, "out", "u90")
+os.makedirs(_tB); os.makedirs(os.path.join(_root0, "u90"))
+open(os.path.join(_root0, "u90", "l01.py"), "w", encoding="utf-8").write("L = " + repr(E_) + "\n")
+import slotaudit as _sa0
+try:
+    with _cl0.redirect_stdout(_io0.StringIO()):
+        _bA = lb.build_lesson(E_, _tA)
+    _edA = sorted(f for f in os.listdir(_tA) if names.is_edition(f))
+    # an earlier build's edition, its merge and an All Documents with an edition inside, all left in out/
+    _stem0 = names.lesson_stem(E_)
+    for f in _edA:
+        _sh.copy(os.path.join(_tA, f), os.path.join(_tB, f)); _sh.copy(os.path.join(_tA, f), os.path.join(_tB, f[:-5] + ".pdf"))
+    from pypdf import PdfWriter as _PW0
+    for kind, mark in (("All Teacher Editions", "Teacher Edition"), ("All Documents", "Teacher Edition"), ("All Lesson Plans", "Lesson Plan")):
+        w0 = _PW0(); w0.add_blank_page(612, 792); w0.add_outline_item(mark, 0)
+        with open(os.path.join(_tB, f"{C.PREFIX} Unit 90 Area and Circles - {kind}.pdf"), "wb") as fh:
+            w0.write(fh)
+    C.TEACHER_EDITION = False
+    try:
+        with _cl0.redirect_stdout(_io0.StringIO()) as _o0:
+            _bB = lb.build_lesson(E_, _tB)
+        _left0 = sorted(f for f in os.listdir(_tB) if names.is_edition(f) or "All Documents" in f)
+        _plans0 = os.path.exists(os.path.join(_tB, f"{C.PREFIX} Unit 90 Area and Circles - All Lesson Plans.pdf"))
+        os.remove(os.path.join(_tB, f"{C.PREFIX} Unit 90 Area and Circles - All Lesson Plans.pdf"))    # a stand-in, not a merge
+        with _cl0.redirect_stdout(_io0.StringIO()):
+            _uB = _ub0.build_unit(_U0, _tB)
+            _uB["unit_deck"] = lb.build_unit_deck([E_], [(E_["code"], E_["title"])], _U0, _tB)
+        _srcs = [p for p in list(_bB.values()) + list(_uB.values()) if p.endswith((".docx", ".pptx"))]
+        _cv = _sub.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", _tB] + _srcs, stdout=_sub.DEVNULL, stderr=_sub.DEVNULL)
+        with _cl0.redirect_stdout(_io0.StringIO()) as _om:
+            _merged = _ub0.merge_pdfs(_tB, [E_], _U0)
+        _suite = os.path.join(tempfile.mkdtemp(prefix="kitte_suite"), "suite.md")      # beside the build, not one of its files
+        _rows = lambda label, xs: f"| {label} | what |\n|---|---|\n" + "".join(f"| `{x}` | it |\n" for x in xs)
+        _alias = {"gdoc": "gdoccheck", "pages": "pagecheck", "plan": "plancheck", "suite": "suitecheck", "html": "htmlcheck", "kit": "kitcheck"}
+        open(_suite, "w").write("<!-- suite:t -->\n\n" + _rows(f"gate ({C.PREFIX}, at build)", _ck0.BUILD_GATES) + "\n"
+                                + _rows(f"check ({C.PREFIX}, checks.py)", [_alias.get(fn.__name__[6:], fn.__name__[6:]) for fn in _ck0.RUN_LIST]))
+        _sd0 = (C.SUITE_DOC, C.SUITE_BLOCK); C.SUITE_DOC, C.SUITE_BLOCK = _suite, "suite:t"
+        _sa_here = _sa0.HERE; _sa0.HERE = _root0
+        try:
+            with _cl0.redirect_stdout(_io0.StringIO()) as _oc:
+                _fB = _ck0.run(_tB)
+        finally:
+            C.SUITE_DOC, C.SUITE_BLOCK = _sd0; _sa0.HERE = _sa_here
+        try:
+            _pk0.place(f"{_stem0} - Teacher Edition.pdf", [E_]); _placed0 = True
+        except SystemExit:
+            _placed0 = False
+        _named0 = _refused(lambda: names.lesson(E_, "Teacher Edition", "pdf")) and _refused(lambda: names.unit(90, "All Teacher Editions", "pdf"))
+    finally:
+        C.TEACHER_EDITION = _te0
+    _filesB = sorted(os.listdir(_tB))
+    ok("no edition: a lesson builds with no Teacher Edition, docx or pdf; under the profile itself it builds one",
+       _edA == [f"{_stem0} - Teacher Edition.docx"] and "te" in _bA and "te" not in _bB and not [f for f in _filesB if "Teacher Edition" in f],
+       str((_edA, [f for f in _filesB if "Teacher" in f])))
+    ok("no edition: an edition, its merge and an All Documents with an edition in it, left in out/ by an earlier build, are removed (an All Lesson Plans is not)",
+       _left0 == [] and _plans0 and "Teacher Edition file(s) from an earlier build removed" in _o0.getvalue(), str(_left0))
+    ok("no edition: the unit merges no All Teacher Editions, and its All Documents holds the lesson plan and the papers only",
+       "All Teacher Editions" not in _merged and "All Documents" in _merged and _cv.returncode == 0
+       and [o.title for o in __import__("pypdf").PdfReader(_merged["All Documents"]).outline][:1] == ["Lesson Plan"], str(_merged))
+    _same = {k: _parts0(_bA[k]) == _parts0(_bB[k]) for k in _bB}
+    ok("no edition: the slides and their side-car, the Lesson Plan, the set, the banks and every key are exactly as under the profile",
+       set(_bB) == set(_bA) - {"te"} and all(_same.values()) and _parts0(_bA["deck"][:-5] + ".notes.json") == _parts0(_bB["deck"][:-5] + ".notes.json"),
+       str([k for k, v in _same.items() if not v]))
+    ok("no edition: every check over the built lesson and unit is at 0 findings, and telength says it measured none",
+       _fB == [] and "the course builds no Teacher Edition, so none is measured; 0 found" in _oc.getvalue()
+       and "checks: 0 findings" in _oc.getvalue(), str(_fB)[:600])
+    ok("no edition: no name for one, and the package has no place for one", _named0 and not _placed0)
+    C.TEACHER_EDITION = False
+    try:
+        with _cl0.redirect_stdout(_io0.StringIO()):
+            _stale0 = _ck0.check_telength([os.path.join(_tA, _edA[0])])
+    finally:
+        C.TEACHER_EDITION = _te0
+    ok("planted: an edition among the built files of a course that builds none is a finding", len(_stale0) == 1 and "builds none" in _stale0[0], str(_stale0))
+finally:
+    C.TEACHER_EDITION = _te0
+    _sh.rmtree(_tA, ignore_errors=True); _sh.rmtree(_root0, ignore_errors=True)
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

@@ -11,7 +11,7 @@ finding and exits 0 is worse than no check.
   pagecheck  no shipped PDF page is blank
   offpage    every word of every PDF lies inside its page box
   pdftwin    every .docx/.pptx has a .pdf twin newer than it whose text contains the source text
-  telength   ruling 26: no teacher's edition runs past four printed pages
+  telength   ruling 26: no teacher's edition runs past four printed pages (a course that builds none: none is built)
   markup     no slide or page shows markup a renderer failed to consume (**, $, LaTeX, a slot mark)
   footer     nothing but the footer itself renders below a slide's footer rule
   plancheck  every deck side-car totals the period with a whiteboard remainder inside its range
@@ -401,6 +401,13 @@ def check_telength(files):
     """Ruling 26: the teacher's edition is four pages or fewer, printed. A longer one is cut,
     not shrunk — so this is a content finding, never a reason to change the font."""
     findings = []; n = 0
+    if not C.TEACHER_EDITION:
+        # a course that builds no Teacher Edition (course.py TEACHER_EDITION = False, Croix 20 Nov 2026): there is
+        # nothing to measure, and an edition among the built files is a stale one, installed as if it were current
+        stale = [f for f in files if names.is_edition(os.path.basename(f))]
+        findings = [f"telength: a Teacher Edition is among the built files, and this course builds none (TEACHER_EDITION = False) — {os.path.basename(f)}" for f in stale]
+        print(f"telength: the course builds no Teacher Edition, so none is measured; {len(stale)} found among the built files, {len(findings)} findings")
+        return findings
     for f in files:
         base = os.path.basename(f)
         if not (base.endswith(".pdf") and names.is_kind(base, "Teacher Edition")):

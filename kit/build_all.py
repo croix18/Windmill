@@ -6,7 +6,8 @@ and as the last step before a unit ships. Order: every lNN.py (and review.py, wh
 builds its review day as a lesson), then unit.py — the unit documents and the whole-unit deck (with
 its console, where a course builds HTML) — then checks.py, then the course's own install_unit.py.
 A course that builds no HTML (ruling 41) has any HTML deck left in out/ from an earlier build taken
-away first: what is in out/ is what gets installed, and a stale console is not a deck.
+away first: what is in out/ is what gets installed, and a stale console is not a deck. A course that
+builds no Teacher Edition (TEACHER_EDITION = False) has any edition left in out/ taken away the same way.
 (Part of the shared build kit — edit it in croix18/Windmill, kit/.)"""
 import os, sys, glob, subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,11 @@ if not C.HTML and os.path.isdir(outdir):
         os.remove(os.path.join(outdir, f))
     if stale:
         print(f"== {len(stale)} HTML deck(s) from an earlier build removed from out/{unit} (the course builds none: ruling 41)")
+if not C.TEACHER_EDITION:
+    # the same for a course that builds no Teacher Edition (Croix, 20 Nov 2026): every edition, the All Teacher
+    # Editions merge, and an All Documents merge with editions in it (build_unit.py makes it again)
+    from lib import lessonbuild
+    lessonbuild.clear_editions(outdir)
 for s in specs:
     print("==", os.path.basename(s))
     subprocess.run([sys.executable, os.path.join(HERE, "build_lesson.py"), s], check=True)
