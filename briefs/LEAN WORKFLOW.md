@@ -66,6 +66,33 @@ Work in a session folder outside the repositories (here `/home/claude/lean/`), o
 - **Before the last build**, clear what the earlier builds left (`git clean` on the figure cache's untracked files,
   the unit's `out/` folder), so the commit holds only the figures the unit uses.
 
+## What the first run cost (A7 Unit 7, 20–21 November 2026)
+
+Tokens as each agent's hand-back reported them; every agent was Claude Opus 5.5.
+
+| Step | Agents | Tokens | Wall clock |
+|---|---|---|---|
+| 0 Scope | 1 | 119,000 | — |
+| 2 Plan review | 2 | 232,000 | together |
+| 3 Figures | 1 | 148,000 | — |
+| 4 Build: five lessons | 5 | 1,110,000 (184,000 to 258,000 each) | 14 to 31 minutes each, together |
+| 4 Build: the papers | 1 | 276,000 | with the lessons |
+| 6 Blind solve (decks, papers, banks) | 4 | 421,000 | under 5 minutes, |
+| 6 Three readers | 3 | 585,000 | together |
+| 8 Fix pass | 6 | 847,000 (101,000 to 174,000 each) | under 10 minutes, together |
+| 9 The changed questions solved again | 2 | 176,000 | 1 minute |
+| **The unit** | **25** | **3,914,000** | |
+| The kit's new tools and the card (once, not per unit) | 3, two of them resumed | 1,536,000 | |
+
+What they found: the plan review, 41 findings (3 blockers) before a spec existed; the blind solves, 351 answers
+against the key and not one wrong key; the three readers, 35 findings (1 blocker); the lead's own reading of the
+banks and look at the slides, 11 bank questions and 6 layout faults that no reader had been shown.
+
+**Where the rest goes: the lead.** In the last third of the run the lead's chat made 156 requests, and three fifths
+of what it spent was its standing instructions and tool list, read again on every one of them (a quarter was the
+output of its commands). So the lead works in few, large steps: one command that does five things, not five
+commands; a unit's chat starts fresh; and nothing is attached to it that the build does not use.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.

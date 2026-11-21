@@ -4,6 +4,24 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 20–21 November — the lean workflow, on the branch `claude/lean-workflow` (session_01W9n2X1V97j7Nf5Y7z1DaCq)
+
+Croix, of how a unit's slides are built: *"It feels extremely inefficient and is burning tons of tokens."* Then: *"You can get
+rid of the 4 page teacher edition. Only read math nation for scope and test item shapes. The reviewers yeah opus then fable.
+Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and nothing is published: it waits for his word.**
+
+- **The procedure:** `briefs/LEAN WORKFLOW.md` (what made the old way expensive, the nine rules, the ten steps, what the
+  first run cost) and `briefs/lean/` (the briefs it ran on, as worked examples).
+- **The kit** (`kit/`, version in `KIT.sha256`): `TEACHER_EDITION` in a course's profile (False: no edition is built,
+  measured or asked for; the Lesson Plan stays); `BUILDER CARD.md` (what a builder reads in place of the history) and
+  `RULINGS LEDGER.md`; five tools — `reader_copy.py` (a unit as text, `--bank` with its banks), `student_view.py` (what a
+  student sees, for a blind solver), `blind_diff.py`, `unit_repeats.py` (ruling 43 across a unit, banks included),
+  `changed_slides.py` (which pages changed between two builds) — with `kit/tests/test_tools.py` (50 tests);
+  a one-point section prints "1 point"; a paper's title keeps clear of the name lines.
+- **First run:** A7 Unit 7, built, reviewed, fixed and installed on A7's branch of the same name (A7 NOTES, 20–21 Nov).
+- **Next:** on Croix's word, merge both branches and publish Unit 7; M7 vendors this kit and sets `TEACHER_EDITION = False`
+  before its Unit 11 (taught from 11 Feb); A7 Unit 7's practice page.
+
 ## 18 November, late night — ruling 57 everywhere: A7's PM2 days, Units 10 and 13 reinstalled, the doc, the phone page, the site (session_01W9n2X1DGdhkjT92EJfNN3K)
 
 - **A7** (`4891285`): Croix chose "Spiral days, nothing moves" — Thu 3 and Tue 8 Dec are class days with short periods, run
