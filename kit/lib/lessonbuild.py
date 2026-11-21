@@ -491,7 +491,7 @@ def build_bank(L, items, kind, key, outdir):
     code = L["code"]
     eyebrow = f"{COURSE}  ·  Unit {L['unit']}  ·  {_label(L)}"
     sub = f"{kind} {code}"
-    doc = Doc(eyebrow, L["title"], sub, key=key)
+    doc = Doc(eyebrow, L["title"], sub, key=key, font=getattr(C, "DOC_FONT", None))
     if kind == "Independent Set":
         doc.instruction("Six questions, on your own, in silence. Show the step that does the work.")
     else:

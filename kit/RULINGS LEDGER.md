@@ -64,7 +64,7 @@ builder to do (a shipped unit, a retired paper, a governance or kit matter alrea
 | 43 | Practice never repeats the lesson | IN FORCE | gate rulingcheck (repeatcheck); card 13 |
 | 44 | Question words and picture agree | IN FORCE | gate rulingcheck (figwords); card 16; card: look once |
 | 45 [M7] | A story board: one plain sentence | IN FORCE | card 11 |
-| 46 | Assessment papers in Lexend; merged PDFs | IN FORCE | kit (`PAPER_FONT`) |
+| 46 | Assessment papers in Lexend; merged PDFs | IN FORCE — widened 21 Nov: "It should be the lexend font throughout every document" | kit (`PAPER_FONT`; `DOC_FONT` sets every document) |
 | 47 | PM2 8 Dec; a week ungraded | IN FORCE | plan |
 | 48 | Never test after a long break | IN FORCE | plan |
 | 49 | The test is a random practice draw | IN FORCE | unit papers (`assessment.forms`, check_forms) |

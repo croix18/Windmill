@@ -161,7 +161,7 @@ def check_unit(U):
 # ---------------------------------------------------------------- reference sheet
 def build_reference(U, outdir):
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}"
-    doc = Doc(eyebrow, "Reference Sheet", f"{U['title']}  —  keep this in your binder")
+    doc = Doc(eyebrow, "Reference Sheet", f"{U['title']}  —  keep this in your binder", font=getattr(C, "DOC_FONT", None))
     doc.instruction(U["reference_intro"])
     for sec in U["reference"]:
         if sec.get("not_sci"):
@@ -190,7 +190,7 @@ def build_reference(U, outdir):
 # ---------------------------------------------------------------- unit review
 def build_review(U, outdir, key):
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}"
-    doc = Doc(eyebrow, f"Unit {U['unit']} Review", U["title"], key=key)
+    doc = Doc(eyebrow, f"Unit {U['unit']} Review", U["title"], key=key, font=getattr(C, "DOC_FONT", None))
     doc.instruction("Show your work. Circle your final answer.")
     # a unit whose review leaves out one of its targets says so in its own words, `review_note` (A7 Unit 4, 21 October
     # 2026: significant digits are taught in 4.04 and not assessed, so its review no longer covers every target)
@@ -296,7 +296,7 @@ def build_paper(U, outdir, key):
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}  ·  Assessment"
     two = exam_periods(U) == 2
     sub = f"{total} points" + ("  ·  two periods; students continue the same paper" if key and two else "")
-    doc = Doc(eyebrow, U["title"], sub, key=key, font=getattr(C, "PAPER_FONT", None))
+    doc = Doc(eyebrow, U["title"], sub, key=key, font=getattr(C, "DOC_FONT", None) or getattr(C, "PAPER_FONT", None))
     doc.instruction("Show your work. Circle your final answer.")
     if two:
         doc.para(CONTINUES, size=10, bold=True, before=0, after=3)
@@ -465,7 +465,7 @@ def build_form(U, outdir, key, form="test", student=False):
     two = is_test and exam_periods(U) == 2
     # a one-period test says nothing about its length (Croix, 25 Oct 2026, of "one class period": "I don't need that text at all")
     sub = (formword + "  \u00b7  " if formword else "") + f"{total} points" + ("  \u00b7  two class periods" if two else "")
-    doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student, font=getattr(C, "PAPER_FONT", None),
+    doc = Doc(eyebrow, U["title"], sub, key=key, name_block=not student, font=getattr(C, "DOC_FONT", None) or getattr(C, "PAPER_FONT", None),
               banner="WORKED ANSWERS" if student else "ANSWER KEY")
     if two:
         doc.instruction(TWO_DAY_LINE)

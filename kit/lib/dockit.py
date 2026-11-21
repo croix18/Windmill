@@ -145,7 +145,11 @@ class Doc:
         self.banner = banner          # ruling 32: a student's copy says WORKED ANSWERS
         # ruling 46 (Croix, 17 Oct: "the tests and assessments need to be made in the lexend font"):
         # a document may name its face; the assessment papers pass Lexend, and their mathematics
-        # is then set in Lexend too (mathimg's "lexdoc" surface). Everything else keeps the body font.
+        # is then set in Lexend too (mathimg's "lexdoc" surface). Everything else kept the body font — until
+        # Croix, 21 Nov 2026, of a Review in Times beside a Practice Test in Lexend: "why does the font switch? It
+        # should be the lexend font throughout every document." A course that sets DOC_FONT in its profile has every
+        # document its builders make set in that face (the lesson's pages, the Lesson Plan, the Review, the Reference
+        # Sheet, the papers); PAPER_FONT alone still sets the papers only.
         self.font = font or BODY_FONT
         self.d = Document()
         st = self.d.styles["Normal"]

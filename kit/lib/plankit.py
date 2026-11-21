@@ -39,7 +39,7 @@ def _plan_sections(L, deck_path, outdir):
     course, label = COURSE, _label(L)
     rows, wb_min, side, blocks = tekit.plan_from_sidecar(deck_path[:-5] + ".notes.json")
     code = L["code"]
-    doc = Doc(f"{course}  ·  Unit {L['unit']}  ·  {label}", L["title"], "Lesson Plan", name_block=False)
+    doc = Doc(f"{course}  ·  Unit {L['unit']}  ·  {label}", L["title"], "Lesson Plan", name_block=False, font=getattr(C, "DOC_FONT", None))
 
     # 1 -------------------------------------------------- info
     doc.section("1.  Lesson Information")

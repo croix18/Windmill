@@ -26,6 +26,9 @@ DEFAULTS = dict(
                                # "- Teacher Edition" file and no "All Teacher Editions" merge; one left in out/ is removed,
                                # and no gate asks for a field only the edition printed (SPEC SCHEMA: "A course that builds
                                # no Teacher Edition")
+    DOC_FONT=None,             # "Lexend" (Croix, 21 Nov 2026: "It should be the lexend font throughout every document"):
+                               # every printed document is set in it, mathematics and figure lettering included, as
+                               # PAPER_FONT (ruling 46) set the assessment papers alone. None: Times New Roman, as before.
     # ---- the shape of a lesson's deliverables
     SET="handout",             # "handout": the six questions are a printed page and its key
                                # "slide":   the six questions are on a slide; no handout
