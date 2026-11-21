@@ -17,7 +17,8 @@ Question Bank and the Additional Question Bank with their keys. No Teacher Editi
 - `code` "11.03" (two digits; a thread day "3.T1", with `plan_code` the plan's code) · `unit` · `lesson_no` (`label` only if not "Lesson N").
 - `align="="` — an equations lesson: rows that solve stand on their equals signs (a block may say `align=False`).
 - `title` — in every file name. `unit_title` — the unit's title, as `course.py UNITS` has it.
-- `benchmark` — the ONE code. `benchmark_text` — its exact wording, from the Source of Truth.
+- `benchmark` — the ONE code on the title slide. `benchmark_text` — its exact wording, from the Source of Truth. A lesson that teaches two
+  benchmarks adds `benchmarks=[(code, text), (code, text)]`: the Lesson Plan prints both in full; the title slide still names the one.
 - `target` — "I can …", ≤ ~170 characters. `essential` — the essential question.
 - `building_on`, `working_toward` — the lessons before and after, by code.
 - `vocab` — [(term, meaning)] the lesson introduces; `vocab_slide=False` if only carried over.
@@ -33,7 +34,7 @@ Question Bank and the Additional Question Bank with their keys. No Teacher Editi
 - `te` — `must`, `must_not` (the benchmark's two lines; the plan prints them), `materials` (one line; a 43-minute day's cut goes here), `variation` (what varies and where the pattern breaks), `audit`, `changes`, `read_first` (these four print in the unit's BANK file).
 
 Not written any more: `yesterday`, `today`, `title_note`, `warmup_note`, `vocab_note`, a slide's `sub` and `note`, `note_q`,
-`note_a`, `hint`, `gloss`, `te_answer`, `benchmarks`, `handout`, a warm-up's `source` and `band`, `te.say`, `te.watch`,
+`note_a`, `hint`, `gloss`, `te_answer`, `handout`, a warm-up's `source` and `band`, `te.say`, `te.watch`,
 `te.lives`, `te.sits`, `te.set_note`, `te.close`, `te.close_note`, `te.closure`, and `te.standard_notes` when `must`/`must_not` are given.
 
 ## Writing an item
