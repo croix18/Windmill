@@ -114,8 +114,9 @@ in that slide's `lead` (one bold line of main text; the build refuses one that d
 *"But also those comments. Half the box. It's still a rhombus..."* — the hint under "Answer it."
 Asked about the two grey things left, he chose **"Remove both"**. So no slide carries:
 
-- a board's `hint` (it was the grey line under "Answer it."; a written board shows only "Write
-  your answer in sentences.");
+- a board's `hint` (it was the grey line under "Answer it."; since ruling 58, 21 Nov 2026, a board
+  prints no instruction under its question at all, and a written board shows only "Write your
+  answer in complete sentences.");
 - the remark beside a worked step — the second member of a `rows` tuple `(latex, remark)`;
 - a board's or a Your Turn's `gloss` (it was the grey line above the answer on the reveal).
 

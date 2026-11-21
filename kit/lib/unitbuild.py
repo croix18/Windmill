@@ -198,9 +198,10 @@ def build_review(U, outdir, key):
     for part in U["review"]:
         n_q = len([i for i in part["items"] if not i.get("heading")])
         lessons = lesson_codes(U, part["lessons"])
-        right = f"{lessons}   ·   {n_q} questions"
+        qs = "1 question" if n_q == 1 else f"{n_q} questions"          # "1 questions" was printed on A7 Unit 7's Review (21 Nov)
+        right = f"{lessons}   ·   {qs}"
         if key:  # benchmark codes never print on a student page
-            right = f"{lessons}   ·   {part['benchmark']}   ·   {n_q} questions"
+            right = f"{lessons}   ·   {part['benchmark']}   ·   {qs}"
         doc.section(part["title"], right)                      # ruling 54: named, not "PART A."
         for it in part["items"]:
             if it.get("heading"):

@@ -402,10 +402,10 @@ class HtmlDeck:
     def ixl(self, skills, minutes=5, due="Due by the unit test."):
         ss = C.IXL_SMARTSCORE
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
-        self.numbered(["Open IXL and start today's skills.",
-                       "Work on paper where the question needs work. The answer box does not show it.",
-                       f"Every skill listed is required, to a SmartScore of {ss}. " + due])
-        self._add('<p class="t left" style="font-size:21pt;font-weight:700;margin-top:18px">Today\'s skills — all required</p>')
+        self.numbered(["Open IXL and work on the skills listed below.",
+                       "Show your work on paper. IXL's answer box does not record it.",
+                       f"Complete every listed skill to a SmartScore of at least {ss}. " + due])
+        self._add('<p class="t left" style="font-size:21pt;font-weight:700;margin-top:18px">Required IXL skills</p>')
         self._add('<ul class="skills">' + "".join(f"<li>{esc(s)}</li>" for s in skills) + "</ul>")
 
     def figure(self, spec, gap=0.16, strict=False):

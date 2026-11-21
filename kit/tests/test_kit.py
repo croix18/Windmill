@@ -227,8 +227,11 @@ ok("slides: a Your Turn that asks its own question is not given the Example's", 
 ok("slides: the labels are still the Teacher's Edition's (the side-car)", any(x["sub"] == "Copy all three lines." for x in P.side) and any(x["sub"] == "Answer." for x in P.side) and [x["sub"] for x in P.side] == [x["sub"] for x in H.side])
 ok("slides: the HTML deck has no hint, no remark beside a worked step and no line above an answer",
    not re.search(r'class="(hint|gloss|why)"', slides_html) and ".hint{" not in html and ".gloss{" not in html and ".why{" not in html)
-ok("slides: a board still carries its instruction, and a worked slide its steps and answer",
-   ptext.count("Answer it.") == len([q for q in S_["whiteboard"] if q.get("kind") != "written"]) and "Answer it." in htext and "3 m" in ptext and "3 m" in htext)
+# ruling 58 (21 Nov 2026): "Answer it." under every board said nothing; a written board alone says how to answer
+_written = len([q for q in S_["whiteboard"] if q.get("kind") == "written"])
+ok("slides: a board prints no instruction under its question, a written board says how to answer, and a worked slide has its steps and answer",
+   "Answer it." not in ptext and "Answer it." not in htext and ptext.count("Write your answer in complete sentences.") == _written
+   and htext.count("Write your answer in complete sentences.") == _written and "3 m" in ptext and "3 m" in htext, f"{_written} written board(s)")
 ok("slides: the HTML deck prints no text in the place of the grey line", not re.search(r'<p class="sub[^"]*">[^<]', slides_html) and 'class="box"' not in slides_html)
 ok("slides: the title slide's note gives the teacher the line to say", "Today the rope is cut twice." in P.side[0]["note"])
 ok("console: the slide is scaled about its centre (so it sits in the space the bar and rail leave at every size)",

@@ -50,7 +50,7 @@ def _q_md(r, indent=""):
     for k, c in enumerate(r["choices"] or []):
         lines.append(f"{indent}    {'□' if r['multi'] else '○'} {rcopy.LETTERS[k]}.  {c}")
     if r["kind"] == "board-written":
-        lines.append(f"{indent}    (Write your answer in sentences.)")
+        lines.append(f"{indent}    (Write your answer in complete sentences.)")
     return lines
 
 

@@ -154,7 +154,8 @@ def _plan_sections(L, deck_path, outdir):
     blk = doc.block()
     doc.section("10.  Closure, Vocabulary, Materials, Practice", container=blk)
     doc.para("**Closure.**  " + L.get("closure", "The last board is written work; it is the exit evidence. Read the boards, not the papers."), size=10.5, before=2, after=3, container=blk)
-    doc.para("**Vocabulary.**  " + "; ".join(f"__{t}__" for t, _ in L["vocab"]), size=10.5, before=0, after=3, container=blk)
+    # a lesson with no new word says so: "Vocabulary." with nothing after it read as a field left empty (A7 7.07, 21 Nov)
+    doc.para("**Vocabulary.**  " + ("; ".join(f"__{t}__" for t, _ in L["vocab"]) or "No new terms."), size=10.5, before=0, after=3, container=blk)
     doc.para("**Materials.**  " + T.get("materials", "Whiteboards and markers."), size=10.5, before=0, after=3, container=blk)
     doc.para("**Practice.**  The six-question independent set is worked silently in class; whatever is not finished goes home. "
              + f"IXL, all skills required to a SmartScore of {C.IXL_SMARTSCORE}, "
@@ -284,7 +285,7 @@ def _plan_labels(L, deck_path, outdir):
                             ("." if L.get("no_set") else ", then the independent set is collected on the way out.")))
 
     P.h1("Vocabulary, Materials, Homework")
-    P.label("Vocabulary", "; ".join(t for t, _ in L["vocab"]))
+    P.label("Vocabulary", "; ".join(t for t, _ in L["vocab"]) or "No new terms.")
     P.label("Materials", T.get("materials", "Whiteboards and markers. Calculators are allowed on "
                                             "everything and are printed on nothing."))
     # derived from the lesson's IXL list and due line, never typed twice (4.06's typed copy had
@@ -315,7 +316,7 @@ def _moves(b):
                      "Same steps, their numbers; boards up when done."),
         "wb": ("One board at a time, boards down until the cue, all up together; scan the back row "
                "first and question the blank boards before the wrong ones. On a split, the re-vote.",
-               "Individual whiteboards; question 9 is written in sentences."),
+               "Individual whiteboards; question 9 is written in complete sentences."),
         "set": ("Silent. Circulate and mark the first two questions only.",
                 "Six questions, at their own pace, in writing."),
         "ixl": ("Post the codes; check SmartScore as they go.",

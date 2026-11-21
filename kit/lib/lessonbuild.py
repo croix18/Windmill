@@ -555,7 +555,7 @@ def build_unit_deck(lessons, rows, U, outdir):
     paths = []
     for cls, ext in ((Deck, "pptx"),) + (((HtmlDeck, "html"),) if C.HTML else ()):
         D = cls(COURSE, unit, f"Unit {unit}", U["title"], f"{COURSE} · Unit {unit} — {U['title']}")
-        D.unit_cover(U["title"], [f"{what}  ·  the next slide jumps to each one"])
+        D.unit_cover(U["title"], [f"{what}  ·  the next slide links to each one"])      # a slide does not jump (ruling 58)
         contents = D.section("Contents", "Click a lesson to jump to it. Each lesson numbers its slides from 1"
                              + (", as its Teacher Edition does." if C.TEACHER_EDITION else ", as its own deck does."), 0, "", "contents")
         starts = []
@@ -1097,8 +1097,9 @@ def _wb_body(D, q, reveal, surface="slidebig"):
         # — and is drawn smaller rather than pushing them into each other (4.06 boards 1–3)
         # on the reveal the figure leaves the answer its real height (with the picture trimmed to its ink, 15 Nov
         # 2026, a figure fills the room it is given, and 0.85 in was a hair short of the gap and a line of answer)
-        # what the figure must leave under it, honestly: "Answer it." is set no lower than 0.56 in above the footer
-        # rule, and an answer line under a figure no lower than 0.62 in; an answer under steps follows them
+        # what the figure must leave under it, honestly: a written board's instruction is set no lower than 0.56 in above
+        # the footer rule, and an answer line under a figure no lower than 0.62 in; an answer under steps follows them.
+        # A board with no instruction (ruling 58) keeps the same room, so its picture is the size of its answer slide's
         if not reveal:
             below = 0.62
         elif q.get("steps"):
@@ -1129,10 +1130,12 @@ def _wb_body(D, q, reveal, surface="slidebig"):
         D.cursor += 0.1
         D.choices(q["choices"], correct=(q["correct"] if reveal else None))
     if not reveal:
-        # the instruction and nothing under it: a board's `hint` and `gloss` stay in the spec — the
-        # grey hint under the ask and the grey line above a reveal's answer are not on a slide
-        # (ruling 37 as widened: "But also those comments. Half the box. It's still a rhombus")
-        D.ask("Write your answer in sentences." if kind == "written" else "Answer it.")
+        # a board's question is its own instruction, and nothing is printed under it (ruling 58, 21 Nov 2026: "Answer it."
+        # stood on forty slides of a unit and told nobody anything). A written board alone says how to answer. A board's
+        # `hint` and `gloss` stay in the spec — the grey hint under the ask and the grey line above a reveal's answer are
+        # not on a slide (ruling 37 as widened: "But also those comments. Half the box. It's still a rhombus")
+        if kind == "written":
+            D.ask("Write your answer in complete sentences.")
     else:
         if q.get("steps") and not fig:     # the working, then the answer under it (beside the figure when there is one)
             D.steps(shown_steps(q["steps"]), **_steps_size(shown_steps(q["steps"])), **_al(q))

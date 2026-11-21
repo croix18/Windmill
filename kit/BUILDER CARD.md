@@ -95,6 +95,7 @@ grid). Every number on a picture is in the words or explained; every length the 
 16. Pictures: every needed length printed or derivable, each on the thing it measures, every number said what it is, every sentence about the picture true (38, 44).
 17. A bank `heading` names a group, never numbers it; a lesson is called by its code (54).
 18. American English; multiplication is a dot or parentheses, never × (house style).
+19. Classroom wording (58). A stem is a whole question or command, never a fragment ("x: 4, 6, 10. Find the constant."), and two sentences are two sentences, not one joined by a colon. A graph shows y "versus" x, never "against". A rate is "per", or "for every 1 unit of x", never "for each 1 of x". Students "explain", "identify" or "write"; they are never told to "say". "The other way around" and "solve for either quantity", never "the other way round" or "the subject". A table drawn left to right has pairs and columns, not rows. A variable does not open a sentence ("Let e be…"). An answer line is a short whole sentence when it fits.
 
 ## The gates (each refuses the build)
 

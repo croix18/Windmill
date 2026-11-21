@@ -143,7 +143,7 @@ want = {f"90.0{l}/{i}" for l in (1, 2) for i in ("W1", "W2", "W3", "W4", "YT1", 
 ok("student_view: every question a student answers is in key.json, by id", rc == 0 and set(key) == want, sorted(set(key) ^ want))
 ok("student_view: the questions in the student's words and TeX, choices included", all(s in sm for s in (
     "**90.01/W1**  Solve:  $2x + 3 = 11$", "$11x - 3x = 40$".replace("11x", "8x").replace("40", "35"), "○ B.  20 cm", "**What is its diameter?**",
-    "_For questions 1 and 2, solve._", "Solve it.", "$13q - 4q = 117$", "○ B.  $c = 8$", "(Write your answer in sentences.)")))
+    "_For questions 1 and 2, solve._", "Solve it.", "$13q - 4q = 117$", "○ B.  $c = 8$", "(Write your answer in complete sentences.)")))
 ok("student_view: no answers, steps, notes or error names", not any(s in sm for s in (
     "x = 4\n", "B — 20 cm", "ERRORNAME", "NOTE-TEACHER", "Collect:", "ANSWER-WRITTEN-SECRET", "q = 13", "m = 9", "Answer:", "(key)")))
 ok("student_view: pictures as [figure: NNN.png], the question's only — never the answer slide's",
@@ -310,6 +310,29 @@ if os.path.isdir(os.path.join(A7, "u11")):
     ok("A7 u11: unit_repeats runs and ends on its count line", rc in (0, 1) and "cross-unit repeats in u11" in said.strip().splitlines()[-1], said[-400:])
 else:
     print("  (A7 u11 not on this machine: its runs are skipped)")
+
+# ---------------------------------------------------------------- reword
+import reword   # noqa: E402
+rw = os.path.join(tmp, "reword")
+os.makedirs(os.path.join(rw, "u"))
+SPEC0 = 'q = "The graph shows cost against weight."\nn = "Say which is y."\nm = "Say which is x."\n'
+open(os.path.join(rw, "u", "l.py"), "w", encoding="utf-8").write(SPEC0)
+open(os.path.join(rw, "good.py"), "w", encoding="utf-8").write(
+    'EDITS = [("u/l.py", "cost against weight", "cost versus weight"), ("u/l.py", "Say which", "Identify which", 2),\n'
+    '         ("u/l.py", "versus weight.", "versus weight, in pounds.")]\n')
+rc, said = run(reword.main, [os.path.join(rw, "good.py"), "--root", rw, "--dry"])
+ok("reword: a dry run checks the list and writes nothing", rc == 0 and "nothing is written" in said and open(os.path.join(rw, "u", "l.py"), encoding="utf-8").read() == SPEC0, said)
+rc, said = run(reword.main, [os.path.join(rw, "good.py"), "--root", rw])
+got = open(os.path.join(rw, "u", "l.py"), encoding="utf-8").read()
+ok("reword: each string replaced, a counted one as often as stated, a later edit seeing an earlier one",
+   rc == 0 and got == 'q = "The graph shows cost versus weight, in pounds."\nn = "Identify which is y."\nm = "Identify which is x."\n' and "3 edits applied" in said, said + got)
+open(os.path.join(rw, "bad.py"), "w", encoding="utf-8").write(
+    'EDITS = [("u/l.py", "in pounds", "in ounces"), ("u/l.py", "Identify which", "Name which"), ("u/l.py", "no such words", "x"),\n'
+    '         ("u/l.py", "is y", "is y"), ("u/none.py", "a", "b")]\n')
+rc, said = run(reword.main, [os.path.join(rw, "bad.py"), "--root", rw])
+ok("reword: a string found twice, one not found, one unchanged and a missing file refuse the whole list, and nothing is written",
+   rc == 1 and "found 2, wanted 1" in said and "found 0, wanted 1" in said and "the same" in said and "no such file" in said
+   and "refused: 4 of 5" in said and open(os.path.join(rw, "u", "l.py"), encoding="utf-8").read() == got, said)
 
 import shutil   # noqa: E402
 shutil.rmtree(tmp, ignore_errors=True)

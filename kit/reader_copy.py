@@ -471,7 +471,7 @@ def lesson_md(L, items, teacher=False, fname="", figmap=None):
         md += [f"    {x}" for x in r["q"]]
         md += _item_md(r, teacher, show_q=False)
         if b.get("kind") == "written":
-            md.append("    (the slide says: Write your answer in sentences.)")
+            md.append("    (the slide says: Write your answer in complete sentences.)")
         md.append("")
     if not L.get("no_set"):
         md += ["## Independent Set", ""]

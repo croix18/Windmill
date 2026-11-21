@@ -1218,13 +1218,13 @@ class Deck:
         third line — lessonbuild passes the plan's ("Due by the Unit 10 test.", ixlplan.due_line) or the spec's own."""
         ss = C.IXL_SMARTSCORE
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
-        rows = ["Open IXL and start today's skills.",
-                "Work on paper where the question needs work. The answer box does not show it.",
-                f"Every skill listed is required, to a SmartScore of {ss}. " + due]
+        rows = ["Open IXL and work on the skills listed below.",              # ruling 58 (21 Nov 2026): the three lines reworded
+                "Show your work on paper. IXL's answer box does not record it.",
+                f"Complete every listed skill to a SmartScore of at least {ss}. " + due]
         self.cursor = 2.0
         self.numbered(rows, gap=0.1)
         self.cursor += 0.05
-        self._text(LM + 0.2, self.cursor, CW - 0.4, 0.4, "Today's skills — all required", 21, bold=True)
+        self._text(LM + 0.2, self.cursor, CW - 0.4, 0.4, "Required IXL skills", 21, bold=True)
         self.cursor += 0.45
         for s in skills:
             # a skill whose name wraps takes the rows it wraps to: a fixed 0.36-in row printed a long name's second line
