@@ -70,6 +70,13 @@ def lesson(code, warm1="Solve:  $2x + 3 = 11$", warm1_answer="x = 4", base=0):
     independent=[dict(heading="For questions 1 and 2, solve."),
                  dict(stem="Solve:  ${11 + k}m - 2m = {9 * (9 + k)}$", answer="m = 9", why="WHY-TEACHER"),
                  dict(stem="Solve:  ${6 + k}p + p = {8 * (7 + k)}$", answer="p = 8")],
+    bank=[dict(heading="For questions 1 and 2, solve."),
+          dict(stem="Solve:  ${30 + k}w - 10w = {20 + k}0$".replace("{20 + k}0", "BANKRHS"), answer="BANK-ANSWER-ONE", why="WHY-BANK", fig={FIG}),
+          dict(stem="Solve each.", parts=[dict(label="a", stem="$2a = 18$", answer="BANK-PART-A"), dict(label="b", stem="$3b = 21$", answer="BANK-PART-B")]),
+          dict(heading="Choose one."),
+          dict(stem="Which is 6?", choices=["$2 + 3$", "$2(3)$"], correct=1, answer="B", errors={{"A": "ERRORNAME-BANK"}})],
+    additional=[dict(heading="For question 1, solve."),
+                dict(stem="Solve:  $4z = 44$", answer="ADDITIONAL-ANSWER", fig={FIG}, fig_key={FIG_A})],
     ixl=["Combine like terms — XYZ"],
 )
 '''
@@ -141,10 +148,38 @@ ok("student_view: no answers, steps, notes or error names", not any(s in sm for 
     "x = 4\n", "B — 20 cm", "ERRORNAME", "NOTE-TEACHER", "Collect:", "ANSWER-WRITTEN-SECRET", "q = 13", "m = 9", "Answer:", "(key)")))
 ok("student_view: pictures as [figure: NNN.png], the question's only — never the answer slide's",
    "[figure: 001.png]" in sm and "[figure: 002.png]" in sm and "003.png" not in sm
-   and sorted(os.listdir(os.path.join(out, "figures"))) == ["001.png", "002.png", "004.png", "005.png"], os.listdir(os.path.join(out, "figures")))
+   and sorted(os.listdir(os.path.join(out, "figures"))) == ["001.png", "002.png", "007.png", "008.png"], os.listdir(os.path.join(out, "figures")))
 ok("student_view: key.json carries the kind, the answer as printed, the keyed letters and the check",
    key["90.01/B2"]["correct"] == ["B"] and key["90.01/B2"]["answer"] == "B — 20 cm" and key["90.01/B2"]["kind"] == "board-mc"
    and key["P/Q2"]["correct"] == ["B"] and key["90.01/W1"]["answer"] == "x = 4" and "check" in key["90.01/W1"], key.get("90.01/B2"))
+
+ok("student_view: without --bank, no bank item", not any("/K" in i or "/A" in i.split("/")[-1][:1] for i in key) and "BANK" not in sm and "Question Bank" not in sm)
+outb = os.path.join(tmp, "student_bank")
+rc, said = run(student_view.main, ["u90", "--build", CLEAN, "--out", outb, "--bank"])
+keyb = json.load(open(os.path.join(outb, "key.json"), encoding="utf-8"))
+bank_ids = {f"90.0{l}/{i}" for l in (1, 2) for i in ("K1", "K2a", "K2b", "K3", "A1")}
+ok("student_view --bank: every bank and additional item by id (K3, A1, a part K2b), added to everything else",
+   rc == 0 and set(keyb) == want | bank_ids, sorted(set(keyb) ^ (want | bank_ids)))
+ok("student_view --bank: keyed — the answer as printed, a choice's letter", keyb["90.01/K2b"]["answer"] == "BANK-PART-B" and keyb["90.01/K3"]["correct"] == ["B"]
+   and keyb["90.02/A1"]["answer"] == "ADDITIONAL-ANSWER" and "Solve each." in keyb["90.01/K2a"]["question"])
+outo = os.path.join(tmp, "student_only")
+rc, said = run(student_view.main, ["u90", "--build", CLEAN, "--out", outo, "--only", "bank", "--figs"])
+so = open(os.path.join(outo, "student.md"), encoding="utf-8").read()
+keyo = json.load(open(os.path.join(outo, "key.json"), encoding="utf-8"))
+ok("student_view --only bank: only the two banks, with their headings between groups", rc == 0 and set(keyo) == bank_ids
+   and all(s in so for s in ("### Question Bank", "### Additional Question Bank", "_For questions 1 and 2, solve._", "_Choose one._", "**90.01/K2b**  $3b = 21$", "○ B.  $2(3)$"))
+   and "Warm-Up" not in so and "Practice Test" not in so, sorted(keyo))
+ok("student_view --only bank: no answers, reasons or error names; the question pictures only, never the key's",
+   not any(s in so for s in ("BANK-ANSWER", "BANK-PART", "WHY-BANK", "ERRORNAME", "ADDITIONAL-ANSWER"))
+   and sorted(os.listdir(os.path.join(outo, "figures"))) == ["004.png", "005.png", "010.png", "011.png"], os.listdir(os.path.join(outo, "figures")))
+ok("student_view: --only takes bank and nothing else", run(student_view.main, ["u90", "--build", CLEAN, "--only", "boards"])[0] == 2)
+outr = os.path.join(tmp, "reader_bank")
+rc, said = run(reader_copy.main, ["u90", "--build", CLEAN, "--out", outr, "--bank"])
+rb = open(os.path.join(outr, "90.01.md"), encoding="utf-8").read()
+ok("reader_copy --bank: the two banks, with keys, after the independent set",
+   rc == 0 and rb.find("## Independent Set") < rb.find("## Question Bank") < rb.find("## Additional Question Bank") < rb.find("## IXL")
+   and all(s in rb for s in ("**90.01/K1**", "BANK-ANSWER-ONE", "BANK-PART-B", "$2(3)$ (key)", "ERRORNAME-BANK", "[figure: 005.png]  [key figure: 006.png]"))
+   and "WHY-BANK" not in rb and "Question Bank" not in r1, rb[rb.find("## Question Bank"):][:600])
 
 # ---------------------------------------------------------------- blind_diff
 ok("blind_diff: 1/2 and 0.5 agree", blind_diff.compare(dict(kind="independent", answer="1/2"), "0.5") == "agree")

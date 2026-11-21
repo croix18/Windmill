@@ -3,6 +3,8 @@
     python3 reader_copy.py u11                    → /tmp/reader/u11/11.01.md … and Unit 11 papers.md
     python3 reader_copy.py u11 --out DIR          → somewhere else
     python3 reader_copy.py u11 --teacher          → and the teacher-only prose (notes, glosses, wrong, why, te.say)
+    python3 reader_copy.py u11 --bank             → and each lesson's Question Bank and Additional Question Bank, with
+                                                    keys, after the independent set (ids 11.01/K3, 11.01/A3, K3b)
     (--build DIR reads the unit folders of another build folder, as figure_sheets.py does)
 
 Each lesson is one file, in slide order: the title and target, the warm-up with its answers, the vocabulary, each
@@ -266,8 +268,58 @@ def paper_items(U, fname, figmap):
     return out
 
 
-def unit_model(build, unit):
-    """([(spec file name, kind, spec, items)] for the whole unit, the figure numbers)."""
+BANKS = (("bank", "K", "Question Bank"), ("additional", "A", "Additional Question Bank"))
+
+
+def _table_rows(t):
+    rows = t[1] if isinstance(t, (tuple, list)) and len(t) == 2 and isinstance(t[1], (list, tuple)) else t
+    out = []
+    for ri, row in enumerate(rows or []):
+        cells = [str(c.get("text", c) if isinstance(c, dict) else c) for c in (row if isinstance(row, (list, tuple)) else [row])]
+        out.append("| " + " | ".join(cells) + " |")
+        if ri == 0:
+            out.append("|" + "---|" * len(cells))
+    return out
+
+
+def bank_items(L, fname, figmap):
+    """A lesson's Question Bank and Additional Question Bank, numbered as their documents print them (headings and
+    table-only entries are not numbered): 7.01/K3 is the bank's third question, 7.01/A3 the additional's, K3b a part."""
+    code, out = L.get("code", "?"), []
+    for field, letter, name in BANKS:
+        items = L.get(field) or []
+        if not items:
+            continue
+        out.append(dict(bank=name, group=field))
+        n = 0
+        for i, it in enumerate(items):
+            path = f"{field}[{i + 1}]"
+            if it.get("heading"):
+                out.append(dict(heading=it["heading"], group=field))
+                continue
+            if it.get("table") and not it.get("stem"):
+                out.append(dict(table=_table_rows(it["table"]), group=field))
+                continue
+            n += 1
+            qid = f"{code}/{letter}{n}"
+            q = [it.get("stem", "")] + (_table_rows(it["table"]) if it.get("table") else [])
+            if it.get("parts"):
+                out.append(rec(qid, field, name, it, q, _figs(fname, path, it, figmap), teacher=[("why", it.get("why"))], parts_of=True))
+                for pi, p in enumerate(it["parts"]):
+                    out.append(rec(f"{qid}{p.get('label', LETTERS[pi].lower())}", field + "-part", name, p, [p.get("stem", "")],
+                                   _figs(fname, f"{path}.parts[{pi + 1}]", p, figmap), answer=p.get("answer"),
+                                   choices=p.get("choices"), correct=p.get("correct") if p.get("choices") else None,
+                                   check=p.get("check"), errors=p.get("errors"), teacher=[("why", p.get("why"))]))
+            else:
+                out.append(rec(qid, field, name, it, q, _figs(fname, path, it, figmap), answer=it.get("answer"),
+                               choices=it.get("choices"), correct=it.get("correct") if it.get("choices") else None,
+                               check=it.get("check"), errors=it.get("errors"), teacher=[("why", it.get("why"))]))
+    return out
+
+
+def unit_model(build, unit, bank=False):
+    """([(spec file name, kind, spec, items)] for the whole unit, the figure numbers). bank=True adds each lesson's
+    two question banks after its set."""
     figmap = figure_numbers(build, unit)
     out = []
     for f in spec_files(build, unit):
@@ -275,7 +327,11 @@ def unit_model(build, unit):
         if top is None:
             continue
         fname = os.path.basename(f)
-        out.append((fname, kind, top, lesson_items(top, fname, figmap) if kind == "lesson" else paper_items(top, fname, figmap)))
+        if kind == "lesson":
+            items = lesson_items(top, fname, figmap) + (bank_items(top, fname, figmap) if bank else [])
+        else:
+            items = paper_items(top, fname, figmap)
+        out.append((fname, kind, top, items))
     return out, figmap
 
 
@@ -424,6 +480,24 @@ def lesson_md(L, items, teacher=False, fname="", figmap=None):
                 md.append(f"_{r['heading']}_")
             elif r.get("kind") == "independent":
                 md += _item_md(r, teacher)
+    for r in items:
+        if "bank" in r:
+            md += ["", f"## {r['bank']}", ""]
+        elif r.get("group") in ("bank", "additional") or str(r.get("kind", "")).startswith(("bank", "additional")):
+            if "heading" in r:
+                md.append(f"_{r['heading']}_")
+            elif "table" in r:
+                md += r["table"]
+            elif r.get("parts_of"):
+                md += [f"- **{r['id']}**  {r['q'][0]}"] + [f"    {x}" for x in r["q"][1:]]
+                fl = _fig_line(r["figs"])
+                if fl:
+                    md.append(f"    {fl}")
+                _teacher(md, r, teacher)
+            elif r["kind"].endswith("-part"):
+                md += ["  " + x for x in _item_md(r, teacher)]
+            else:
+                md += _item_md(r, teacher)
     close = (L.get("te") or {}).get("close")
     if close:
         md += ["", "## Before You Go", ""] + [f"- {c}" for c in close]
@@ -490,7 +564,7 @@ def main(argv):
     for a in it:
         if a in ("--out", "--build"):
             opts[a] = next(it, None)
-        elif a == "--teacher":
+        elif a in ("--teacher", "--bank"):
             opts[a] = True
         else:
             args.append(a)
@@ -502,7 +576,7 @@ def main(argv):
     out = os.path.abspath(opts.get("--out") or os.path.join("/tmp/reader", unit))
     os.makedirs(out, exist_ok=True)
     teacher = bool(opts.get("--teacher"))
-    model, figmap = unit_model(build, unit)
+    model, figmap = unit_model(build, unit, bank=bool(opts.get("--bank")))
     written = []
     for fname, kind, top, items in model:
         if kind == "lesson":
