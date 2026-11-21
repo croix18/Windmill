@@ -1538,9 +1538,10 @@ try:
        "All Teacher Editions" not in _merged and "All Documents" in _merged and _cv.returncode == 0
        and [o.title for o in __import__("pypdf").PdfReader(_merged["All Documents"]).outline][:1] == ["Lesson Plan"], str(_merged))
     from lib import plankit as _plk0
-    _drop0 = [(_plk0.TITLE_MOVE, _plk0.TITLE_MOVE_NO_TE), ("Teach from the front; say the off-slide sentence out loud.", "Teach from the front."),
-              (", and the off-slide sentence is said out loud rather than printed.", "."),
-              ("Teach from the front; the off-slide sentence is said, not shown.", "Teach from the front.")]
+    # the plan's sentences as ruling 59 writes them (21 Nov 2026): whole sentences, in both plan styles
+    _drop0 = [(_plk0.TITLE_MOVE, _plk0.TITLE_MOVE_NO_TE),
+              ("Teach the notes from the board and say aloud the sentence the Teacher's Edition gives for each slide.", "Teach the notes from the board, one slide at a time."),
+              (", and says aloud the sentence the Teacher's Edition gives for each slide.", ".")]
     def _words0(p):
         with zipfile.ZipFile(p) as z:
             return "".join(t for nm in sorted(z.namelist()) if re.fullmatch(r"word/document\.xml|ppt/slides/slide\d+\.xml", nm)

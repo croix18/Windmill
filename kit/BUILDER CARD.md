@@ -96,6 +96,7 @@ grid). Every number on a picture is in the words or explained; every length the 
 17. A bank `heading` names a group, never numbers it; a lesson is called by its code (54).
 18. American English; multiplication is a dot or parentheses, never × (house style).
 19. Classroom wording (58). A stem is a whole question or command, never a fragment ("x: 4, 6, 10. Find the constant."), and two sentences are two sentences, not one joined by a colon. A graph shows y "versus" x, never "against". A rate is "per", or "for every 1 unit of x", never "for each 1 of x". Students "explain", "identify" or "write"; they are never told to "say". "The other way around" and "solve for either quantity", never "the other way round" or "the subject". A table drawn left to right has pairs and columns, not rows. A variable does not open a sentence ("Let e be…"). An answer line is a short whole sentence when it fits.
+20. Printed for a reader who did not build it (59). The Lesson Plan is read by the teacher next door and by an administrator, so `te.must`, `te.must_not`, each `mtr` line, `building_on`, `working_toward`, `closure`, `te.materials` and `differentiation` are whole sentences ("On whiteboard questions 2, 4 and 6, students convince a neighbor and then vote again."), never fragments strung on semicolons and dashes; they say "whiteboard question 3", not "board 3". Nothing printed carries a ruling number or a word about the build: the wrong answer that uses the unneeded number is cited "[an extra number, included on purpose]".
 
 ## The gates (each refuses the build)
 

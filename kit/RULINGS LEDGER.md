@@ -77,12 +77,13 @@ builder to do (a shipped unit, a retired paper, a governance or kit matter alrea
 | 56 [M7] | M7 Unit 13 before the break | IN FORCE | plan |
 | 57 | PM days are condensed class days | IN FORCE | plan |
 | 58 | Classroom wording: plain American questions; no "Answer it." under a board | IN FORCE | kit (the board's instruction, the IXL slide, the cover line); card 19 |
+| 59 | A printed page is written for a reader who did not build it: the Lesson Plan in whole sentences; no ruling number and no word about the build on any page; no instruction line on an Independent Set | IN FORCE | kit (`plankit`, the Independent Set, the keys' notes); card 20 |
 
 **§16, how lessons teach (3 Sep 2026), for completeness:** build order — card 1; rule 1 (Example, then Your Turn) — card 5;
 rule 2 (declared variation) — card 9, `te.variation`; rule 3 (SSDD on the review) — unit review (`unit.py`), not a lesson
 field; rule 4 (diagnostic boards) — card 8, 10, gate distractorcheck; rule 5 (spaced warm-up) — card 7; rule 6 (the
 named moves) — card 3.
 
-**Counts.** 68 rows (58 numbers, six lettered or amended rulings, and the second ruling at 29–32). IN FORCE 55 (two
+**Counts.** 69 rows (59 numbers, six lettered or amended rulings, and the second ruling at 29–32). IN FORCE 56 (two
 amended: 21 and 28); SUPERSEDED 12; one number never issued (7). Lives in "history": 17 rows (9 in force with nothing
-left for a builder, 7 superseded, and 7). Rows that point at the card: 24; at a gate: 16; at the plan: 13.
+left for a builder, 7 superseded, and 7). Rows that point at the card: 25; at a gate: 16; at the plan: 13.

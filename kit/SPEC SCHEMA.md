@@ -244,8 +244,9 @@ use it to skip work.
 Under **ruling 26** the teacher's edition is **four printed pages or fewer** and `checks.py`
 fails a longer one. Only these fields reach it:
 
-- `must` / `must_not` — the benchmark's two lines, quoted from the Source of Truth or the B1G-M
-  notes. (If absent, they fall back to `standard_notes`' "Clarification" and "Boundary".)
+- `must` / `must_not` — the benchmark's two lines, from the Source of Truth or the B1G-M notes, written as whole
+  sentences (ruling 59). The sections-style plan prints them under **Required by the benchmark.** and **Not part of
+  this lesson.** (If absent, they fall back to `standard_notes`' "Clarification" and "Boundary".)
 - **`say=[three strings]`** — the three sentences to say out loud today. They are the last thing
   on page 1 and nothing else goes there.
 - `materials` — one line, printed at the end.

@@ -492,9 +492,10 @@ def build_bank(L, items, kind, key, outdir):
     eyebrow = f"{COURSE}  ·  Unit {L['unit']}  ·  {_label(L)}"
     sub = f"{kind} {code}"
     doc = Doc(eyebrow, L["title"], sub, key=key, font=getattr(C, "DOC_FONT", None))
-    if kind == "Independent Set":
-        doc.instruction("Six questions, on your own, in silence. Show the step that does the work.")
-    else:
+    # An Independent Set prints no instruction line (Croix, 21 Nov 2026, of "Six questions, on your own, in silence. Show
+    # the step that does the work.": "Just get rid of it completely"). The teacher gives the directions; the page gives
+    # the questions. The two Question Banks keep theirs.
+    if kind != "Independent Set":
         doc.instruction("Show your work. Circle your final answer.")
     n = 0
     for it in items:
@@ -1192,8 +1193,8 @@ def _slide_line(s):
 SPLIT_MOVE = ("Split (no option near two-thirds)? Sixty seconds, convince your neighbor, "
               "re-vote, then reveal.")
 # ruling 20 — the one peer move, as the table-style edition and the labels-style plan print it
-REVOTE = getattr(C, "REVOTE", "Split — no option near two-thirds? Sixty seconds, convince the person next to you, "
-                              "re-vote, then reveal.")
+REVOTE = getattr(C, "REVOTE", "If no answer has about two-thirds of the class, students take one minute to convince the person "
+                              "next to them and then vote again before the answer is revealed.")
 
 
 def _locator(ev):
@@ -1389,7 +1390,7 @@ def _te_table(L, deck_path, outdir):
         errs = q.get("errors") or {}
         et = "; ".join(f"({k}) {v}" for k, v in errs.items()) if errs else q.get("wrong", "")
         if q.get("unneeded"):
-            et = (et + "; " if et else "") + f"[{q['unneeded']} is not needed — ruling 22]"
+            et = (et + "; " if et else "") + f"[{q['unneeded']} is not needed: an extra number, included on purpose]"
         data.append([str(i + 1), qt, {"text": ans, "bold": True, "italic": True, "color": RED}, et])
     te.table([340, 2860, 2140, 4020], data, header=True, size=9)
     te.body(f"**On a split:** {REVOTE[len('Split — '):] if REVOTE.startswith('Split — ') else REVOTE}")   # the label once, not "On a split: Split —"

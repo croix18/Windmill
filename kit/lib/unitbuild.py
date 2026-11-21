@@ -46,7 +46,7 @@ SHOW_WORK = ("Show your work for problems that require calculations. Each number
 # everything." The practice kit dropped it that day; the papers this file prints dropped it on 14 Nov 2026 (it was still
 # under every section of a printed Practice Test). Nothing a student reads carries it. Ruling 19's scoring stands, and
 # the key keeps the teacher's grading note, in the teacher's words.
-FOLLOW_THROUGH_KEY = ("Follow-through (ruling 19): a later part earns its point when the right operation is "
+FOLLOW_THROUGH_KEY = ("Follow-through: a later part earns its point when the right operation is "
                       "applied to the student's own earlier answer, with that work on the page.")
 TRANSFER_FLAG = ("TRANSFER ITEM — not on the practice test. Same benchmark, a surface nobody "
                  "rehearsed.")
@@ -191,7 +191,9 @@ def build_reference(U, outdir):
 def build_review(U, outdir, key):
     eyebrow = f"{COURSE}  ·  Unit {U['unit']}"
     doc = Doc(eyebrow, f"Unit {U['unit']} Review", U["title"], key=key, font=getattr(C, "DOC_FONT", None))
-    doc.instruction("Show your work. Circle your final answer.")
+    # the Practice Test's own first sentence (SHOW_WORK): "Circle your final answer" stood over multiple-choice,
+    # select-all and graphing questions, which have nothing to circle (A7 Unit 7, 21 Nov 2026)
+    doc.instruction("Show your work for problems that require calculations.")
     # a unit whose review leaves out one of its targets says so in its own words, `review_note` (A7 Unit 4, 21 October
     # 2026: significant digits are taught in 4.04 and not assessed, so its review no longer covers every target)
     doc.para(lesson_codes(U, U.get("review_note") or UNSCORED_NOTE), size=9.5, italic=True, color=GRAY, before=0, after=8)
@@ -276,12 +278,12 @@ def transfer_line(A, transfer):
     """The key's sentence about the transfer items it carries."""
     cuts = transfer_cuts(A)
     if len(transfer) == 2:
-        return (f"Transfer items (ruling 18): questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
+        return (f"Transfer items: questions {transfer[0]} and {transfer[1]}. Neither surface appears on the "
                 f"review or in any question bank.")
     if len(transfer) == 1:
-        return (f"Transfer item (ruling 18): question {transfer[0]}. Its surface appears on neither the review nor any "
+        return (f"Transfer item: question {transfer[0]}. Its surface appears on neither the review nor any "
                 f"question bank. A second transfer item was cut from this paper: {cuts[0]}")
-    return "Transfer items (ruling 18): none on this paper. Both were cut: " + "  ".join(f"({i + 1}) {c}" for i, c in enumerate(cuts))
+    return "Transfer items: none on this paper. Both were cut: " + "  ".join(f"({i + 1}) {c}" for i, c in enumerate(cuts))
 
 
 def build_paper(U, outdir, key):
