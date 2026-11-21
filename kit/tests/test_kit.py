@@ -698,6 +698,10 @@ ok("ruling 44: π and thousands do not hide a length (18π in on the picture, a 
    and _plate(["A track is 1,200 m around."], ["1,200 m"]) == [])
 ok("ruling 44: a number after an equals sign is a result, not a length the words give (Deshawn's = 160 m in an error analysis)",
    _plate(["Deshawn's work:   bottom piece: 16 × 6 = 96    top piece: 16 × 4 = 64", "A = 96 + 64 = 160 m", "Find both mistakes."], ["16 m", "6 m", "7 m", "4 m", "9 m", "10 m"]) == [])
+ok("ruling 44: 'in' before a number, an article or a letter is the preposition, not inches ($160 in 4 hours)",
+   fw.lengths(["Theo earns \\$160 in 4 hours and e dollars in h hours.", "It fills 12 in a minute and 9 in the hour."]) == set()
+   and fw.lengths(["A card 20 in wide and 8 in. tall; a 14 in pizza; a 6 inch nail."]) == {"20", "8", "14", "6"},
+   str(fw.lengths(["Theo earns \\$160 in 4 hours and e dollars in h hours.", "A card 20 in wide and 8 in. tall; a 14 in pizza; a 6 inch nail."])))
 ok("ruling 44: where the difference is the point the item says so, and the tag is a field the builders know",
    _plate(["A plate sits on a placemat 30 cm wide."], ["20 cm"], figwords_ok=True) == [] and "figwords_ok" in lb.WB_FIELDS)
 ok("ruling 44: it reads an example, a notes slide and a test question the same way, and the answer figure too",

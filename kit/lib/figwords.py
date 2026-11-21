@@ -43,7 +43,9 @@ import re
 from . import repeatcheck as rc
 
 WORDS = ("text", "prompt", "stem", "latex", "ask", "items", "items2", "math")
-_UNIT = (r"(?:cm|mm|km|in\.?|ft|yd|mi|m|units?|squares?|inch(?:es)?|feet|foot|meters?|metres?|"
+# "in" before a number, an article or a single letter is the preposition, not inches: "$160 in 4 hours" was read as a
+# length of 160 in, and the build refused a Your Turn whose table showed hours 0, 2, 6 (A7 7.05, 21 Nov 2026)
+_UNIT = (r"(?:cm|mm|km|in\.?(?!\s+(?:\d|an?\s|the\s|each\s|every\s|[a-z]\s))|ft|yd|mi|m|units?|squares?|inch(?:es)?|feet|foot|meters?|metres?|"
          r"centimeters?|centimetres?|millimeters?|kilometers?|miles?|yards?)")
 _MEAS = re.compile(r"(?<![\w.])(\d[\d,]*(?:\.\d+)?(?:\s?[½¼¾]|\s\d+/\d+)?)\s*(π?)\s*(?:-\s*)?" + _UNIT + r"(?![a-zA-Z²³^])")
 _RESULT = re.compile(r"(?:=|≈|\\approx)\s*\$?\s*$")
