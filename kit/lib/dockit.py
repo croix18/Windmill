@@ -343,7 +343,10 @@ class Doc:
         c0, c1 = t.rows[0].cells
         c0.width = Twips(lw); c1.width = Twips(rw)
         for c in (c0, c1):
-            _set_cell_border(c); _cell_margins(c, 0, 0, 0, 0)
+            _set_cell_border(c)
+        # the title's cell keeps 0.15 in clear of the name lines: a title exactly as wide as its cell ended against
+        # "Date" with no gap (A7 Unit 7, "Representing Proportional Relationships", 21 Nov 2026); now it wraps
+        _cell_margins(c0, 0, 0, 0, 220); _cell_margins(c1, 0, 0, 0, 0)
         _grid(t, [lw, rw])
         p = c0.paragraphs[0]; p.paragraph_format.space_after = Pt(1)
         r = self._run(p, eyebrow, 8.5, color=GRAY); r.font.all_caps = True

@@ -10,7 +10,9 @@ compared too: a page has changed when its words differ, or when 4 or more of its
 "changed: none" (A7 Unit 7, 21 Nov 2026). Pages are lined up first (the fewest edits), so a slide inserted near the
 front is reported as one page added, not as every later page changed. Page numbers are NEW's, except a removed
 page, which is OLD's. --sheet draws the changed and added pages of NEW at 60 dpi, 3 across, numbered, and prints the
-sheet's path (several sheets for many pages). Exit 0 either way: a change is information, not a failure.
+sheet's path (several sheets for many pages). The page number is not compared (the bottom right corner, and the
+number a page's words end with), so the pages after an added slide are not all "changed". Exit 0 either way: a change
+is information, not a failure.
 
 What it cannot see: a change smaller than a 60-dpi pixel (a thin rule moved a hair, a colour a shade off), and
 anything a PDF does not draw (speaker notes, the side-car, timings). Read-only: writes only to a scratch folder and
@@ -18,12 +20,17 @@ anything a PDF does not draw (speaker notes, the side-car, timings). Read-only: 
 """
 import glob
 import os
+import re
 import subprocess
 import sys
 import tempfile
 
 DPI, SHEET_DPI, COLS = 60, 60, 3
 LEVEL, MINPX = 40, 4
+# The bottom right corner of a page (this share of its width and height) is not compared, and neither is the number
+# its words end with: that is the page number, and a slide added earlier renumbers every page after it — which is not
+# a change to those pages (with the floor at 4 pixels, A7 7.05's one added slide was first reported as 28 changed).
+CORNER = (0.10, 0.08)
 
 
 def render(pdf, out, dpi=DPI, first=None, last=None):
@@ -50,6 +57,8 @@ def differs(a, b):
     if a.size != b.size:
         return True
     d = ImageChops.difference(a, b).convert("L").point(lambda v: 255 if v > LEVEL else 0)
+    w, h = a.size
+    d.paste(0, (int(w * (1 - CORNER[0])), int(h * (1 - CORNER[1])), w, h))      # the page number: see CORNER
     return d.histogram()[255] >= MINPX
 
 
@@ -59,7 +68,7 @@ def words(pdf):
         got = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
     except (OSError, subprocess.CalledProcessError):
         return []
-    return [" ".join(page.split()) for page in got.split("\f")]
+    return [re.sub(r"\s*\d+$", "", " ".join(page.split())) for page in got.split("\f")]     # less its page number
 
 
 def compare(old_pdf, new_pdf):

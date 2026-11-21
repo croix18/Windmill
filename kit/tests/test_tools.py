@@ -252,11 +252,12 @@ from PIL import Image, ImageDraw   # noqa: E402
 
 def pdf(path, texts):
     ims = []
-    for t in texts:
+    for k, t in enumerate(texts, 1):
         im = Image.new("RGB", (1000, 562), "white")
         d = ImageDraw.Draw(im)
         d.rectangle([40, 40, 960, 120], fill=(30, 90, 168))
         d.text((60, 200), t, fill="black", font_size=60)
+        d.text((950, 535), str(k), fill="black", font_size=16)      # a page number, bottom right, as a deck has
         ims.append(im)
     ims[0].save(path, save_all=True, append_images=ims[1:], resolution=100)
 
