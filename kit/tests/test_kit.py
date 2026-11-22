@@ -1544,8 +1544,10 @@ try:
               (", and says aloud the sentence the Teacher's Edition gives for each slide.", ".")]
     def _words0(p):
         with zipfile.ZipFile(p) as z:
+            # the words, not where a line may break: dockit joins a paragraph's closing words with non-breaking spaces,
+            # and a sentence taken out of a paragraph moves which words those are
             return "".join(t for nm in sorted(z.namelist()) if re.fullmatch(r"word/document\.xml|ppt/slides/slide\d+\.xml", nm)
-                           for t in re.findall(r"<[aw]:t(?: [^>]*)?>([^<]*)</[aw]:t>", z.read(nm).decode("utf-8")))
+                           for t in re.findall(r"<[aw]:t(?: [^>]*)?>([^<]*)</[aw]:t>", z.read(nm).decode("utf-8"))).replace("\u00a0", " ")
     _planA = _words0(_bA["plan"])
     _dropped0 = [a for a, b in _drop0 if a in _planA]
     for a, b in _drop0:
@@ -1606,6 +1608,24 @@ _glued = {
 _gbad = {k: _dkn.glue(k) for k, v in _glued.items() if _dkn.glue(k) != v.replace("_", _NBk)}
 ok("dockit: an equation written in the paper's own words keeps its signs off the ends of a line, and nothing else changes",
    not _gbad and all(_dkn.glue(k).replace(_NBk, " ") == k for k in _glued), str(_gbad))
+_tails = {
+    "What is the constant of proportionality, in miles per hour?": "in miles_per_hour?",
+    "Choose three x-values that give whole-number y-values, and find each y.": "and find_each_y.",
+    "What equation gives c in terms of n?": "in terms_of_n?",
+    "Graph cups of flour versus batches.": "flour versus_batches.",
+    "It passes through the origin, so the relationship is proportional.": "is proportional.",
+    "Answer:  7 cups": "Answer:  7_cups",
+    "Find p.  Then": "Find p.  Then",
+    "a rate with nothing added at the extraordinarily-long-windedness end": "the extraordinarily-long-windedness end",
+}
+_tbad = {k: _dkn.bind_tail(k.replace("_", " ")) for k, v in _tails.items() if not _dkn.bind_tail(k.replace("_", " ")).endswith(v.replace("_", _NBk)) or _dkn.bind_tail(k.replace("_", " ")).replace(_NBk, " ") != k.replace("_", " ")}
+ok("dockit: the words that close a paragraph stay together until they make ten characters, and no longer group is made",
+   not _tbad and _dkn.bind_tail("It passes through the origin, so the relationship is proportional.").count(_NBk) == 0, str(_tbad))
+_pt = _dn.para("The table shows the miles she paddles. What is the constant of proportionality, in miles per hour?")
+_pb = _dn.para("**Test every pair.**  Two pairs that agree are not enough, so test them all the way to the end of it.")
+ok("dockit: a paragraph's closing words are joined in its last run only",
+   _pt.runs[-1].text.endswith("miles" + _NBk + "per" + _NBk + "hour?") and _NBk not in _pb.runs[0].text and _pb.runs[-1].text.endswith("end" + _NBk + "of" + _NBk + "it."),
+   str([r.text for r in _pt.runs + _pb.runs]))
 _pf = _dn.para("Graph  $y = \\frac{1}{4}x$.  Choose x-values, then compare $x^{2}$.")
 _pe = _dn.para("The area is $x^{2}$ here.")
 from docx.oxml.ns import qn as _qn

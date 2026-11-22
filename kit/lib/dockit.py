@@ -175,6 +175,27 @@ def glue(text):
     return re.sub(r"\(([^()\s]{1,8}), ([^()\s]{1,8})\)", lambda m: f"({m.group(1)},{_NB}{m.group(2)})", out)
 
 
+def bind_tail(text, least=10, most=24):
+    """`text` with its last words joined by non-breaking spaces until they make `least` characters, so a paragraph's
+    last line is never one short word: "…in miles per" closed a line of A7 Unit 7's Review and "hour?" stood alone
+    under it; "…and find each" and then "y." (21 Nov 2026). The words move down together, so the paragraph keeps its
+    number of lines. At most three spaces are joined, never across a double space (a gap that was meant), and never
+    into a group longer than `most` characters, which a narrow table cell could not take whole."""
+    body = text.rstrip(" ")
+    end = text[len(body):]
+    cut = len(body)
+    for _ in range(3):
+        j = body.rfind(" ", 0, cut)
+        if j < 1 or body[j - 1] == " " or len(body) - j - 1 >= least:
+            break
+        k = body.rfind(" ", 0, j)
+        if len(body) - k - 1 > most:
+            break
+        body = body[:j] + _NB + body[j + 1:]
+        cut = j
+    return body + end
+
+
 KEY_FIGURE = "fig_key"     # the mark on a key's own figure (docPr descr), read by checks.py keytwin
 
 
@@ -244,7 +265,8 @@ class Doc:
         """Inline markup: $latex$ becomes an image; **bold**; __vocab__ (blue bold)."""
         text = slotmark.strip(text or "").replace("\\$", "\ue000")      # \$ is a literal dollar sign (money)
         parts = re.split(r"(\$[^$]+\$|\*\*[^*]+\*\*|__[^_]+__)", text)
-        for part in parts:
+        last = max((i for i, part in enumerate(parts) if part), default=-1)
+        for i, part in enumerate(parts):
             if not part:
                 continue
             if part.startswith("$") and part.endswith("$"):
@@ -263,12 +285,13 @@ class Doc:
                     self.img(p, latex, color=color)
                 continue
             part = glue(part.replace("\ue000", "$"))     # an equation in the paper's own words does not break either
+            tail = bind_tail if i == last else (lambda t: t)       # … and the words that close the text stay together
             if part.startswith("**"):
-                self._run(p, part[2:-2], size, True, italic, color)
+                self._run(p, tail(part[2:-2]), size, True, italic, color)
             elif part.startswith("__"):
-                self._run(p, part[2:-2], size, True, italic, VOCAB)
+                self._run(p, tail(part[2:-2]), size, True, italic, VOCAB)
             else:
-                self._run(p, part, size, bold, italic, color)
+                self._run(p, tail(part), size, bold, italic, color)
 
     def img(self, p, latex, surface="doc", color=INK):
         if surface == "doc" and self.font == "Lexend":
