@@ -278,7 +278,10 @@ class HtmlDeck:
         return True
 
     def figure_steps(self, spec, rows, gap=0.16, size=None, rgap=0.1, surface=None, align=False):
-        """An answer slide with a picture and working: the figure on the left, the steps beside it."""
+        """An answer slide with a picture and working: the figure on the left, the steps beside it. The pair takes the room
+        the slide has left between its question and its answer line (.figsteps is flex 1 1 0) and the picture is fitted to
+        that height. Sized by its content, the pair let a tall graph run up over the question and down over "Answer:" on
+        the web deck of every unit (seen 22 Nov 2026 on A7 7.01, as Unit 7 went to the site; A7 11.07 had it too)."""
         from .deckkit import step_sizes
         size = size or step_sizes()["size"]; surface = surface or step_sizes()["surface"]
         b, w, h = self._img(spec)
@@ -492,7 +495,7 @@ html,body{margin:0;height:100%;background:#2b2b2b;font-family:'WindyPi','Lexend'
 .foot{position:absolute;left:85px;right:85px;bottom:0;height:72px;border-top:1px solid #GRAY;display:flex;justify-content:space-between;align-items:flex-start;padding-top:6px;font-size:11pt;color:#GRAY}
 .foot .n{font-style:normal}
 p.t{margin:0;line-height:1.3}
-.figsteps{display:flex;align-items:center;justify-content:center;gap:80px;min-height:0;flex:0 1 auto}.figsteps .fig{flex:0 1 auto;min-width:0;min-height:0;margin:0}.figsteps .steps{flex:0 0 auto;margin:0}
+.figsteps{display:flex;align-items:center;justify-content:center;gap:80px;min-height:0;flex:1 1 0}.figsteps .fig{flex:0 1 auto;min-width:0;min-height:0;margin:0;height:100%}.figsteps .steps{flex:0 0 auto;margin:0}
 .steps{text-align:center;margin:10px 0 4px}.steps>div{display:inline-block;text-align:left}.steps p.t{margin:7px 0;padding-left:0}
 .left{text-align:left;padding-left:40px}.center{text-align:center}.right{text-align:right}
 h3.head{font-size:25pt;margin:4px 0 2px;padding-bottom:4px;border-bottom:1px solid #INK}

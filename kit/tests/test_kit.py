@@ -1659,6 +1659,13 @@ ok("dockit: the two rules reach across a paragraph's pieces: the words before a 
    and ("feet" + _NBk + "f in" + _NBk + "n yards") in _tv and _tx.replace(_NBk, " ").endswith("passes through (5, 19). What is y when x = 1?"),
    repr(_tx[-40:]) + " " + repr(_tv[-70:]))
 
+# 22 Nov 2026: on the web deck a tall graph beside an answer's steps ran over the question above it and the answer below
+from lib import htmlkit as _hk22
+ok("htmlkit: a figure beside its steps is fitted to the room between the question and the answer line",
+   ".figsteps{display:flex;align-items:center;justify-content:center;gap:80px;min-height:0;flex:1 1 0}" in _hk22.CSS
+   and ".figsteps .fig{flex:0 1 auto;min-width:0;min-height:0;margin:0;height:100%}" in _hk22.CSS
+   and ".fig img{max-width:100%;max-height:100%" in _hk22.CSS, "the .figsteps rules")
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
