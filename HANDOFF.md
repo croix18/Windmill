@@ -44,8 +44,30 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   write a plan's fields as sentences. **Each unit's own plan sentences live in its specs**: Unit 7's were rewritten
   (A7 NOTES); Units 3–6 and 11 of A7 and every M7 unit keep theirs, and a rebuild alone changes only the template's
   lines. **M7's `course.py` carries its own `REVOTE` sentence**, still in the old shorthand. The key's follow-through
-  note is still printed, without its number: on 7 Nov he asked for that line gone "across everything", so whether a
-  key keeps it is his to say.
+  note was still printed then, without its number; he had it dropped that evening ("Drop the line.": the next entry).
+- **The third pass on A7 Unit 7, the same evening: how a paper is set** (Croix, 21 Nov, 8:50 pm, with a fourth outside
+  audit, Gemini's: "Drop the line. … I want the student facing slides and handouts specifically to be perfect."). Four
+  kit commits, all vendored into A7's branch:
+  - `f8634ee` — no key prints a follow-through note ("the line": ruling 19's scoring stands, no page prints it); the
+    Review's "How to use this review" in three plain sentences; a bank says "Show your work for problems that require
+    calculations."; a short linear `$…$` expression in a Lexend paper cannot break across a line.
+  - `254e1b0` — `dockit.glue`: an equation written in a paper's own words keeps its signs off the ends of a line (25
+    lines of Unit 7's papers broke one; none does now). A chain of more than 30 characters breaks only before a
+    relation sign.
+  - `5b374da` — `dockit.img`: a picture in a line is written with no distance of its own (LibreOffice gave it an
+    eighth of an inch a side when python-docx wrote none), and a paragraph that holds a stacked fraction sets its
+    pieces by their middles (`w:textAlignment`), so the fraction stands on the line with its comma beside it.
+    LibreOffice ignores `w:position` on a picture: that was tried first.
+  - `33a26e0` — `dockit.bind_tail`: a paragraph's last line is never one short word.
+  **Every paper of every unit changes at its next rebuild** (line breaks only: Unit 7's 50 PDFs kept their page
+  counts). The three rules were seen in the PDFs, which LibreOffice makes; a `.docx` opened in Word reads the same
+  attributes, and one opened in Google Docs was not looked at. Card 19 gained what the pages showed: no "No." before
+  a numeral, no second colon after "Answer:", no sentence that opens with an equation or a numeral, a choice's reason
+  as a fact about the figure, no word alone on a slide's second line.
+  **Not done, and his to say: the gap before an equation on a slide.** `deckkit._textw` keeps a 6% margin on a run
+  of words, so a picture of an equation after a long run stands about half an inch off it. Unit 7's long lines were
+  rewritten in words (card 19 says how). The kit could set a simple expression inside a sentence as words on every
+  slide, as dockit does on paper: that changes the look of every deck and should be seen in Google Slides first.
 - **The Drive script's test waited twelve hours for a deleted file to come back; it now waits one round of the hourly
   check.** Found by `tools/check.sh` beside A7's branch on 21 Nov: with Unit 7's package the mirror holds 1,769 files,
   the script looks at 120 an hour (`AUDIT`), so a round is 15 hours and three waits in `drive/test_windyhill.js` ran

@@ -139,6 +139,28 @@ may fall at a line's end without a space, or in words. The look found one word a
 `reword.py` by field, not by retyped text: a short script read each old value from the loaded spec, found its
 literal in the source and wrote the edit list.
 
+**A third pass that evening, and what only the built pages showed.** Croix asked for the student-facing slides and
+handouts to be "perfect", with a fourth outside audit. The audit's list and a full reading of `student_view.py`'s
+output changed about 180 spec lines; the faults that were left were all on the pages, not in the words:
+
+- **An equation broken across a line of a paper**, 25 times. No reading of a spec shows where Word will break a line.
+  A scan does: `pdftotext -layout` on every PDF, and any line that ends on `= ÷ + · −` or begins with one. The kit now
+  prevents it (`dockit.glue`), and the scan is still the proof.
+- **A stacked fraction riding above its sentence, with its comma adrift** — on every paper since the papers went to
+  Lexend. Look at a page at 200 dpi before believing a paper is set right; a contact sheet does not show it.
+- **A last line of one word**, on slides ("cookie?", "mean?") and on papers ("hour?", "y."). The same text scan finds
+  them: a line of one or two words under a line of sixty characters. On paper the kit now joins a paragraph's closing
+  words; on a slide the sentence is shortened.
+- **A gap before an equation on a slide.** A line that ends in `$…$` after forty characters of words shows it; list
+  such lines from the specs (split each string on `$…$` and measure the run of words before each expression).
+- **An outside audit reads the PDF's text, and a picture of an equation has none.** Gemini asked for the mathematics
+  of "x: 2, 1, 4" to be checked: the page prints −2. Take such a finding to the page before the spec.
+
+The order that worked: reword and test-build until no slide refuses; one full build; read every changed slide; scan
+and look at the papers; fix; and only then the clean build that is committed. Six full builds were run for this pass,
+and three of them were spent finding out, one fault at a time, what the first look should have listed in one go: look
+at every kind of page once, list everything, then fix.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.
