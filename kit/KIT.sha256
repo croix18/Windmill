@@ -1,5 +1,5 @@
 # The build kit, file by file (sha256). Written by Windmill's tools/kit_manifest.py; never by hand.
-f0d9d3f7e629d8a98d61e9d811754b1f55446df1971c350b9eee0efc7188e92f  BUILDER CARD.md
+1fcf9d9ca32e888dfb63cf5b2cd624fff12d4c9aca4f38e261a38a431fda79eb  BUILDER CARD.md
 0be32dd2fc411a48a9a8786fb86d9de4efb345535a32a4ed0d932af0e67b6ea2  RULINGS LEDGER.md
 00a0cc4a06bf59a90ab96e4c48e7db53436effaa32ae89dc736756871f24c85e  SPEC SCHEMA.md
 6b2fd578350ed9f24c4abd058be107de420be41f319810d7e4d9cff163e71e78  blind_diff.py
@@ -37,7 +37,7 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  lib/__init__.p
 d3664f754239751533644731faf7617062fabbdf3e61a970968d966b49236658  lib/align.py
 f7d985fed8308c935ac8bd19e21db895135ce407c5d0f798ce7ae568c27e4bed  lib/consolekit.py
 ad9d9b90a10b7092e21ad2d82033520e4b1e3ee370218471a13a10ece7b89021  lib/deckkit.py
-36ed597992e9c85963c00cd85e9066b2f8278c68ec3c790ff95d956061914b59  lib/dockit.py
+9b3c29acec8aca8f218baf2069e35eb6b5e65ec92d8deaa55cb6268a2c2ed8a6  lib/dockit.py
 4306c7f8c5de0fc1f7a31d1863a721687ea8a0c7be7e5f9e7cf909af0af46967  lib/figkit.py
 03468cc27489785bde055a965ebfb5f30a323153b7e72b85b068bc709b8f3683  lib/figwords.py
 7603ec93b51f8143b8348e570eb2ee95648eebce700c86b5fc0ed1810b2cd9d9  lib/flow.js

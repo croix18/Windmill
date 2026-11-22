@@ -135,6 +135,46 @@ def linear_text(latex):
     return re.sub(r"\s+", " ", t).strip()
 
 
+_NB = "\u00a0"
+_RELATIONS = frozenset("=<>\u2260\u2264\u2265")
+_BINARY = frozenset("\u00f7\u00b7+\u2212\u00d7")
+
+
+def glue(text):
+    """`text` with the spaces inside an equation made non-breaking, so a line of a paper never ends on an operator
+    or begins with one ("She wrote 5" closed a line of A7 7.04's Question Bank and "÷ 1 = 5" opened the next, 21 Nov
+    2026). An equation here is operands joined by signs that stand alone between spaces: 5 ÷ 1 = 5, y ÷ x, 372 − 348
+    = 24. One of up to 30 characters is kept whole. A longer chain may break, but only before = (or another relation
+    sign), which is where a displayed equation breaks. A pair of coordinates, (8, 3), stays together too. Nothing is
+    changed but spaces. A middle dot is a multiplication sign only between numbers: "Unit 7 · Lesson 1" is left alone."""
+    toks = text.split(" ")
+    seps = [" "] * len(toks)                       # seps[k] stands before toks[k]
+    def operand(t):
+        return bool(t) and not (len(t) == 1 and (t in _RELATIONS or t in _BINARY))
+    def sign(k):
+        t = toks[k]
+        if len(t) != 1 or not (t in _RELATIONS or t in _BINARY) or not (operand(toks[k - 1]) and operand(toks[k + 1])):
+            return False
+        if t == "\u00b7":
+            return bool(re.search(r"[0-9)]$", toks[k - 1]) and re.match(r"[0-9(\u2212]|.{1,2}$", toks[k + 1]))
+        return True
+    k = 1
+    while k < len(toks) - 1:
+        if not sign(k):
+            k += 1; continue
+        a, b = k - 1, k + 1
+        while b + 2 < len(toks) and sign(b + 1):
+            b += 2
+        whole = len(" ".join(toks[a:b + 1])) <= 30
+        for j in range(a + 1, b, 2):               # the signs
+            seps[j + 1] = _NB                      # a sign is never the last thing on a line
+            if whole or toks[j] in _BINARY:
+                seps[j] = _NB                      # … and only a relation sign may begin one, in a long chain
+        k = b + 1
+    out = toks[0] + "".join(s + t for s, t in zip(seps[1:], toks[1:]))
+    return re.sub(r"\(([^()\s]{1,8}), ([^()\s]{1,8})\)", lambda m: f"({m.group(1)},{_NB}{m.group(2)})", out)
+
+
 KEY_FIGURE = "fig_key"     # the mark on a key's own figure (docPr descr), read by checks.py keytwin
 
 
@@ -212,9 +252,8 @@ class Doc:
                 words = linear_text(latex) if self.font == "Lexend" else None
                 if words is not None:
                     # A short expression does not break across a line: "y" ended one line of A7 Unit 7's Reference
-                    # Sheet and "= 1.4x + 2" began the next (21 Nov 2026). A long one may still break at its spaces.
-                    if len(words) <= 30:
-                        words = words.replace(" ", "\u00a0")
+                    # Sheet and "= 1.4x + 2" began the next (21 Nov 2026). A long one breaks only before a relation sign.
+                    words = words.replace(" ", _NB) if len(words) <= 30 else glue(words)
                     # ruling 46: in a Lexend paper a linear expression is set as text in the
                     # paper's own face, on the text baseline — an inline picture sits with its
                     # lowest ink on the baseline, so one with a parenthesis or a fraction rode
@@ -223,7 +262,7 @@ class Doc:
                 else:
                     self.img(p, latex, color=color)
                 continue
-            part = part.replace("\ue000", "$")
+            part = glue(part.replace("\ue000", "$"))     # an equation in the paper's own words does not break either
             if part.startswith("**"):
                 self._run(p, part[2:-2], size, True, italic, color)
             elif part.startswith("__"):

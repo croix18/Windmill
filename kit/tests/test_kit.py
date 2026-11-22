@@ -1586,8 +1586,29 @@ from lib import dockit as _dkn
 _dn = _dkn.Doc("E", "T", "S", font="Lexend")
 _pn = _dn.para("It is $y = 1.4x + 2$ here, and $3.15(10) - 3.05(10) = 31.50 - 30.50 = 1.00$ there.")
 _rn = [r.text for r in _pn.runs]
-ok("dockit: a short linear expression has no breaking space, and a long one keeps its spaces",
-   "y\u00a0=\u00a01.4x\u00a0+\u00a02" in _rn and any("31.50 \u2212 30.50" in t for t in _rn), str(_rn))
+ok("dockit: a short linear expression has no breaking space, and a long one breaks only before an equals sign",
+   "y\u00a0=\u00a01.4x\u00a0+\u00a02" in _rn
+   and "3.15(10)\u00a0\u2212\u00a03.05(10) =\u00a031.50\u00a0\u2212\u00a030.50 =\u00a01.00" in _rn, str(_rn))
+_NBk = "\u00a0"
+_glued = {
+    "She wrote 5 \u00f7 1 = 5 and 10 \u00f7 2 = 5 and said it is proportional.":
+        "She wrote 5_\u00f7_1_=_5 and 10_\u00f7_2_=_5 and said it is proportional.",
+    "In 6 hours: 62(6) = 372 and 58(6) = 348; 372 \u2212 348 = 24.": "In 6 hours: 62(6)_=_372 and 58(6)_=_348; 372_\u2212_348_=_24.",
+    "y \u00f7 x is the same for every pair": "y_\u00f7_x is the same for every pair",
+    "10.40 \u00f7 2 = 26.00 \u00f7 5 = 31.20 \u00f7 6 = 5.20, but 16.60 \u00f7 3 is not 5.20":
+        "10.40_\u00f7_2 =_26.00_\u00f7_5 =_31.20_\u00f7_6 =_5.20, but 16.60_\u00f7_3 is not 5.20",
+    "The line passes through (8, 3) and (16, 6).": "The line passes through (8,_3) and (16,_6).",
+    "6 \u00b7 0, 6 \u00b7 1 and 6 \u00b7 5": "6_\u00b7_0, 6_\u00b7_1 and 6_\u00b7_5",
+    "Grade 7 Accelerated \u00b7 Unit 7 \u00b7 Lesson 1": "Grade 7 Accelerated \u00b7 Unit 7 \u00b7 Lesson 1",
+    "   Write the equation  (two spaces, no equation)": "   Write the equation  (two spaces, no equation)",
+    "= 5 is where it ends, and it ends with =": "= 5 is where it ends, and it ends with =",
+}
+_gbad = {k: _dkn.glue(k) for k, v in _glued.items() if _dkn.glue(k) != v.replace("_", _NBk)}
+ok("dockit: an equation written in the paper's own words keeps its signs off the ends of a line, and nothing else changes",
+   not _gbad and all(_dkn.glue(k).replace(_NBk, " ") == k for k in _glued), str(_gbad))
+_pg = _dn.para("**Test every pair.**  For x: 1, 2, 3 the pairs give 3 \u00f7 1 = 3 but 7 \u00f7 2 = 3.5.")
+ok("dockit: a paragraph's plain words and its bold words are both glued",
+   any("3" + _NBk + "\u00f7" + _NBk + "1" + _NBk + "=" + _NBk + "3 but" in r.text for r in _pg.runs), str([r.text for r in _pg.runs]))
 
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
