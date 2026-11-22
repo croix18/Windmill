@@ -403,11 +403,12 @@ class HtmlDeck:
             self.text(ln, 24)
 
     def ixl(self, skills, minutes=5, due="Due by the unit test."):
+        from .deckkit import ixl_third      # the PowerPoint's third line, where its due sentence wraps whole
         ss = C.IXL_SMARTSCORE
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
         self.numbered(["Open IXL and work on the skills listed below.",
                        "Show your work on paper. IXL's answer box does not record it.",
-                       f"Complete every listed skill to a SmartScore of at least {ss}. " + due])
+                       ixl_third(ss, due)])
         self._add('<p class="t left" style="font-size:21pt;font-weight:700;margin-top:18px">Required IXL skills</p>')
         self._add('<ul class="skills">' + "".join(f"<li>{esc(s)}</li>" for s in skills) + "</ul>")
 

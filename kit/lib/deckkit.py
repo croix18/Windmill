@@ -147,6 +147,16 @@ def _split_sup(text):
     return out
 
 
+def ixl_third(ss, due):
+    """The IXL slide's third line, for the PowerPoint and the web deck alike. A short due sentence ("Due by the Unit 11
+    test.") is bound into one piece with no-break spaces, so that where the line wraps it wraps before "Due". Left to
+    itself, a two-digit unit's line broke after "Unit 11" and put "test." alone on a second line, on every IXL slide of
+    the unit (A7 Unit 11, 22 Nov 2026; a one-digit unit's line fits and is unchanged). A longer due line of a spec's
+    own (`ixl_due`) wraps as it will."""
+    lead = f"Complete every listed skill to a SmartScore of at least {ss}. "
+    return lead + (due.replace(" ", "\u00a0") if len(due) <= 32 else due)
+
+
 class Deck:
     def __init__(self, course, unit, lesson_label, title, footer):
         self.p = Presentation()
@@ -1220,7 +1230,7 @@ class Deck:
         self.section("IXL", "Last five minutes.", minutes, f"IXL: every listed skill is required, SmartScore {ss}. " + due, "ixl")
         rows = ["Open IXL and work on the skills listed below.",              # ruling 58 (21 Nov 2026): the three lines reworded
                 "Show your work on paper. IXL's answer box does not record it.",
-                f"Complete every listed skill to a SmartScore of at least {ss}. " + due]
+                ixl_third(ss, due)]
         self.cursor = 2.0
         self.numbered(rows, gap=0.1)
         self.cursor += 0.05

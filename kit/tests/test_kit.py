@@ -1666,6 +1666,16 @@ ok("htmlkit: a figure beside its steps is fitted to the room between the questio
    and ".figsteps .fig{flex:0 1 auto;min-width:0;min-height:0;margin:0;height:100%}" in _hk22.CSS
    and ".fig img{max-width:100%;max-height:100%" in _hk22.CSS, "the .figsteps rules")
 
+# 22 Nov 2026: "…Due by the Unit 11 / test." The IXL slide's third line left one word alone on every IXL slide of a two-digit unit
+from lib import deckkit as _dk22
+import inspect as _in22
+_i3 = _dk22.ixl_third(67, "Due by the Unit 11 test.")
+_i3long = _dk22.ixl_third(67, "This skill continues tomorrow: one assignment, due at the start of the class after 4.06.")
+ok("deckkit: the IXL slide's due sentence wraps whole, in the PowerPoint and on the web deck; a long due line of a spec's own is left alone",
+   _i3 == "Complete every listed skill to a SmartScore of at least 67. Due\u00a0by\u00a0the\u00a0Unit\u00a011\u00a0test."
+   and "\u00a0" not in _i3long and _i3long.endswith("after 4.06.")
+   and "ixl_third(ss, due)" in _in22.getsource(_dk22.Deck.ixl) and "ixl_third(ss, due)" in _in22.getsource(_hk22.HtmlDeck.ixl), repr(_i3))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
