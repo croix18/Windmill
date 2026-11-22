@@ -1,6 +1,6 @@
 # The build kit, file by file (sha256). Written by Windmill's tools/kit_manifest.py; never by hand.
-c7702df0feab1484c7318196f8e757baab10625039751e4391a3ea9981234bbb  BUILDER CARD.md
-0be32dd2fc411a48a9a8786fb86d9de4efb345535a32a4ed0d932af0e67b6ea2  RULINGS LEDGER.md
+39cfb5e367b7f8549eab10bea73d1f45cf5f69a3012226063bc781e8d27bf07c  BUILDER CARD.md
+6d49c8c6285bad8e62c26a59b1676a2e7d9c09cc007eaa57de2f1f7f413a06a6  RULINGS LEDGER.md
 1c0c042e909869580967896a028e788debe99a5bba639211e3641dbb5ce38ea7  SPEC SCHEMA.md
 6b2fd578350ed9f24c4abd058be107de420be41f319810d7e4d9cff163e71e78  blind_diff.py
 70d17d0bc09351ddd2858bb91711cc260940911781c92cbca8e53c20fa8e2df3  build_all.py

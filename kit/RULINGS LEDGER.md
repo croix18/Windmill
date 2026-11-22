@@ -1,4 +1,4 @@
-# RULINGS LEDGER — every ruling 1–57, and where it lives now (21 Nov 2026)
+# RULINGS LEDGER — every ruling 1–60, and where it lives now (22 Nov 2026)
 
 The proof that nothing was dropped on the way to `BUILDER CARD.md`. Numbers are the A7 rulebook's
 (`a7/reference/HOUSE STYLE.md` §13b); a ruling A7 does not carry is read from M7's (`m7/reference/HOUSE STYLE.md`)
@@ -78,12 +78,13 @@ builder to do (a shipped unit, a retired paper, a governance or kit matter alrea
 | 57 | PM days are condensed class days | IN FORCE | plan |
 | 58 | Classroom wording: plain American questions; no "Answer it." under a board | IN FORCE | kit (the board's instruction, the IXL slide, the cover line); card 19 |
 | 59 | A printed page is written for a reader who did not build it: the Lesson Plan in whole sentences; no ruling number and no word about the build on any page; no instruction line on an Independent Set | IN FORCE | kit (`plankit`, the Independent Set, the keys' notes); card 20 |
+| 60 | "Isolate" and "solve for" are the terms: a variable alone on one side is isolated and the equation is solved for it; never "the other way around", "work backward" or "an equation for either quantity" | IN FORCE | card 19 |
 
 **§16, how lessons teach (3 Sep 2026), for completeness:** build order — card 1; rule 1 (Example, then Your Turn) — card 5;
 rule 2 (declared variation) — card 9, `te.variation`; rule 3 (SSDD on the review) — unit review (`unit.py`), not a lesson
 field; rule 4 (diagnostic boards) — card 8, 10, gate distractorcheck; rule 5 (spaced warm-up) — card 7; rule 6 (the
 named moves) — card 3.
 
-**Counts.** 69 rows (59 numbers, six lettered or amended rulings, and the second ruling at 29–32). IN FORCE 56 (two
+**Counts.** 70 rows (60 numbers, six lettered or amended rulings, and the second ruling at 29–32). IN FORCE 57 (two
 amended: 21 and 28); SUPERSEDED 12; one number never issued (7). Lives in "history": 17 rows (9 in force with nothing
-left for a builder, 7 superseded, and 7). Rows that point at the card: 25; at a gate: 16; at the plan: 13.
+left for a builder, 7 superseded, and 7). Rows that point at the card: 26; at a gate: 16; at the plan: 13.
