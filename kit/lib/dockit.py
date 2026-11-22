@@ -196,6 +196,16 @@ def bind_tail(text, least=10, most=24):
     return body + end
 
 
+def tie_letters(text):
+    """`text` with the space before a one-letter variable made non-breaking, so a line never begins with one: "Solve
+    the equation for" closed a line of A7 7.05's Independent Set and "n, the yards in f feet." was the next; "a ladybug
+    crawls in" and then "t seconds." on the Unit 7 Practice Test (22 Nov 2026). A one-letter variable is one lowercase
+    letter other than "a", alone between spaces, with or without the punctuation that closes it. A letter that opens
+    an equation ("when x = 1") is left to `glue`, and one after a double space is left alone. Nothing is changed but
+    spaces."""
+    return re.sub(r"(?<=[^\s\u00a0]) (?=[b-z][,.;:?!)]*(?: |$))", _NB, text)
+
+
 KEY_FIGURE = "fig_key"     # the mark on a key's own figure (docPr descr), read by checks.py keytwin
 
 
@@ -265,8 +275,8 @@ class Doc:
         """Inline markup: $latex$ becomes an image; **bold**; __vocab__ (blue bold)."""
         text = slotmark.strip(text or "").replace("\\$", "\ue000")      # \$ is a literal dollar sign (money)
         parts = re.split(r"(\$[^$]+\$|\*\*[^*]+\*\*|__[^_]+__)", text)
-        last = max((i for i, part in enumerate(parts) if part), default=-1)
-        for i, part in enumerate(parts):
+        segs = []                               # [words, bold, color], or [None, latex, color] for a picture
+        for part in parts:
             if not part:
                 continue
             if part.startswith("$") and part.endswith("$"):
@@ -275,23 +285,43 @@ class Doc:
                 if words is not None:
                     # A short expression does not break across a line: "y" ended one line of A7 Unit 7's Reference
                     # Sheet and "= 1.4x + 2" began the next (21 Nov 2026). A long one breaks only before a relation sign.
-                    words = words.replace(" ", _NB) if len(words) <= 30 else glue(words)
                     # ruling 46: in a Lexend paper a linear expression is set as text in the
                     # paper's own face, on the text baseline — an inline picture sits with its
                     # lowest ink on the baseline, so one with a parenthesis or a fraction rode
                     # high ("some of the numbers look like they're floating", Croix, 17 Oct)
-                    self._run(p, words, size, bold, italic, color)
+                    segs.append([words.replace(" ", _NB) if len(words) <= 30 else glue(words), bold, color])
                 else:
-                    self.img(p, latex, color=color)
+                    segs.append([None, latex, color])
                 continue
             part = glue(part.replace("\ue000", "$"))     # an equation in the paper's own words does not break either
-            tail = bind_tail if i == last else (lambda t: t)       # … and the words that close the text stay together
             if part.startswith("**"):
-                self._run(p, tail(part[2:-2]), size, True, italic, color)
+                segs.append([part[2:-2], True, color])
             elif part.startswith("__"):
-                self._run(p, tail(part[2:-2]), size, True, italic, VOCAB)
+                segs.append([part[2:-2], True, VOCAB])
             else:
-                self._run(p, tail(part), size, bold, italic, color)
+                segs.append([part, bold, color])
+        # Two rules reach across a change of face, so each stretch of words between two pictures is read as one text:
+        # a one-letter variable stays with the word before it, and the words that close the paragraph stay together
+        # ("What is y when" closed a line of A7 7.01's Question Bank and "x = 1?" stood alone under it: the question
+        # mark was the last piece, and the rule saw nothing before it; 22 Nov 2026). Both change spaces only.
+        k = 0
+        while k < len(segs):
+            e = k
+            while e < len(segs) and segs[e][0] is not None:
+                e += 1
+            if e > k:
+                whole = tie_letters("".join(seg[0] for seg in segs[k:e]))
+                if e == len(segs):
+                    whole = bind_tail(whole)
+                at = 0
+                for seg in segs[k:e]:
+                    seg[0] = whole[at:at + len(seg[0])]; at += len(seg[0])
+            k = e + 1
+        for words, b, c in segs:
+            if words is None:
+                self.img(p, b, color=c)
+            else:
+                self._run(p, words, size, b, italic, c)
 
     def img(self, p, latex, surface="doc", color=INK):
         if surface == "doc" and self.font == "Lexend":

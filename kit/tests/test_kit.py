@@ -1638,6 +1638,27 @@ _pg = _dn.para("**Test every pair.**  For x: 1, 2, 3 the pairs give 3 \u00f7 1 =
 ok("dockit: a paragraph's plain words and its bold words are both glued",
    any("3" + _NBk + "\u00f7" + _NBk + "1" + _NBk + "=" + _NBk + "3 but" in r.text for r in _pg.runs), str([r.text for r in _pg.runs]))
 
+# 22 Nov 2026: "Solve the equation for" closed a line of A7 7.05's Independent Set and "n, the yards in f feet." was the next
+_tied = {
+    "Solve the equation for n, the yards in f feet.": "Solve the equation for_n, the yards in_f feet.",
+    "the cost c, in dollars, of w pounds": "the cost_c, in dollars, of_w pounds",
+    "a ladybug crawls in t seconds.": "a ladybug crawls in_t seconds.",
+    "x to get y), the table": "x to get_y), the table",
+    "A car goes a mile, and I saw a car.": "A car goes a mile, and I saw a car.",
+    "Bold.  y is 2 here": "Bold.  y is 2 here",
+    "Store A and Plan P": "Store A and Plan P",
+}
+_tibad = {k: _dkn.tie_letters(k) for k, v in _tied.items() if _dkn.tie_letters(k) != v.replace("_", _NBk)}
+ok("dockit: a one-letter variable stays with the word before it, and an article or a name's letter is left alone",
+   not _tibad and all(_dkn.tie_letters(k).replace(_NBk, " ") == k for k in _tied), str(_tibad))
+_px = _dn.para("The graph of a proportional relationship passes through $(5, 19)$. What is y when $x = 1$?")
+_pv = _dn.para("There are 3 feet in 1 yard, so $f = 3n$ gives the feet f in n yards. Solve the equation for n, the yards in f feet.")
+_tx = "".join(r.text for r in _px.runs); _tv = "".join(r.text for r in _pv.runs)
+ok("dockit: the two rules reach across a paragraph's pieces: the words before a closing equation stay with it, and so does a letter after one",
+   _tx.endswith("What is" + _NBk + "y when" + _NBk + "x" + _NBk + "=" + _NBk + "1?") and ("for" + _NBk + "n, the yards") in _tv
+   and ("feet" + _NBk + "f in" + _NBk + "n yards") in _tv and _tx.replace(_NBk, " ").endswith("passes through (5, 19). What is y when x = 1?"),
+   repr(_tx[-40:]) + " " + repr(_tv[-70:]))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
