@@ -180,13 +180,15 @@ strings, one test build, three full builds, no agent. What it taught:
   its "1 pt". `pdftotext -layout` shows it as "dollars.1 pt": search a points paper for a mark with no space before it.
 
 **An older unit brought to the same rules (A7 Unit 11, 22 November 2026).** Croix: *"take a wack at 11 with these
-changes."* Unit 11 had been built on the old kit on 14 Nov. One lead, no agent: 319 exact strings, four full builds,
+changes."* Unit 11 had been built on the old kit on 14 Nov. One lead, no agent: 332 exact strings, five full builds,
 one kit fix. What it taught:
 
 - **Build the unit once on the new kit before a word is changed.** That build says what the kit alone breaks, and it
   is not the wording: five figure labels were refused in Lexend lettering, `glyph` found sixteen boxes and thirds (□, ⅓
-  and ⅔ are not Lexend glyphs, so in prose a box is `$8 + □$` or "the box" and a third is "(1/3)"), and a standing line
-  of the kit wrapped badly for a two-digit unit ("…Due by the Unit 11 / test.").
+  and ⅔ are not Lexend glyphs, so in prose a box is "the box" and a third is "(1/3)"), and a standing line
+  of the kit wrapped badly for a two-digit unit ("…Due by the Unit 11 / test."). The first mend of the boxes wrote
+  them as mathematics, and in a key's worked line and a plan's table cell the picture stood half again as tall as the
+  words: a fifth build put those lines into words. Look at one key page and one plan page at 90 dpi before the clean build.
 - **An old string is read from the file, not typed.** `briefs/lean/edit_list.py` takes an anchor (`closure="`,
   `("MTR.4.1", "`, the first words of a paragraph) and writes the `reword.py` list with the old literal as it is on
   disk; `reword.py` still refuses the whole list if one does not apply. A plan field is rewritten by giving only the

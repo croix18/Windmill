@@ -7,8 +7,8 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 ## 22 November, evening — A7 Unit 11 rebuilt on this kit; branches `claude/u11-terms` here and in A7, NOT merged (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
 Croix, 22 Nov, 3:50 pm: *"Merge and publish. Then take a wack at 11 with these changes."* The merge and Unit 7's
-publication are done (below). **Unit 11 is rebuilt and held:** A7 `claude/u11-terms` (`20c6a94`) on the kit of this
-repository's `claude/u11-terms` (`1b560a0`). `main` in both repositories and the website keep what they had; merging
+publication are done (below). **Unit 11 is rebuilt and held:** A7 `claude/u11-terms` on the kit of this
+repository's `claude/u11-terms` (the branches' heads; A7's `a7/build/KIT_VERSION` names the kit commit). `main` in both repositories and the website keep what they had; merging
 and republishing Unit 11 (taught from 30 Nov) wait for his word. The record is A7's `NOTES.md`, 22 November, evening.
 
 - **The kit, one change:** `deckkit.ixl_third` binds a short due sentence so the IXL slide's third line wraps before
@@ -16,7 +16,10 @@ and republishing Unit 11 (taught from 30 Nov) wait for his word. The record is A
   have the same line and get the fix when they vendor this kit). The PowerPoint and the web deck use the one function.
   Tests 303 of 303 and 302 of 302; tools 53 of 53.
 - **The card** (rule 19): "Solve for x" in the item's own letter is how an equation to be solved is given; over a
-  figure the words stay on one row; a box or a third in a document's prose is mathematics or words.
+  figure the words stay on one row; a box or a third in a document's prose is in words (not a Lexend glyph, and as a
+  picture too tall for a key's worked line or a plan's cell).
+- **Seen, not changed:** `dockit.img` sets a picture at the body's size whatever the paragraph's, so a box or fraction
+  equation in a Lesson Plan's 9-pt question cell stands larger than the words around it (as it did before Lexend).
 - **`briefs/lean/edit_list.py`** writes a `reword.py` list from anchors; `briefs/LEAN WORKFLOW.md` has what the pass
   taught ("An older unit brought to the same rules").
 - **Asked of Croix:** merge and republish; and whether a whiteboard question that is a bare equation should say "Solve
