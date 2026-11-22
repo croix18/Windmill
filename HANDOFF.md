@@ -11,10 +11,14 @@ publication are done (below). **Unit 11 is rebuilt and held:** A7 `claude/u11-te
 repository's `claude/u11-terms` (the branches' heads; A7's `a7/build/KIT_VERSION` names the kit commit). `main` in both repositories and the website keep what they had; merging
 and republishing Unit 11 (taught from 30 Nov) wait for his word. The record is A7's `NOTES.md`, 22 November, evening.
 
-- **The kit, one change:** `deckkit.ixl_third` binds a short due sentence so the IXL slide's third line wraps before
+- **The kit, two changes.** (1) **A warm-up question may take a second line** (`deckkit.stem_rows`, `3192c1c`): Croix,
+  reading the review copy, *"Similar triangles. Find x. What the heck does that mean"*. A stem had to fit one line,
+  and what fitted was a label and its data; a stem is a whole sentence now (SPEC SCHEMA, card 19), broken after a
+  sentence where it is long, and one that fits a line is drawn exactly as before. M7's warm-ups can be whole
+  sentences the same way when it vendors this kit. (2) `deckkit.ixl_third` binds a short due sentence so the IXL slide's third line wraps before
   "Due" ("…Due by the Unit 11 / test." left one word alone on every IXL slide of a two-digit unit; M7's Units 10–13
   have the same line and get the fix when they vendor this kit). The PowerPoint and the web deck use the one function.
-  Tests 303 of 303 and 302 of 302; tools 53 of 53.
+  Tests 306 of 306 and 305 of 305; tools 53 of 53.
 - **The card** (rule 19): "Solve for x" in the item's own letter is how an equation to be solved is given; over a
   figure the words stay on one row; a box or a third in a document's prose is in words (not a Lexend glyph, and as a
   picture too tall for a key's worked line or a plan's cell).

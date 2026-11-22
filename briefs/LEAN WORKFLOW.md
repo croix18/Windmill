@@ -180,8 +180,8 @@ strings, one test build, three full builds, no agent. What it taught:
   its "1 pt". `pdftotext -layout` shows it as "dollars.1 pt": search a points paper for a mark with no space before it.
 
 **An older unit brought to the same rules (A7 Unit 11, 22 November 2026).** Croix: *"take a wack at 11 with these
-changes."* Unit 11 had been built on the old kit on 14 Nov. One lead, no agent: 332 exact strings, five full builds,
-one kit fix. What it taught:
+changes."* Unit 11 had been built on the old kit on 14 Nov. One lead, no agent: 341 exact strings, six full builds,
+two kit fixes. What it taught:
 
 - **Build the unit once on the new kit before a word is changed.** That build says what the kit alone breaks, and it
   is not the wording: five figure labels were refused in Lexend lettering, `glyph` found sixteen boxes and thirds (□, ⅓
@@ -208,6 +208,13 @@ one kit fix. What it taught:
   taken. Turning a fragment into a sentence is when such a thing shows.
 - **Where a test paper's stems are the state's item shapes and a practice page words its questions the same way, the
   stems are left alone**, and the report says so.
+- **Read every kind of page against the rule, and where one kind is wrong throughout, look for the limit that made
+  it so.** The pass rewrote boards, sets, banks and papers and did not read the 28 warm-up questions. Croix found the
+  first one in the review copy: "Similar triangles: 6/9 = x/12. Find x." — *"What the heck does that mean"*. Five
+  warm-ups were a label and its data, and not by carelessness: the kit made a warm-up question fit one line at 23 pt,
+  and a whole sentence about remote interior angles does not. The kit sets a long one on two lines now
+  (`deckkit.stem_rows`). List a unit's pages by kind (warm-up, notes, example, Your Turn, whiteboard, set, bank, review,
+  test, reference, plan) and tick each one off against the card before the review copy goes out.
 
 ## What it does not do
 
