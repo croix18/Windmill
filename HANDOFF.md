@@ -89,6 +89,18 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   Systems, is taught from 30 Nov and has neither word on any page** (it says "undo + 25 by subtracting"); Units 4 and 5
   say "the other way round". M7's specs say "the other way round" in Units 5, 9 and 10 and never "isolate"; nothing
   of M7 was touched.
+- **A7 Unit 7 is merged and published** (Croix, 22 Nov, 3:50 pm: "Merge and publish."). `claude/lean-workflow` is `main`
+  in Windmill and in A7; the site is `efe8178` (A7 `05fd1f3`), its Cloudflare build succeeded, and
+  `mrshaffer.org/a7/unit-7/` and the five slide pages were read live. It is the first unit published with no Teacher
+  Edition and no practice page (the practice page is still to build; the unit's test is a random set of it).
+  **Publishing found a fault in the web deck** (`kit/lib/htmlkit.py`, the second renderer, which no gate looks at): a
+  picture beside an answer's steps was sized by its content, so a tall graph ran over the question above it and
+  "Answer:" below. `.figsteps` now takes the room the slide has left and the picture is fitted to it (`557f670`).
+  **Look at a unit's web deck before it is published**: serve the site's `public/`, step through each deck in a headless
+  browser and read the contact sheets (A7 NOTES, 22 Nov, has what was done). **The web decks of every other published
+  unit still have the fault** until that unit is published again: a deck made today would carry this kit's lines
+  (ruling 58) beside a PowerPoint that does not, so none was republished. The site's `tools/test_calendar.mjs` named
+  A7's Unit 7 as its unnamed unit and failed when Unit 7 got a name; it reads the unnamed units from the plan now.
 - **The Drive script's test waited twelve hours for a deleted file to come back; it now waits one round of the hourly
   check.** Found by `tools/check.sh` beside A7's branch on 21 Nov: with Unit 7's package the mirror holds 1,769 files,
   the script looks at 120 an hour (`AUDIT`), so a round is 15 hours and three waits in `drive/test_windyhill.js` ran
