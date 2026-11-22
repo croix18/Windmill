@@ -8,7 +8,7 @@ text box (prints as LaTeX), a box or figure that crosses the footer rule, a line
 slide, a partial **bold**, a table cell that wraps out of its row, a title-slide line too long for
 its box, an answer line that wraps into the footer, four options that do not fit.
 """
-import json, os
+import json, os, re
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
@@ -144,6 +144,23 @@ def _split_sup(text):
         buf += SUP[ch] if sup else ch
     if buf:
         out.append((buf, cur))
+    return out
+
+
+def break_points(text):
+    """The indexes of the spaces of `text` that stand outside $…$ (a \\$ is a dollar sign, not a delimiter): the places
+    where a row of words and mathematics may be broken."""
+    out, inside, i = [], False, 0
+    while i < len(text):
+        c = text[i]
+        if c == "\\" and text[i + 1:i + 2] == "$":
+            i += 2
+            continue
+        if c == "$":
+            inside = not inside
+        elif c == " " and not inside:
+            out.append(i)
+        i += 1
     return out
 
 
@@ -560,19 +577,64 @@ class Deck:
         return maxh
 
     # ---------- composed rows shared with the HTML deck (lessonbuild calls only these) ----------
+    def stem_rows(self, text, x, size=23):
+        """A warm-up question ("2.   stem") as the rows it is set in, and where the second starts: one row where it
+        fits the line from x, otherwise two, the second under the first row's words. It is broken after a sentence
+        where one ends within the first line, else at the last space that leaves twelve characters or more for the
+        second. Until 22 Nov 2026 a stem had to fit one line, and what fitted was a label and its data: "Similar
+        triangles: 6/9 = x/12. Find x." (Croix: "What the heck does that mean"). A stem is a whole sentence now, and a
+        long one takes a second line. A stem that needs a third is refused, as a long one was before."""
+        room = LM + CW + 0.05 - x
+        if self.measure(text, "slide", size) <= room:
+            return [text], x
+        m = re.match(r"(\d+\.\s+)(.*)", text, re.S)
+        head, stem = (m.group(1), m.group(2)) if m else ("", text)
+        x2 = x + (_textw(head, size) - 0.08) / 1.06 if head else x     # the head's own width: where the words begin
+        ok = []
+        for i in break_points(stem):
+            first, rest = stem[:i].rstrip(), stem[i:].lstrip()
+            if first and rest and self.measure(head + first, "slide", size) <= room and self.measure(rest, "slide", size) <= room - (x2 - x):
+                ok.append((first[-1] in ".?!", i, first, rest))
+        after = [c for c in ok if c[0]]
+        loose = [c for c in ok if len(re.sub(r"\$[^$]*\$", "xxxxx", c[3])) >= 12]
+        pick = after[-1] if after else loose[-1] if loose else None
+        if pick is None:
+            raise RuntimeError(f"line runs off the slide ({x + self.measure(text, 'slide', size):.2f} in) and does not break into two: {text[:60]}")
+        return [head + pick[2], pick[3]], x2
+
+    def _stem(self, text, x, y, size=23):
+        """Draw a warm-up question at y. Returns (the x where its last row ends, that row's y, the y under it)."""
+        rows, x2 = self.stem_rows(text, x, size)
+        tw, hh = self._mixed(rows[0], x, y, "slide", size, INK)
+        if len(rows) == 1:
+            return x + tw, y, y + hh
+        tw, h2 = self._mixed(rows[1], x2, y + hh, "slide", size, INK)       # the two rows of one question sit closer than two questions
+        return x2 + tw, y + hh, y + hh + h2
+
+    def _warmup_room(self, text):
+        if self.cursor - 0.22 > FOOT_Y - 0.05:
+            raise RuntimeError(f"the warm-up runs into the footer ({self.cursor - 0.22:.2f} in): shorten a question — {text[:50]}")
+
+    def warmup_question(self, text, x=None):
+        """One numbered warm-up question, on one line or two (stem_rows)."""
+        x = LM + 1.2 if x is None else x
+        _, _, bottom = self._stem(text, x, self.cursor)
+        self.cursor = bottom + 0.22
+        self._warmup_room(text)
+
     def warmup_answers(self, pairs, x=None):
-        """Each (stem, answer): the answer in red after the stem if it fits, else on the next line."""
+        """Each (stem, answer): the answer in red after the stem's last row if it fits, else on the next line."""
         x = LM + 1.2 if x is None else x
         for stem, answer in pairs:
-            y0 = self.cursor
-            tw, hh = self._mixed(stem, x, y0, "slide", 23, INK)
+            end, y, bottom = self._stem(stem, x, self.cursor)
             aw = self.measure(answer, "slide", 23, bold=True)
-            if x + tw + 0.6 + aw <= LM + CW:
-                self._mixed(answer, x + tw + 0.6, y0, "slide", 23, RED, True)
-                self.cursor = y0 + hh + 0.22
+            if end + 0.6 + aw <= LM + CW:
+                self._mixed(answer, end + 0.6, y, "slide", 23, RED, True)
+                self.cursor = bottom + 0.22
             else:
-                _, h2 = self._mixed(answer, LM + 2.0, y0 + hh + 0.05, "slide", 23, RED, True)
-                self.cursor = y0 + hh + 0.05 + h2 + 0.22
+                _, h2 = self._mixed(answer, LM + 2.0, bottom + 0.05, "slide", 23, RED, True)
+                self.cursor = bottom + 0.05 + h2 + 0.22
+            self._warmup_room(stem)
 
     def worked_row(self, latex, gloss=None, slots=False):
         """A worked line: the expression, and nothing beside it. The one-phrase reason that used

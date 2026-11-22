@@ -97,9 +97,12 @@ are forms), `Handouts/`, `Reference/`; the zips are named the same way.
 | `te` | dict | Teacher Edition prose, see below |
 
 ### warm-up question
-`dict(stem, answer, band, source, check, fig)` — `stem` may hold `$…$` and must fit one slide line at
-23 pt beside its number (≈ 70 characters of text, less with images); `answer` is printed red
-beside the stem and wraps to a second line if too wide; `band` is the retrieval band; `source`
+`dict(stem, answer, band, source, check, fig)` — `stem` may hold `$…$`. **It is a whole question or command a
+student can answer from the slide alone** ("The remote interior angles are 50° and 65°. Find the exterior angle."),
+never a label and its data ("Similar triangles: 6/9 = x/12. Find x." — Croix, 22 Nov 2026: "What the heck does that
+mean"). One that does not fit a line at 23 pt beside its number (about 65 characters of words) is set on two, broken
+after a sentence where one ends in the first line (`deckkit.stem_rows`; the web deck wraps it); one that would need
+three is refused. `answer` is printed red beside the stem's last row and goes to a line of its own if too wide; `band` is the retrieval band; `source`
 names the lesson/unit it retrieves ("3.02 — quotient of powers"); `check` as for items.
 
 ### the grey line is gone (ruling 37, 4 October 2026)

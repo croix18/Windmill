@@ -705,7 +705,7 @@ def _fill_deck(D, L):
     # questions, each under its question's number, on the question slide and the answer slide alike
     wfigs = [(i + 1, q["fig"]) for i, q in enumerate(wu) if q.get("fig")]
     for i, q in enumerate(wu):
-        D.math_row(f"{i + 1}.   " + q["stem"], surface="slide", gap=0.22, size=23, align="left", x=LM + 1.2)
+        D.warmup_question(f"{i + 1}.   " + q["stem"])
     if wfigs:
         D.figure_row(wfigs)
     D.section("Warm-Up", "Answers.", 1, "Reveal. Ask for the band each question came from only if time allows.", "warmup")

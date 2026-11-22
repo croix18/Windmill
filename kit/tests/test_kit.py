@@ -1676,6 +1676,28 @@ ok("deckkit: the IXL slide's due sentence wraps whole, in the PowerPoint and on 
    and "\u00a0" not in _i3long and _i3long.endswith("after 4.06.")
    and "ixl_third(ss, due)" in _in22.getsource(_dk22.Deck.ixl) and "ixl_third(ss, due)" in _in22.getsource(_hk22.HtmlDeck.ixl), repr(_i3))
 
+# 22 Nov 2026: "Similar triangles: 6/9 = x/12. Find x." A warm-up question had to fit one line, and what fitted was a label and
+# its data. A long question takes a second line now, broken after a sentence where one ends in the first.
+_dw = _dk22.Deck(C.COURSE, 0, "trial", "trial", "trial"); _dw.trial = True
+_wx = _dk22.LM + 1.2
+_w1 = _dw.stem_rows("1.   Two angles of a triangle are 47° and 68°. Find the third angle.", _wx)
+_w2 = _dw.stem_rows("2.   The remote interior angles are 50° and 65°. Find the exterior angle.", _wx)
+_w3 = _dw.stem_rows("3.   A right triangle has a hypotenuse of 13 units and one leg of 5 units, so how long is its other leg?", _wx)
+try:
+    _dw.stem_rows("4.   " + "A" * 150, _wx); _w4 = "set"
+except RuntimeError as _e:
+    _w4 = str(_e)
+ok("deckkit: a warm-up question that fits one line is one row; a longer one is two, broken after a sentence or at a space that leaves a dozen characters; one with no such place is refused",
+   _w1 == (["1.   Two angles of a triangle are 47° and 68°. Find the third angle."], _wx)
+   and _w2[0] == ["2.   The remote interior angles are 50° and 65°.", "Find the exterior angle."] and 0.3 < _w2[1] - _wx < 0.7
+   and len(_w3[0]) == 2 and " ".join(_w3[0]) == "3.   A right triangle has a hypotenuse of 13 units and one leg of 5 units, so how long is its other leg?" and len(_w3[0][1]) >= 12
+   and "does not break into two" in _w4, repr((_w2, _w3, _w4))[:300])
+ok("deckkit: a row is broken only at a space outside its mathematics, and a \\$ is a dollar sign",
+   _dk22.break_points("A $x + 1$ b \\$5 c") == [1, 9, 11, 15], repr(_dk22.break_points("A $x + 1$ b \\$5 c")))
+import lib.lessonbuild as _lb22
+ok("lessonbuild and both decks: the warm-up's questions are drawn by warmup_question",
+   "D.warmup_question(" in _in22.getsource(_lb22) and hasattr(_hk22.HtmlDeck, "warmup_question") and hasattr(_dk22.Deck, "warmup_question"), "")
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

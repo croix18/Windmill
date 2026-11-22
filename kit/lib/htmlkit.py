@@ -242,6 +242,10 @@ class HtmlDeck:
     def answer_math(self, latex, y=5.1):
         self._add(f'<p class="answer bottom"><span class="lab">Answer:</span> <span class="k big" data-tex="{esc(_tex(latex, False))}"></span></p>')
 
+    def warmup_question(self, text, x=None):
+        # a paragraph in the page's flow: a long question wraps by itself (the PowerPoint sets it on two rows)
+        self.math_row(text, surface="slide", gap=0.22, size=23, align="left", x=x)
+
     def warmup_answers(self, pairs, x=None):
         for stem, answer in pairs:
             self._add(f'<p class="t left" style="font-size:23pt">{rich(stem)}<span class="wa">{rich(answer)}</span></p>')
