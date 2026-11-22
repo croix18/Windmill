@@ -68,6 +68,27 @@ Let's do it. Run the next unit to test."* **Nothing here is on `main` yet, and n
   of words, so a picture of an equation after a long run stands about half an inch off it. Unit 7's long lines were
   rewritten in words (card 19 says how). The kit could set a simple expression inside a sentence as words on every
   slide, as dockit does on paper: that changes the look of every deck and should be seen in Google Slides first.
+- **Ruling 60, "isolate" and "solve for" are the terms** (Croix, 22 Nov, 1:54 pm, on reading what the third pass had
+  put in their place on A7 Unit 7: "Isolate and solve for are correct terminology. That's what should be used across
+  the whole unit."). The third pass had refused the two words on the ground that the unit does not teach them; A7's
+  Unit 1 did ("the operation that isolates n on the left side", "Solve for x, then simplify."), and nobody had looked.
+  In the kit (`48388ac`, `d144647`, vendored into A7's branch):
+  - Card 19 and ledger row 60: a variable alone on one side is isolated, and the equation is solved for it; "the other
+    way around", "work backward" and "an equation for either quantity" are retired for that idea. A quantity is still
+    called y where the letters are x and y, or where a page names no letters and the constant is the question.
+  - `dockit.tie_letters`: on a paper, a one-letter variable stays with the word before it ("Solve the equation / for n,
+    the yards in f feet."; it had read "…for / n, …").
+  - `dockit.rich` reads each stretch of words between two pictures as one text, so `bind_tail` keeps a paragraph's
+    closing words together across a change of face. **This mends a line the third pass shipped and its proof missed:**
+    A7 7.01's Question Bank, question 7, ended "What is y when / x = 1?" The scan behind "no last line under ten
+    characters" counted words and took "x = 1?" for three.
+  **Every paper of every unit changes again at its next rebuild**, in line breaks only (Unit 7's 50 PDFs kept their
+  page counts). A7 Unit 7 carries the ruling on `claude/lean-workflow` (`8a9bb0e`): 74 exact strings, 8 slides and 33
+  paper pages changed; the Review's 13(b) and the Practice Test's 12(b) now say "Solve your equation for…", which makes
+  part (b) follow from part (a) — flagged to him. **Not done, and his to say: A7 Unit 11, Solving Equations and
+  Systems, is taught from 30 Nov and has neither word on any page** (it says "undo + 25 by subtracting"); Units 4 and 5
+  say "the other way round". M7's specs say "the other way round" in Units 5, 9 and 10 and never "isolate"; nothing
+  of M7 was touched.
 - **The Drive script's test waited twelve hours for a deleted file to come back; it now waits one round of the hourly
   check.** Found by `tools/check.sh` beside A7's branch on 21 Nov: with Unit 7's package the mirror holds 1,769 files,
   the script looks at 120 an hour (`AUDIT`), so a round is 15 hours and three waits in `drive/test_windyhill.js` ran

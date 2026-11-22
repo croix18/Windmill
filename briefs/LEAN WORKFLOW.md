@@ -161,6 +161,24 @@ and look at the papers; fix; and only then the clean build that is committed. Si
 and three of them were spent finding out, one fault at a time, what the first look should have listed in one go: look
 at every kind of page once, list everything, then fix.
 
+**A fourth pass the next day (ruling 60): a refused term put back, and a proof with a hole.** Croix asked what stood
+in place of "isolate", read the six places and ruled that "isolate" and "solve for" are the unit's terms. 74 exact
+strings, one test build, three full builds, no agent. What it taught:
+
+- **A term an audit asks for is checked against the course before it is refused.** The third pass reasoned that Unit 7
+  does not teach "isolate". Unit 1 taught it, and one search of the packages would have said so.
+- **When a finding is not taken, the report says what stands in its place**, in the page's own words. He could rule in
+  one line because the six places were listed side by side.
+- **A scan that proves a rule is written from the rule, not from the cases that prompted it.** "No last line under ten
+  characters" was proved by a scan for "one or two words": "x = 1?" is six characters and three words, and it stood
+  alone under a line of 7.01's Question Bank through a clean build and a signed proof. The scan now measures
+  characters, and `dockit.rich` binds a paragraph's closing words across its pieces.
+- **A new phrase brings its own line breaks.** "Solve the equation for / n, the yards in f feet." was on the first
+  build of the new wording. Look at the paper page of every reworded stem, not only its slide; the kit now keeps a
+  one-letter variable with the word before it (`dockit.tie_letters`).
+- **A longer stem can run into what stands beside it.** The Practice Test's 12(b) grew by two characters and touched
+  its "1 pt". `pdftotext -layout` shows it as "dollars.1 pt": search a points paper for a mark with no space before it.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.
