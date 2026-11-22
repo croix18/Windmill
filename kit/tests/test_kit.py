@@ -1581,6 +1581,14 @@ finally:
     C.TEACHER_EDITION = _te0
     _sh.rmtree(_tA, ignore_errors=True); _sh.rmtree(_root0, ignore_errors=True)
 
+# 21 Nov 2026: a short expression in a Lexend paper's prose is one unbreakable piece; a long one may still break
+from lib import dockit as _dkn
+_dn = _dkn.Doc("E", "T", "S", font="Lexend")
+_pn = _dn.para("It is $y = 1.4x + 2$ here, and $3.15(10) - 3.05(10) = 31.50 - 30.50 = 1.00$ there.")
+_rn = [r.text for r in _pn.runs]
+ok("dockit: a short linear expression has no breaking space, and a long one keeps its spaces",
+   "y\u00a0=\u00a01.4x\u00a0+\u00a02" in _rn and any("31.50 \u2212 30.50" in t for t in _rn), str(_rn))
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

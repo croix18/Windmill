@@ -211,6 +211,10 @@ class Doc:
                 latex = part[1:-1].replace("\ue000", "\\$")
                 words = linear_text(latex) if self.font == "Lexend" else None
                 if words is not None:
+                    # A short expression does not break across a line: "y" ended one line of A7 Unit 7's Reference
+                    # Sheet and "= 1.4x + 2" began the next (21 Nov 2026). A long one may still break at its spaces.
+                    if len(words) <= 30:
+                        words = words.replace(" ", "\u00a0")
                     # ruling 46: in a Lexend paper a linear expression is set as text in the
                     # paper's own face, on the text baseline — an inline picture sits with its
                     # lowest ink on the baseline, so one with a parenthesis or a fraction rode

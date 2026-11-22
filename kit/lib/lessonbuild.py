@@ -495,8 +495,10 @@ def build_bank(L, items, kind, key, outdir):
     # An Independent Set prints no instruction line (Croix, 21 Nov 2026, of "Six questions, on your own, in silence. Show
     # the step that does the work.": "Just get rid of it completely"). The teacher gives the directions; the page gives
     # the questions. The two Question Banks keep theirs.
+    # A bank's line is the Practice Test's and the Review's: "Circle your final answer" stood over its Choose one,
+    # Select all and Explain questions, which have nothing to circle (21 Nov 2026).
     if kind != "Independent Set":
-        doc.instruction("Show your work. Circle your final answer.")
+        doc.instruction("Show your work for problems that require calculations.")
     n = 0
     for it in items:
         if it.get("heading"):

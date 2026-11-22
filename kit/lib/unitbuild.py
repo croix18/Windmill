@@ -44,10 +44,8 @@ SHOW_WORK = ("Show your work for problems that require calculations. Each number
              "part is worth 1 point.")
 # 7 Nov 2026 (Croix): "Can you get rid of 'if an earlier part is wrong a later part still earns its point' line across
 # everything." The practice kit dropped it that day; the papers this file prints dropped it on 14 Nov 2026 (it was still
-# under every section of a printed Practice Test). Nothing a student reads carries it. Ruling 19's scoring stands, and
-# the key keeps the teacher's grading note, in the teacher's words.
-FOLLOW_THROUGH_KEY = ("Follow-through: a later part earns its point when the right operation is "
-                      "applied to the student's own earlier answer, with that work on the page.")
+# under every section of a printed Practice Test). The key kept a grading note until 21 Nov 2026, when Croix, asked
+# whether the key should keep it: "Drop the line." No page prints it now. Ruling 19's scoring stands.
 TRANSFER_FLAG = ("TRANSFER ITEM — not on the practice test. Same benchmark, a surface nobody "
                  "rehearsed.")
 CONTINUES = TWO_DAY_LINE
@@ -82,9 +80,11 @@ def form_words(form):
     return "Unit Assessment", f"Form {form}", True
 
 
-UNSCORED_NOTE = ("HOW TO USE THIS.   This review covers every learning target from the unit — more than the "
-                 "assessment does. Work it one section at a time. If you miss two or more in a section, that section is "
-                 "where to spend your study time. The reference sheet has everything you need for each section.")
+# Reworded 21 Nov 2026 (A7 Unit 7, a third outside audit; Croix: "I want the student facing slides and handouts
+# specifically to be perfect"): "more than the assessment does" and "Work it" read as shorthand.
+UNSCORED_NOTE = ("HOW TO USE THIS REVIEW.   It covers every learning target in the unit, which is more than the test "
+                 "asks about. Work through one section at a time. If you miss two or more questions in a section, spend "
+                 "your study time on that section. The reference sheet has what you need for each section.")
 
 
 # Ruling 54 (Croix, 25 Oct 2026, of a printed test whose section "1." sat above question "1.": "can you get a logical
@@ -498,9 +498,6 @@ def build_form(U, outdir, key, form="test", student=False):
             rows.append([bm, ",  ".join(str(q) for q in qs), str(pts), ""])
         rows.append([{"text": "Total", "bold": True}, "", {"text": str(total), "bold": True}, ""])
         doc.table([2600, 3600, 1500, 1660], rows, header=True, size=10.5, keep=True)   # one page, with its heading
-        doc.para(FOLLOW_THROUGH_KEY + "  Nothing is weighed and nothing is arguable: apply the "
-                 "part's operation to the student's own earlier value and tick if that is what is written.",
-                 size=9.5, italic=True, color=GRAY, before=6, after=4)
     kind = "Practice Test" if form == "practice" else ("Test" if form == "test" else f"Test Form {form}")
     name = names.unit(U["unit"], kind, "docx", key=key and not student, worked=student)
     path = os.path.join(outdir, name)

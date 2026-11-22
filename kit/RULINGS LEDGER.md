@@ -31,7 +31,7 @@ builder to do (a shipped unit, a retired paper, a governance or kit matter alrea
 | 16a [M7] | Practice test a true parallel form | SUPERSEDED BY 49 | history |
 | 17 [M7] | Unit 3 at 8% DOK 3 | IN FORCE | history (a paper already given) |
 | 18 | Two transfer items per test | SUPERSEDED BY 49 | history |
-| 19 | Follow-through credit, mechanically | IN FORCE | unit papers (`assessment.follow_through`) |
+| 19 | Follow-through credit, mechanically | IN FORCE — no page prints it: the papers since 14 Nov, the key since 21 Nov 2026 (Croix: "Drop the line.") | unit papers (`assessment.follow_through`) |
 | 20 | One peer move, split board only | IN FORCE | card 3, card 4 |
 | 21 | Six-question independent set | IN FORCE | gate rulingcheck (ruling 21) |
 | 21 amended | The set is on a slide | IN FORCE | kit (the set slide); card: the gates, layout |
