@@ -1606,6 +1606,14 @@ _glued = {
 _gbad = {k: _dkn.glue(k) for k, v in _glued.items() if _dkn.glue(k) != v.replace("_", _NBk)}
 ok("dockit: an equation written in the paper's own words keeps its signs off the ends of a line, and nothing else changes",
    not _gbad and all(_dkn.glue(k).replace(_NBk, " ") == k for k in _glued), str(_gbad))
+_pf = _dn.para("Graph  $y = \\frac{1}{4}x$.  Choose x-values, then compare $x^{2}$.")
+_pe = _dn.para("The area is $x^{2}$ here.")
+from docx.oxml.ns import qn as _qn
+_inl = _pf._p.xpath(".//wp:inline") + _pe._p.xpath(".//wp:inline")
+_ta = lambda par: (par._p.pPr.find(_qn("w:textAlignment")).get(_qn("w:val")) if par._p.pPr is not None and par._p.pPr.find(_qn("w:textAlignment")) is not None else None)
+ok("dockit: a picture in a line stands close to its words, and a stacked fraction is set by its middle (an exponent is not)",
+   len(_inl) == 3 and all(i.get("distL") == "0" and i.get("distR") == "0" for i in _inl) and _ta(_pf) == "center" and _ta(_pe) is None,
+   str([(i.get("distL"), i.get("distR")) for i in _inl]) + " " + str((_ta(_pf), _ta(_pe))))
 _pg = _dn.para("**Test every pair.**  For x: 1, 2, 3 the pairs give 3 \u00f7 1 = 3 but 7 \u00f7 2 = 3.5.")
 ok("dockit: a paragraph's plain words and its bold words are both glued",
    any("3" + _NBk + "\u00f7" + _NBk + "1" + _NBk + "=" + _NBk + "3 but" in r.text for r in _pg.runs), str([r.text for r in _pg.runs]))

@@ -276,6 +276,23 @@ class Doc:
         path, w, h = mathimg.m(latex, surface, color)
         r = p.add_run()
         r.add_picture(path, width=Inches(w), height=Inches(h))
+        # An inline picture with no distance of its own is given LibreOffice's default, about an eighth of an inch on
+        # each side: "Graph    y = ¼x   .  Choose x-values" on A7 7.01's Independent Set, the period adrift (21 Nov
+        # 2026). Zero is what Word writes for a picture in a line.
+        for inline in r._r.xpath(".//wp:inline"):
+            for side in ("distT", "distB", "distL", "distR"):
+                inline.set(side, "0")
+        # … and a picture stands with its lowest ink on the line, so a stacked fraction, whose denominator hangs below
+        # the baseline, carried its "y =" a third of a line above the words. A paragraph that holds one sets its
+        # pieces by their middles: the fraction bar comes level with the middle of the words, about a point high in
+        # place of five. (The picture cannot be lowered by its depth: LibreOffice ignores w:position on a picture.) A
+        # picture with nothing below its baseline, an exponent, keeps the line as it was.
+        if mathimg.DEPTH.get(path, 0.0) >= 0.03:
+            pPr = p._p.get_or_add_pPr()
+            if pPr.find(qn("w:textAlignment")) is None:
+                ta = OxmlElement("w:textAlignment"); ta.set(qn("w:val"), "center")
+                pPr.insert_element_before(ta, "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr",
+                                          "w:sectPr", "w:pPrChange")
         return r
 
     def spacer(self, pt=1):
