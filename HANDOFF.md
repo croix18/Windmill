@@ -4,6 +4,27 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 22 November, evening — A7 Unit 11 rebuilt on this kit; branches `claude/u11-terms` here and in A7, NOT merged (session_01W9n2X1V97j7Nf5Y7z1DaCq)
+
+Croix, 22 Nov, 3:50 pm: *"Merge and publish. Then take a wack at 11 with these changes."* The merge and Unit 7's
+publication are done (below). **Unit 11 is rebuilt and held:** A7 `claude/u11-terms` (`20c6a94`) on the kit of this
+repository's `claude/u11-terms` (`1b560a0`). `main` in both repositories and the website keep what they had; merging
+and republishing Unit 11 (taught from 30 Nov) wait for his word. The record is A7's `NOTES.md`, 22 November, evening.
+
+- **The kit, one change:** `deckkit.ixl_third` binds a short due sentence so the IXL slide's third line wraps before
+  "Due" ("…Due by the Unit 11 / test." left one word alone on every IXL slide of a two-digit unit; M7's Units 10–13
+  have the same line and get the fix when they vendor this kit). The PowerPoint and the web deck use the one function.
+  Tests 303 of 303 and 302 of 302; tools 53 of 53.
+- **The card** (rule 19): "Solve for x" in the item's own letter is how an equation to be solved is given; over a
+  figure the words stay on one row; a box or a third in a document's prose is mathematics or words.
+- **`briefs/lean/edit_list.py`** writes a `reword.py` list from anchors; `briefs/LEAN WORKFLOW.md` has what the pass
+  taught ("An older unit brought to the same rules").
+- **Asked of Croix:** merge and republish; and whether a whiteboard question that is a bare equation should say "Solve
+  for x." under it (ruling 58 took "Answer it." away, and such a board shows the equation alone).
+- **Before Unit 11 is published:** look at its web decks (`briefs/REVIEW AND PUBLISH`); they are a second renderer.
+- **Still open:** M7 is not on this kit; the web decks of A7 Units 3–6 keep the graph-over-question fault until each
+  unit is rebuilt; Unit 7's practice page is not built.
+
 ## 20–21 November — the lean workflow, on the branch `claude/lean-workflow` (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
 Croix, of how a unit's slides are built: *"It feels extremely inefficient and is burning tons of tokens."* Then: *"You can get

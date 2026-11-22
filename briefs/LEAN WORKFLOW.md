@@ -179,6 +179,34 @@ strings, one test build, three full builds, no agent. What it taught:
 - **A longer stem can run into what stands beside it.** The Practice Test's 12(b) grew by two characters and touched
   its "1 pt". `pdftotext -layout` shows it as "dollars.1 pt": search a points paper for a mark with no space before it.
 
+**An older unit brought to the same rules (A7 Unit 11, 22 November 2026).** Croix: *"take a wack at 11 with these
+changes."* Unit 11 had been built on the old kit on 14 Nov. One lead, no agent: 319 exact strings, four full builds,
+one kit fix. What it taught:
+
+- **Build the unit once on the new kit before a word is changed.** That build says what the kit alone breaks, and it
+  is not the wording: five figure labels were refused in Lexend lettering, `glyph` found sixteen boxes and thirds (□, ⅓
+  and ⅔ are not Lexend glyphs, so in prose a box is `$8 + □$` or "the box" and a third is "(1/3)"), and a standing line
+  of the kit wrapped badly for a two-digit unit ("…Due by the Unit 11 / test.").
+- **An old string is read from the file, not typed.** `briefs/lean/edit_list.py` takes an anchor (`closure="`,
+  `("MTR.4.1", "`, the first words of a paragraph) and writes the `reword.py` list with the old literal as it is on
+  disk; `reword.py` still refuses the whole list if one does not apply. A plan field is rewritten by giving only the
+  new sentence.
+- **A second row of words over a figure is paid for out of the figure.** A question split into a sentence and a bold
+  question left a graph a quarter of an inch tall above four options (11.08, whiteboard question 4) and others a
+  quarter smaller. Keep the words on one row, and measure a candidate before a build: `deckkit._textw(text, size, bold)`
+  for words and `Deck.measure(row, "slide", 24, bold=True)` for a row with mathematics, against 11.5 in for a centered
+  row, 10.9 in for a word board's row of words, 11.15 in for its row with mathematics and 11.2 in for "Answer:" and its
+  line at 32 pt. The kit measures with a 6% margin, so a line that fits by eye can be given two lines' height: a blank
+  line under it and a smaller figure.
+- **Compare a rebuilt unit's page counts with the old build's.** Lexend is a wider face: plans and keys run a page
+  longer, and one student paper went from six pages to eight because two questions missed their pages by a tenth of an
+  inch. Two figures 0.2 and 0.3 in smaller put it back.
+- **Read each plan sentence against the course, not only against the rule.** "Building on Grade 7: graphing y = px"
+  had been false since the unit moved ahead of Unit 7, and a higher-order question asked why a legal step cannot be
+  taken. Turning a fragment into a sentence is when such a thing shows.
+- **Where a test paper's stems are the state's item shapes and a practice page words its questions the same way, the
+  stems are left alone**, and the report says so.
+
 ## What it does not do
 
 - It does not build the practice page (the unit test is a random set of it): a separate step, after the paper.
