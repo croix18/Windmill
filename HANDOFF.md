@@ -14,6 +14,12 @@ merged, not published: both wait for his word, as Unit 11's do. The record is A7
   lines are most even, never after a joining word ("Slope from Graphs, / Tables and Two Points"); it broke at its last
   word that fitted ("Equations with Variables on Both / Sides"). Lexend is measured with its own font file. Tests 316
   of 316 and 315 of 315, tools 53 of 53, `tools/check.sh` all passed. Unit 11's handouts take it when it is rebuilt.
+- **The kit, a second change** (the web deck): an option that mixes words and mathematics lost the space before the
+  mathematics ("through(0, ½)", "Slope½;"): a mathy option's `<li>` is a flex box, and a flex box drops the space at the
+  edge of each run of text. The option is one span of its own now (`htmlkit.choices`, `choices_beside`). Every
+  published web deck with such an option has the fault until its unit is republished. Found reading Unit 10's web decks
+  on the scratch site, with two faults of Unit 10's own (an equation broken across an answer's lines, and "slope −12"
+  set as a subtraction).
 - **`briefs/lean/look/`**: five scripts that measure a built unit — every slide picture's lettering and plane size
   (`slidefigs.py`), every printed picture (`paperfigs.py`), the footer gap (`footgap.py`), text given a blank line's
   room (`phantom.py`), and slides side by side (`mosaic.py`). `LEAN WORKFLOW.md` says when they run.

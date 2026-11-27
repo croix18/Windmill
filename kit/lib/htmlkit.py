@@ -249,7 +249,9 @@ class HtmlDeck:
         out = [f'<ol class="choices{" two" if two else ""}{" mathy" if mathy else ""}" style="font-size:{size}pt">']
         for i, o in enumerate(opts):
             cls = "correct" if correct == i else ""
-            out.append(f'<li class="{cls}"><span class="L">{chr(65 + i)}.</span> {rich(o)}</li>')
+            # the option in one span of its own: a mathy option's <li> is a flex box, and a flex box drops the space at the
+            # edge of each run of text, so "through $(0, \\frac{1}{2})$" showed as "through(0, ½)" (A7 10.05 board 3, 27 Nov 2026)
+            out.append(f'<li class="{cls}"><span class="L">{chr(65 + i)}.</span> <span class="o">{rich(o)}</span></li>')
         out.append("</ol>")
         self._add("".join(out))
 
@@ -306,7 +308,7 @@ class HtmlDeck:
         b, w, h = self._img(spec)
         out = [f'<ol class="choices col" style="font-size:{size}pt">']
         for i, o in enumerate(opts):
-            out.append(f'<li class="{"correct" if correct == i else ""}"><span class="L">{chr(65 + i)}.</span> {rich(o)}</li>')
+            out.append(f'<li class="{"correct" if correct == i else ""}"><span class="L">{chr(65 + i)}.</span> <span class="o">{rich(o)}</span></li>')
         out.append("</ol>")
         self._add(f'<div class="figchoices"><div class="fig"><img src="data:image/png;base64,{b}" style="max-width:{w * 100:.0f}px" alt=""></div>{"".join(out)}</div>')
         return True
