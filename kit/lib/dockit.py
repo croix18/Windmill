@@ -7,6 +7,7 @@ Structure rules baked in (§13c, traps 32/36): no nested tables; every table has
 layout and a 1 pt paragraph after it; a question lives in one single-cell cantSplit table so
 it is never split across a page (ruling 8).
 """
+import os
 import re
 from docx import Document
 from docx.shared import Pt, Twips, Inches, RGBColor
@@ -24,6 +25,60 @@ CW = 9360  # content width, twips
 
 def _rgb(h):
     return RGBColor.from_string(h)
+
+
+_ASSETS = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets"))
+_FACES = {}
+
+
+def text_width(text, size, font, bold=False):
+    """The width in inches of a run of words at `size` pt: measured with the kit's own cut of Lexend where the page is
+    set in it, and estimated for a face the kit does not carry."""
+    if font == "Lexend":
+        try:
+            from PIL import ImageFont
+            key = (bool(bold), size)
+            f = _FACES.get(key)
+            if f is None:
+                f = _FACES[key] = ImageFont.truetype(os.path.join(_ASSETS, "Lexend-Bold.ttf" if bold else "Lexend-Regular.ttf"), int(size * 8))
+            return f.getlength(text) / 8 / 72
+        except Exception:
+            pass
+    return len(text) * size / 72 * (0.54 if bold else 0.5)
+
+
+JOINING = {"a", "an", "and", "as", "at", "by", "for", "from", "in", "of", "on", "or", "the", "to", "with"}
+
+
+def title_break(title, room, size=14, font=BODY_FONT):
+    """Where a page's title breaks when it is too long for its `room` (inches): the index of a space, or None if the
+    title fits on one line, has no space, or would not fit on two.
+
+    A title left to wrap fills its first line and strands what is left: "Slope from Graphs, Tables and Two / Points",
+    "Slope-Intercept Form and Graphing a / Line" (A7 Unit 10's handouts, 27 Nov 2026) and "Equations with Variables
+    on Both / Sides" (Unit 11's) each ended in one word on a line of its own, over the name lines of a page a student
+    is handed. The break is chosen instead: the two lines as alike in length as they can be, the first the longer
+    by preference (a short line over a long one reads as a label and its title), no line ending in a joining
+    word ("…Like Terms and / the Distributive Property"), and a comma or a semicolon a good place to turn. So: "Slope from Graphs, / Tables and Two Points",
+    "Slope-Intercept Form / and Graphing a Line", "Equations with Variables / on Both Sides". A title is measured a
+    hair long (0.03 in), so one the page would only just hold is broken here and never wraps by itself at a worse
+    place."""
+    if text_width(title, size, font, True) <= room - 0.03:
+        return None
+    best = None
+    for i, ch in enumerate(title):
+        if ch != " ":
+            continue
+        a, b = text_width(title[:i], size, font, True), text_width(title[i + 1:], size, font, True)
+        if max(a, b) > room - 0.03:
+            continue
+        word = title[:i].split()[-1] if title[:i].split() else ""
+        cost = max(a, b) + 0.5 * max(0.0, b - a)
+        cost += 0.4 if word.strip(",;:").lower() in JOINING else 0.0        # a line does not end in "and"
+        cost -= 0.3 if word[-1:] in ",;:" else 0.0                          # a comma is a good place to turn
+        if best is None or cost < best[0]:
+            best = (cost, i)
+    return best[1] if best else None
 
 
 SUP = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺ᵐⁿ", "0123456789-+mn"))
@@ -469,7 +524,12 @@ class Doc:
         r = self._run(p, eyebrow, 8.5, color=GRAY); r.font.all_caps = True
         r.font.character_spacing = Pt(1.2) if hasattr(r.font, "character_spacing") else None
         p = c0.add_paragraph(); p.paragraph_format.space_after = Pt(1)
-        self._run(p, title, 14, bold=True)
+        cut = title_break(title, (lw - 220) / 1440.0, 14, self.font)
+        if cut is None:
+            self._run(p, title, 14, bold=True)
+        else:                                   # two lines of one paragraph: a line break, not a second paragraph
+            self._run(p, title[:cut], 14, bold=True).add_break()
+            self._run(p, title[cut + 1:], 14, bold=True)
         p = c0.add_paragraph(); p.paragraph_format.space_after = Pt(0)
         self.rich(p, sub, size=9.5, italic=True, color=GRAY)
         if self.key:

@@ -1635,6 +1635,30 @@ ok("dockit: a picture in a line stands close to its words, and a stacked fractio
    len(_inl) == 3 and all(i.get("distL") == "0" and i.get("distR") == "0" for i in _inl) and _ta(_pf) == "center" and _ta(_pe) is None,
    str([(i.get("distL"), i.get("distR")) for i in _inl]) + " " + str((_ta(_pf), _ta(_pe))))
 _pg = _dn.para("**Test every pair.**  For x: 1, 2, 3 the pairs give 3 \u00f7 1 = 3 but 7 \u00f7 2 = 3.5.")
+# a page's title too long for its line is broken by length, not left to strand its last word (A7 Unit 10, 27 Nov 2026)
+_room = (9360 - 3540 - 220) / 1440
+def _tb(t, font="Lexend"):
+    c = _dkn.title_break(t, _room, 14, font)
+    return t if c is None else (t[:c], t[c + 1:])
+ok("dockit: a title that fits its line is left alone",
+   _tb("Linear and Proportional Relationships") == "Linear and Proportional Relationships" and _tb("Slope in Context") == "Slope in Context")
+ok("dockit: a long title breaks where its two lines are alike, and never strands one word",
+   _tb("Slope from Graphs, Tables and Two Points") == ("Slope from Graphs,", "Tables and Two Points")
+   and _tb("Slope-Intercept Form and Graphing a Line") == ("Slope-Intercept Form", "and Graphing a Line"), str(_tb("Slope from Graphs, Tables and Two Points")))
+ok("dockit: no line of a broken title ends in a joining word, and the first line is the longer by preference",
+   _tb("Equations with Like Terms and the Distributive Property") == ("Equations with Like Terms", "and the Distributive Property")
+   and _tb("Equations with Variables on Both Sides") == ("Equations with Variables", "on Both Sides")
+   and _tb("One Solution, No Solution, Infinitely Many") == ("One Solution, No Solution,", "Infinitely Many"))
+ok("dockit: a title that would not fit on two lines, or has no space, is left to the page",
+   _tb("A Very Long Title That Would Never Ever Fit On Two Lines Of The Header Cell At All No Matter What").startswith("A Very")
+   and _tb("Supercalifragilisticexpialidociousandthensomemore") == "Supercalifragilisticexpialidociousandthensomemore")
+_dt = _dkn.Doc("E", "Slope from Graphs, Tables and Two Points", "S", font="Lexend")
+_tp = _dt.d.tables[0].rows[0].cells[0].paragraphs[1]
+ok("dockit: the header sets a broken title as one paragraph with one line break, its words unchanged",
+   _tp._p.xml.count("<w:br") == 1 and _tp.text.replace("\n", " ") == "Slope from Graphs, Tables and Two Points", repr(_tp.text))
+_dt1 = _dkn.Doc("E", "Slope in Context", "S", font="Lexend")
+ok("dockit: a short title's paragraph has no line break",
+   _dt1.d.tables[0].rows[0].cells[0].paragraphs[1]._p.xml.count("<w:br") == 0)
 ok("dockit: a paragraph's plain words and its bold words are both glued",
    any("3" + _NBk + "\u00f7" + _NBk + "1" + _NBk + "=" + _NBk + "3 but" in r.text for r in _pg.runs), str([r.text for r in _pg.runs]))
 
