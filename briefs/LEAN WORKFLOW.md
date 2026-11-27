@@ -65,6 +65,12 @@ Work in a session folder outside the repositories (here `/home/claude/lean/`), o
 - **A fixer applies; it does not review.** What it sees and no ruling covers comes back as one line.
 - **Before the last build**, clear what the earlier builds left (`git clean` on the figure cache's untracked files,
   the unit's `out/` folder), so the commit holds only the figures the unit uses.
+- **Measure the pictures on the built pages (steps 4, 8 and 9),** not on the spec: `briefs/lean/look/slidefigs.py` for
+  every deck, `paperfigs.py` for every lesson's printed pictures, `footgap.py` for the footer. Readers read words, and
+  a picture is only as large as its slide leaves it (A7 Unit 10, 27 Nov 2026: ruling every Your Turn's question into a
+  bold line shrank four Your Turn graphs to 1.0 to 1.3 in wide, because the kit sets a Your Turn's bold line over its
+  picture; a Your Turn whose picture is a graph keeps its question in its one line). A figure's room comes from the
+  layout — fewer lines, `aspect` for a wide or a tall window, a larger `inches` — never from smaller lettering.
 - **10, before the unit is offered for publishing:** publish it into a scratch copy of the site and read its web decks
   slide by slide (`HANDOFF.md`, 27 Nov, has the commands). They are a second renderer with faults of their own, and a
   fault found after Croix says "publish" costs him a day (A7 Unit 11, 27 Nov 2026: three kit faults found this way).

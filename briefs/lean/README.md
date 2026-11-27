@@ -23,6 +23,11 @@ lesson. Keep them short: a brief names what to read, what to write, how to prove
 | `build_papers.py` | 4, 8 | a unit's papers alone, from a build folder, without the unit deck |
 | `10 WORDING PASS SOLVER.md` | a wording pass | two solvers of the reworded questions, who also report what they had to guess (`../LEAN WORKFLOW.md`, "A wording pass") |
 | `try_build.py` | a wording pass | `python3 try_build.py u7` from a build folder → each lesson built with no PDFs; the first thing the kit refuses in each |
+| `look/slidefigs.py` | 4, 8, 9 | from a build folder: every picture on every slide of a built deck — its lettering (pt) and each coordinate plane's size, grid edge to grid edge; `!!` below the floors |
+| `look/paperfigs.py` | 4, 8, 9 | from a build folder: every printed picture of a lesson (set and banks) — lettering and grid squares, as the page places them |
+| `look/footgap.py` | 9 | how close each slide's lowest ink comes to the footer rule (`!!` under 0.15 in) |
+| `look/phantom.py` | 9 | text the kit gave a blank line's room it does not take (a gap under a line that just fits) |
+| `look/mosaic.py` | 6, 9 | chosen slides or pages side by side, to look at |
 
 The lead's own two documents for a unit are not briefs and live with the course: the plan
 (`aN/reference/… - Lesson Outlines.md`) and the rulings on the review of the built unit

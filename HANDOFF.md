@@ -4,6 +4,25 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 27 November — A7 Unit 10 built with the lean workflow (second run); a title break for printed pages; the measuring tools (session_01W9n2X1V97j7Nf5Y7z1DaCq)
+
+Croix, 27 Nov, 7:20 am: *"Can you move on to the next unit"* — A7 Unit 10, Linear Relationships (MA.8.AR.3.1–3.5), on
+A7's branch `claude/a7-u10` with the kit of this repository's `claude/a7-u10` (its kit files are `877c70e`'s). Not
+merged, not published: both wait for his word, as Unit 11's do. The record is A7's `NOTES.md`, 27 November.
+
+- **The kit, one change** (`877c70e`, `dockit.title_break`): a handout title too long for its line breaks where the two
+  lines are most even, never after a joining word ("Slope from Graphs, / Tables and Two Points"); it broke at its last
+  word that fitted ("Equations with Variables on Both / Sides"). Lexend is measured with its own font file. Tests 316
+  of 316 and 315 of 315, tools 53 of 53, `tools/check.sh` all passed. Unit 11's handouts take it when it is rebuilt.
+- **`briefs/lean/look/`**: five scripts that measure a built unit — every slide picture's lettering and plane size
+  (`slidefigs.py`), every printed picture (`paperfigs.py`), the footer gap (`footgap.py`), text given a blank line's
+  room (`phantom.py`), and slides side by side (`mosaic.py`). `LEAN WORKFLOW.md` says when they run.
+- **Seen, not changed:** the kit lets a slide's last line end 0.02 in past the footer rule, so a stacked fraction can
+  touch it (two of Unit 10's notes slides did; their pictures give room now) and plain lines stand 0.06 to 0.12 in over
+  it (nine slides in Unit 10, eighteen in published Unit 7). A margin in the kit would move every course's slides: it
+  waits for its own decision. A Your Turn's question slide keeps the room of its answer under its picture even when the
+  answer slide shows another picture (`fig_a`); that costs a Your Turn graph 0.6 to 1.5 in of height.
+
 ## 22 November, evening — A7 Unit 11 rebuilt on this kit; branches `claude/u11-terms` here and in A7, NOT merged (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
 Croix, 22 Nov, 3:50 pm: *"Merge and publish. Then take a wack at 11 with these changes."* The merge and Unit 7's
