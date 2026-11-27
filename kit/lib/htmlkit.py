@@ -262,7 +262,8 @@ class HtmlDeck:
     def _warmup_p(self, text, answer=None):
         """One warm-up question as a paragraph in the page's flow: its number in a box of its own and the question
         hung beside it, so a long question's second line starts under its first word (the PowerPoint sets it on two
-        rows the same way, deckkit.stem_rows) and not under the number. With `answer`, the red answer follows it."""
+        rows the same way, deckkit.stem_rows) and not under the number. With `answer`, the red answer follows it, and
+        goes to the next line whole when the question's line has no room for it (.wa is an inline block)."""
         m = re.match(r"(\d+\.)\s+(.*)", text, re.S)
         num, stem = (m.group(1), m.group(2)) if m else ("", text)
         k = inline_pt(text, "slide", 23)
@@ -559,7 +560,7 @@ ol.choices.mathy{row-gap:14px}ol.choices.mathy li{display:flex;align-items:cente
 .bottom{margin-top:auto}
 .answer{text-align:center;font-size:32pt;font-weight:700;color:#RED;margin:10px 0 0}.answer .lab{margin-right:.4em}.answer .k{font-size:40pt}
 .ask{text-align:center}.ask p{margin:0;font-size:26pt;font-weight:700}
-.wa{color:#RED;font-weight:700;margin-left:.9em}
+.wa{color:#RED;font-weight:700;margin-left:.9em;display:inline-block;text-indent:0}
 p.wq{padding-left:calc(40px + 2.3em);text-indent:-2.3em}p.wq .wn{display:inline-block;width:2.3em;text-indent:0}
 .cover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:60px}
 .cover .eyebrow{font-size:15pt;color:#GRAY;letter-spacing:.04em;margin:0 0 10px}.cover h2{font-size:34pt;margin:0 0 16px}

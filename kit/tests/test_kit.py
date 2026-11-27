@@ -1715,10 +1715,11 @@ ok("htmlkit: an expression inside a sentence is set at the sentence's size (26/2
    and 'class="t left s-slidemid inl" style="font-size:16pt;color:#1A1A1A;--k:17.3pt;"' in _b27
    and 'class="t center s-slidemid" style="font-size:26pt;color:#1A1A1A;"' in _b27
    and "p.t.inl .k:not(.d){font-size:var(--k)}" in _in22.getsource(_hk22), _b27[:400])
-ok("htmlkit: a warm-up question's number stands in a box of its own, so its second line hangs under its first word; the answers slide is the same paragraph with its answer",
+ok("htmlkit: a warm-up question's number stands in a box of its own, so its second line hangs under its first word; the answers slide is the same paragraph with its answer, which moves to the next line whole",
    '<p class="t left s-slide wq inl" style="font-size:23pt;--k:24.9pt;"><span class="wn">3.</span>A map' in _b27
    and '<span class="wn">4.</span>Solve for x: ' in _b27 and '<span class="wa"><span class="k"' in _b27
-   and "p.wq .wn{display:inline-block;width:2.3em;text-indent:0}" in _in22.getsource(_hk22), _b27[:400])
+   and "p.wq .wn{display:inline-block;width:2.3em;text-indent:0}" in _in22.getsource(_hk22)
+   and ".wa{color:#RED;font-weight:700;margin-left:.9em;display:inline-block;text-indent:0}" in _in22.getsource(_hk22), _b27[:400])
 
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
