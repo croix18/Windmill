@@ -4,6 +4,14 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 27 November, afternoon — A7 Unit 11 published from its eighth build; this branch is `main` (session_01W9n2X1V97j7Nf5Y7z1DaCq)
+
+Croix, 2:12 pm, of Unit 11: *"Rebuild, check, then publish"*. Unit 11 was built an eighth time on this kit (`5fbd8c1`):
+only four handout titles changed against the seventh build. `main` here is `5fbd8c1` (this branch, `claude/a7-u10`,
+fast-forwarded), A7's `main` is `05d4435`, and the site is `3ecc91f` (only Unit 11's files; Cloudflare's build
+succeeded; the live pages were read). A7 Unit 10 is still on A7's `claude/a7-u10`, waiting for his word. The web decks
+of Units 3–7 on the site keep the option-spacing fault until each unit is republished.
+
 ## 27 November — A7 Unit 10 built with the lean workflow (second run); a title break for printed pages; the measuring tools (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
 Croix, 27 Nov, 7:20 am: *"Can you move on to the next unit"* — A7 Unit 10, Linear Relationships (MA.8.AR.3.1–3.5), on
