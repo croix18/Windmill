@@ -1721,6 +1721,23 @@ ok("htmlkit: a warm-up question's number stands in a box of its own, so its seco
    and "p.wq .wn{display:inline-block;width:2.3em;text-indent:0}" in _in22.getsource(_hk22)
    and ".wa{color:#RED;font-weight:700;margin-left:.9em;display:inline-block;text-indent:0}" in _in22.getsource(_hk22), _b27[:400])
 
+# 27 Nov 2026, A7 11.07's Independent Set slide: "… Use x = −2, −1 and" / "0." in the PowerPoint, "y = −5 +" / "2x" on the web deck
+_q27 = "Solve by graphing:   $y = x - 1$   and   $y = -2x - 4$.   Use $x = -2$, $-1$ and $0$."
+_fl = lambda q, w: [" ".join(p[1].strip() if p[0] == "txt" else "#" for p in ln) for ln in _dw._flow_lines(q, w, 23)]
+_cut27 = [" ".join(p[1].strip() if p[0] == "txt" else "#" for p in ln) for ln in _dw._wrap(_q27, 10.75, 23)]
+_g27 = "A long question in words that runs past the end of its line and leaves only one last little word here ok."
+ok("deckkit: a flowed paragraph does not end on a lone short piece — the break moves up to a sentence end, or else brings words down; a paragraph that ends well is cut as before",
+   _cut27[-1] == "# ." and _fl(_q27, 10.75) == ["Solve by graphing: # and # .", "Use # , # and # ."]
+   and len(_fl(_g27, 10.75)) == 2 and len(_fl(_g27, 10.75)[-1]) >= 10 and " ".join(_fl(_g27, 10.75)) == _g27
+   and _fl("Is $(3, -1)$ a solution of the system $y = 2x - 7$ and $y = -x + 2$?", 10.75) == ["Is # a solution of the system # and # ?"]
+   and _dw._flow_first(_q27, 10.75, 23) == max([0.45] + [p[3] for p in _dw._flow_lines(_q27, 10.75, 23)[0] if p[0] == "img"]),
+   repr((_cut27, _fl(_q27, 10.75), _fl(_g27, 10.75))))
+_hs27 = _hk22.HtmlDeck(C.COURSE, 0, "trial", "trial", "trial")
+_hs27.independent_set(6, "", ["Solve by graphing:   $y = 2x - 5$   and   $y = -5 + 2x$"] * 6, title="Independent Set", figs=[(1, dict(kind="grid", pt=9.5))])
+ok("htmlkit: an expression is never broken inside, a last line is kept from a lone word where the browser can, and figures lettered for the page stay off the Independent Set slide",
+   ".k:not(.d){white-space:nowrap}" in _in22.getsource(_hk22) and "text-wrap:pretty" in _in22.getsource(_hk22)
+   and "setfig" not in "".join(_hs27.s["body"]) and "<ol" in "".join(_hs27.s["body"]), "".join(_hs27.s["body"])[:200])
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)

@@ -411,6 +411,9 @@ class HtmlDeck:
         """Ruling 21 with the six questions on the slide (in the handout course too: the same six
         are the printed page). `figs` — [(question number, figure)] — in a column on the right."""
         self.section(title, "Six questions. On your own, in writing.", minutes, note, kind)
+        if figs and any(f.get("pt", 18) < 11.5 for _, f in figs):
+            figs = None       # lettered for the printed page (A7 11.07's blank grids at 9.5 pt): too small to read on a slide,
+                              # and the PowerPoint leaves them off (deckkit._set_with_figures) — the six get the slide's width
         if figs:
             size = 19 if sum(len(q) for q in questions) < 400 else 17
             ol = f'<ol class="numbered" style="font-size:{size}pt">' + "".join(f"<li>{rich(r)}</li>" for r in questions) + "</ol>"
@@ -548,6 +551,8 @@ table.tbl{border-collapse:collapse;margin:4px auto}table.tbl th,table.tbl td{bor
 p.s-slidemid .k:not(.d){font-size:32pt}p.s-slidebig .k:not(.d){font-size:40pt}p.s-slide .k:not(.d){font-size:26pt}
 p.s-slidestep .k:not(.d),p.s-slidestepmid .k:not(.d){font-size:1em}
 p.t.inl .k:not(.d){font-size:var(--k)}
+.k:not(.d){white-space:nowrap}
+p.t,ol.numbered li,ol.items li,ol.choices li,.cover .target{text-wrap:pretty}
 .body{gap:14px}
 .katex{font-size:1em}
 MATHFACE

@@ -1110,34 +1110,60 @@ class Deck:
                        "Show the step that does the work, not just the answer.",
                        "Silence until the six minutes are up."], gap=0.14)
 
-    def _flow(self, text, x, y, w, size=23, color=INK, draw=True):
-        """A paragraph of words and $math$ wrapped to the width w, each line's pieces centred on
-        its text. Returns its height. The math is the 'slide' image, cut for 23 pt type and scaled
-        with the type. draw=False measures without drawing."""
+    def _wrap(self, text, w, size=23, color=INK):
+        """A paragraph of words and $math$ cut greedily into lines no wider than w: each line a list of
+        ["txt", run] and ["img", path, w, h] pieces (the math is the 'slide' image, cut for 23 pt type and scaled
+        with the type)."""
         import re
         k = size / 23.0
-        lines = [[]]                                  # a line is a list of ["txt", run] / ["img", path, w, h]
-        def width(line):
-            return sum(_textw(p[1].replace("\ue000", "$"), size) if p[0] == "txt" else p[2] for p in line)
+        lines = [[]]
         for part in re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000")):
             if not part:
                 continue
             if part.startswith("$"):
                 path, mw, mh = mathimg.m(part[1:-1].replace("\ue000", "\\$"), "slide", color)
                 piece = ["img", path, mw * k, mh * k]
-                if lines[-1] and width(lines[-1] + [piece]) > w:
+                if lines[-1] and self._flow_w(lines[-1] + [piece], size) > w:
                     lines.append([])
                 lines[-1].append(piece)
                 continue
             for word in re.findall(r"\s*\S+\s*|\s+", part):
                 line = lines[-1]
                 trial = (line[:-1] + [["txt", line[-1][1] + word]]) if line and line[-1][0] == "txt" else line + [["txt", word]]
-                if line and width(trial) > w:
+                if line and self._flow_w(trial, size) > w:
                     lines.append([["txt", word.lstrip()]])
                 else:
                     lines[-1] = trial
+        return lines
+
+    @staticmethod
+    def _flow_w(line, size):
+        return sum(_textw(p[1].replace("\ue000", "$"), size) if p[0] == "txt" else p[2] for p in line)
+
+    def _flow_lines(self, text, w, size=23, color=INK):
+        """The lines of a flowed paragraph: _wrap's, with one correction. A last line shorter than ten characters is
+        not left by itself (27 Nov 2026, A7 11.07's Independent Set: "… Use x = −2, −1 and" / "0."): the break
+        moves up to the last sentence end that keeps the paragraph's number of lines, or else to the last space
+        that does and leaves a last line of ten characters or more. A paragraph with no such place is left as cut."""
+        lines = self._wrap(text, w, size, color)
+        short = _textw("x" * 10, size)
+        if len(lines) > 1 and self._flow_w(lines[-1], size) < short:
+            pts = break_points(text)
+            ends = [i for i in pts if text[:i].rstrip()[-1:] in ".?!"]
+            for group in (ends, pts):
+                for i in reversed(group):
+                    head = self._wrap(text[:i].rstrip(), w, size, color)
+                    tail = self._wrap(text[i:].lstrip(), w, size, color)
+                    if len(tail) == 1 and len(head) == len(lines) - 1 and self._flow_w(tail[0], size) >= short:
+                        return head + tail
+        return lines
+
+    def _flow(self, text, x, y, w, size=23, color=INK, draw=True):
+        """A paragraph of words and $math$ wrapped to the width w (_flow_lines), each line's pieces centred on
+        its text. Returns its height. draw=False measures without drawing."""
+        k = size / 23.0
         yy = y
-        for line in lines:
+        for line in self._flow_lines(text, w, size, color):
             lh = max([0.45 * k] + [p[3] for p in line if p[0] == "img"])
             xx = x + (0.08 if line and line[0][0] == "img" else 0.0)     # a text box has an inset; a picture has none
             for p_ in line:
@@ -1155,24 +1181,8 @@ class Deck:
 
     def _flow_first(self, text, w, size):
         """Height of the first line of a flowed paragraph (its number is centred on that line)."""
-        import re
         k = size / 23.0
-        first = re.split(r"(\$[^$]+\$)", text.replace("\\$", "\ue000"))
-        hmax = 0.45 * k; used = 0.0
-        for part in first:
-            if not part:
-                continue
-            if part.startswith("$"):
-                _, mw, mh = mathimg.m(part[1:-1].replace("\ue000", "\\$"), "slide", INK)
-                if used and used + mw * k > w:
-                    break
-                used += mw * k; hmax = max(hmax, mh * k)
-            else:
-                tw = _textw(part.replace("\ue000", "$"), size)
-                if used + tw > w:
-                    break                       # the line ends somewhere inside this run: no later math is on it
-                used += tw
-        return hmax
+        return max([0.45 * k] + [p[3] for p in self._flow_lines(text, w, size)[0] if p[0] == "img"])
 
     def independent_set(self, minutes, note, questions, title="Independent Practice", kind="set", figs=None):
         """Ruling 21, the set on the slide: the six questions themselves (Croix, 20 September, for
