@@ -65,6 +65,9 @@ Work in a session folder outside the repositories (here `/home/claude/lean/`), o
 - **A fixer applies; it does not review.** What it sees and no ruling covers comes back as one line.
 - **Before the last build**, clear what the earlier builds left (`git clean` on the figure cache's untracked files,
   the unit's `out/` folder), so the commit holds only the figures the unit uses.
+- **10, before the unit is offered for publishing:** publish it into a scratch copy of the site and read its web decks
+  slide by slide (`HANDOFF.md`, 27 Nov, has the commands). They are a second renderer with faults of their own, and a
+  fault found after Croix says "publish" costs him a day (A7 Unit 11, 27 Nov 2026: three kit faults found this way).
 
 ## What the first run cost (A7 Unit 7, 20–21 November 2026)
 

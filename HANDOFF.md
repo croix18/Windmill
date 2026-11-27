@@ -29,6 +29,16 @@ and republishing Unit 11 (taught from 30 Nov) wait for his word. The record is A
 - **Asked of Croix:** merge and republish; and whether a whiteboard question that is a bare equation should say "Solve
   for x." under it (ruling 58 took "Answer it." away, and such a board shows the equation alone).
 - **Before Unit 11 is published:** look at its web decks (`briefs/REVIEW AND PUBLISH`); they are a second renderer.
+- **27 Nov — that look was taken, on a scratch copy of the site** (the site without its `.git`, `publish_web.py --site
+  <copy> u11`, `tools/schedule.py`, `node tools/build.mjs`, a local server, `shoot.cjs` over each deck, contact sheets).
+  Three faults, all this kit's, fixed in `b211635`, `d70dceb`, `72a02f6`: the web deck set mathematics inside a sentence
+  at its surface's size whatever the sentence's size (`htmlkit.inline_pt` is now the PowerPoint's rule — the Vocabulary
+  slide showed it worst, and every published web deck has it until its unit is republished); a long warm-up question
+  wrapped under its number and its answer broke inside itself; the Independent Set slide left a lone "0." on a last line
+  in the PowerPoint (a picture, which no text scan sees: `deckkit._flow_lines`) and broke an expression after its plus
+  sign on the web. **What it taught:** read the web decks of every unit before it is offered for publishing, not after;
+  and a scan of extracted text cannot see a short last line that is a typeset expression, so the Independent Set slide
+  is looked at, not scanned.
 - **Still open:** M7 is not on this kit; the web decks of A7 Units 3–6 keep the graph-over-question fault until each
   unit is rebuilt; Unit 7's practice page is not built.
 
