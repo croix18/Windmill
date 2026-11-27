@@ -9,8 +9,9 @@ County FL. Built in Claude sessions; a new session starts from this file, not fr
 Croix, 2:12 pm, of Unit 11: *"Rebuild, check, then publish"*. Unit 11 was built an eighth time on this kit (`5fbd8c1`):
 only four handout titles changed against the seventh build. `main` here is `5fbd8c1` (this branch, `claude/a7-u10`,
 fast-forwarded), A7's `main` is `05d4435`, and the site is `3ecc91f` (only Unit 11's files; Cloudflare's build
-succeeded; the live pages were read). A7 Unit 10 is still on A7's `claude/a7-u10`, waiting for his word. The web decks
-of Units 3–7 on the site keep the option-spacing fault until each unit is republished.
+succeeded; the live pages were read). A7 Unit 10 is still on A7's `claude/a7-u10`, waiting for his word. No other web
+deck on the site has an option that mixes words and mathematics (A7 and M7 read on 27 Nov), so nothing published
+carries the option-spacing fault.
 
 ## 27 November — A7 Unit 10 built with the lean workflow (second run); a title break for printed pages; the measuring tools (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
@@ -26,8 +27,7 @@ merged, not published: both wait for his word, as Unit 11's do. The record is A7
   317 of 317 and 316 of 316.
 - **The kit, a second change** (the web deck): an option that mixes words and mathematics lost the space before the
   mathematics ("through(0, ½)", "Slope½;"): a mathy option's `<li>` is a flex box, and a flex box drops the space at the
-  edge of each run of text. The option is one span of its own now (`htmlkit.choices`, `choices_beside`). Every
-  published web deck with such an option has the fault until its unit is republished. Found reading Unit 10's web decks
+  edge of each run of text. The option is one span of its own now (`htmlkit.choices`, `choices_beside`). No deck published before it has such an option. Found reading Unit 10's web decks
   on the scratch site, with two faults of Unit 10's own (an equation broken across an answer's lines, and "slope −12"
   set as a subtraction).
 - **`briefs/lean/look/`**: five scripts that measure a built unit — every slide picture's lettering and plane size
