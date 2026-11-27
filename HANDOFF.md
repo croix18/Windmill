@@ -4,6 +4,14 @@ Project memory. Read `README.md` for what is here; this file is why, what is dec
 assumed, and what is next. Owner: Croix Shaffer, 7th-grade math, Windy Hill Middle School, Lake
 County FL. Built in Claude sessions; a new session starts from this file, not from memory.
 
+## 27 November, 3 pm — A7 Unit 10 published (session_01W9n2X1V97j7Nf5Y7z1DaCq)
+
+Croix, 3:02 pm, after the review copies: *"Publish 10"*. A7's `main` is `2fac9dd` (its branch `claude/a7-u10`,
+fast-forwarded), built on this kit (`70c8ea2`; `5fbd8c1` vendored after, which changes no Unit 10 page). The site is
+`945bdaf`: `mrshaffer.org/a7/unit-10/`, eight web decks, the calendar's eight days linked; `SITE CHECKS PASS` (280
+pages); Cloudflare's build succeeded and the live pages were read. Still open from the unit: the five test-blueprint
+questions and IXL N7D on 10.05 (A7 `NOTES.md`, 27 November).
+
 ## 27 November, afternoon — A7 Unit 11 published from its eighth build; this branch is `main` (session_01W9n2X1V97j7Nf5Y7z1DaCq)
 
 Croix, 2:12 pm, of Unit 11: *"Rebuild, check, then publish"*. Unit 11 was built an eighth time on this kit (`5fbd8c1`):
