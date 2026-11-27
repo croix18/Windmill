@@ -1698,6 +1698,28 @@ import lib.lessonbuild as _lb22
 ok("lessonbuild and both decks: the warm-up's questions are drawn by warmup_question",
    "D.warmup_question(" in _in22.getsource(_lb22) and hasattr(_hk22.HtmlDeck, "warmup_question") and hasattr(_dk22.Deck, "warmup_question"), "")
 
+# 27 Nov 2026, A7 Unit 11's web deck: the Vocabulary slide's "3x and 5x" stood at twice the size of the definition round it, and
+# a long warm-up question's second line began under its number. The page follows the PowerPoint's two rules now.
+_hd27 = _hk22.HtmlDeck(C.COURSE, 0, "trial", "trial", "trial")
+_hd27.section("Warm-Up", "", 0, "", "warmup")
+_hd27.warmup_question("3.   A map's scale is 1 cm : 20 km. What distance does $3$ cm on the map represent?")
+_hd27.warmup_answers([("4.   Solve for x: $3x + 5 = 26$", "$x = 7$")])
+_hd27.math_row("terms with the same variable: $3x$ and $5x$ are like terms", surface="slidemid", size=16, align="left")
+_hd27.math_row("$3x + 5 = 26$", surface="slidemid", size=26)
+_b27 = "".join(_hd27.s["body"]) if isinstance(_hd27.s.get("body"), list) else str(_hd27.s)
+ok("htmlkit: an expression inside a sentence is set at the sentence's size (26/24 of its words, never above the surface's own size); a row that is all mathematics keeps its surface",
+   _hk22.inline_pt("the $-4$ in $8x - 4$", "slidemid", 16) == 17.3 and _hk22.inline_pt("Solve the system $y = 4x$ and $y = 2x + 3$.", "slidemid", 26) == 28.2
+   and _hk22.inline_pt("so $x$ is $5$", "slide", 26) == 26 and _hk22.inline_pt("$3x + 5 = 26$", "slidemid", 26) is None
+   and _hk22.inline_pt("Check the sum.", "slidemid", 26) is None and _hk22.inline_pt("so $x = 5$", "slidestep", 24.5) is None
+   and _hk22.inline_pt("it costs \\$5 in all", "slidemid", 24) is None
+   and 'class="t left s-slidemid inl" style="font-size:16pt;color:#1A1A1A;--k:17.3pt;"' in _b27
+   and 'class="t center s-slidemid" style="font-size:26pt;color:#1A1A1A;"' in _b27
+   and "p.t.inl .k:not(.d){font-size:var(--k)}" in _in22.getsource(_hk22), _b27[:400])
+ok("htmlkit: a warm-up question's number stands in a box of its own, so its second line hangs under its first word; the answers slide is the same paragraph with its answer",
+   '<p class="t left s-slide wq inl" style="font-size:23pt;--k:24.9pt;"><span class="wn">3.</span>A map' in _b27
+   and '<span class="wn">4.</span>Solve for x: ' in _b27 and '<span class="wa"><span class="k"' in _b27
+   and "p.wq .wn{display:inline-block;width:2.3em;text-indent:0}" in _in22.getsource(_hk22), _b27[:400])
+
 print(f"\nkit tests under {os.path.basename(os.environ.get('KIT_COURSE', 'course.py'))}: {n - len(fails)} of {n} passed")
 for f in fails:
     print("  FAILED", f)
