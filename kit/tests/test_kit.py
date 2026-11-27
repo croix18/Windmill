@@ -1649,6 +1649,10 @@ ok("dockit: no line of a broken title ends in a joining word, and the first line
    _tb("Equations with Like Terms and the Distributive Property") == ("Equations with Like Terms", "and the Distributive Property")
    and _tb("Equations with Variables on Both Sides") == ("Equations with Variables", "on Both Sides")
    and _tb("One Solution, No Solution, Infinitely Many") == ("One Solution, No Solution,", "Infinitely Many"))
+ok("dockit: a title of two titles joined by a semicolon breaks at the semicolon (A7 11.05, 27 Nov 2026)",
+   _tb("Systems: Which Points Are Solutions; How Many Solutions") == ("Systems: Which Points Are Solutions;", "How Many Solutions")
+   and _tb("Systems in Context; Approximate Solutions") in ("Systems in Context; Approximate Solutions", ("Systems in Context;", "Approximate Solutions")),
+   str(_tb("Systems: Which Points Are Solutions; How Many Solutions")))
 ok("dockit: a title that would not fit on two lines, or has no space, is left to the page",
    _tb("A Very Long Title That Would Never Ever Fit On Two Lines Of The Header Cell At All No Matter What").startswith("A Very")
    and _tb("Supercalifragilisticexpialidociousandthensomemore") == "Supercalifragilisticexpialidociousandthensomemore")

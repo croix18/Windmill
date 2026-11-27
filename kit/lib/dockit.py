@@ -59,7 +59,8 @@ def title_break(title, room, size=14, font=BODY_FONT):
     on Both / Sides" (Unit 11's) each ended in one word on a line of its own, over the name lines of a page a student
     is handed. The break is chosen instead: the two lines as alike in length as they can be, the first the longer
     by preference (a short line over a long one reads as a label and its title), no line ending in a joining
-    word ("…Like Terms and / the Distributive Property"), and a comma or a semicolon a good place to turn. So: "Slope from Graphs, / Tables and Two Points",
+    word ("…Like Terms and / the Distributive Property"), a comma a good place to turn and a semicolon, which joins two
+    titles, the place to turn whenever both lines fit. So: "Slope from Graphs, / Tables and Two Points",
     "Slope-Intercept Form / and Graphing a Line", "Equations with Variables / on Both Sides". A title is measured a
     hair long (0.03 in), so one the page would only just hold is broken here and never wraps by itself at a worse
     place."""
@@ -75,7 +76,9 @@ def title_break(title, room, size=14, font=BODY_FONT):
         word = title[:i].split()[-1] if title[:i].split() else ""
         cost = max(a, b) + 0.5 * max(0.0, b - a)
         cost += 0.4 if word.strip(",;:").lower() in JOINING else 0.0        # a line does not end in "and"
-        cost -= 0.3 if word[-1:] in ",;:" else 0.0                          # a comma is a good place to turn
+        # a comma is a good place to turn; a semicolon joins two titles, and the break belongs there whenever both lines
+        # fit ("Systems: Which Points Are Solutions; / How Many Solutions", not "…Which Points Are / Solutions; …")
+        cost -= 1.0 if word.endswith(";") else 0.3 if word[-1:] in ",:" else 0.0
         if best is None or cost < best[0]:
             best = (cost, i)
     return best[1] if best else None

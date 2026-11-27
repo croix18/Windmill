@@ -13,7 +13,9 @@ merged, not published: both wait for his word, as Unit 11's do. The record is A7
 - **The kit, one change** (`877c70e`, `dockit.title_break`): a handout title too long for its line breaks where the two
   lines are most even, never after a joining word ("Slope from Graphs, / Tables and Two Points"); it broke at its last
   word that fitted ("Equations with Variables on Both / Sides"). Lexend is measured with its own font file. Tests 316
-  of 316 and 315 of 315, tools 53 of 53, `tools/check.sh` all passed. Unit 11's handouts take it when it is rebuilt.
+  of 316 and 315 of 315, tools 53 of 53, `tools/check.sh` all passed. A semicolon joins two titles, so a break after
+  one is taken whenever both lines fit ("Systems: Which Points Are Solutions; / How Many Solutions", A7 11.05): tests
+  317 of 317 and 316 of 316.
 - **The kit, a second change** (the web deck): an option that mixes words and mathematics lost the space before the
   mathematics ("through(0, ½)", "Slope½;"): a mathy option's `<li>` is a flex box, and a flex box drops the space at the
   edge of each run of text. The option is one span of its own now (`htmlkit.choices`, `choices_beside`). Every
