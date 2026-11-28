@@ -660,7 +660,7 @@ Croix, 14 Nov: "I want this helper to be absolutely phenomenal." The standard ev
 line meets is **`HELP_STANDARD.md`**. The kit carries what it needs as a module of its own, so `ui.js` and `kit.css` are untouched:
 - **`explain.js`** (`Kit.X`, loaded after `bilingual.js`, before the unit's scripts; pure, so Node checks use it): a unit's glossary
   (`gloss`), `[[id]]` terms in a help string (`teach`: every one tappable, its definition shown only on a tap — Croix, 14 Nov 2026, after seeing it
-  live: "Don't spell it out first"), three signal colors with their own line styles (`c`), and the pictures — a balance
+  live: "Don't spell it out first"; since 27 Nov 2026 a tap opens the term's card, below), three signal colors with their own line styles (`c`), and the pictures — a balance
   (`balance`, chips two to a row), a tape diagram (`tape`), opposites on a number line (`mirror`), a right triangle (`rightTri`), two
   similar triangles with corresponding sides matched (`simPair`), and `big` for a unit's own figure. Each is drawn on a 280-unit
   canvas at the full width of its line, so a label reads at 13 px or more on a 390 px phone (the 14 Nov review: "the pictures are
@@ -820,8 +820,8 @@ teacher's view and print reserving nothing.
 | `check/approve_page.js`, `check/tests_page.js` | page.js parts L (approvals) and M (Tests A and B), against a mocked site |
 | `check/set_page.js` | page.js part Q (set numbers valid and accurate, 14 Nov 2026, above), on every page |
 | `check/mc_page.js` | page.js part P (an all-multiple-choice test, 14 Nov 2026, above), on a teacher copy of a unit with `Unit.choices` |
-| `explain.js`, `explain.css`, `HELP_STANDARD.md` | the help's terms and pictures, and the standard the help meets (14 Nov 2026, above) |
-| `check/help.js`, `check/help_page.js` | the help standard, in Node over 300 sets and in a browser at 390 px, light and dark (a unit with `help.js`) |
+| `explain.js`, `explain.css`, `HELP_STANDARD.md` | the help's terms and pictures, and the standard the help meets (14 Nov 2026, above); the card a term opens (27 Nov 2026, below) |
+| `check/help.js`, `check/help_page.js` | the help standard, in Node over 300 sets and in a browser at 390 px, light and dark (a unit with `help.js`); the cards, in Node and in a browser at 360, 390 and 1280 (27 Nov 2026, below) |
 | `pager.js`, `pager.css` | one question at a time, as on the FAST: the number, Flag for review, Back and Next, the map, the summary after Finish (14 Nov 2026, above) |
 | `check/pager_page.js` | page.js part R (one question at a time, 14 Nov 2026, above), on every page, without the checks' switch that parts A–Q use |
 | `scratch.js`, `scratch.css` | scratch paper: Notes and graph paper to plot on, per question, in a panel from the top bar (15 Nov 2026, above); the same two files on the site's FAST pages |
@@ -1481,3 +1481,37 @@ its size, *"8, like a practice set"*. The design and the contract: `practice/exa
   sealed unit test.
 - **A student page never changes:** `exam_lesson.js` is in `TEACHER_ONLY`; nothing a practice page is built from changed (M7
   4, 7, 8, 9, 10 and A7 3, 4, 5, 6 built with a plain `build.py` on their old stamps: the same bytes, the same as published).
+
+## 27 Nov 2026 — a term opens its card (`explain.js`, `explain.css`)
+Croix, from his tablet on A7 Unit 11's live page: *"When I click on a vocab word, instead of opening in parentheses on the
+line, I would like a card to pop up that's the definition and everything else in depth about the word."* A term in the help
+(bold, a dotted underline) no longer shows its definition in parentheses on the line: a tap, a click, Enter or Space opens its
+card, on every appearance (hints, worked solutions, walkthrough steps, coach lines; the student page and the teacher copy).
+- **The card** (`Kit.X.card(id[, from])`, pure, so Node checks read it): the word; *Say it:* when the entry has a respelling;
+  the definition, the lead line; then What it means, In symbols, Example (on the help's picture background, pictures
+  allowed), Watch out (one item, or two as two separate points with a quiet bar beside each), Related words (a 44 px chip
+  each). The glossary entry's fields, and the lead's Watch out rule, are `HELP_STANDARD.md` §3.
+- **The dialog** (the end of `explain.js`, the only part that touches the page): one `<dialog>`, made on first use, reused,
+  opened modal and appended to `body`. The term carries `aria-haspopup="dialog"`; the dialog is named by its title and
+  described by the definition. On a phone (560 px or less) it is a bottom sheet: the screen's width, rounded top corners, up
+  to 85% of the screen tall, its own scroll (`overscroll-behavior: contain`). Wider, it is centered, at most 520 px wide and
+  80% tall. Lexend, the page's paper and ink, light and dark; its labels in the help's eyebrow style. A 160 ms fade and rise,
+  none under `prefers-reduced-motion`; never printed. The focus moves to the title when it opens and back to the term when it
+  closes. ×, Esc and a tap on the backdrop (a press and a release both outside the card) close it. A related chip swaps the
+  card, "← Back to *word*" walks the trail back, and closing forgets the trail. The page does not scroll under it
+  (`html.xlock`, its scrollbar's room kept). Every key pressed inside it stops at the window in the capture phase, so the
+  page's own handlers (`ui.js`'s keydown handlers on the document, `teacher.js`'s Escape on the window) never hear it; the
+  card's own buttons still work, as their default actions are untouched.
+- **The ×** sits at the text's inset from the card's right edge: 16 px on a phone, 20 px wider (the lead, 27 Nov 2026, of the
+  first 390 px sheet, where it sat about 8 px in). `check/help_page.js` holds it at 360, 390 and 1280.
+- **Android's back gesture:** a modal `<dialog>` is the target of a close request in Chrome 120 and later, so the gesture
+  closes the card and leaves the page's `#set-…` alone (no history entry is made). Not tried on a device here.
+- **Unchanged:** a term inside an option button stays plain bold (a button cannot hold a button). `X.def` is `X.term` now
+  (it spelled the definition out inline). `ui.js`, `pager.js` and `kit.css` are untouched.
+- **Checks:** `check/help.js` part K (every term a student can meet has a card; every entry's fields to §3; the Watch out
+  rule, as far as a machine can hold it) and `check/help_page.js` part K (the card in Chromium, by touch at 390 and by mouse at
+  1280, light and dark, and every card of the glossary at 360, 390 and 1280; its header lists each check). Each unit proves its
+  cards' arithmetic in its own `cards_check.js`. `KIT_X_SHOTS=<folder> node check/help_page.js <unit>` saves the card as a
+  student sees it. Part L (the lead, 27 Nov 2026): a label on a box (`rect.xlabbg` and its text, a point's coordinates) sits
+  centered in a box that hugs it, with even padding, in every card and Hint at 360, 390 and 1280, light and dark.
+- First met by A7 Units 11 and 6 and M7 Unit 10: 63 glossary entries, 60 cards (three singulars open their plural's card).

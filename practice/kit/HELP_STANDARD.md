@@ -1,6 +1,6 @@
 # The help standard (14 Nov 2026)
 
-The kit's standard for every hint, worked solution, walkthrough step and coach line on a practice page (Windmill `practice/kit/HELP_STANDARD.md`). Units meet it in their `help.js`, which `coach.js` applies at its end; `check/help.js` and `check/help_page.js` (run by `check/run.py` for a unit with `help.js`) hold it. First met by M7 Unit 10 and A7 Unit 6 (14 Nov 2026). Croix's rulings of 14 Nov 2026 are marked **(Croix)**.
+The kit's standard for every hint, worked solution, walkthrough step and coach line on a practice page (Windmill `practice/kit/HELP_STANDARD.md`). Units meet it in their `help.js`, which `coach.js` applies at its end; `check/help.js` and `check/help_page.js` (run by `check/run.py` for a unit with `help.js`) hold it. First met by M7 Unit 10 and A7 Unit 6 (14 Nov 2026). Croix's rulings are marked **(Croix)**. Since 27 Nov 2026 a term opens its card (§3).
 
 Every hint, worked solution, walkthrough step and coach line on a practice page meets this standard, in both courses and on both the practice test and the lesson sets. It rests on what is known to help middle schoolers:
 - **Worked examples with self-explanation prompts.** Studying a solved step and then saying why it works beats solving cold (Renkl; Chi; the IES practice guide *Organizing Instruction*, recommendations 2 and 7).
@@ -35,7 +35,35 @@ Every hint, worked solution, walkthrough step and coach line on a practice page 
 - **Every unit has a glossary** (`Kit.X.gloss`), built from its decks.
   - The terms below are required: where the idea appears, the term appears.
   - Each term gets a plain definition of 15 words or fewer.
-- **Every appearance of a term** is named and highlighted: bold, with a dotted underline, its plain definition shown inline only on a tap and hidden on a second tap (`Kit.X.teach`, `[[id]]` in a unit's text). **(Croix)** First "Spell it out first time then Show on tap after"; then, after seeing it live, "Don't spell it out first." Definitions are never written out in the sentence.
+- **Every appearance of a term** is named and highlighted: bold, with a dotted underline (`Kit.X.teach`, `[[id]]` in a unit's text). **A tap, a click, Enter or Space opens the term's card** (27 Nov 2026); the definition is never written out in the sentence, and the inline "(definition)" is gone. **(Croix)** First "Spell it out first time then Show on tap after"; then, after seeing it live, "Don't spell it out first"; then, on A7 Unit 11's live page (27 Nov 2026): "When I click on a vocab word, instead of opening in parentheses on the line, I would like a card to pop up that's the definition and everything else in depth about the word."
+- **The card** (`Kit.X.card`; `explain.js`, `explain.css`) is one dialog, modal: a bottom sheet on a phone (560 px wide or less), centered and at most 520 px wide on a tablet or a Chromebook. ×, Esc or a tap on the backdrop closes it, and the focus goes back to the term. A related word swaps the card, and "← Back to *word*" walks back. Top to bottom, from the term's glossary entry:
+
+  | Field | On the card | Rule |
+  |---|---|---|
+  | `word` | the title | the decks' word |
+  | `say` | *Say it:* | a respelling, only for a word a 7th grader may not know how to say ("hy-POT-n-oos", "koh-uh-FISH-uhnt"); never for an everyday word |
+  | `def` | the lead line | 15 words or fewer |
+  | `more` | What it means | required: 1–3 sentences, at most 60 words, grade 6.5 or below with the math taken out |
+  | `sym` | In symbols | the rule in symbols, where there is one: a(b + c) = ab + ac |
+  | `ex` | Example | required: one worked example, a line or two of math and the sentence that says it, a picture where one helps (the help's builders and signaling colors) |
+  | `watch` | Watch out | wherever there is a common mistake: the Watch out rule, below |
+  | `see` | Related words | ids in the same glossary, never the card itself |
+  | `card` | — | a singular or plural that opens another entry's card |
+
+  Every string is HTML, the math written as the unit writes math in its help. **Each card says what the unit's lessons say, in their words.** Its examples use small numbers of their own: never a lesson's, a practice paper's or a test's, and never the numbers of a question on the page, because the card is the same wherever it opens. The unit's own checks prove every example's arithmetic. No narration ("In this card…"). A card is for a 12-year-old who just met the word in a hint: it should leave them able to use it.
+- **The Watch out rule** (the lead, 27 Nov 2026, after Croix found the first one he read "a bit tough to understand"):
+  1. Start with what to do, as an instruction.
+  2. Then show it: the right result next to the wrong one it guards against, joined by "not".
+  3. Give the reason only when it helps, with "because" and the arithmetic.
+  4. At most two mistakes. Two are two short items, `<ul><li>…</li><li>…</li></ul>` in the entry, which the card shows as two separate points (a quiet bar beside each, no bullets). Never a chain of colons.
+  5. Use plain verbs a 12-year-old can act on: never "goes in", "comes along", "carries" or "applies". Every "it", "this" and "that" names its thing ("that negative number").
+  6. Read each one as a 12-year-old who just made the mistake. Could they say what to do differently next time?
+
+  Each item is at most 25 words, a piece of math counting as one. The model, the Distributive Property:
+  - Multiply every term inside, not just the first one. 4(x + 3) = 4x + 12, not 4x + 3.
+  - If the number in front is negative, multiply each term by that negative number. −2(y − 5) = −2y + 10, because −2 · (−5) = +10.
+
+  `check/help.js` holds what a machine can: at most two items, each at most 25 words (a written point such as (3, 2) is one piece of math); in each, a sentence with the math right before "not" and the wrong one (or the result, then "because" and its arithmetic, as the model's second item; or, where the mistake is a move rather than a result, an instruction that names the wrong move after ", not", with the result then shown in math: "Draw each line on to the edge of the grid, not only between your points. y = x + 3 and y = 6x − 12 cross at (3, 6), past your points."); none of the four verbs; no "it", and no "this" or "that" standing alone; no colon; the reading level. Rule 6 is a reader's: read every Watch out.
 - **After that,** the term is used plainly. It never falls back to a substitute word ("the letter", "the number with k").
 - **Terms never go inside an option button.** A button can't hold a button. Options use color signaling instead (§4).
 - **Required terms.**
@@ -85,6 +113,7 @@ A picture is optional for pure arithmetic.
   - The same color marks the matching words in the text (`X.c(n, …)`).
 - **Place the picture in the step it explains.** It goes inside the walkthrough question or the hint, not only under "See why it works".
 - **Captions** are at most 2 sentences and name what to look at ("The dashed pair is x and its corresponding side").
+- **A label on a box** (a point's coordinates, a zoomed reading: `rect.xlabbg`, then its text) sits centered in a box that hugs it, with even padding (27 Nov 2026; `check/help_page.js` part L, in every card and Hint, 360 to 1280, light and dark).
 - **Alt text** is a sentence that states the relationship, not "image".
 - **Pictures never reveal the answer before Hint 3.** Hint 1 uses a neutral example (4, 5, 7) or the question's *given* numbers only.
 - **Concreteness fading.** The picture comes before the symbols in Hint 1. Later steps drop the picture and keep the symbols.
@@ -113,7 +142,7 @@ A picture is optional for pure arithmetic.
 **Vocabulary**
 
 4. Every required term for the family appears where its idea appears.
-5. Each term is tappable, with a definition of 15 words or fewer behind the tap (never spelled out inline); no substitute words.
+5. Each term is tappable and opens its card (§3): a definition of 15 words or fewer, What it means, an Example whose arithmetic the unit's checks prove, and a Watch out to §3's rule wherever there is a common mistake; never spelled out inline; no substitute words.
 
 **Steps**
 
@@ -141,3 +170,4 @@ A picture is optional for pure arithmetic.
 ## How a unit carries it
 - `help.js` (before `coach.js` in `unit.json`; the teacher copy's too): a `SPEC` per family — `terms`, `notice` (Hint 1), `first` (Hint 2), `sol`, `walk`, `coach`, `pic` — and `help(api, walkApi)`, which `coach.js` calls at its end, so the unit's own checks read exactly what a student reads. The mathematics lines stay the coach's own.
 - `Unit.rungs` asks `Coach.rungs` first. `Coach.help = {terms, pics}` tells `check/help.js` what to hold.
+- `help.js`'s glossary (`X.gloss`) carries every term's card (§3). The unit's own checks prove each card's arithmetic (a `cards_check.js` in `unit.json`'s checks, as A7 Units 11 and 6 and M7 Unit 10 have since 27 Nov 2026).

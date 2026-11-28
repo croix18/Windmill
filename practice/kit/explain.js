@@ -1,9 +1,13 @@
 /* Practice kit: explain.js — the help's words and pictures (14 Nov 2026, the help proofs; see kit/HELP_STANDARD in the
    course plan). A small module of its own, so ui.js and kit.css stay untouched: everything here returns HTML that a unit's
    rungs, solution lines, walkthrough steps and coach lines carry in their own strings.
-     Kit.X.gloss({id: {word, def}})      a unit's glossary (the lesson decks' own terms and words)
-     Kit.X.def(id[, shown])              a term the first time: highlighted, with its plain definition right after it
-     Kit.X.term(id[, shown])             a term after that: highlighted, tap to show its definition inline (tap again to hide)
+     Kit.X.gloss({id: {word, def, say, more, sym, ex, watch, see}})   a unit's glossary (the lesson decks' own terms and words);
+                                         {word, def, card: 'otherId'} is a singular or plural that opens another entry's card
+     Kit.X.term(id[, shown])             a term: bold, a dotted underline; a tap, a click, Enter or Space opens its card
+                                         (27 Nov 2026; X.def is the same since the inline definition went)
+     Kit.X.card(id[, from])              the card's HTML, pure (Node checks read it): the word, the definition, What it
+                                         means, In symbols, Example, Watch out (one item, or two as <ul><li>…</li><li>…</li></ul>),
+                                         Related words; from: the card a Back button returns to
      Kit.X.c(n, html)                    signaling: words in colour n (1–3) with a matching underline style, so the link from a
                                          word to its part of the picture never rests on colour alone
      Kit.X.fig(svg, caption)             a picture with its caption, sized for a phone
@@ -20,19 +24,44 @@ const X = {};
 X.gloss = o => { Object.assign(GL, o); return GL; };
 X.has = id => Object.prototype.hasOwnProperty.call(GL, id);
 const g = id => GL[id] || { word: id, def: '' };
-X.def = (id, shown) => '<b class="xterm xfirst">' + (shown || g(id).word) + '</b><span class="xdefn"> (' + g(id).def + ')</span>';
 /* a term is inline text (role button), not a <button>: a <button> is an inline block, so a line could break between it and the
-   period after it ("Equality\n."), 15 Nov 2026 */
-X.term = (id, shown) => '<span role="button" tabindex="0" class="xterm" data-xterm="' + esc(id) + '" aria-expanded="false" title="' + esc(g(id).def) + '">' + (shown || g(id).word) +
-  '</span><span class="xdef" role="note" hidden> (' + g(id).def + ')</span>';
-/* [[id]] or [[id|shown words]] in a help string: 'def' and 'tap' make every term tappable (named, bold, its definition shown
-   inline only on a tap — Croix, 14 Nov 2026: "Don't spell it out first"); 'plain' (inside an option button, which can't hold a button) leaves the word, bold. seen carries the ids already
-   spelled out across the strings of one rung. */
+   period after it ("Equality\n."), 15 Nov 2026. Since 27 Nov 2026 it opens its card (Croix, on A7 Unit 11's live page: "When I
+   click on a vocab word, instead of opening in parentheses on the line, I would like a card to pop up that's the definition
+   and everything else in depth about the word."): no inline definition, no title tooltip — the card holds the definition. */
+X.term = (id, shown) => '<span role="button" tabindex="0" class="xterm" data-xterm="' + esc(id) + '" aria-haspopup="dialog">' + (shown || g(id).word) + '</span>';
+X.def = X.term;                                                         /* it spelled the definition out inline: gone (14 Nov, then 27 Nov 2026) */
+/* [[id]] or [[id|shown words]] in a help string: 'def' and 'tap' make every term tappable (bold, its card on a tap — Croix,
+   14 Nov 2026: "Don't spell it out first"); 'plain' (inside an option button, which can't hold a button) leaves the word, bold.
+   seen is kept for the units' calls (it carried the ids already spelled out across the strings of one rung). */
 X.teach = (html, mode, seen) => String(html == null ? '' : html).replace(/\[\[([A-Za-z0-9]+)(?:\|([^\]]+))?\]\]/g, (m0, id, shown) => {
   if (mode === 'plain') return '<b>' + (shown || g(id).word) + '</b>';
-  /* 'def' once spelled the definition out at a term's first appearance; Croix, 14 Nov 2026 (after seeing it live): "Don't spell
-     it out first." Every appearance is now tappable, the definition shown only on a tap. */
   return X.term(id, shown); });
+
+/* ---- the card (27 Nov 2026): X.card(id) is the HTML, pure; the dialog below only opens, swaps and closes it */
+X.cardOf = id => { let k = id, n = 0; while (GL[k] && GL[k].card && n++ < 4) k = GL[k].card; return GL[k] ? k : null; };   /* a singular or plural opens its pair's card */
+const lead = s => { s = String(s || '').trim(); if (/^[a-z]/.test(s)) s = s.charAt(0).toUpperCase() + s.slice(1); return s && !/[.?!:]$/.test(s.replace(/<[^>]*>/g, '').trim()) ? s + '.' : s; };
+const SEC = [['more', 'What it means'], ['sym', 'In symbols'], ['ex', 'Example'], ['watch', 'Watch out']];
+const XSVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6L18 18M18 6L6 18"/></svg>';   /* the close mark drawn, never a multiplication sign */
+X.card = (id, from) => {
+  const k = X.cardOf(id); if (!k) return '';
+  const e = GL[k], back = from && X.cardOf(from);
+  let h = '<div class="xcard" data-xcard="' + esc(k) + '"><div class="xchead">' +
+    (back ? '<button type="button" class="xcback" data-xback="' + esc(back) + '"><span aria-hidden="true">← </span>Back to ' + GL[back].word + '</button>' : '') +
+    '<div class="xctop"><h2 class="xcword" id="xcard-t" tabindex="-1">' + e.word + '</h2>' +
+    '<button type="button" class="xcx" data-xclose aria-label="Close">' + XSVG + '</button></div></div>';
+  if (e.say) h += '<p class="xcsay"><i>Say it:</i> ' + e.say + '</p>';
+  h += '<p class="xcdef" id="xcard-d">' + lead(e.def) + '</p>';
+  /* a Watch out of two mistakes is two short items, <ul><li>…</li><li>…</li></ul> in the entry (27 Nov 2026, the lead's
+     standard: HELP_STANDARD §3); the card shows them as two separate points, a quiet bar beside each, no bullets */
+  SEC.forEach(([f, lab]) => { if (!e[f]) return; const v = String(e[f]);
+    h += '<section class="xcsec xc-' + f + '"><h3 class="xclab">' + lab + '</h3>' + (f === 'ex' ? '<div class="xcex">' + v + '</div>' : f === 'sym' ? '<p class="xcsym">' + v + '</p>' :
+      f === 'watch' && /^\s*<ul>/.test(v) ? v.replace(/^\s*<ul>/, '<ul class="xcwl">') : '<p>' + v + '</p>') + '</section>'; });
+  const see = (e.see || []).map(s => X.cardOf(s)).filter((s, i, a) => s && s !== k && a.indexOf(s) === i);
+  if (see.length) h += '<section class="xcsec xc-see"><h3 class="xclab">Related words</h3><div class="xcsee">' +
+    see.map(s => '<button type="button" class="xcchip" data-xsee="' + esc(s) + '">' + GL[s].word + '</button>').join('') + '</div></section>';
+  return h + '</div>';
+};
+X.glossary = () => GL;
 X.ids = html => { const out = []; String(html || '').replace(/\[\[([A-Za-z0-9]+)/g, (m0, id) => { if (out.indexOf(id) < 0) out.push(id); }); return out; };
 /* a unit's own figure, drawn at the help panel's width: its fixed max-width goes, so the labels grow with the drawing */
 X.big = svg => String(svg || '').replace(/ style="max-width:\d+px"/, '').replace('<svg class="', '<svg class="xbig ');
@@ -130,13 +159,43 @@ X.simPair = ({ A, B, col, turn, label }) => {
   return svgOpen(W, y - 20, label || 'Two similar triangles') + out + '</svg>';
 };
 
-/* the inline definition of a tapped term (delegated, so it survives every repaint of a card) */
-const toggle = b => { const d = b.nextElementSibling; if (!d || !d.classList.contains('xdef')) return;
-  const open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+/* ---- the card's dialog (27 Nov 2026): one <dialog>, made on first use, modal, reused. A tap, a click, Enter or Space on a
+   term opens it (delegated, so it survives every repaint of a question); a related word swaps it and Back walks the trail;
+   ×, Esc and the backdrop close it, and the focus goes back to the term. Every key pressed inside it stops at the window
+   (capture), so the page's own handlers never see it; the page under it does not scroll. A modal <dialog> is a close request's
+   target, so Android's back gesture closes it (Chrome 120 and later) without a history entry: the page's #set-… is untouched. */
 if (typeof document !== 'undefined') {
-  document.addEventListener('click', e => { const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null; if (b) toggle(b); });
+  const D = { el: null, opener: null, trail: [], cur: null, down: false };
+  const title = () => document.getElementById('xcard-t');
+  const make = () => { if (D.el) return D.el;
+    const d = document.createElement('dialog'); d.className = 'xdlg'; d.setAttribute('aria-labelledby', 'xcard-t'); d.setAttribute('aria-describedby', 'xcard-d');
+    d.innerHTML = '<div class="xcwrap"></div>'; document.body.appendChild(d);
+    d.firstChild.addEventListener('scroll', () => { const w = d.firstChild; w.classList.toggle('xsc', w.scrollTop > 2); }, { passive: true });   /* a hairline under the header once the card scrolls under it */
+    d.addEventListener('pointerdown', e => { D.down = e.target === d; });
+    d.addEventListener('click', e => { const t = e.target;
+      if (t === d) { const r = d.firstChild.getBoundingClientRect(), out = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        if (out && D.down) shut(); D.down = false; return; }                 /* the backdrop: a press and a release both outside the card */
+      const b = t.closest ? t.closest('[data-xclose],[data-xsee],[data-xback]') : null; if (!b) return;
+      if (b.hasAttribute('data-xclose')) shut();
+      else if (b.hasAttribute('data-xsee')) { D.trail.push(D.cur); show(b.getAttribute('data-xsee')); }
+      else { D.trail.pop(); show(b.getAttribute('data-xback')); } });
+    d.addEventListener('close', () => { document.documentElement.classList.remove('xlock', 'xlockg'); D.trail = []; D.cur = null;
+      const o = D.opener; D.opener = null; if (o && o.isConnected) o.focus(); });
+    return (D.el = d); };
+  const show = id => { const w = D.el.firstChild; D.cur = X.cardOf(id); w.innerHTML = X.card(D.cur, D.trail.length ? D.trail[D.trail.length - 1] : null); w.scrollTop = 0;
+    const t = title(); if (t) t.focus({ preventScroll: true }); };
+  const open = (id, from) => { if (!X.cardOf(id)) return; const d = make(); D.opener = from; D.trail = [];
+    const r = document.documentElement; if (window.innerWidth > r.clientWidth) r.classList.add('xlockg'); r.classList.add('xlock');   /* the page stays put, its scrollbar's room kept */
+    if (!d.open) d.showModal(); show(id); };
+  const shut = () => { if (D.el && D.el.open) D.el.close(); };
+  X.open = open; X.close = shut; X.dialog = () => D.el;
+  document.addEventListener('click', e => { const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null; if (b && !(D.el && D.el.contains(b))) open(b.getAttribute('data-xterm'), b); });
   document.addEventListener('keydown', e => { const b = e.target && e.target.closest ? e.target.closest('[data-xterm]') : null;
-    if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(b); } });
+    if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(b.getAttribute('data-xterm'), b); } });
+  ['keydown', 'keyup', 'keypress'].forEach(type => window.addEventListener(type, e => {
+    const d = D.el; if (!d || !d.open || !e.target || !(e.target === d || d.contains(e.target))) return;
+    e.stopImmediatePropagation();                                        /* the card's keys are its own: the page behind never hears them */
+    if (type === 'keydown' && (e.key === 'Escape' || e.key === 'Esc')) { e.preventDefault(); shut(); } }, true));
 }
 /* a Why: that only names a property or theorem gets what it lets you do, so it is a sentence (15 Nov 2026) */
 const DOES = { addProp: 'lets you add the same number to both sides and keep them equal', subProp: 'lets you subtract the same number from both sides and keep them equal',

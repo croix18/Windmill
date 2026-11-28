@@ -6,11 +6,56 @@
 /* a term: bold, with a dotted underline that says "tap me" */
 .xterm{font:inherit;font-weight:700;color:var(--ink);background:none;border:0;padding:0;margin:0;cursor:pointer;
   text-decoration:underline dotted;text-decoration-color:var(--teal);text-decoration-thickness:2px;text-underline-offset:3px;min-height:0}
-.xterm.xfirst{cursor:default;text-decoration-style:solid}
 .xterm:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
-.xdefn,.xdef{color:var(--mut);font-weight:400}
-.xdef{display:inline}
-.xdef[hidden]{display:none}
+/* the card a term opens (27 Nov 2026; explain.js X.card and its dialog): centered, at most 520 px, on a tablet or a Chromebook;
+   a bottom sheet on a phone (≤ 560 px). The page's own paper and ink, light and dark; the help's eyebrow for its labels. */
+dialog.xdlg{padding:0;border:0;margin:auto;width:calc(100% - 32px);max-width:520px;max-height:80vh;max-height:80dvh;border-radius:16px;
+  background:var(--paper);color:var(--ink);box-shadow:var(--pop);overflow:hidden;overscroll-behavior:contain;font:16px/1.5 var(--ui);text-align:left}
+dialog.xdlg::backdrop{background:rgba(23,50,77,.5)}
+.xcwrap{max-height:inherit;overflow-y:auto;overscroll-behavior:contain;padding:0 20px 20px}
+.xchead{position:sticky;top:0;z-index:1;background:var(--paper);padding:14px 20px 6px;margin:0 -20px 2px}
+.xcwrap.xsc .xchead{box-shadow:0 1px 0 var(--rule),0 8px 10px -8px rgba(0,0,0,.14)}
+.xctop{display:flex;align-items:flex-start;gap:10px}
+.xcword{flex:1;min-width:0;margin:4px 0 0;font:700 27px/1.2 var(--ui);color:var(--ink);overflow-wrap:anywhere}
+.xcword:focus,.xcword:focus-visible{outline:none}                            /* the title is where the focus lands, for a screen reader; it is not a control */
+dialog.xdlg button{font-family:var(--ui)}
+.xcx{flex:none;width:44px;height:44px;margin:-2px 0 0 0;padding:0;border-radius:22px;display:grid;place-items:center;background:var(--field);border:1px solid var(--rule);cursor:pointer}
+.xcx svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
+.xcback{display:inline-flex;align-items:center;min-height:44px;margin:-6px 0 6px -4px;padding:0 14px 0 10px;border-radius:22px;background:var(--field);border:1px solid var(--rule);color:var(--link);font:600 15px/1.2 var(--ui)}
+.xcsay{margin:4px 0 0;color:var(--mut);font-size:15.5px} .xcsay i{color:var(--ink)}
+.xcdef{margin:8px 0 2px;font:500 19.5px/1.42 var(--ui);color:var(--ink)}
+.xcsec{margin-top:16px}
+.xclab{margin:0 0 5px;font:700 12px/1.3 var(--ui);color:var(--link);text-transform:uppercase;letter-spacing:.06em}
+.xcsec p{margin:0}
+.xcsym{font-size:18px}
+.xcex{background:var(--field);border-radius:10px;padding:10px 12px;overflow-x:auto}
+.xcex p{margin:0} .xcex p+p,.xcex .xcl+p,.xcex p+.xcl{margin-top:6px}
+.xcex .xcl{display:block;padding:2px 0;white-space:nowrap}
+.xcex figure.xfig{margin:8px -4px 2px;padding:4px 0 2px;background:none}
+.xcex figure+p,.xcex .vis+p,.xcex figure+.xcl,.xcex .vis+.xcl{margin-top:10px}
+.xcex .vis svg{width:100%!important;max-width:min(100%,460px)!important;height:auto;margin:0 auto;display:block}
+.xcex svg.nl text{font-size:19.5px}                                      /* a unit's number line, as the help enlarges it (14 Nov 2026 review) */
+/* a Watch out of two mistakes: two separate points, each with a quiet bar beside it, no bullets (27 Nov 2026) */
+.xcwl{list-style:none;margin:0;padding:0}
+.xcwl li{margin:0;padding:1px 0 1px 12px;border-left:3px solid color-mix(in srgb,var(--mut) 45%,transparent)}
+.xcwl li+li{margin-top:10px}
+.xcsee{display:flex;flex-wrap:wrap;gap:8px}
+.xcchip{min-height:44px;padding:0 16px;border-radius:22px;background:var(--field);border:1px solid var(--rule);color:var(--link);font:600 15px/1.2 var(--ui)}
+.xcchip:hover,.xcx:hover,.xcback:hover{border-color:var(--mut)}
+html.xlock{overflow:hidden} html.xlockg{scrollbar-gutter:stable}
+@media (max-width:560px){
+  dialog.xdlg{width:100%;max-width:100%;margin:auto 0 0;max-height:85vh;max-height:85dvh;border-radius:16px 16px 0 0}
+  .xcwrap{padding:0 16px calc(18px + env(safe-area-inset-bottom,0px))} .xchead{padding:14px 16px 6px;margin:0 -16px 2px}
+  .xcword{font-size:25px}
+}
+@media screen and (prefers-color-scheme: dark){ :root:not([data-theme="light"]) dialog.xdlg::backdrop{background:rgba(0,0,0,.72)} }
+@media screen{ :root[data-theme="dark"] dialog.xdlg::backdrop{background:rgba(0,0,0,.72)} }
+/* a short fade and rise; none where motion is turned down */
+dialog.xdlg[open]{animation:xrise .16s ease-out} dialog.xdlg[open]::backdrop{animation:xfade .16s ease-out}
+@keyframes xrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes xfade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){ dialog.xdlg[open],dialog.xdlg[open]::backdrop{animation:none} }
+@media print{ dialog.xdlg{display:none!important} html.xlock{overflow:visible} }
 /* signaling: the same colour in the words and in the picture, with an underline style of its own */
 .xc{font-weight:700;border-bottom:2.5px solid;padding:0 1px}
 .xc1{color:var(--x1);border-color:var(--x1)}
